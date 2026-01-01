@@ -7,10 +7,8 @@
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; color: #333; }
     header, footer { background: #2a4d3d; color: white; text-align: center; padding: 1em 0; }
-    nav { background: #344e41; padding: 0.6em; overflow-x: auto; }
-    nav a { color: white; margin: 0 1em; text-decoration: none; font-weight: bold; display: inline-block; white-space: nowrap; }
-    nav { display: flex; justify-content: center; gap: 1em; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
-    nav a { margin: 0; }
+    nav { background: #344e41; text-align: center; padding: 0.6em; }
+    nav a { color: white; margin: 0 1em; text-decoration: none; font-weight: bold; }
     .hero { position: relative; height: 350px; }
     .hero img { width: 100%; height: 350px; object-fit: cover; opacity: 0.6; }
     .hero .title { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 2.2rem; text-shadow: 1px 1px 6px rgba(0,0,0,0.6); }
@@ -23,11 +21,6 @@
     .card-content { padding: 1em; }
     .card-content h3 { margin-top: 0; color: #2a4d3d; }
     footer { font-size: 0.9em; }
-    @media (max-width: 600px) {
-      nav { justify-content: flex-start; padding: 0.5em 0.75em; }
-      nav a { font-size: 0.95rem; }
-      .hero .title { font-size: 1.3rem; white-space: nowrap; overflow-x: auto; padding: 0 0.5rem; }
-    }
   </style>
 </head>
 <body>
@@ -39,12 +32,12 @@
   </header>
 
   <nav>
-    <a href="index.html">Home</a>
-    <a href="about/">About</a>
-    <a href="community/">Community</a>
-    <a href="businesses/">Businesses</a>
-    <a href="history/">History</a>
-    <a href="recreation/">Recreation</a>
+    <a href="/">Home</a>
+    <a href="/about/">About</a>
+    <a href="/community/">Community</a>
+    <a href="/businesses/">Businesses</a>
+    <a href="/history/">History</a>
+    <a href="/recreation/">Recreation</a>
   </nav>
 
   <!-- HERO + TOP IMAGE -->
@@ -71,25 +64,21 @@
       <h2 class="section-header">Featured Places</h2>
       <div class="cards">
 
-        <a class="card-link" href="https://www.fs.usda.gov/r06/fremont-winema/recreation/bly-ranger-district" target="_blank" rel="noopener noreferrer">
-          <div class="card">
-            <img src="assets/bly-ranger-station.jpg" alt="Historic Ranger Station">
-            <div class="card-content">
-              <h3>Bly Ranger Station</h3>
-              <p>Historic Forest Service station built by the Civilian Conservation Corps — now on the National Register of Historic Places.</p>
-            </div>
+        <div class="card">
+          <img src="assets/bly-ranger-station.jpg" alt="Historic Ranger Station">
+          <div class="card-content">
+            <h3>Bly Ranger Station</h3>
+            <p>Historic Forest Service station built by the Civilian Conservation Corps — now on the National Register of Historic Places.</p>
           </div>
-        </a>
+        </div>
 
-        <a class="card-link" href="https://grokipedia.com/page/Mitchell_Recreation_Area" target="_blank" rel="noopener noreferrer">
-          <div class="card">
-            <img src="assets/mitchell-monument.jpg" alt="Mitchell Monument Park">
-            <div class="card-content">
-              <h3>Mitchell Recreation Area</h3>
-              <p>Memorial & picnic site marking WWII history on the mainland U.S.</p>
-            </div>
+        <div class="card">
+          <img src="assets/mitchell-monument.jpg" alt="Mitchell Monument Park">
+          <div class="card-content">
+            <h3>Mitchell Monument Recreation Area</h3>
+            <p>Memorial & picnic site marking WWII history on the mainland U.S.</p>
           </div>
-        </a>
+        </div>
 
       </div>
     </section>
@@ -98,16 +87,6 @@
     <section>
       <h2 class="section-header">Recreation Highlights</h2>
       <div class="cards">
-
-        <a class="card-link" href="https://ruthobenchainrc.com" target="_blank" rel="noopener noreferrer">
-          <div class="card">
-            <img src="assets/rorchomeimage.jpg" alt="Ruth Obenchain Recreation Center">
-            <div class="card-content">
-              <h3>Ruth Obenchain Recreation Center</h3>
-              <p>A once-quiet community gym brought back to life. Memberships, open gym nights, and more.</p>
-            </div>
-          </div>
-        </a>
 
         <a class="card-link" href="https://stateparks.oregon.gov/index.cfm?do=park.profile&parkId=167" target="_blank" rel="noopener noreferrer">
           <div class="card">

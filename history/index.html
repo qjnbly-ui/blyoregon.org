@@ -3,151 +3,330 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coming Soon | Bly, Oregon</title>
+  <title>History of Bly, Oregon • Community Hub</title>
+  <meta name="description" content="History of Bly, Oregon: Indigenous roots, early ranching and settlement, timber and railroad era, CCC-built ranger station, WWII balloon bomb tragedy, and modern Bly." />
   <style>
-    :root {
-      --bg-1: #0f2c24;
-      --bg-2: #234d3c;
-      --bg-3: #e8d7b9;
-      --ink: #f7f2e8;
-      --accent: #ffb347;
-      --accent-2: #7dd3a8;
-      --card: rgba(11, 28, 22, 0.6);
-      --border: rgba(255, 255, 255, 0.18);
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.55; }
+    header, footer { background: #2a4d3d; color: white; text-align: center; padding: 1em 0; }
+    nav { background: #344e41; padding: 0.6em; overflow-x: auto; }
+    nav a { color: white; text-decoration: none; font-weight: bold; display: inline-block; white-space: nowrap; }
+    nav { display: flex; justify-content: center; gap: 1em; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+    .hero { position: relative; height: 280px; }
+    .hero img { width: 100%; height: 280px; object-fit: cover; opacity: 0.6; }
+    .hero .title { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 2.2rem; text-shadow: 1px 1px 6px rgba(0,0,0,0.6); }
+    .container { max-width: 1100px; margin: auto; padding: 1.5em; }
+    .section-header { border-bottom: 3px solid #2a4d3d; padding-bottom: 0.4em; margin: 1.2em 0 0.75em; color: #2a4d3d; }
+    .callout { background: #f9faf8; border: 1px solid #d8e0da; padding: 1em 1.25em; border-radius: 10px; }
+    .callout h3 { margin-top: 0; color: #2a4d3d; }
+    .muted { color: #556; }
+    .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 0.75em; }
+    .card { background: #fff; border: 1px solid #e3e8e3; border-radius: 12px; overflow: hidden; }
+    .card img { width: 100%; height: 190px; object-fit: cover; display: block; }
+    .card .cap { padding: 0.75em 0.9em; font-size: 0.95em; }
+    .card .cap a { color: #2a4d3d; text-decoration: none; font-weight: bold; }
+    .card .cap a:hover { text-decoration: underline; }
+    .sources { font-size: 0.98em; }
+    .sources li { margin-bottom: 0.5em; }
+    footer { font-size: 0.9em; }
+
+    @media (max-width: 900px) {
+      .gallery { grid-template-columns: repeat(2, 1fr); }
     }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: "Trebuchet MS", "Gill Sans", Verdana, sans-serif;
-      color: var(--ink);
-      background: radial-gradient(circle at 20% 20%, rgba(255, 179, 71, 0.25), transparent 45%),
-        radial-gradient(circle at 80% 10%, rgba(125, 211, 168, 0.25), transparent 40%),
-        linear-gradient(135deg, var(--bg-1), var(--bg-2) 55%, #18382b);
-      overflow: hidden;
-    }
-
-    body::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.04),
-        rgba(255, 255, 255, 0.04) 2px,
-        transparent 2px,
-        transparent 12px
-      );
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .wrap {
-      position: relative;
-      z-index: 1;
-      padding: 2.5rem;
-      width: min(720px, 90vw);
-      border-radius: 22px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(8px);
-      animation: floatIn 0.9s ease-out forwards;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.35rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: rgba(255, 179, 71, 0.2);
-      color: var(--accent);
-      border: 1px solid rgba(255, 179, 71, 0.4);
-    }
-
-    h1 {
-      font-size: clamp(2.2rem, 4vw, 3.4rem);
-      margin: 1rem 0 0.5rem;
-      letter-spacing: 0.02em;
-    }
-
-    p {
-      margin: 0.6rem 0;
-      font-size: 1.05rem;
-      color: rgba(255, 255, 255, 0.85);
-      line-height: 1.6;
-    }
-
-    .callout {
-      margin-top: 1.5rem;
-      padding: 1rem 1.25rem;
-      border-left: 3px solid var(--accent-2);
-      background: rgba(125, 211, 168, 0.12);
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .contact {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--accent-2);
-    }
-
-    .home-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 1.75rem;
-      padding: 0.7rem 1.4rem;
-      border-radius: 999px;
-      background: rgba(255, 179, 71, 0.2);
-      border: 1px solid rgba(255, 179, 71, 0.6);
-      color: var(--accent);
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .home-btn:hover {
-      background: rgba(255, 179, 71, 0.32);
-    }
-
-    footer {
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    @keyframes floatIn {
-      from { transform: translateY(18px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    @media (max-width: 600px) {
+      nav { justify-content: flex-start; padding: 0.5em 0.75em; }
+      nav a { font-size: 0.95rem; }
+      .hero { height: 220px; }
+      .hero img { height: 220px; }
+      .hero .title { font-size: 1.3rem; white-space: nowrap; overflow-x: auto; padding: 0 0.5rem; }
+      .gallery { grid-template-columns: 1fr; }
+      .card img { height: 200px; }
     }
   </style>
 </head>
 <body>
-  <main class="wrap" role="main">
-    <span class="badge">Under Construction</span>
-    <h1>Page Coming Soon</h1>
-    <p>We're building something special for Bly, Oregon. Check back soon for updates.</p>
-    <p>A place for historical documents and photos to be shared and preserved.</p>
-    <div class="callout">
-      <p>Questions? Reach out at <a class="contact" href="mailto:quentin@quentinnichols.com">quentin@quentinnichols.com</a>.</p>
-    </div>
-    <a class="home-btn" href="/">Return to Home</a>
-    <footer>Developed by Quentin Nichols</footer>
+
+  <!-- HEADER + NAV -->
+  <header>
+    <h1>Bly, Oregon</h1>
+    <p>A Community in Klamath County</p>
+  </header>
+
+  <nav>
+    <a href="/">Home</a>
+    <a href="/about/">About</a>
+    <a href="/community/">Community</a>
+    <a href="/businesses/">Businesses</a>
+    <a href="/history/">History</a>
+    <a href="/recreation/">Recreation</a>
+  </nav>
+
+  <!-- HERO + TOP IMAGE -->
+  <section class="hero">
+    <img src="../assets/mitchell-monument.jpg" alt="Mitchell Monument Recreation Area">
+    <div class="title">History of Bly</div>
+  </section>
+
+  <main class="container">
+
+    <section>
+      <h2 class="section-header">Indigenous Heritage and Early Exploration</h2>
+      <p>
+        The Bly area lies in the Upper Sprague River Valley, a region inhabited for millennia by Native peoples. The Klamath Tribes – a confederation
+        of Klamath, Modoc, and Yahooskin Paiute – traditionally lived throughout the Klamath Basin, including the uplands of the Sprague River Valley.
+        In their language, the Sprague River was called Plaikni Koke ("upper river"), often shortened to Plai, indicating a stream coming from the
+        high country. This reflects the valley’s geography, as the Sprague’s two forks rise on the slopes of Gearhart Mountain northeast of present-day
+        Bly. For countless generations, Native people hunted, fished, and gathered in this rich watershed; even today the Klamath celebrate the spring
+        Return of c’waam (sucker fish) in the Sprague River, an ancient tradition tied to the Creator’s provision. Prior to American settlement, bands
+        of “Snake Indians” (likely Northern Paiute) also ranged through the Upper Sprague Valley, and the area may have been a borderland between tribal
+        groups.
+      </p>
+      <div class="callout">
+        <h3>Why the name matters</h3>
+        <p style="margin-bottom:0;">
+          The “upper country” idea shows up again and again in Bly’s history: higher-elevation meadows and creeks feeding the Sprague, seasonal movement,
+          and later—roads, rail, timber harvest, and recreation radiating out into the forested uplands.
+        </p>
+      </div>
+      <p>
+        From the early 19th century, European-American explorers and fur traders entered Klamath lands. In fall 1826, Hudson’s Bay Company trappers
+        under Finan McDonald and Thomas McKay reached as far south as the confluence of the Sprague and Williamson rivers near present-day Chiloquin.
+        That December, famed HBC trapper Peter Skene Ogden likewise came into the Klamath Basin and likely sent men up the Sprague River in search of
+        beaver. U.S. Army expeditions also passed nearby: in 1843 John C. Frémont skirted the region via Klamath Marsh and Summer Lake, and in 1846
+        Frémont (guided by Kit Carson) circled Upper Klamath Lake and skirmished with Klamath warriors along the Williamson River. These early incursions
+        set the stage for later U.S. influence, but through the mid-1800s the Sprague River country remained predominantly under Native control. The Treaty
+        of 1864 established the Klamath Reservation to the west; tribal leaders contended that the Sprague River Valley should have been included in their
+        reserve, but a government survey in 1870 excluded the upper valley (the area of present-day Bly) from the reservation. This opened the way for
+        non-Indian settlers to move in, often to the detriment of local tribes.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-header">Settlement and Community Formation in the 19th Century</h2>
+      <p>
+        Permanent European-American settlement in what became Bly began around the early 1870s. Prior to that, the region was very remote – it was
+        initially part of Jackson County, then Lake County, before Klamath County’s creation in 1882. One of the first known settlers was John Gearhart,
+        a cattleman who arrived in the early 1870s. In 1873, Gearhart applied for a U.S. post office to be located in his home, calling it “Sprague River”
+        and noting there was “no village yet” (he optimistically expected to serve 100 patrons). That Sprague River Post Office was approved in 1873,
+        marking the formal founding of a community. A small hamlet gradually took root to serve ranchers in the valley.
+      </p>
+      <p>
+        In 1882, when Klamath County was carved out of Lake County, local officials decided to rename the settlement “Bly,” after a Klamath Indian word
+        p’lai meaning “up” or “high,” a nod to its location near the upper reaches of the Sprague River. The post office name officially changed to Bly in
+        January 1883, with Elizabeth Lofton recorded as the postmaster of the newly named office. Notably, Bly’s location was near the eastern boundary of
+        the Klamath Reservation at the time, and occasional conflicts flared between newcomers and Native residents.
+      </p>
+      <p>
+        By the 1890s, the community had begun to establish itself. Bly’s economy was first built on livestock ranching and hay production, taking advantage
+        of the valley’s lush meadows. The Owen, Garrett, Casebeer, Reed, and Obenchain families were among those who settled in the area in the late 19th
+        century. In 1890, the population of the fledgling settlement was recorded at 119, growing to 145 by 1900. A contemporary observer in 1905 described
+        “Bly Precinct” as a thriving ranching community of roughly 750 people in the broader valley. At that time Bly boasted two general stores, two hotels,
+        a saloon, and a livery stable, indicating its role as a frontier service center.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-header">Early Economy: Ranching, Farming, and Frontier Life</h2>
+      <p>
+        Well into the early 20th century, ranching remained the backbone of Bly’s economy. The broad valley provided excellent summer pasture, and irrigation
+        from the Sprague and Fish Hole Creek supported hay fields. Seasonal cycles of cattle and sheep grazing defined life for many residents. The community’s
+        Native name (“high/up river”) was apt – Bly sits at about 4,360 feet elevation in a transitional zone between forest and high desert. The climate
+        features warm, dry summers and cold winters, a warm-summer Mediterranean pattern (Köppen Csb) with no month averaging above 22°C.
+      </p>
+      <p>
+        Early schools operated only in milder months; an informal log-cabin school existed by 1873, holding classes in summer because winter travel was too
+        difficult. The harsh climate produced some dramatic tales – local lore recalls a prospector named D. Goldberg who became snowbound alone in a cabin
+        one winter and left behind a poignant letter describing his slow starvation before rescuers arrived in the spring.
+      </p>
+      <p>
+        Despite challenges, the community slowly developed civic amenities. By 1910, Bly built a “handsome new school” to serve local children. That wood-frame
+        schoolhouse tragically burned down in 1932, but it was rebuilt the same year, and the attached 1928 gymnasium survived the fire (that historic gym is
+        still in use today). Church life also emerged: a Christian and Missionary Alliance congregation was active by the 1930s, with a modest white chapel that
+        remains a landmark.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-header">Timber Boom and the Coming of the Railroad</h2>
+      <p>
+        In the 1920s, Bly’s trajectory changed dramatically with the rise of the timber industry. The valley is surrounded by vast pine forests – part of the
+        Fremont National Forest (established 1908) – and for decades that timber was largely untapped. Around 1928, major lumber companies began logging east
+        Klamath County on a large scale. Logging camps sprang up, and investors looked to build a railroad to haul logs and lumber. The result was the Oregon,
+        California and Eastern Railway (OC&amp;E), a 64-mile rail line constructed in stages from Klamath Falls toward Bly. By 1927 the line was completed into
+        Bly, and in 1928–29 Bly got a “fine new depot” along with a reliable rail link to Klamath Falls.
+      </p>
+      <p>
+        With rail access, timber became king. The OC&amp;E was built almost entirely for logging traffic – by the 1930s, trains were hauling thousands of
+        carloads of logs annually out of Bly’s forests. Multiple sawmills operated in or near Bly. Logging camps, spur lines, and company housing appeared
+        across the region, and Bly became a hub for the surrounding timber economy.
+      </p>
+      <p>
+        In 1935, the U.S. Forest Service established a permanent presence, selecting Bly as headquarters for a new Ranger District to manage the western
+        Fremont Forest. The Forest Service acquired a 4-acre parcel in town for $625, and beginning in 1936 the Civilian Conservation Corps (CCC) built the
+        Bly Ranger Station complex on that site. Seven rustic log-and-stone buildings were constructed between 1936 and 1942. The ranger station compound
+        remains a centerpiece of Bly and is listed on the National Register of Historic Places (added 1981).
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-header">World War II Tragedy: The Balloon Bomb Incident</h2>
+      <p>
+        Despite its remote location, Bly gained unwelcome national attention during World War II as the site of the only enemy-caused fatalities in the
+        continental United States. In late 1944, Japan launched Fu-Go balloon bombs designed to ride the jet stream across the Pacific and cause fires or
+        panic. On May 5, 1945, one of these bombs exploded in the woods northeast of Bly. The blast killed Elsie Mitchell (26) and five children from a
+        Sunday school picnic group. The Mitchell Monument now marks the site; a stone memorial with a bronze plaque was dedicated in 1950, and the site
+        was added to the National Register of Historic Places in 2003.
+      </p>
+      <p>
+        The tragedy left a lasting mark on the community and later sparked acts of reconciliation. In 1985, Japanese women who had helped build the paper
+        balloons sent 1,000 paper cranes and letters of apology. In 1995, on the 50th anniversary, a memorial ceremony drew hundreds of attendees, and
+        cherry trees were planted as gestures of peace.
+      </p>
+      <div class="callout">
+        <h3>Why it remains unique</h3>
+        <p style="margin-bottom:0;">
+          This is the only confirmed location in the continental United States where civilians were killed by enemy action during World War II.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-header">Postwar Developments and Economic Change</h2>
+      <p>
+        After World War II, Bly’s timber-driven boom began to ebb. The Klamath Tribes’ reservation was terminated in 1954, and large portions of former
+        reservation forest were transferred to the U.S. government. In the early 1960s, about half a million acres were purchased and reconstituted as the
+        Winema National Forest, later merged with Fremont National Forest in 2002. Bly remained the district headquarters for the combined forest’s Bly
+        Ranger District, but management priorities gradually shifted toward multiple-use and habitat conservation.
+      </p>
+      <p>
+        On the industrial front, Bly’s sawmills saw consolidation and closure. Weyerhaeuser purchased the main mill in 1970 and later shut it down in 1984.
+        The last log train left Bly in 1990, and the OC&amp;E railroad corridor was railbanked and converted into the OC&amp;E Woods Line State Trail, now Oregon’s
+        longest linear park.
+      </p>
+      <p>
+        These changes reshaped the community. Bly’s population peaked around the mid-20th century and then steadily declined. Census figures show a drop
+        from about 486 in 2000 to 207 in 2020. Ranching continues on a modest scale, with seasonal Forest Service and recreation work providing additional
+        employment.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-header">Community and Culture in the 21st Century</h2>
+      <p>
+        Bly is a quiet, close-knit community that takes pride in its history and natural setting. As an unincorporated town, it has no formal city government
+        or council; local issues are often addressed by volunteer community groups. Annual events, holiday bazaars, and volunteer fire and church groups form
+        the social backbone.
+      </p>
+      <p>
+        The historic Standing Stone Church (formerly the Christian &amp; Missionary Alliance chapel) suffered a major fire in early 2025 (Wednesday, Jan. 29). The building was a
+        complete loss and the community is currently rebuilding it with support from locals and volunteers.
+      </p>
+      <div class="callout">
+        <h3>Standing Stone Church fire</h3>
+        <p style="margin-bottom:0;">
+          The fire occurred in early 2025 (Wednesday, Jan. 29). Rebuilding efforts are ongoing with local and volunteer support.
+        </p>
+      </div>
+      <p>
+        Bly continues to face modern challenges of rural life, including limited jobs and long distances to services, yet its residents remain resilient.
+        The community’s identity is rooted in ranching, timber history, and a deep connection to the surrounding land.
+      </p>
+    </section>
+
+    <section class="callout">
+      <h3>Timeline (Expanded)</h3>
+      <ul>
+        <li><strong>Pre-contact:</strong> Upper Sprague River corridor is an Indigenous homeland and travel region.</li>
+        <li><strong>1826:</strong> Hudson’s Bay Company trappers reach the Sprague and Williamson rivers.</li>
+        <li><strong>1873:</strong> Post office established in the area.</li>
+        <li><strong>1883:</strong> Post office renamed “Bly.”</li>
+        <li><strong>1920s:</strong> Railroad + lumber era rises in importance.</li>
+        <li><strong>1936–1942:</strong> CCC crews construct the Bly Ranger Station complex.</li>
+        <li><strong>May 5, 1945:</strong> Fu-Go balloon bomb kills six civilians near Gearhart Mountain.</li>
+        <li><strong>1950:</strong> Mitchell Recreation Area dedicated as a commemorative recreation site.</li>
+        <li><strong>1981:</strong> Bly Ranger Station listed on the National Register of Historic Places.</li>
+        <li><strong>2003:</strong> Mitchell Recreation Area added to the National Register of Historic Places.</li>
+        <li><strong>2021:</strong> Bootleg Fire impacts the Woods Line spur trestle.</li>
+        <li><strong>2025:</strong> Standing Stone Church fire; rebuilding underway.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="section-header">Historic Image Links (Free-to-Use)</h2>
+      <p class="muted" style="margin-top:-0.3em;">
+        These are Wikimedia Commons images with open licenses. You can replace your page images with these, or use them as a small gallery.
+      </p>
+
+      <div class="gallery">
+        <div class="card">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Bly%20RS%20asst%20ranger%20residence%20-%20Bly%20Oregon.jpg?width=1400" alt="Bly Ranger Station - Assistant Ranger's Residence (built 1937)">
+          <div class="cap">
+            <a href="https://commons.wikimedia.org/wiki/File:Bly_RS_asst_ranger_residence_-_Bly_Oregon.jpg" target="_blank" rel="noopener noreferrer">
+              Bly Ranger Station (Assistant Ranger’s Residence)
+            </a><br>
+            <span class="muted">Built 1937 • CCC-era Forest Service architecture</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Bly%20CMA%20Church.jpg?width=1400" alt="Standing Stone Church (formerly Bly CMA Church)">
+          <div class="cap">
+            <a href="https://commons.wikimedia.org/wiki/File:Bly_CMA_Church.jpg" target="_blank" rel="noopener noreferrer">
+              Standing Stone Church (Bly)
+            </a><br>
+            <span class="muted">Connected to the 1945 church picnic group history</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Mitchell%20Monument,%20Bly,%20Oregon%20(6149865447).jpg?width=1400" alt="Mitchell Monument, Bly, Oregon">
+          <div class="cap">
+            <a href="https://commons.wikimedia.org/wiki/File:Mitchell_Monument,_Bly,_Oregon_(6149865447).jpg" target="_blank" rel="noopener noreferrer">
+              Mitchell Monument, Bly, Oregon
+            </a><br>
+            <span class="muted">Mitchell Recreation Area / Documentary Site</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <img src="https://bloximages.chicago2.vip.townnews.com/heraldandnews.com/content/tncms/assets/v3/editorial/b/f1/bf114950-e32a-11ef-a891-2f28e06c821a/67a264e36b0be.image.jpg" alt="Standing Stone Church fire aftermath">
+          <div class="cap">
+            <a href="https://www.heraldandnews.com/news/standing-stone-church-in-bly-destroyed-in-fire/article_6c9465cc-e000-11ef-9f15-bf27a43f774d.html" target="_blank" rel="noopener noreferrer">
+              Standing Stone Church fire (2025)
+            </a><br>
+            <span class="muted">Photo from Herald and News</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-header">Sources</h2>
+      <ul class="sources">
+        <li>Klamath County Historical Society, <em>Klamath Echoes No. 12: Sprague River–Bly</em> (1974).</li>
+        <li>The Klamath Tribes, “Our History” (klamathtribes.org).</li>
+        <li>City of Bly, Oregon – Historical Overview (oregoncities.us).</li>
+        <li>McArthur, <em>Oregon Geographic Names</em>, 7th ed. (2003), p. 94.</li>
+        <li>F.A. Shaver et al., <em>An Illustrated History of Central Oregon</em> (1905), p. 982.</li>
+        <li>Wikipedia: “Bly, Oregon”; “Oregon, California and Eastern Railway”; “Bly Ranger Station.”</li>
+        <li>Oregon State Parks, “OC&amp;E Woods Line State Trail” (Trail Guide, 2013).</li>
+        <li>Oregon Encyclopedia (Oregon Historical Society), Lee Juillerat, “Balloon Bombs” (2004).</li>
+        <li>Herald and News (Klamath Falls), “Japanese balloon bomb killed six 60 years ago today” (May 5, 2005).</li>
+        <li>Warfare History Network, Steve Dykes, “Project Fu-Go: Japan’s Balloon Bombs” (2019).</li>
+        <li>Oregon History Project, Stephen Most, “A Forest Named Winema” (2003/2014).</li>
+        <li>Lake County Round-Up history (lakecountyroundup.org).</li>
+        <li>Bootleg Fire overview – ArcGIS StoryMaps (2021).</li>
+        <li>Fremont-Winema National Forest – Mitchell Monument site info (USDA Forest Service, 2025).</li>
+        <li>Wikimedia Commons (public domain images): Standing Stone (Bly C&amp;MA) Church; Bly Ranger Station residence.</li>
+        <li>Herald and News photo: Standing Stone Church fire (2025).</li>
+      </ul>
+    </section>
+
   </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
 </body>
 </html>

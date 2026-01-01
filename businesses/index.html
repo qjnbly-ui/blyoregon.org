@@ -3,151 +3,615 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coming Soon | Bly, Oregon</title>
+  <title>Businesses • Bly, Oregon</title>
+  <meta name="description" content="Local businesses and services in Bly, Oregon. Listings include contact details, addresses, and links." />
   <style>
-    :root {
-      --bg-1: #0f2c24;
-      --bg-2: #234d3c;
-      --bg-3: #e8d7b9;
-      --ink: #f7f2e8;
-      --accent: #ffb347;
-      --accent-2: #7dd3a8;
-      --card: rgba(11, 28, 22, 0.6);
-      --border: rgba(255, 255, 255, 0.18);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: "Trebuchet MS", "Gill Sans", Verdana, sans-serif;
-      color: var(--ink);
-      background: radial-gradient(circle at 20% 20%, rgba(255, 179, 71, 0.25), transparent 45%),
-        radial-gradient(circle at 80% 10%, rgba(125, 211, 168, 0.25), transparent 40%),
-        linear-gradient(135deg, var(--bg-1), var(--bg-2) 55%, #18382b);
-      overflow: hidden;
-    }
-
-    body::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.04),
-        rgba(255, 255, 255, 0.04) 2px,
-        transparent 2px,
-        transparent 12px
-      );
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .wrap {
-      position: relative;
-      z-index: 1;
-      padding: 2.5rem;
-      width: min(720px, 90vw);
-      border-radius: 22px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(8px);
-      animation: floatIn 0.9s ease-out forwards;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.35rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: rgba(255, 179, 71, 0.2);
-      color: var(--accent);
-      border: 1px solid rgba(255, 179, 71, 0.4);
-    }
-
-    h1 {
-      font-size: clamp(2.2rem, 4vw, 3.4rem);
-      margin: 1rem 0 0.5rem;
-      letter-spacing: 0.02em;
-    }
-
-    p {
-      margin: 0.6rem 0;
-      font-size: 1.05rem;
-      color: rgba(255, 255, 255, 0.85);
-      line-height: 1.6;
-    }
-
-    .callout {
-      margin-top: 1.5rem;
-      padding: 1rem 1.25rem;
-      border-left: 3px solid var(--accent-2);
-      background: rgba(125, 211, 168, 0.12);
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .contact {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--accent-2);
-    }
-
-    .home-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 1.75rem;
-      padding: 0.7rem 1.4rem;
-      border-radius: 999px;
-      background: rgba(255, 179, 71, 0.2);
-      border: 1px solid rgba(255, 179, 71, 0.6);
-      color: var(--accent);
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .home-btn:hover {
-      background: rgba(255, 179, 71, 0.32);
-    }
-
-    footer {
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    @keyframes floatIn {
-      from { transform: translateY(18px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; color: #333; }
+    header, footer { background: #2a4d3d; color: white; text-align: center; padding: 1em 0; }
+    nav { background: #344e41; padding: 0.6em; overflow-x: auto; }
+    nav a { color: white; text-decoration: none; font-weight: bold; display: inline-block; white-space: nowrap; }
+    nav { display: flex; justify-content: center; gap: 1em; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+    .hero { position: relative; height: 280px; }
+    .hero img { width: 100%; height: 280px; object-fit: cover; opacity: 0.6; }
+    .hero .title { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 2.2rem; text-shadow: 1px 1px 6px rgba(0,0,0,0.6); }
+    .container { max-width: 1100px; margin: auto; padding: 1.5em; }
+    .section-header { border-bottom: 3px solid #2a4d3d; padding-bottom: 0.4em; margin-bottom: 1em; color: #2a4d3d; }
+    .biz-grid { display: flex; flex-wrap: wrap; gap: 1em; }
+    .biz-card { flex: 1 1 320px; border: 1px solid #ccc; border-radius: 8px; overflow: hidden; box-shadow: 2px 2px 6px rgba(0,0,0,0.1); background: #fff; }
+    .biz-card img { width: 100%; height: 180px; object-fit: cover; }
+    .biz-card img.logo { object-fit: contain; background: #fff; }
+    .biz-content { padding: 1em; }
+    .biz-content h3 { margin-top: 0; color: #2a4d3d; }
+    .biz-content p { margin: 0.6em 0; }
+    .biz-meta { list-style: none; padding: 0; margin: 0.8em 0 0; }
+    .biz-meta li { margin: 0.25em 0; }
+    .biz-link { display: inline-block; margin-top: 0.6em; color: #2a4d3d; font-weight: bold; text-decoration: none; }
+    .cta { background: #f4f6f3; border-left: 4px solid #2a4d3d; padding: 1em 1.25em; margin-top: 1.5em; }
+    .category { margin-top: 2.25rem; }
+    .category h2 { margin: 0 0 0.75rem; color: #2a4d3d; border-bottom: 2px solid #2a4d3d; padding-bottom: 0.35rem; }
+    .category p.note { margin: 0.25rem 0 1rem; color: #555; }
+    .pill { display: inline-block; font-size: 0.78rem; padding: 0.2rem 0.5rem; border: 1px solid #cfd6cf; border-radius: 999px; background: #f4f6f3; color: #2a4d3d; margin-left: 0.5rem; }
+    footer { font-size: 0.9em; }
+    @media (max-width: 600px) {
+      nav { justify-content: flex-start; padding: 0.5em 0.75em; }
+      nav a { font-size: 0.95rem; }
+      .hero { height: 220px; }
+      .hero img { height: 220px; }
+      .hero .title { font-size: 1.3rem; white-space: nowrap; overflow-x: auto; padding: 0 0.5rem; }
     }
   </style>
 </head>
 <body>
-  <main class="wrap" role="main">
-    <span class="badge">Under Construction</span>
-    <h1>Page Coming Soon</h1>
-    <p>We're building something special for Bly, Oregon. Check back soon for updates.</p>
-    <p>A place where all local businesses can equally advertise.</p>
-    <div class="callout">
-      <p>Questions? Reach out at <a class="contact" href="mailto:quentin@quentinnichols.com">quentin@quentinnichols.com</a>.</p>
-    </div>
-    <a class="home-btn" href="/">Return to Home</a>
-    <footer>Developed by Quentin Nichols</footer>
+
+  <!-- HEADER + NAV -->
+  <header>
+    <h1>Bly, Oregon</h1>
+    <p>A Community in Klamath County</p>
+  </header>
+
+  <nav>
+    <a href="/">Home</a>
+    <a href="/about/">About</a>
+    <a href="/community/">Community</a>
+    <a href="/businesses/">Businesses</a>
+    <a href="/history/">History</a>
+    <a href="/recreation/">Recreation</a>
+  </nav>
+
+  <!-- HERO + TOP IMAGE -->
+  <section class="hero">
+    <img src="../assets/woods-line-trail.jpg" alt="Bly Oregon Landscape">
+    <div class="title">Local Businesses</div>
+  </section>
+
+  <main class="container">
+    <section>
+      <h2 class="section-header">Business Directory</h2>
+      <p>
+        A place where all local businesses and services can equally advertise.
+      </p>
+
+      <!-- COMMUNITY + GOVERNMENT -->
+      <div class="category" id="community-government">
+        <h2>Community & Government</h2>
+        <div class="biz-grid">
+
+          <article class="biz-card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Forest_Service_logo.png/600px-Forest_Service_logo.png" alt="U.S. Forest Service" class="logo">
+            <div class="biz-content">
+              <h3>Bly Ranger District (Forest Service)</h3>
+              <p>District office for recreation info, permits, and forest resources in the Bly area.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> Highway 140, P.O. Box 25, Bly, OR 97622</li>
+                <li><strong>Phone:</strong> (541) 353-2427</li>
+                <li><strong>Hours:</strong> Mon–Fri, 7:45 am–4:30 pm (closed holidays)</li>
+                <li><strong>Website:</strong> fs.usda.gov</li>
+              </ul>
+              <a class="biz-link" href="https://www.fs.usda.gov/r06/fremont-winema/recreation/bly-ranger-district" target="_blank" rel="noopener noreferrer">Visit Website</a>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="../assets/blycatlogo.png" alt="Bly Community Action Team" class="logo">
+            <div class="biz-content">
+              <h3>Bly Community Action Team</h3>
+              <p>Local community group supporting events and projects in Bly.</p>
+              <ul class="biz-meta">
+                <li><strong>Mailing Address:</strong> P.O. Box 483, Bly, OR 97622</li>
+                <li><strong>Phone:</strong> (541) 891-4661</li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="https://www.facebook.com/blyoregon/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="../assets/BLYRFPDlogo.png" alt="Bly Fire Department" class="logo">
+            <div class="biz-content">
+              <h3>Bly Fire Department</h3>
+              <p>Emergency services for the Bly area.</p>
+              <ul class="biz-meta">
+                <li><strong>Emergency:</strong> Call 9-1-1</li>
+                <li><strong>Phone:</strong> (541) 205-9260</li>
+                <li><strong>Fire Chief:</strong> Bruce Nichols</li>
+                <li><strong>Email:</strong> <a href="mailto:bruce.nichols@blyrfpd.com">bruce.nichols@blyrfpd.com</a></li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="https://www.facebook.com/groups/501603116688599/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+
+          
+          <article class="biz-card">
+            <img src="../assets/United-States-Postal-Service-Logo.png" alt="United States Postal Service" class="logo">
+            <div class="biz-content">
+              <h3>United States Postal Service (Bly)</h3>
+              <p>Postal services for Bly.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 61133 OR-140, Bly, OR 97622</li>
+                <li><strong>Website:</strong> usps.com</li>
+              </ul>
+              <a class="biz-link" href="https://tools.usps.com/locations/details/1355296" target="_blank" rel="noopener noreferrer">Find on USPS</a>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="https://klamathlibrary.org/sites/default/files/images/Bly2015-1.jpg" alt="Bly Branch Library">
+            <div class="biz-content">
+              <h3>Bly Branch Library</h3>
+              <p>Public library branch serving Bly.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 61100 Metler St, Bly, OR 97622</li>
+                <li><strong>Phone:</strong> (541) 353-2299</li>
+                <li><strong>Website:</strong> klamathlibrary.org</li>
+              </ul>
+              <a class="biz-link" href="https://klamathlibrary.org/bly-branch" target="_blank" rel="noopener noreferrer">Visit Website</a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- FOOD + DRINK -->
+      <div class="category" id="food-drink">
+        <h2>Food & Drink</h2>
+        <div class="biz-grid">
+
+          <article class="biz-card">
+            <img src="https://s3-media0.fl.yelpcdn.com/bphoto/6XYY0QTzt4ixhiV1auRyzA/l.jpg" alt="Palomino Deli & Mini Mart">
+            <div class="biz-content">
+              <h3>Palomino Deli & Mini Mart</h3>
+              <p>Deli and mini-mart (Oregon Lottery). Open 7 days a week.</p>
+              <ul class="biz-meta">
+                <li><strong>City:</strong> Beatty, OR</li>
+                <li><strong>Phone:</strong> (541) 533-2411</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="https://scontent-sjc6-1.xx.fbcdn.net/v/t39.30808-6/539366393_1349739067152267_8879539852153964718_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=FxkPdhpusN4Q7kNvwEYxdox&_nc_oc=AdnX8yECb1MyyQrZYQpQ5sG2HJ3OXR34cTgVJ6E8SijADxKCpbcEL-QJ_kt2sSbimUE&_nc_zt=23&_nc_ht=scontent-sjc6-1.xx&_nc_gid=WKnC56Z2fAnznTz10v9Leg&oh=00_Afpu77rKzRtdRfD3z37DxRHdSrK-5_OwNuqiQBaC3OLjdg&oe=695CC26C" alt="The Breadwagon">
+            <div class="biz-content">
+              <h3>The Breadwagon</h3>
+              <p>Local favorite for food in the Bly area. Also offers Gearhart Sugar Shack and The Breadwagon mobile concessions and catering.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 61435 OR-140, Bly, OR 97622</li>
+                <li><strong>Phone:</strong> (541) 591-0035</li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="https://www.facebook.com/thebreadwagon/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="https://scontent-sjc3-1.xx.fbcdn.net/v/t39.30808-6/504391471_10223120831528621_7224831346706148043_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=102&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=7vM_izkC81YQ7kNvwHQjDwa&_nc_oc=AdlZkzwEYgc9gKG16-OEifiwYBPZts24vlu1tzhTyggP8W71V_I58gyL7J1cSmBrw2D7CJpuiPdqTCfq2A-aWqlh&_nc_zt=23&_nc_ht=scontent-sjc3-1.xx&_nc_gid=VxcRaGZ4kld9aveYxcO8FQ&oh=00_AfqT936to1NqsRJMy6GEQddwiDg9k2Mczphj6wFB8kHASQ&oe=695CADC9" alt="Sycan Store">
+            <div class="biz-content">
+              <h3>Sycan Store</h3>
+              <p>Groceries, liquor, and more.</p>
+              <ul class="biz-meta">
+                <li><strong>Phone:</strong> (541) 353-2271</li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="https://www.facebook.com/profile.php?id=61560008241304" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="https://scontent-sjc3-1.xx.fbcdn.net/v/t39.30808-6/310434515_516558047143691_4421116305606364330_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=H9iOfwnB4UcQ7kNvwEq29W9&_nc_oc=AdnCuyFf8HjlypVx2B0fHHx-XUO-AUeKxn8-g1FXYhda5__HyEkk3XA8huiqfL4Yi4t5EPhVDAAtiXJDGCGT-Q68&_nc_zt=23&_nc_ht=scontent-sjc3-1.xx&_nc_gid=cyFSOMkCtBV9bjdg6pSAng&oh=00_AfoQOJSoGabZlijDr8wSmH29-5PRKM2bkYzBeQ8O_fQT5g&oe=695CBF0D" alt="Rustic Rain" class="logo">
+            <div class="biz-content">
+              <h3>Rustic Rain</h3>
+              <p>Handcrafted goods and rustic decor by Chrissy Holgate.</p>
+              <ul class="biz-meta">
+                <li><strong>Contact:</strong> Chrissy Holgate</li>
+                <li><strong>Phone:</strong> (541) 891-2568</li>
+                <li><strong>Email:</strong> <a href="mailto:rusticrain@hotmail.com">rusticrain@hotmail.com</a></li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="https://www.facebook.com/rusticrain78/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- SHOPPING -->
+      <div class="category" id="shopping">
+        <h2>Shopping</h2>
+        <div class="biz-grid">
+
+          <article class="biz-card">
+            <img src="../assets/RunningWEnterpriseslogo.png" alt="The Bly Outdoor Store" class="logo">
+            <div class="biz-content">
+              <h3>The Bly Outdoor Store</h3>
+              <p>Outdoor store in the Bly area (Running W Enterprises LLC). Country crafts also listed at this location.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 61556 Hwy 140E, Bly, OR 97622</li>
+                <li><strong>Hours:</strong> Tue–Sat, 9–5 (closed Sun & Mon)</li>
+                <li><strong>Phone:</strong> (541) 326-6047</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="https://scontent-sjc6-1.xx.fbcdn.net/v/t39.30808-6/476784028_642738581615997_1029712465214009967_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=yeHk0HApJpcQ7kNvwGZpPJx&_nc_oc=Adl8viHAILZ-HNl0AgjLYc7QDWZXsRr7q113Wjx5FISaFUSnXphP3JsxxeY3cS5-hhc&_nc_zt=23&_nc_ht=scontent-sjc6-1.xx&_nc_gid=2wBzc3T2WkAQDL1tRiMXXQ&oh=00_Afohwu7dVMXU5ucqgV_-Mqncryss3Q_qlSxQfvySqKOVJw&oe=695CE160" alt="Main Street Mercantile">
+            <div class="biz-content">
+              <h3>Main Street Mercantile</h3>
+              <p>Gifts, home décor, and more.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 19311 Main Ave, Bly, OR 97622</li>
+                <li><strong>Phone:</strong> (541) 591-0035</li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="https://www.facebook.com/mainstreetmercantilebly/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- SERVICES + TRADES -->
+      <div class="category" id="services-trades">
+        <h2>Services & Trades</h2>
+        <div class="biz-grid">
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Country Crafts">
+            <div class="biz-content">
+              <h3>Country Crafts</h3>
+              <p>Need sewing done: patching, repair, resizing, or make what you need.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 61556 Hwy 140E #442, Bly, OR 97622</li>
+                <li><strong>Contact:</strong> Tess Wilson</li>
+                <li><strong>Cell:</strong> (541) 944-1503</li>
+                <li><strong>Store:</strong> (541) 326-6047</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Delta-S Designs">
+            <div class="biz-content">
+              <h3>Delta-S Designs</h3>
+              <p>Custom bags & covers, clipper blades sharpened, horse blankets cleaned & repaired, and more.</p>
+              <ul class="biz-meta">
+                <li><strong>Phone:</strong> (541) 810-3070</li>
+                <li><strong>Email:</strong> Ann@delta-s.net</li>
+                <li><strong>Website:</strong> delta-s.net (currently not working)</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Grant Plumbing">
+            <div class="biz-content">
+              <h3>Grant Plumbing</h3>
+              <p>Plumbing services.</p>
+              <ul class="biz-meta">
+                <li><strong>Phone:</strong> (541) 281-9819</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="https://scontent-sjc3-1.xx.fbcdn.net/v/t39.30808-6/472172959_473468839123856_1874466638319903793_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=lv-l3UDf8LQQ7kNvwEhSkMm&_nc_oc=AdkIRmR0_bqda-OKz9akGJilcOiJ8NGEcQuncUA44FCp_HxIJZQFTdl1-ms0aRbD8bAIMpqljzSjJFOIkoxeVhYd&_nc_zt=23&_nc_ht=scontent-sjc3-1.xx&_nc_gid=KoEGDTfIgv-DPdwmtQl2Rw&oh=00_AfpnRp9K4p59YzCXd-rYo59bMTS6Dy8kSRm-c5FkEW9lZg&oe=695CEB15" alt="Holgate Plumbing" class="logo">
+            <div class="biz-content">
+              <h3>Holgate Plumbing</h3>
+              <p>Veteran owned & operated plumbing services.</p>
+              <ul class="biz-meta">
+                <li><strong>Phone:</strong> (541) 891-3557</li>
+                <li><strong>Website:</strong> holgateplumbing.com</li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="https://www.holgateplumbing.com/" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://www.facebook.com/p/Holgate-Plumbing-100093822325623/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="John Richmond Contracting">
+            <div class="biz-content">
+              <h3>John Richmond Contracting</h3>
+              <p>Custom cat work.</p>
+              <ul class="biz-meta">
+                <li><strong>Service Area:</strong> Bly, OR 97622</li>
+                <li><strong>Cell:</strong> (541) 891-0745</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Melsness Logging">
+            <div class="biz-content">
+              <h3>Melsness Logging</h3>
+              <p>Logging services.</p>
+              <ul class="biz-meta">
+                <li><strong>Phone:</strong> (541) 353-2510</li>
+                <li><strong>Phone (alt):</strong> (541) 891-4954</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="https://i0.wp.com/millenconstruction.com/wp-content/uploads/2020/02/Blue-logo-transparent-bg.png?=1200&ssl=1" alt="Millen Construction" class="logo">
+            <div class="biz-content">
+              <h3>Millen Construction</h3>
+              <p>General contracting and construction.</p>
+              <ul class="biz-meta">
+                <li><strong>Website:</strong> millenconstruction.com</li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="http://millenconstruction.com/" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://www.facebook.com/millenconstruction/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Paul Melsness Refinishing">
+            <div class="biz-content">
+              <h3>Paul Melsness Refinishing</h3>
+              <p>Refinishing services.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 22605 Hwy 70, Bonanza, OR 97623</li>
+                <li><strong>Phone:</strong> (541) 891-0636</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Duarte Sales">
+            <div class="biz-content">
+              <h3>Duarte Sales</h3>
+              <p>Licensed & bonded auctioneer. Sales managed and promoted.</p>
+              <ul class="biz-meta">
+                <li><strong>Contacts:</strong> Eric Duarte & Nikki Duarte</li>
+                <li><strong>Phone:</strong> (541) 533-2105</li>
+                <li><strong>Fax:</strong> (541) 533-3127</li>
+                <li><strong>Cell:</strong> (541) 891-7863</li>
+                <li><strong>Website:</strong> duartesales.com</li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="http://www.duartesales.com" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://www.facebook.com/profile.php?id=100057065245352" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="../assets/RunningWEnterpriseslogo.png" alt="Running W Enterprises" class="logo">
+            <div class="biz-content">
+              <h3>Running W Enterprises</h3>
+              <p>Cattle & hay sales, security, Oregon notary, and certified firearms instruction.</p>
+              <ul class="biz-meta">
+                <li><strong>Mailing Address:</strong> P.O. Box 442, Bly, OR 97622</li>
+                <li><strong>Cell:</strong> (541) 944-3835</li>
+                <li><strong>Fax:</strong> (541) 353-2629</li>
+                <li><strong>Email:</strong> runningwenterprises@gmail.com</li>
+              </ul>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- HEALTH + WELLNESS -->
+      <div class="category" id="health-wellness">
+        <h2>Health & Wellness</h2>
+        <div class="biz-grid">
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Bly Beauties">
+            <div class="biz-content">
+              <h3>Bly Beauties</h3>
+              <p>Community group (Ladies over 50).</p>
+              <ul class="biz-meta">
+                <li><strong>Phone:</strong> (530) 249-4173</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Klamath Hospice and Palliative Care">
+            <div class="biz-content">
+              <h3>Klamath Hospice and Palliative Care</h3>
+              <p>Your care is our mission.</p>
+              <ul class="biz-meta">
+                <li><strong>Phone:</strong> (541) 882-2902</li>
+                <li><strong>Website:</strong> klamathhospice.org</li>
+              </ul>
+              <a class="biz-link" href="https://www.klamathhospice.org" target="_blank" rel="noopener noreferrer">Visit Website</a>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="The Bonanza Clinic">
+            <div class="biz-content">
+              <h3>The Bonanza Clinic</h3>
+              <p>Primary care clinic.</p>
+              <ul class="biz-meta">
+                <li><strong>Provider:</strong> Michael A. Sheets, FNP</li>
+                <li><strong>Address:</strong> 31863 Hwy 70, Bonanza, OR 97623</li>
+                <li><strong>Phone:</strong> (541) 545-1820</li>
+                <li><strong>Hours:</strong> Mon–Fri, 2–6 pm</li>
+              </ul>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- LODGING -->
+      <div class="category" id="lodging">
+        <h2>Lodging</h2>
+        <div class="biz-grid">
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Lone Pine Trailer Park">
+            <div class="biz-content">
+              <h3>Lone Pine Trailer Park</h3>
+              <p>Overnighters welcome.</p>
+              <ul class="biz-meta">
+                <li><strong>Contact:</strong> Donna Kness</li>
+                <li><strong>Phone:</strong> (541) 591-0035</li>
+              </ul>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- EDUCATION -->
+      <div class="category" id="education">
+        <h2>Education</h2>
+        <div class="biz-grid">
+
+<article class="biz-card">
+            <img src="https://www.kcsd.k12.or.us/custom/schools/gearhart/general/asset_logo.svg" alt="Gearhart Elementary School" class="logo">
+            <div class="biz-content">
+              <h3>Gearhart Elementary School</h3>
+              <p>Public elementary school serving the Bly area.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 61100 Metler St, Bly, OR 97622</li>
+                <li><strong>Phone:</strong> (541) 353-2417</li>
+                <li><strong>Email:</strong> <a href="mailto:nixonm@kcsd.k12.or.us">nixonm@kcsd.k12.or.us</a></li>
+                <li><strong>Website:</strong> kcsd.k12.or.us</li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="https://www.kcsd.k12.or.us/schools/gearhart/" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://www.facebook.com/profile.php?id=61564219626370" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Bly Preschool">
+            <div class="biz-content">
+              <h3>Bly Preschool</h3>
+              <p>For 3, 4 & 5 year old students. Monday & Thursday 9:30–11:30.</p>
+              <ul class="biz-meta">
+                <li><strong>Contact:</strong> Leda Hunter — (541) 891-4661</li>
+                <li><strong>Contact:</strong> Pat Phillips — (541) 891-0746</li>
+              </ul>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- FAITH -->
+      <div class="category" id="faith">
+        <h2>Faith & Churches</h2>
+        <div class="biz-grid">
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Abiding Place Ministries">
+            <div class="biz-content">
+              <h3>Abiding Place Ministries</h3>
+              <p>Sunday service 10:30 am & 6:00 pm. Wednesday at 7:00 pm.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 71410 Highway 140 E, Bly, OR 97622</li>
+                <li><strong>Pastor:</strong> Daniel — (619) 890-1921</li>
+                <li><strong>Pastor:</strong> Brad — (760) 239-1551</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="Beatty Valley Church">
+            <div class="biz-content">
+              <h3>Beatty Valley Church</h3>
+              <p>Sunday School 10 am, Church 11 am. Wednesday night Bible Study 6 pm.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 42726 Walnut St., Beatty, OR 97621</li>
+                <li><strong>Pastor:</strong> Cindy Bowles</li>
+                <li><strong>Phone:</strong> (541) 591-9825</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="https://gallery.quentinnichols.com/standingstonechurchconstructionphotos/?pid=16570431494&id=3&h=MTE2MTAzMjI3NQ" alt="Standing Stone Church">
+            <div class="biz-content">
+              <h3>Standing Stone Church</h3>
+              <p>Sunday School 9:45 am, Sunday Service 11:00 am, Thursday Bible Study 5:00 pm.</p>
+              <ul class="biz-meta">
+                <li><strong>Pastor:</strong> David Prantner</li>
+                <li><strong>Phone:</strong> (541) 353-2622</li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="https://www.facebook.com/StandingStoneCMA/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Photo coming soon</text></svg>" alt="St. James Catholic Church">
+            <div class="biz-content">
+              <h3>St. James Catholic Church</h3>
+              <p>Mass 11:30 a.m. Holy Days 5:00 p.m. Vigil.</p>
+              <ul class="biz-meta">
+                <li><strong>City:</strong> Bly, OR</li>
+              </ul>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- UTILITIES -->
+      <div class="category" id="utilities">
+        <h2>Utilities</h2>
+        <div class="biz-grid">
+
+          <article class="biz-card">
+            <img src="https://scontent-sjc6-1.xx.fbcdn.net/v/t39.30808-6/235114222_101253488939354_3514307689847405800_n.png?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=Fv7Pp5RiaaAQ7kNvwGD2ntZ&_nc_oc=AdmAs7x232oqc6YhOjt7j_9GdKKiUO3_Q2-EbuNHPo7DyWatLFXQeWTZSuD8VsPoyaPYhcqH6E64e6ywpPaeQMUw&_nc_zt=23&_nc_ht=scontent-sjc6-1.xx&_nc_gid=F5ddwJff0Ghe7IMoNyBZeQ&oh=00_AfotWt2tvblt7Dm439PQvvdi8I7zNM22-9eqxfhYgmuwBg&oe=695CB830" alt="Bly Water and Sanitation District" class="logo">
+            <div class="biz-content">
+              <h3>Bly Water and Sanitation District</h3>
+              <p>Local water and sanitation services.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 61138 Hwy 140 E, Bly, OR 97622</li>
+                <li><strong>Phone:</strong> (541) 353-2562</li>
+                <li><strong>Emergency:</strong> (541) 891-3902</li>
+                <li><strong>Website:</strong> blywater.com</li>
+                <li><strong>Website/Social:</strong> Facebook</li>
+              </ul>
+              <a class="biz-link" href="https://www.blywater.com/" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://www.facebook.com/p/Bly-Water-and-Sanitary-District-100079576039064/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- COMMUNITY CENTER (FEATURED) -->
+      <div class="category" id="recreation">
+        <h2>Recreation & Community Space</h2>
+        <div class="biz-grid">
+
+          <article class="biz-card">
+            <img src="../assets/rorchomeimage.jpg" alt="Ruth Obenchain Recreation Center">
+            <div class="biz-content">
+              <h3>Ruth Obenchain Recreation Center</h3>
+              <p>A volunteer-run community gym with memberships, open gym nights, and community events.</p>
+              <ul class="biz-meta">
+                <li><strong>Address:</strong> 19140 Edler Street, Bly, OR 97622</li>
+                <li><strong>Phone:</strong> (541) 904-0428</li>
+                <li><strong>Website:</strong> ruthobenchainrc.com</li>
+              </ul>
+              <a class="biz-link" href="https://ruthobenchainrc.com" target="_blank" rel="noopener noreferrer">Visit Website</a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <div class="cta">
+        <p>
+          Want your business listed here? Email <a href="mailto:quentin@quentinnichols.com">quentin@quentinnichols.com</a> with your name, address, phone, hours, and website.
+        </p>
+      </div>
+    </section>
   </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
 </body>
 </html>

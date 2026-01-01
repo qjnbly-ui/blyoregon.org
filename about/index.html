@@ -3,151 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coming Soon | Bly, Oregon</title>
+  <title>About Bly, Oregon • Community Hub</title>
+  <meta name="description" content="About Bly, Oregon: a small community in Klamath County along OR-140 with a strong outdoor setting and local pride." />
   <style>
-    :root {
-      --bg-1: #0f2c24;
-      --bg-2: #234d3c;
-      --bg-3: #e8d7b9;
-      --ink: #f7f2e8;
-      --accent: #ffb347;
-      --accent-2: #7dd3a8;
-      --card: rgba(11, 28, 22, 0.6);
-      --border: rgba(255, 255, 255, 0.18);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: "Trebuchet MS", "Gill Sans", Verdana, sans-serif;
-      color: var(--ink);
-      background: radial-gradient(circle at 20% 20%, rgba(255, 179, 71, 0.25), transparent 45%),
-        radial-gradient(circle at 80% 10%, rgba(125, 211, 168, 0.25), transparent 40%),
-        linear-gradient(135deg, var(--bg-1), var(--bg-2) 55%, #18382b);
-      overflow: hidden;
-    }
-
-    body::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.04),
-        rgba(255, 255, 255, 0.04) 2px,
-        transparent 2px,
-        transparent 12px
-      );
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .wrap {
-      position: relative;
-      z-index: 1;
-      padding: 2.5rem;
-      width: min(720px, 90vw);
-      border-radius: 22px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(8px);
-      animation: floatIn 0.9s ease-out forwards;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.35rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: rgba(255, 179, 71, 0.2);
-      color: var(--accent);
-      border: 1px solid rgba(255, 179, 71, 0.4);
-    }
-
-    h1 {
-      font-size: clamp(2.2rem, 4vw, 3.4rem);
-      margin: 1rem 0 0.5rem;
-      letter-spacing: 0.02em;
-    }
-
-    p {
-      margin: 0.6rem 0;
-      font-size: 1.05rem;
-      color: rgba(255, 255, 255, 0.85);
-      line-height: 1.6;
-    }
-
-    .callout {
-      margin-top: 1.5rem;
-      padding: 1rem 1.25rem;
-      border-left: 3px solid var(--accent-2);
-      background: rgba(125, 211, 168, 0.12);
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .contact {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--accent-2);
-    }
-
-    .home-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 1.75rem;
-      padding: 0.7rem 1.4rem;
-      border-radius: 999px;
-      background: rgba(255, 179, 71, 0.2);
-      border: 1px solid rgba(255, 179, 71, 0.6);
-      color: var(--accent);
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .home-btn:hover {
-      background: rgba(255, 179, 71, 0.32);
-    }
-
-    footer {
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    @keyframes floatIn {
-      from { transform: translateY(18px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; color: #333; }
+    header, footer { background: #2a4d3d; color: white; text-align: center; padding: 1em 0; }
+    nav { background: #344e41; padding: 0.6em; overflow-x: auto; }
+    nav a { color: white; text-decoration: none; font-weight: bold; display: inline-block; white-space: nowrap; }
+    nav { display: flex; justify-content: center; gap: 1em; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+    .hero { position: relative; height: 280px; }
+    .hero img { width: 100%; height: 280px; object-fit: cover; opacity: 0.6; }
+    .hero .title { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 2.2rem; text-shadow: 1px 1px 6px rgba(0,0,0,0.6); }
+    .container { max-width: 1100px; margin: auto; padding: 1.5em; }
+    .section-header { border-bottom: 3px solid #2a4d3d; padding-bottom: 0.4em; margin-bottom: 1em; color: #2a4d3d; }
+    .facts { background: #f4f6f3; border-left: 4px solid #2a4d3d; padding: 1em 1.25em; margin: 1.5em 0; }
+    .facts h3 { margin-top: 0; color: #2a4d3d; }
+    footer { font-size: 0.9em; }
+    @media (max-width: 600px) {
+      nav { justify-content: flex-start; padding: 0.5em 0.75em; }
+      nav a { font-size: 0.95rem; }
+      .hero { height: 220px; }
+      .hero img { height: 220px; }
+      .hero .title { font-size: 1.3rem; white-space: nowrap; overflow-x: auto; padding: 0 0.5rem; }
     }
   </style>
 </head>
 <body>
-  <main class="wrap" role="main">
-    <span class="badge">Under Construction</span>
-    <h1>Page Coming Soon</h1>
-    <p>We're building something special for Bly, Oregon. Check back soon for updates.</p>
-    <p>An overview of Bly's story, people, and the places that make it home.</p>
-    <div class="callout">
-      <p>Questions? Reach out at <a class="contact" href="mailto:quentin@quentinnichols.com">quentin@quentinnichols.com</a>.</p>
-    </div>
-    <a class="home-btn" href="/">Return to Home</a>
-    <footer>Developed by Quentin Nichols</footer>
+
+  <!-- HEADER + NAV -->
+  <header>
+    <h1>Bly, Oregon</h1>
+    <p>A Community in Klamath County</p>
+  </header>
+
+  <nav>
+    <a href="/">Home</a>
+    <a href="/about/">About</a>
+    <a href="/community/">Community</a>
+    <a href="/businesses/">Businesses</a>
+    <a href="/history/">History</a>
+    <a href="/recreation/">Recreation</a>
+  </nav>
+
+  <!-- HERO + TOP IMAGE -->
+  <section class="hero">
+    <img src="../assets/hero-bly.jpg" alt="Bly Oregon Landscape">
+    <div class="title">About Bly, Oregon</div>
+  </section>
+
+  <main class="container">
+
+    <section>
+      <h2 class="section-header">Overview</h2>
+      <p>
+        Bly is an unincorporated community and census-designated place in southeastern Klamath County, Oregon, USA. It lies along Oregon Route 140 on the high desert plateau, about 50 miles east of Klamath Falls and 37 miles west of Lakeview.
+      </p>
+      <p>
+        With a small population of just over 200 people, Bly is a quiet rural hub surrounded by forests, ranchlands, and natural features that reflect its deep connection with the high desert environment.
+      </p>
+    </section>
+
+    <section class="facts">
+      <h3>Quick Facts</h3>
+      <ul>
+        <li>Founded: Originally Sprague River post office established in 1873; renamed Bly in 1883</li>
+        <li>Elevation: ~4,367 feet</li>
+        <li>Location: Klamath County, Oregon</li>
+        <li>Major Road: Oregon Route 140</li>
+        <li>Population: 207 (2020 Census)</li>
+        <li>ZIP Code: 97622</li>
+        <li>Area Codes: 458 & 541</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="section-header">Geography & Climate</h2>
+      <p>
+        Bly is located just west of the Lake County line in the high prairie lands of southeastern Oregon. Fish Hole Creek flows through the community before feeding into the South Fork Sprague River. The Fremont-Winema National Forest nearly encircles Bly, providing a stunning backdrop of pine, juniper, and rugged hills. To the northeast lies the Gearhart Mountain Wilderness, a protected area of forested slopes, lakes, and volcanic landscapes.
+      </p>
+      <p>
+        The climate is typical of high desert regions: warm, dry summers with cool nights and cold winters with occasional snowfall. Summers generally remain comfortable, with average temperatures that rarely climb into extreme heat, reflecting a Mediterranean-influenced high desert pattern.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-header">History in Brief</h2>
+      <p>
+        Bly grew along the upper Sprague River corridor and became a service point for nearby ranching, forest work, and travel routes. For a deeper timeline, visit the History page for key dates, stories, and archival materials.
+      </p>
+      <p>
+        <a href="/history/">Visit the History page</a>
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-header">Outdoor Recreation</h2>
+      <p>
+        The OC&E Woods Line State Trail — Oregon’s longest linear state park — passes through Bly, tracing the old railbeds of the Oregon, California and Eastern Railroad. The trail spans roughly 100 miles of mixed-surface paths suitable for hiking, biking, and horseback riding.
+      </p>
+      <p>
+        In addition to the state trail, the nearby Fremont-Winema National Forest and Gearhart Mountain Wilderness offer abundant opportunities for hiking, camping, hunting, fishing, and wildlife viewing. Sycan Marsh, a short drive north, is a prime birdwatching and nature study area, especially during seasonal migrations.
+      </p>
+    </section>
+
   </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
 </body>
 </html>

@@ -125,6 +125,24 @@
       background: rgba(255, 179, 71, 0.32);
     }
 
+
+    .site-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .site-nav a {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      font-weight: 600;
+    }
+
     footer {
       margin-top: 2rem;
       font-size: 0.9rem;
@@ -139,6 +157,14 @@
 </head>
 <body>
   <main class="wrap" role="main">
+    <nav class="site-nav">
+      <a href="/">Home</a>
+      <a href="/about/">About</a>
+      <a href="/community/">Community</a>
+      <a href="/businesses/">Businesses</a>
+      <a href="/history/">History</a>
+      <a href="/recreation/">Recreation</a>
+    </nav>
     <span class="badge">Under Construction</span>
     <h1>Page Coming Soon</h1>
     <p>We're building something special for Bly, Oregon. Check back soon for updates.</p>
