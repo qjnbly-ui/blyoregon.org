@@ -3,133 +3,563 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bly, Oregon • Community Hub</title>
+  <title>Bly, Oregon | Community Hub</title>
+  <meta name="description" content="Discover Bly, Oregon. Local history, businesses, outdoor recreation, and community updates." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; color: #333; }
-    header, footer { background: #2a4d3d; color: white; text-align: center; padding: 1em 0; }
-    nav { background: #344e41; text-align: center; padding: 0.6em; }
-    nav a { color: white; margin: 0 1em; text-decoration: none; font-weight: bold; }
-    .hero { position: relative; height: 350px; }
-    .hero img { width: 100%; height: 350px; object-fit: cover; opacity: 0.6; }
-    .hero .title { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 2.2rem; text-shadow: 1px 1px 6px rgba(0,0,0,0.6); }
-    .container { max-width: 1100px; margin: auto; padding: 1.5em; }
-    .section-header { border-bottom: 3px solid #2a4d3d; padding-bottom: 0.4em; margin-bottom: 1em; color: #2a4d3d; }
-    .cards { display: flex; flex-wrap: wrap; gap: 1em; }
-    .card-link { flex: 1 1 300px; text-decoration: none; color: inherit; }
-    .card { border: 1px solid #ccc; border-radius: 8px; overflow: hidden; box-shadow: 2px 2px 6px rgba(0,0,0,0.1); height: 100%; }
-    .card img { width: 100%; height: 180px; object-fit: cover; }
-    .card-content { padding: 1em; }
-    .card-content h3 { margin-top: 0; color: #2a4d3d; }
-    footer { font-size: 0.9em; }
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sage: #9fb39f;
+      --sand: #f5efe5;
+      --clay: #cbb59a;
+      --sun: #f4b35b;
+      --ink: #1e1f1c;
+      --white: #fff;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .brand-title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    nav {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    nav a:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 420px;
+      display: grid;
+      align-items: center;
+      color: var(--white);
+      overflow: hidden;
+    }
+
+    .hero img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.85;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(11, 26, 21, 0.85), rgba(11, 26, 21, 0.35) 60%, rgba(11, 26, 21, 0.2));
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem 4.5rem;
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .hero h1 {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      margin: 0;
+    }
+
+    .hero p {
+      max-width: 560px;
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.7rem 1.3rem;
+      border-radius: 999px;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--sun);
+      color: #3b2b16;
+    }
+
+    .btn-ghost {
+      border-color: rgba(255, 255, 255, 0.6);
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 1.6rem;
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+    }
+
+    section {
+      margin-bottom: 3.5rem;
+    }
+
+    .section-title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.85rem;
+      color: var(--forest);
+      margin: 0 0 1rem;
+    }
+
+    .section-kicker {
+      color: var(--moss);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-size: 0.8rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 1.4rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .card img {
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 14px;
+    }
+
+    .card h3 {
+      margin: 0;
+      color: var(--forest);
+      font-size: 1.2rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: #43524a;
+      line-height: 1.55;
+    }
+
+    .card a {
+      color: var(--forest);
+      text-decoration: none;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(244, 179, 91, 0.2);
+      color: #72532e;
+      font-weight: 700;
+    }
+
+    .stat {
+      display: grid;
+      gap: 0.35rem;
+      padding: 1.1rem 1.3rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(31, 64, 48, 0.12);
+    }
+
+    .stat strong {
+      font-size: 1.5rem;
+      color: var(--forest);
+    }
+
+    .stat span {
+      color: #4a5a52;
+      font-size: 0.95rem;
+    }
+
+    .spotlight {
+      display: grid;
+      gap: 1.5rem;
+      align-items: center;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      background: linear-gradient(120deg, rgba(20, 50, 39, 0.08), rgba(244, 179, 91, 0.12));
+      border-radius: 22px;
+      padding: 2rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+    }
+
+    .spotlight h3 {
+      margin: 0 0 0.4rem;
+      color: var(--forest);
+      font-size: 1.4rem;
+    }
+
+    .spotlight p {
+      margin: 0 0 1rem;
+      color: #42534b;
+      line-height: 1.6;
+    }
+
+    .spotlight img {
+      width: 100%;
+      border-radius: 18px;
+      height: 220px;
+      object-fit: cover;
+      box-shadow: var(--shadow);
+    }
+
+    .story-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .cta {
+      background: #1d3b2f;
+      color: var(--white);
+      border-radius: 22px;
+      padding: 2rem;
+      display: grid;
+      gap: 0.9rem;
+      box-shadow: var(--shadow);
+    }
+
+    .cta h3 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+    }
+
+    .cta p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.6;
+    }
+
+    .cta a {
+      color: var(--white);
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+      width: fit-content;
+    }
+
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .stagger > * {
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .stagger > *:nth-child(2) { animation-delay: 0.12s; }
+    .stagger > *:nth-child(3) { animation-delay: 0.24s; }
+    .stagger > *:nth-child(4) { animation-delay: 0.36s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 800px) {
+      .header-inner {
+        justify-content: center;
+      }
+
+      nav {
+        justify-content: center;
+      }
+
+      .hero-content {
+        padding: 3rem 1.5rem 3.5rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        position: static;
+      }
+
+      .hero {
+        min-height: 360px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
   </style>
 </head>
 <body>
-
-  <!-- HEADER + NAV -->
   <header>
-    <h1>Bly, Oregon</h1>
-    <p>A Community in Klamath County</p>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">A Community in Klamath County</div>
+      </div>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/about/">About</a>
+        <a href="/community/">Community</a>
+        <a href="/businesses/">Businesses</a>
+        <a href="/history/">History</a>
+        <a href="/recreation/">Recreation</a>
+      </nav>
+    </div>
   </header>
 
-  <nav>
-    <a href="/">Home</a>
-    <a href="/about/">About</a>
-    <a href="/community/">Community</a>
-    <a href="/businesses/">Businesses</a>
-    <a href="/history/">History</a>
-    <a href="/recreation/">Recreation</a>
-  </nav>
-
-  <!-- HERO + TOP IMAGE -->
   <section class="hero">
-    <img src="assets/hero-bly.jpg" alt="Bly Oregon Landscape">
-    <div class="title">Discover Bly • Community, Nature, Life</div>
+    <img src="assets/hero-bly.jpg" alt="Bly Oregon landscape">
+    <div class="hero-content">
+      <h1>Welcome to Bly, Oregon.</h1>
+      <p>
+        Bly sits along Oregon Route 140 with deep roots, wide open sky, and access to trails,
+        lakes, and local stories. Use this hub to explore the people, places, and services that
+        shape daily life here.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/history/">Explore History</a>
+        <a class="btn btn-ghost" href="/businesses/">Local Businesses</a>
+      </div>
+      <div class="hero-meta">
+        <span>Population: 207 (2020)</span>
+        <span>Elevation: 4,367 ft</span>
+        <span>County: Klamath</span>
+      </div>
+    </div>
   </section>
 
-  <main class="container">
-
-    <!-- ABOUT SNAPSHOT -->
+  <main>
     <section>
-      <h2 class="section-header">Welcome to Bly</h2>
-      <p>
-        Bly is a small community on Oregon Route 140 in Klamath County. Known for its scenic landscapes, history, and warm small-town character, Bly is both a peaceful home and a gateway to outdoor recreation.
-      </p>
-      <p>
-        Surrounded by forests, trails, and sites of cultural significance, Bly brings local life, natural beauty, and community action together.
-      </p>
-    </section>
-
-    <!-- FEATURE CARDS: HISTORY & PLACES -->
-    <section>
-      <h2 class="section-header">Featured Places</h2>
-      <div class="cards">
-
+      <span class="section-kicker">Explore</span>
+      <h2 class="section-title">Start with the basics</h2>
+      <div class="grid three stagger">
         <div class="card">
-          <img src="assets/bly-ranger-station.jpg" alt="Historic Ranger Station">
-          <div class="card-content">
-            <h3>Bly Ranger Station</h3>
-            <p>Historic Forest Service station built by the Civilian Conservation Corps — now on the National Register of Historic Places.</p>
-          </div>
+          <span class="pill">Overview</span>
+          <h3>About Bly</h3>
+          <p>Community profile, quick facts, geography, and local background.</p>
+          <a href="/about/">Read the overview</a>
         </div>
-
         <div class="card">
-          <img src="assets/mitchell-monument.jpg" alt="Mitchell Monument Park">
-          <div class="card-content">
-            <h3>Mitchell Monument Recreation Area</h3>
-            <p>Memorial & picnic site marking WWII history on the mainland U.S.</p>
-          </div>
+          <span class="pill">Archive</span>
+          <h3>History Library</h3>
+          <p>Key stories, articles, and historic timelines connected to Bly.</p>
+          <a href="/history/">Visit history</a>
         </div>
-
+        <div class="card">
+          <span class="pill">Directory</span>
+          <h3>Businesses</h3>
+          <p>Local services, shops, and organizations across town and nearby.</p>
+          <a href="/businesses/">Browse listings</a>
+        </div>
+        <div class="card">
+          <span class="pill">Coming soon</span>
+          <h3>Community</h3>
+          <p>Events, volunteer opportunities, and Bly Community Action Team.</p>
+          <a href="/community/">Check progress</a>
+        </div>
+        <div class="card">
+          <span class="pill">Coming soon</span>
+          <h3>Recreation</h3>
+          <p>Trails, lakes, and outdoor updates for the Bly area.</p>
+          <a href="/recreation/">Preview the page</a>
+        </div>
       </div>
     </section>
 
-    <!-- RECREATION SPOT -->
+    <section class="spotlight">
+      <div>
+        <span class="section-kicker">Local Focus</span>
+        <h3>Standing Stone Church rebuild</h3>
+        <p>
+          The historic Standing Stone Church was lost to fire and is being rebuilt with help from
+          the community. Read the latest article and stay connected to progress.
+        </p>
+        <a href="/history/articles/standingstonechurchfire.html">Read the update</a>
+      </div>
+      <img src="history/photos/churchfirephotos/fire1.jpg" alt="Standing Stone Church fire photo">
+    </section>
+
     <section>
-      <h2 class="section-header">Recreation Highlights</h2>
-      <div class="cards">
-
-        <a class="card-link" href="https://stateparks.oregon.gov/index.cfm?do=park.profile&parkId=167" target="_blank" rel="noopener noreferrer">
-          <div class="card">
-            <img src="assets/woods-line-trail.jpg" alt="OC&E Woods Line Trail">
-            <div class="card-content">
-              <h3>OC&E Woods Line Trail</h3>
-              <p>Explore miles of trail for hiking, biking, and seeking the high desert horizon.</p>
-            </div>
-          </div>
-        </a>
-
-        <a class="card-link" href="https://www.fs.usda.gov/r06/fremont-winema/recreation/gearhart-mountain-wilderness" target="_blank" rel="noopener noreferrer">
-          <div class="card">
-            <img src="assets/forest-lake.jpg" alt="Forest Lake">
-            <div class="card-content">
-              <h3>Gearhart Mountain Wilderness</h3>
-              <p>Relax, fish, picnic, and enjoy quiet days near water and pines.</p>
-            </div>
-          </div>
-        </a>
-
+      <span class="section-kicker">Highlights</span>
+      <h2 class="section-title">Places to know</h2>
+      <div class="grid three stagger">
+        <div class="card">
+          <img src="assets/bly-ranger-station.jpg" alt="Bly Ranger Station">
+          <h3>Bly Ranger Station</h3>
+          <p>Historic CCC-built station and gateway to forest resources.</p>
+          <a href="/history/">Learn the story</a>
+        </div>
+        <div class="card">
+          <img src="assets/mitchell-monument.jpg" alt="Mitchell Monument">
+          <h3>Mitchell Monument</h3>
+          <p>Memorial and picnic site marking the WWII balloon incident.</p>
+          <a href="/history/">Visit the memorial</a>
+        </div>
+        <div class="card">
+          <img src="assets/woods-line-trail.jpg" alt="OC&E Woods Line Trail">
+          <h3>OC&E Woods Line Trail</h3>
+          <p>Oregon's longest linear state park with hiking and biking access.</p>
+          <a href="/recreation/">Plan a visit</a>
+        </div>
       </div>
     </section>
 
-    <!-- GET INVOLVED -->
     <section>
-      <h2 class="section-header">Get Involved</h2>
-      <p>
-        Bly is shaped by people who care — residents, volunteers, partners, and visitors alike. Connect with local events, volunteer boards, recreation groups, and business directories.
-      </p>
-      <ul>
-        <li>Volunteer with local community groups</li>
-        <li>Support small businesses & services</li>
-        <li>Attend seasonal events & meetups</li>
-      </ul>
+      <span class="section-kicker">Archives</span>
+      <h2 class="section-title">Stories and photos</h2>
+      <div class="story-grid stagger">
+        <div class="card">
+          <h3>History Articles</h3>
+          <p>Browse in-depth articles and archived narratives about Bly.</p>
+          <a href="/history/articles/">Open articles</a>
+        </div>
+        <div class="card">
+          <h3>Photo Galleries</h3>
+          <p>Explore historical photos, recent events, and community projects.</p>
+          <a href="/history/photos/">View galleries</a>
+        </div>
+      </div>
     </section>
 
+    <section class="cta">
+      <h3>Get involved in Bly</h3>
+      <p>
+        Whether you are a resident or visitor, this community stays strong through volunteer
+        energy and local support. Reach out or share updates that should be included here.
+      </p>
+      <a href="mailto:quentin@quentinnichols.com">Contact the site team</a>
+    </section>
   </main>
 
-  <!-- FOOTER -->
   <footer>
-    <p>Bly, Oregon Community Hub | &copy; 2025 blyoregon.org</p>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
   </footer>
-
 </body>
 </html>
