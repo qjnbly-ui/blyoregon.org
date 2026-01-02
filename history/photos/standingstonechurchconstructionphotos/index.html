@@ -36,9 +36,6 @@
     }
 
     header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
       background: rgba(20, 50, 39, 0.96);
       color: var(--white);
       backdrop-filter: blur(8px);
@@ -50,91 +47,34 @@
       margin: 0 auto;
       padding: 0.9rem 1.5rem;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      display: flex;
       flex-direction: column;
-      gap: 0.1rem;
+      align-items: center;
+      gap: 0.4rem;
       text-align: center;
     }
 
-    .brand-title {
+    .page-title {
+      margin: 0 0 0.4rem;
       font-family: "Fraunces", "Times New Roman", serif;
       font-weight: 700;
-      font-size: 1.4rem;
+      font-size: clamp(2rem, 3.6vw, 2.6rem);
       letter-spacing: 0.02em;
-    }
-
-    .brand-subtitle {
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    nav {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    nav a {
       color: var(--white);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.95rem;
-      padding: 0.4rem 0.75rem;
-      border-radius: 999px;
-      border: 1px solid transparent;
     }
 
-    nav a:hover {
-      border-color: rgba(255, 255, 255, 0.5);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .hero {
-      position: relative;
-      min-height: 220px;
-      display: grid;
-      align-items: center;
-      color: var(--white);
-      overflow: hidden;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(120deg, rgba(11, 26, 21, 0.9), rgba(11, 26, 21, 0.4));
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 2.6rem 1.5rem;
-      text-align: center;
-      display: grid;
-      gap: 0.75rem;
-      justify-items: center;
-    }
-
-    .hero h1 {
+    .page-title-secondary {
       margin: 0;
       font-family: "Fraunces", "Times New Roman", serif;
-      font-size: clamp(2rem, 4vw, 2.6rem);
+      font-size: clamp(1.15rem, 2.2vw, 1.7rem);
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
-    .hero p {
+    .page-subtitle {
       margin: 0;
       max-width: 640px;
-      color: rgba(255, 255, 255, 0.82);
+      color: var(--white);
     }
 
     .subnav {
@@ -203,13 +143,7 @@
       .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    @media (max-width: 800px) {
-      .header-inner { justify-content: center; }
-      nav { justify-content: center; }
-    }
-
     @media (max-width: 600px) {
-      header { position: static; }
       .grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -217,31 +151,16 @@
 <body>
   <header>
     <div class="header-inner">
-      <div class="brand">
-        <div class="brand-title">Bly, Oregon</div>
-        <div class="brand-subtitle">A Community in Klamath County</div>
-      </div>
-      <nav>
-        <a href="/">Home</a>
-        <a href="/about/">About</a>
-        <a href="/community/">Community</a>
-        <a href="/businesses/">Businesses</a>
-        <a href="/history/">History</a>
-        <a href="/recreation/">Recreation</a>
-      </nav>
+      <h1 class="page-title">Bly, Oregon</h1>
+      <h2 class="page-title-secondary">Standing Stone Church Reconstruction</h2>
+      <p class="page-subtitle">Cleanup and rebuilding photo gallery</p>
     </div>
   </header>
 
-  <section class="hero">
-    <div class="hero-content">
-      <h1>Standing Stone Church Reconstruction</h1>
-      <p>Cleanup and rebuilding photo gallery</p>
-    </div>
-  </section>
-
   <div class="subnav" aria-label="History section navigation">
-    <a href="/history/photos/">Photo archives</a>
+    <a href="/history/">Home</a>
     <a href="/history/articles/">Articles</a>
+    <a href="/history/photos/">Photos</a>
   </div>
 
   <main class="container">
