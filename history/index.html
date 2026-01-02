@@ -11,6 +11,8 @@
     nav { background: #344e41; padding: 0.6em; overflow-x: auto; }
     nav a { color: white; text-decoration: none; font-weight: bold; display: inline-block; white-space: nowrap; }
     nav { display: flex; justify-content: center; gap: 1em; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+    .subnav { background: #2f463b; padding: 0.55em; display: flex; justify-content: center; gap: 1em; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .subnav a { color: white; text-decoration: none; font-weight: bold; white-space: nowrap; }
     .hero { position: relative; height: 280px; }
     .hero img { width: 100%; height: 280px; object-fit: cover; opacity: 0.6; }
     .hero .title { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 2.2rem; text-shadow: 1px 1px 6px rgba(0,0,0,0.6); }
@@ -35,6 +37,8 @@
     @media (max-width: 600px) {
       nav { justify-content: flex-start; padding: 0.5em 0.75em; }
       nav a { font-size: 0.95rem; }
+      .subnav { justify-content: flex-start; padding: 0.45em 0.75em; }
+      .subnav a { font-size: 0.95rem; }
       .hero { height: 220px; }
       .hero img { height: 220px; }
       .hero .title { font-size: 1.3rem; white-space: nowrap; overflow-x: auto; padding: 0 0.5rem; }
@@ -65,6 +69,11 @@
     <img src="../assets/mitchell-monument.jpg" alt="Mitchell Monument Recreation Area">
     <div class="title">History of Bly</div>
   </section>
+
+  <div class="subnav" aria-label="History section navigation">
+    <a href="./articles/">Articles</a>
+    <a href="./photos/">Photos</a>
+  </div>
 
   <main class="container">
 
@@ -140,8 +149,7 @@
       <p>
         Despite challenges, the community slowly developed civic amenities. By 1910, Bly built a “handsome new school” to serve local children. That wood-frame
         schoolhouse tragically burned down in 1932, but it was rebuilt the same year, and the attached 1928 gymnasium survived the fire (that historic gym is
-        still in use today). Church life also emerged: a Christian and Missionary Alliance congregation was active by the 1930s, with a modest white chapel that
-        remains a landmark.
+        still in use today). Church life also emerged during this period. A Christian and Missionary Alliance congregation was active in Bly by the 1930s, and its white chapel, later known as Standing Stone Church, became a long-standing community landmark. The historic building was destroyed by fire in 2025 and is currently being rebuilt.
       </p>
     </section>
 
@@ -233,7 +241,7 @@
     </section>
 
     <section class="callout">
-      <h3>Timeline (Expanded)</h3>
+      <h3>Timeline</h3>
       <ul>
         <li><strong>Pre-contact:</strong> Upper Sprague River corridor is an Indigenous homeland and travel region.</li>
         <li><strong>1826:</strong> Hudson’s Bay Company trappers reach the Sprague and Williamson rivers.</li>
@@ -251,7 +259,7 @@
     </section>
 
     <section>
-      <h2 class="section-header">Historic Image Links (Free-to-Use)</h2>
+      <h2 class="section-header">Historic Image Links</h2>
       <p class="muted" style="margin-top:-0.3em;">
         These are Wikimedia Commons images with open licenses. You can replace your page images with these, or use them as a small gallery.
       </p>
