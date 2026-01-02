@@ -3,177 +3,241 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coming Soon | Bly, Oregon</title>
+  <title>Recreation | Bly, Oregon</title>
+  <meta name="description" content="Outdoor recreation information for the Bly area is coming soon." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-1: #0f2c24;
-      --bg-2: #234d3c;
-      --bg-3: #e8d7b9;
-      --ink: #f7f2e8;
-      --accent: #ffb347;
-      --accent-2: #7dd3a8;
-      --card: rgba(11, 28, 22, 0.6);
-      --border: rgba(255, 255, 255, 0.18);
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sage: #9fb39f;
+      --sand: #f5efe5;
+      --clay: #cbb59a;
+      --sun: #f4b35b;
+      --ink: #1e1f1c;
+      --white: #fff;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: "Trebuchet MS", "Gill Sans", Verdana, sans-serif;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
       color: var(--ink);
-      background: radial-gradient(circle at 20% 20%, rgba(255, 179, 71, 0.25), transparent 45%),
-        radial-gradient(circle at 80% 10%, rgba(125, 211, 168, 0.25), transparent 40%),
-        linear-gradient(135deg, var(--bg-1), var(--bg-2) 55%, #18382b);
-      overflow: hidden;
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    body::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.04),
-        rgba(255, 255, 255, 0.04) 2px,
-        transparent 2px,
-        transparent 12px
-      );
-      opacity: 0.5;
-      pointer-events: none;
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .wrap {
-      position: relative;
-      z-index: 1;
-      padding: 2.5rem;
-      width: min(720px, 90vw);
-      border-radius: 22px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(8px);
-      animation: floatIn 0.9s ease-out forwards;
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      text-align: center;
+    }
+
+    .brand-title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .home-link {
+      text-decoration: none;
+      font-weight: 700;
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      padding: 0.45rem 0.95rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 2.5rem;
+    }
+
+    .hero {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.78rem;
+      color: var(--moss);
+      font-weight: 600;
+    }
+
+    h1 {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2.3rem, 4vw, 3.2rem);
+      margin: 0;
+      color: var(--forest);
+    }
+
+    .hero p {
+      max-width: 640px;
+      line-height: 1.7;
+      color: #44554d;
+      margin: 0;
     }
 
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.35rem 0.75rem;
+      padding: 0.35rem 0.8rem;
       border-radius: 999px;
-      font-size: 0.85rem;
-      letter-spacing: 0.08em;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      background: rgba(255, 179, 71, 0.2);
-      color: var(--accent);
-      border: 1px solid rgba(255, 179, 71, 0.4);
+      color: #72532e;
+      background: rgba(244, 179, 91, 0.25);
+      font-weight: 700;
     }
 
-    h1 {
-      font-size: clamp(2.2rem, 4vw, 3.4rem);
-      margin: 1rem 0 0.5rem;
-      letter-spacing: 0.02em;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
     }
 
-    p {
-      margin: 0.6rem 0;
-      font-size: 1.05rem;
-      color: rgba(255, 255, 255, 0.85);
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 1.4rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: var(--forest);
+    }
+
+    .card p {
+      margin: 0;
+      color: #43524a;
       line-height: 1.6;
     }
 
     .callout {
-      margin-top: 1.5rem;
-      padding: 1rem 1.25rem;
-      border-left: 3px solid var(--accent-2);
-      background: rgba(125, 211, 168, 0.12);
+      background: #1d3b2f;
+      color: var(--white);
+      border-radius: 20px;
+      padding: 1.8rem;
+      display: grid;
+      gap: 0.7rem;
+      box-shadow: var(--shadow);
     }
 
-    a {
-      color: inherit;
+    .callout h2 {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.6rem;
+    }
+
+    .callout a {
+      color: var(--white);
       text-decoration: none;
-      font-weight: 600;
-    }
-
-    .contact {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--accent-2);
-    }
-
-    .home-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 1.75rem;
-      padding: 0.7rem 1.4rem;
-      border-radius: 999px;
-      background: rgba(255, 179, 71, 0.2);
-      border: 1px solid rgba(255, 179, 71, 0.6);
-      color: var(--accent);
       font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .home-btn:hover {
-      background: rgba(255, 179, 71, 0.32);
-    }
-
-
-    .site-nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .site-nav a {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.35rem 0.75rem;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.08);
-      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+      width: fit-content;
     }
 
     footer {
-      margin-top: 2rem;
-      font-size: 0.9rem;
+      background: #162f25;
       color: rgba(255, 255, 255, 0.7);
-    }
-
-    @keyframes floatIn {
-      from { transform: translateY(18px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <main class="wrap" role="main">
-    <nav class="site-nav">
-      <a href="/">Home</a>
-      <a href="/about/">About</a>
-      <a href="/community/">Community</a>
-      <a href="/businesses/">Businesses</a>
-      <a href="/history/">History</a>
-      <a href="/recreation/">Recreation</a>
-    </nav>
-    <span class="badge">Under Construction</span>
-    <h1>Page Coming Soon</h1>
-    <p>We're building something special for Bly, Oregon. Check back soon for updates.</p>
-    <p>A home for trails, lakes, and outdoor opportunities across the Bly area.</p>
-    <div class="callout">
-      <p>Questions? Reach out at <a class="contact" href="mailto:quentin@quentinnichols.com">quentin@quentinnichols.com</a>.</p>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">Recreation page</div>
+      </div>
+      <a class="home-link" href="/">Return to Home</a>
     </div>
-    <a class="home-btn" href="/">Return to Home</a>
-    <footer>Developed by Quentin Nichols</footer>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="badge">Under Construction</span>
+      <h1>Recreation updates are on the way.</h1>
+      <p>
+        This page will be a guide to trails, lakes, and outdoor access around Bly. We are building
+        a clear list of destinations, trailheads, and seasonal notes so visitors can plan safely.
+      </p>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Trail and hike guides</h2>
+        <p>Featured routes, distances, and tips for the OC&amp;E Woods Line Trail and more.</p>
+      </div>
+      <div class="card">
+        <h2>Lakes and day trips</h2>
+        <p>Fishing and picnic spots across Gearhart Mountain, Sycan Marsh, and nearby areas.</p>
+      </div>
+      <div class="card">
+        <h2>Seasonal updates</h2>
+        <p>Closures, fire restrictions, and road conditions that affect access.</p>
+      </div>
+    </section>
+
+    <section class="callout">
+      <h2>Know a great spot?</h2>
+      <p>Share local recreation tips so we can include them as this page launches.</p>
+      <a href="mailto:quentin@quentinnichols.com">quentin@quentinnichols.com</a>
+    </section>
   </main>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
 </body>
 </html>

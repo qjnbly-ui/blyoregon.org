@@ -4,18 +4,185 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Standing Stone Church Fire Photos | Bly, Oregon</title>
+  <meta name="description" content="Fire day photo gallery for the Standing Stone Church fire." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.6; background: #f7f8f6; }
-    header { background: #2a4d3d; color: white; text-align: center; padding: 1.25em 0; }
-    nav { background: #233b31; text-align: center; padding: 0.6em; border-top: 3px solid #1a2c25; }
-    nav a { color: white; margin: 0 1em; text-decoration: none; font-weight: bold; }
-    .archive-head { background: #1e332b; color: #fff; text-align: center; padding: 0.6em 0; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.85rem; }
-    .container { max-width: 1100px; margin: auto; padding: 1.5em; }
-    .section-header { border-bottom: 3px solid #2a4d3d; padding-bottom: 0.4em; margin-bottom: 1em; color: #2a4d3d; }
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sage: #9fb39f;
+      --sand: #f5efe5;
+      --clay: #cbb59a;
+      --sun: #f4b35b;
+      --ink: #1e1f1c;
+      --white: #fff;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      line-height: 1.6;
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      text-align: center;
+    }
+
+    .brand-title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    nav {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    nav a:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 220px;
+      display: grid;
+      align-items: center;
+      color: var(--white);
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(11, 26, 21, 0.9), rgba(11, 26, 21, 0.4));
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.6rem 1.5rem;
+      text-align: center;
+      display: grid;
+      gap: 0.75rem;
+      justify-items: center;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 4vw, 2.6rem);
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 640px;
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    .subnav {
+      max-width: 1100px;
+      margin: 1.2rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .subnav a {
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 64, 48, 0.2);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+    }
+
+    .section-header {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.7rem;
+      margin: 0 0 1rem;
+      color: var(--forest);
+    }
+
     .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-    .card { background: #fff; border: 1px solid #e3e8e3; border-radius: 12px; overflow: hidden; }
+
+    .card {
+      background: #fff;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
     .card img { width: 100%; height: 200px; object-fit: cover; display: block; cursor: pointer; }
     .card .cap { padding: 0.6em 0.8em; font-size: 0.92em; color: #556; }
+
     .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 50; }
     .lightbox.open { display: flex; }
     .lightbox-content { max-width: min(1200px, 92vw); max-height: 86vh; display: flex; flex-direction: column; gap: 0.6em; }
@@ -23,29 +190,59 @@
     .lightbox-controls { display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 0.95em; }
     .lightbox-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.4); color: #fff; padding: 0.4em 0.8em; border-radius: 999px; cursor: pointer; }
     .lightbox-close { position: absolute; top: 16px; right: 16px; }
-    footer { background: #2a4d3d; color: white; text-align: center; padding: 1em 0; font-size: 0.9em; }
+
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
 
     @media (max-width: 900px) {
       .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
+
+    @media (max-width: 800px) {
+      .header-inner { justify-content: center; }
+      nav { justify-content: center; }
+    }
+
     @media (max-width: 600px) {
+      header { position: static; }
       .grid { grid-template-columns: 1fr; }
-      nav a { margin: 0 0.6em; }
     }
   </style>
 </head>
 <body>
-  <div class="archive-head">Bly, Oregon Historic Archives</div>
   <header>
-    <h1>Standing Stone Church Fire</h1>
-    <p>Fire Day Photo Gallery</p>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">A Community in Klamath County</div>
+      </div>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/about/">About</a>
+        <a href="/community/">Community</a>
+        <a href="/businesses/">Businesses</a>
+        <a href="/history/">History</a>
+        <a href="/recreation/">Recreation</a>
+      </nav>
+    </div>
   </header>
 
-  <nav>
-    <a href="../../index.html">Home</a>
-    <a href="../index.html">Photos</a>
-    <a href="../../articles/">Articles</a>
-  </nav>
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Standing Stone Church Fire</h1>
+      <p>Fire day photo gallery</p>
+    </div>
+  </section>
+
+  <div class="subnav" aria-label="History section navigation">
+    <a href="/history/photos/">Photo archives</a>
+    <a href="/history/articles/">Articles</a>
+  </div>
 
   <main class="container">
     <section>
