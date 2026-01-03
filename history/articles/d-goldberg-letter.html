@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Historic Archives Articles | Bly, Oregon</title>
-  <meta name="description" content="Historic archive articles from Bly, Oregon." />
+  <title>D Goldberg's Final Letter | Bly, Oregon Historic Archives</title>
+  <meta name="description" content="A primary-source letter from D Goldberg, shared by Ruth Obenchain, documenting a winter tragedy near Bly." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
@@ -29,6 +29,7 @@
       margin: 0;
       font-family: "Manrope", "Trebuchet MS", sans-serif;
       color: var(--ink);
+      line-height: 1.7;
       background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
         radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
         linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
@@ -68,12 +69,18 @@
       text-transform: uppercase;
     }
 
-    .page-subtitle {
+    .page-title-article {
       margin: 0;
-      color: var(--white);
-      max-width: 640px;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+      color: rgba(255, 255, 255, 0.9);
     }
 
+    .page-subtitle {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.85);
+      max-width: 680px;
+    }
 
     .subnav {
       max-width: 1100px;
@@ -104,13 +111,11 @@
     .section-header {
       font-family: "Fraunces", "Times New Roman", serif;
       font-size: 1.7rem;
-      margin: 1.6rem 0;
+      margin: 0 0 1rem;
       color: var(--forest);
     }
 
-    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
-
-    .card {
+    .letter {
       background: var(--card);
       border: 1px solid rgba(31, 64, 48, 0.12);
       border-radius: 18px;
@@ -118,11 +123,20 @@
       box-shadow: var(--shadow);
     }
 
-    .card h3 { margin: 0 0 0.4em; color: var(--forest); }
-    .card p { margin: 0 0 0.8em; color: #43524a; }
-    .card a { color: var(--forest); font-weight: bold; text-decoration: none; }
-    .card a:hover { text-decoration: underline; }
-    .muted { color: #556; }
+    .letter-meta {
+      margin: 0 0 1rem;
+      font-weight: 600;
+      color: #43524a;
+    }
+
+    .letter-text {
+      margin: 0 0 1rem;
+      white-space: pre-line;
+    }
+
+    .muted {
+      color: #556;
+    }
 
     footer {
       background: #162f25;
@@ -130,10 +144,6 @@
       text-align: center;
       padding: 1.5rem;
       font-size: 0.9rem;
-    }
-
-    @media (max-width: 700px) {
-      .grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 600px) {
@@ -146,43 +156,42 @@
     <div class="header-inner">
       <h1 class="page-title">Bly, Oregon</h1>
       <h2 class="page-title-secondary">Historic Archives: Articles</h2>
-      <p class="page-subtitle">Stories, records, and milestones from Bly’s past.</p>
+      <h3 class="page-title-article">D Goldberg's Final Letter</h3>
+      <p class="page-subtitle">A primary-source letter shared with the Bly archives.</p>
     </div>
   </header>
 
   <div class="subnav" aria-label="History section navigation">
-    <a href="/history/">Return to History</a>
+    <a href="/history/">Home</a>
+    <a href="/history/articles/">Back to Articles</a>
   </div>
 
   <main class="container">
     <section>
-      <h2 class="section-header">Incidents &amp; Events</h2>
-      <div class="grid">
-        <article class="card">
-          <h3>Standing Stone Church Fire</h3>
-          <p class="muted">Wednesday, Jan. 29, 2025</p>
-          <p>Photo gallery and summary of the fire and rebuilding efforts.</p>
-          <a href="./standingstonechurchfire.html">Read article</a>
-        </article>
-        <article class="card">
-          <h3>Bootleg Fire</h3>
-          <p class="muted">July 2021</p>
-          <p>How the Bootleg Fire shaped southern Oregon communities and landscapes.</p>
-          <a href="./bootlegfire.html">Read article</a>
-        </article>
-      </div>
+      <h2 class="section-header">Context</h2>
+      <p>
+        Ruth Obenchain loaned this letter and a related photograph to the Bly archives. The letter is dated March 5,
+        but the year is not stated. According to the note, D Goldberg was brought out in a casket after the winter ordeal
+        described below.
+      </p>
+    </section>
+
+    <section class="letter" aria-labelledby="letter-title">
+      <h2 class="section-header" id="letter-title">Letter Transcript</h2>
+      <p class="letter-meta">Bly — March 5 (year unknown)</p>
+      <p class="letter-text">
+"Say Cowboy
+Here is the long and short of it. When I could get out I didn't want to. But when I wanted to I couldn't. The morning I was set to leave it snowed, snowed like hell, and I couldn't make it.
+After the storm I started to walk to Bly, but I got off the trail and got lost. After walking all day and all night I gladly got back to the cabin with frozen feet. They were frozen so badly that I couldn't walk at all. I had to crawl on all fours. I tried to get to Richardson's ranch by crawling on all fours but I couldn't make it. And as you know there was not much food in the cabin, the only thing left for me was to starve. I am now without food for three days and feel pretty sick. The end is not far off now.
+Under my pillow you will find a letter to my mother, please see that she gets it. Also mail the suitcase to the same address. In the pocket of my Blazer (lumber jack) you will find about $12 which I trust will be enough for postage for the letter and suitcase. I would also appreciate if you would stuff the Blazer and the Army breeches in the suit case before mailing it. That is I would appreciate as much as a dead man can appreciate anything.
+I thank you sincerely"
+
+D Goldberg
+      </p>
     </section>
 
     <section>
-      <h2 class="section-header">Primary Sources</h2>
-      <div class="grid">
-        <article class="card">
-          <h3>D Goldberg's Final Letter</h3>
-          <p class="muted">March 5 (year unknown)</p>
-          <p>A primary-source letter describing a winter tragedy near Bly.</p>
-          <a href="./d-goldberg-letter.html">Read article</a>
-        </article>
-      </div>
+      <p class="muted">Document: <a href="/history/documents/D%20Goldberg.doc">D Goldberg's final letter (DOC)</a></p>
     </section>
   </main>
 
