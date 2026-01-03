@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klamath Echoes No. 12 | Bly, Oregon Historic Archives</title>
+  <meta name="description" content="Klamath Echoes No. 12: Sprague River–Bly. Read online or download the PDF." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sage: #9fb39f;
+      --sand: #f5efe5;
+      --clay: #cbb59a;
+      --sun: #f4b35b;
+      --ink: #1e1f1c;
+      --white: #fff;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      text-align: center;
+    }
+
+    .page-title {
+      margin: 0 0 0.4rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 3.6vw, 2.6rem);
+      color: var(--white);
+    }
+
+    .page-title-secondary {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(1.15rem, 2.2vw, 1.7rem);
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .page-title-article {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .page-subtitle {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 680px;
+    }
+
+    .subnav {
+      max-width: 1100px;
+      margin: 1.2rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .subnav a {
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 64, 48, 0.2);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+    }
+
+    .section-header {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.7rem;
+      margin: 0 0 1rem;
+      color: var(--forest);
+    }
+
+    .intro {
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      padding: 1.4rem 1.6rem;
+      box-shadow: var(--shadow);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 64, 48, 0.25);
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .pdf-frame {
+      margin-top: 2rem;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      background: #fff;
+    }
+
+    .pdf-frame iframe {
+      width: 100%;
+      height: 80vh;
+      border: 0;
+    }
+
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1 class="page-title">Bly, Oregon</h1>
+      <h2 class="page-title-secondary">Historic Archives - Documents</h2>
+      <h3 class="page-title-article">Klamath Echoes No. 12</h3>
+      <p class="page-subtitle">Sprague River Valley –Bly historical volume from the Klamath County Historical Society.</p>
+    </div>
+  </header>
+
+  <div class="subnav" aria-label="History section navigation">
+    <a href="/history/">Return to History</a>
+  </div>
+
+  <main class="container">
+    <section class="intro">
+      <h2 class="section-header">Read the Issue</h2>
+      <p>
+        Klamath Echoes is a series of books written by volunteers of the Klamath County Historical Society to preserve
+        the history of the Klamath Basin, Southern Oregon, and Northern California. The series started in 1964 and was
+        published annually until 1978, totaling 16 volumes. This issue focuses on Sprague River and Bly.
+      </p>
+      <div class="actions">
+        <a class="button" href="/assets/Klamath-Echoes-No.-12---Sprague-River---Bly.pdf" download>Download PDF</a>
+        <a class="button" href="https://klamathcountyhistoricalsociety.org/test-menu">View the full Klamath Echoes series</a>
+      </div>
+    </section>
+
+    <div class="pdf-frame" aria-label="Klamath Echoes No. 12 PDF">
+      <iframe src="/assets/Klamath-Echoes-No.-12---Sprague-River---Bly.pdf" title="Klamath Echoes No. 12 PDF"></iframe>
+    </div>
+  </main>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+</body>
+</html>

@@ -103,7 +103,7 @@
     .section-header {
       font-family: "Fraunces", "Times New Roman", serif;
       font-size: 1.7rem;
-      margin: 0 0 1rem;
+      margin: 1.6rem 0;
       color: var(--forest);
     }
 
@@ -115,6 +115,23 @@
       border-radius: 18px;
       padding: 1.2rem 1.4rem;
       box-shadow: var(--shadow);
+    }
+
+    .card-image {
+      margin: 0 0 0.9rem;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      background: #f9f6f0;
+      max-width: 180px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .card-image img {
+      display: block;
+      width: 100%;
+      height: auto;
     }
 
     .card h3 { margin: 0 0 0.4em; color: var(--forest); }
@@ -155,7 +172,40 @@
 
   <main class="container">
     <section>
-      <h2 class="section-header">Community Profiles</h2>
+      <h2 class="section-header">Biographies</h2>
+      <div class="grid">
+        <article class="card">
+          <div class="card-image">
+            <img src="/assets/ruthobenchainphoto.jpg" alt="Ruth Obenchain">
+          </div>
+          <h3>Ruth Obenchain</h3>
+          <p class="muted">Teacher and community figure</p>
+          <p>Remembered by many students as a strict but dedicated teacher who shaped local education.</p>
+          <a href="/history/people/ruthobenchain.html">View biography</a>
+        </article>
+        <article class="card">
+          <h3>Mike Mansfield</h3>
+          <p class="muted">Remembered Bly student</p>
+          <p>A life rooted in Bly, memorialized through school tradition and community memory.</p>
+          <a href="/history/people/mikemansfield.html">View biography</a>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-header">Oral Histories</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Donnie &amp; Sharon Wessel</h3>
+          <p class="muted">Oral history interview</p>
+          <p>Interviewed by Eliza Buck on May 10, 2000, sharing decades of community memory.</p>
+          <a href="/history/oralhistories/interview-donnieandsharonwessel.html">Read the interview</a>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-header">History References</h2>
       <div class="grid">
         <article class="card">
           <h3>Gearhart Family</h3>
@@ -204,20 +254,6 @@
           <p class="muted">1945 balloon bomb tragedy</p>
           <p>Pastor Archie Mitchell and his wife Elsie were central to the 1945 Sunday school picnic tragedy.</p>
           <a href="/history/#people-mitchell">View context on the history page</a>
-        </article>
-
-        <article class="card">
-          <h3>Ruth Obenchain</h3>
-          <p class="muted">Teacher and community figure</p>
-          <p>Remembered by many students as a strict but dedicated teacher who shaped local education.</p>
-          <a href="/history/people/ruthobenchain.html">View biography</a>
-        </article>
-
-        <article class="card">
-          <h3>Donnie &amp; Sharon Wessel</h3>
-          <p class="muted">Oral history interview</p>
-          <p>Interviewed by Eliza Buck on May 10, 2000, sharing decades of community memory.</p>
-          <a href="/history/oralhistories/interview-donnieandsharonwessel.html">Read the interview</a>
         </article>
       </div>
     </section>
