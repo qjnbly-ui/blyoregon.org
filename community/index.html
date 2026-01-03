@@ -38,8 +38,12 @@
     }
 
     header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
       background: rgba(20, 50, 39, 0.96);
       color: var(--white);
+      backdrop-filter: blur(8px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
@@ -68,17 +72,29 @@
     }
 
     .brand-subtitle {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: rgba(255, 255, 255, 0.7);
     }
 
-    .home-link {
-      text-decoration: none;
-      font-weight: 700;
+    nav {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    nav a {
       color: var(--white);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      padding: 0.45rem 0.95rem;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.4rem 0.75rem;
       border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    nav a:hover {
+      border-color: rgba(255, 255, 255, 0.5);
       background: rgba(255, 255, 255, 0.08);
     }
 
@@ -214,9 +230,16 @@
     <div class="header-inner">
       <div class="brand">
         <div class="brand-title">Bly, Oregon</div>
-        <div class="brand-subtitle">Community page</div>
+        <div class="brand-subtitle">A Community in Klamath County</div>
       </div>
-      <a class="home-link" href="/">Return to Home</a>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/about/">About</a>
+        <a href="/community/">Community</a>
+        <a href="/businesses/">Businesses</a>
+        <a href="/history/">History</a>
+        <a href="/recreation/">Recreation</a>
+      </nav>
     </div>
   </header>
 
