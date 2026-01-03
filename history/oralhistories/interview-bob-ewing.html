@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Interview with Bob Ewing (Nov 6, 2000) | Bly, Oregon</title>
+  <meta name="description" content="Oral history phone interview with Bob Ewing, interviewed by Leda Hunter on Nov 6, 2000. Transcript and highlights." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sage: #9fb39f;
+      --sand: #f5efe5;
+      --clay: #cbb59a;
+      --sun: #f4b35b;
+      --ink: #1e1f1c;
+      --white: #fff;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1.4rem 1.5rem 1.6rem;
+      text-align: center;
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .breadcrumb {
+      margin: 0;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .breadcrumb a {
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .header-title {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 3.5vw, 2.6rem);
+      color: var(--white);
+    }
+
+    .header-meta {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.95rem;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 2.2rem;
+    }
+
+    section {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 1.6rem 1.8rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin: 0 0 0.8rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.5rem;
+      color: var(--forest);
+    }
+
+    h3 {
+      margin: 0 0 0.4rem;
+      font-size: 1.1rem;
+      color: var(--forest);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    hr {
+      border: none;
+      border-top: 2px solid rgba(31, 64, 48, 0.12);
+      margin: 0;
+    }
+
+    blockquote {
+      margin: 0.6rem 0 0;
+      padding: 0.8rem 1rem;
+      background: rgba(244, 179, 91, 0.15);
+      border-left: 4px solid rgba(244, 179, 91, 0.6);
+      border-radius: 12px;
+      color: #3c4b44;
+    }
+
+    details {
+      background: #f9f5ee;
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--forest);
+    }
+
+    .subnav {
+      max-width: 1100px;
+      margin: 1.2rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .subnav a {
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 64, 48, 0.2);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    nav[aria-label="Next"] {
+      text-align: center;
+    }
+
+    nav[aria-label="Next"] a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      color: var(--forest);
+      border: 1px solid rgba(31, 64, 48, 0.2);
+      background: rgba(244, 179, 91, 0.25);
+    }
+
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 700px) {
+      section { padding: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <p class="breadcrumb"><a href="/">Home</a> / <a href="/history/">History</a> / <a href="/history/oralhistories/">Oral Histories</a></p>
+      <h1 class="header-title">Interview with Bob Ewing</h1>
+      <p class="header-meta"><strong>Date:</strong> November 6, 2000</p>
+      <p class="header-meta"><strong>Interviewer:</strong> Leda Hunter</p>
+      <p class="header-meta"><strong>Format:</strong> Phone interview</p>
+      <p class="header-meta"><strong>Location:</strong> Klamath Falls, Oregon (as recorded)</p>
+    </div>
+  </header>
+
+  <div class="subnav" aria-label="History section navigation">
+    <a href="/history/">Home</a>
+    <a href="/history/oralhistories/">Back to Oral Histories</a>
+  </div>
+
+  <main>
+    <section aria-labelledby="toc">
+      <h2 id="toc">On this page</h2>
+      <ul>
+        <li><a href="#summary">Quick summary</a></li>
+        <li><a href="#highlights">Highlights (quotable moments)</a></li>
+        <li><a href="#timeline">Timeline anchors</a></li>
+        <li><a href="#themes">Themes</a></li>
+        <li><a href="#transcript">Full transcript</a></li>
+        <li><a href="#source">Source &amp; notes</a></li>
+      </ul>
+    </section>
+
+    <section id="summary" aria-labelledby="summary-title">
+      <h2 id="summary-title">Quick summary</h2>
+      <p>
+        A short phone interview with Bob Ewing about the Campbell Reservoir area: the sand pit that supplied railroad
+        operations, the 1951 hunting cabin built from railroad ties, and local building work in Bly after his Navy service.
+      </p>
+    </section>
+
+    <section id="highlights" aria-labelledby="highlights-title">
+      <h2 id="highlights-title">Highlights (quotable moments)</h2>
+
+      <article>
+        <h3>Cabin built from railroad ties</h3>
+        <blockquote>
+          <p>"The remaining railroad ties were used to build the cabin in 1951."</p>
+        </blockquote>
+      </article>
+
+      <article>
+        <h3>Keeping the federal claim</h3>
+        <blockquote>
+          <p>"They were required to invest $300 per year to keep the claim on federal property."</p>
+        </blockquote>
+      </article>
+
+      <article>
+        <h3>Plaster work in Bly</h3>
+        <blockquote>
+          <p>"They did plaster the phone building in Bly after Bob got out of the Navy in 1971."</p>
+        </blockquote>
+      </article>
+
+    </section>
+
+    <section id="timeline" aria-labelledby="timeline-title">
+      <h2 id="timeline-title">Timeline anchors</h2>
+      <ul>
+        <li><strong>1951</strong> — Cabin near Campbell Reservoir built from railroad ties</li>
+        <li><strong>1970</strong> — Cabin vandalized; claim relinquished</li>
+        <li><strong>1971</strong> — Phone building in Bly plastered after Navy service</li>
+        <li><strong>c. 1987-1988</strong> — Property corners searched for (12-13 years before 2000)</li>
+        <li><strong>2000</strong> — Phone interview recorded</li>
+      </ul>
+    </section>
+
+    <section id="themes" aria-labelledby="themes-title">
+      <h2 id="themes-title">Themes</h2>
+      <ul>
+        <li><strong>Railroad materials:</strong> sand extraction and reuse of railroad ties</li>
+        <li><strong>Local building:</strong> cabin construction and plaster work in Bly</li>
+        <li><strong>Land &amp; claims:</strong> federal property requirements and boundary uncertainty</li>
+        <li><strong>Family memory:</strong> details preserved through relatives and oral recollection</li>
+      </ul>
+    </section>
+
+    <hr />
+
+    <section id="transcript" aria-labelledby="transcript-title">
+      <h2 id="transcript-title">Full transcript</h2>
+
+      <p><strong>Phone interview with Bob Ewing, November 6, 2000</strong></p>
+      <p><strong>Interviewed by Leda Hunter</strong></p>
+
+      <details open>
+        <summary><strong>Transcript text</strong></summary>
+
+        <p>November 6, 2000</p>
+        <p>Phone Interview with Bob Ewing, age 55, of Klamath Falls Oregon. Interviewer, Leda Hunter</p>
+
+        <p>I contacted Bob (Robert) Ewing after hearing that his father had built the cabin that is near Campbell Reservoir.</p>
+
+        <p>He says his uncle in Idaho had told him that Tom Philipson bought sand from the Owens Ranch (off of Hwy 140 near the junction of Forest Service road 3716) for the railroad. After the Owens family asked for more money they moved to the sand pit near Campbell Reservoir and set up their operation.</p>
+
+        <p>After Tom died they tore down the tower that was used to load the sand and moved the equipment to town. The remaining railroad ties were used to build the cabin in 1951. Bob's father and his two brothers built the cabin to use as a hunting cabin. They were required to invest $300 per year to keep the claim on federal property. Bob's grandmother's wood cook stove was in the cabin. The cabin was vandalized in 1970 and the claim was relinquished. Bob tried to find the corners 12 to 13 years ago and could not find them. At one time they thought the property line went through the middle of the cabin.</p>
+
+        <p>He also told me that his father had a permit to get sand, from the Campbell Pit, to use in making plaster. They lived in Klamath Falls and most of the work was done there. They did plaster the phone building in Bly after Bob got out of the Navy in 1971. He said they shoveled the sand, by hand, into a pickup and unloaded into a large box near their house. Bob lives in the same house today.</p>
+
+        <p>He gave me the name of his uncle because he felt that he could provide more information. The uncle's name is also Bob Ewing, 1280 West 8th Street, Weiser, Idaho 83672.</p>
+
+      </details>
+
+    </section>
+
+    <hr />
+
+    <section id="source" aria-labelledby="source-title">
+      <h2 id="source-title">Source &amp; notes</h2>
+      <ul>
+        <li><strong>Source:</strong> "Phone Interview with Bob Ewing, November 6, 2000" (document text)</li>
+        <li><a href="/history/documents/Interviews/ewing_interview%20-%20Copy.doc">Download original interview (DOC)</a></li>
+      </ul>
+    </section>
+
+    <nav aria-label="Next">
+      <p><a href="/history/oralhistories/">Back to Oral Histories</a></p>
+    </nav>
+  </main>
+
+  <footer>
+    <p>&copy; Bly, Oregon — Community History Archive</p>
+  </footer>
+
+</body>
+</html>
