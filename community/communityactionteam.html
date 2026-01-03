@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bly Community Action Team | Bly, Oregon</title>
+  <meta name="description" content="Bly Community Action Team updates and the Community Action Plan PDF." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sage: #9fb39f;
+      --sand: #f5efe5;
+      --clay: #cbb59a;
+      --sun: #f4b35b;
+      --ink: #1e1f1c;
+      --white: #fff;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      text-align: center;
+    }
+
+    .brand-title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .home-link {
+      text-decoration: none;
+      font-weight: 700;
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      padding: 0.45rem 0.95rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 2rem;
+    }
+
+    .intro {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 1.8rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.78rem;
+      color: var(--moss);
+      font-weight: 600;
+    }
+
+    h1 {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2.1rem, 4vw, 3rem);
+      margin: 0;
+      color: var(--forest);
+    }
+
+    .intro p {
+      margin: 0;
+      color: #44554d;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 64, 48, 0.25);
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .pdf-frame {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      background: #fff;
+    }
+
+    .pdf-frame iframe {
+      width: 100%;
+      height: 80vh;
+      border: 0;
+    }
+
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .section {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 1.8rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+    }
+
+    .section-head h2 {
+      font-family: "Fraunces", "Times New Roman", serif;
+      margin: 0;
+      color: var(--forest);
+      font-size: 1.65rem;
+    }
+
+    .section-head p {
+      margin: 0.5rem 0 0;
+      color: #44554d;
+      max-width: 75ch;
+    }
+
+    h2 { margin-top: 0; }
+
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.9rem;
+      margin-top: 1.1rem;
+    }
+
+    .stat {
+      border-radius: 16px;
+      padding: 1rem 1.1rem;
+      background: linear-gradient(180deg, rgba(245, 239, 229, 0.9), rgba(255, 255, 255, 0.95));
+      border: 1px solid rgba(31, 64, 48, 0.12);
+    }
+
+    .stat-kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.72rem;
+      color: var(--moss);
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.55rem;
+      color: var(--forest);
+      font-weight: 700;
+      margin-top: 0.2rem;
+    }
+
+    .stat-note {
+      margin-top: 0.25rem;
+      color: #4a5c54;
+      font-size: 0.93rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+
+    .card {
+      border-radius: 18px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 1.2rem;
+      box-shadow: 0 14px 28px rgba(12, 26, 20, 0.10);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      color: var(--forest);
+      font-size: 1.2rem;
+    }
+
+    .card p { margin: 0.55rem 0 0; color: #44554d; }
+
+    .muted { color: #556660; }
+
+    .quote {
+      border-left: 3px solid rgba(47, 90, 70, 0.45);
+      padding-left: 0.9rem;
+      color: #344840;
+      background: rgba(159, 179, 159, 0.12);
+      border-radius: 14px;
+      padding-top: 0.8rem;
+      padding-bottom: 0.8rem;
+    }
+
+    .bullets {
+      margin: 0.75rem 0 0;
+      padding-left: 1.1rem;
+      color: #44554d;
+    }
+
+    .bullets li { margin: 0.28rem 0; }
+
+    .callout {
+      margin-top: 1.4rem;
+      padding: 1.2rem 1.3rem;
+      border-radius: 18px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      background: linear-gradient(90deg, rgba(244, 179, 91, 0.20), rgba(159, 179, 159, 0.16));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .callout-title {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      color: var(--forest);
+      font-size: 1.2rem;
+    }
+
+    .callout-text { margin: 0.35rem 0 0; color: #3b5249; max-width: 70ch; }
+
+    .accordion {
+      margin-top: 1.2rem;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+    }
+
+    .acc-trigger {
+      width: 100%;
+      text-align: left;
+      padding: 1rem 1.2rem;
+      background: rgba(255, 255, 255, 0.95);
+      border: 0;
+      border-top: 1px solid rgba(31, 64, 48, 0.10);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      font-family: inherit;
+      font-weight: 700;
+      color: var(--forest);
+      cursor: pointer;
+    }
+
+    .acc-trigger:first-child { border-top: 0; }
+
+    .acc-icon {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 64, 48, 0.20);
+      color: var(--forest);
+      background: rgba(245, 239, 229, 0.9);
+      flex: 0 0 auto;
+    }
+
+    .acc-panel { background: rgba(245, 239, 229, 0.65); }
+
+    .acc-inner { padding: 0.9rem 1.2rem 1.1rem; }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.2rem;
+    }
+
+    .chip {
+      border: 1px solid rgba(31, 64, 48, 0.25);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--forest);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .chip.is-active {
+      background: rgba(47, 90, 70, 0.12);
+      border-color: rgba(47, 90, 70, 0.40);
+    }
+
+    .accomplishments { margin-top: 1rem; }
+
+    .tabs { margin-top: 1.2rem; }
+
+    .tab-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      border-bottom: 1px solid rgba(31, 64, 48, 0.12);
+      padding-bottom: 0.8rem;
+    }
+
+    .tab {
+      border: 1px solid rgba(31, 64, 48, 0.25);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--forest);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .tab.is-active {
+      background: rgba(244, 179, 91, 0.18);
+      border-color: rgba(244, 179, 91, 0.55);
+    }
+
+    .tab-panels { margin-top: 1rem; }
+
+    .cols {
+      columns: 2;
+      column-gap: 2rem;
+    }
+
+    .section-foot { margin-top: 1.2rem; }
+
+    .minutes {
+      margin-top: 1.1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .minutes-tools {
+      padding: 1rem 1.2rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      background: rgba(245, 239, 229, 0.85);
+      border-bottom: 1px solid rgba(31, 64, 48, 0.10);
+    }
+
+    .field { display: grid; gap: 0.35rem; }
+
+    .field-label {
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--moss);
+    }
+
+    .select {
+      border-radius: 12px;
+      border: 1px solid rgba(31, 64, 48, 0.18);
+      padding: 0.55rem 0.75rem;
+      background: #fff;
+      font-family: inherit;
+      min-width: 180px;
+    }
+
+    .hint {
+      color: #4a5c54;
+      font-size: 0.95rem;
+    }
+
+    .hint code {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0.1rem 0.35rem;
+      border-radius: 8px;
+      border: 1px solid rgba(31, 64, 48, 0.10);
+    }
+
+    .minutes-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+      padding: 1.1rem;
+    }
+
+    .minute {
+      display: grid;
+      gap: 0.25rem;
+      text-decoration: none;
+      color: var(--ink);
+      border-radius: 16px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      padding: 0.95rem;
+      background: rgba(255, 255, 255, 0.98);
+    }
+
+    .minute[aria-disabled="true"] {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .minute-title {
+      font-weight: 800;
+      color: var(--forest);
+    }
+
+    .minute-meta {
+      color: #4a5c54;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .quick-stats { grid-template-columns: 1fr; }
+      .minutes-list { grid-template-columns: 1fr; }
+      .cols { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">Community Action Team</div>
+      </div>
+      <a class="home-link" href="/community/">Return to Community</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" id="top">
+      <span class="eyebrow">Bly CAT</span>
+      <h1>Community Action Team</h1>
+      <p>
+        The Bly Community Action Team (CAT) is a local nonprofit group formed in the 1990s to help residents organize,
+        plan, and follow through on projects that strengthen Bly’s quality of life.
+      </p>
+      <div class="actions">
+        <a class="button" href="/history/documents/Community_Action_Plan_Bly_Oregon.pdf" download>
+          Download action plan (PDF)
+        </a>
+        <a class="button" href="#about">What is the CAT?</a>
+        <a class="button" href="#accomplishments">What’s been accomplished</a>
+        <a class="button" href="#minutes">Meeting minutes</a>
+      </div>
+      <div class="quick-stats" role="list" aria-label="Quick facts">
+        <div class="stat" role="listitem">
+          <div class="stat-kicker">Established</div>
+          <div class="stat-value">1994</div>
+          <div class="stat-note">Community team created with local + county support.</div>
+        </div>
+        <div class="stat" role="listitem">
+          <div class="stat-kicker">Nonprofit</div>
+          <div class="stat-value">501(c)(3)</div>
+          <div class="stat-note">Recognized by the IRS in 2000.</div>
+        </div>
+        <div class="stat" role="listitem">
+          <div class="stat-kicker">Meetings</div>
+          <div class="stat-value">Monthly</div>
+          <div class="stat-note">Historically the 4th Thursday.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="section-head">
+        <h2>What is the Community Action Team?</h2>
+        <p>
+          The Bly CAT was formed after federal rural-community assistance in the early 1990s supported the creation of
+          Community Action Teams and Community Action Plans. Bly’s team was approved in March 1994 and formally
+          recognized by Klamath County shortly after.
+        </p>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Purpose</h3>
+          <p>
+            Bring residents together to identify priorities, organize projects, and coordinate with partners (county, state,
+            federal, and nonprofits) to get real work done.
+          </p>
+          <ul class="bullets">
+            <li>Coordinate planning and grant work</li>
+            <li>Support local services and facilities</li>
+            <li>Keep the plan “fluid” as needs change</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h3>Mission</h3>
+          <p class="quote">
+            “Define and develop our human and natural resources in a manner that is environmentally sensitive and
+            economically productive.”
+          </p>
+          <p class="muted">
+            The team’s Articles of Incorporation also describe supporting community projects by helping obtain and
+            administer grant funding.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Vision</h3>
+          <p class="quote">
+            A future with the same small-town atmosphere, a wide range of public services, a stable and diverse economy,
+            and a natural environment that remains much like it has always been.
+          </p>
+          <p class="muted">(From the Community Action Plan vision statement.)</p>
+        </article>
+      </div>
+
+      <div class="callout">
+        <div>
+          <h3 class="callout-title">How this page will evolve</h3>
+          <p class="callout-text">
+            This page is meant to be living. As minutes, projects, and updates are added, it becomes a public memory of
+            what the community is working on and what gets finished.
+          </p>
+        </div>
+        <a class="button" href="#minutes">Jump to minutes</a>
+      </div>
+    </section>
+
+    <section class="section" id="history">
+      <div class="section-head">
+        <h2>Background</h2>
+        <p>
+          Bly is a rural, unincorporated community on Highway 140 between Klamath Falls and Lakeview. The action plan
+          describes a local economy rooted in agriculture, timber, and tourism, with many services provided locally.
+        </p>
+      </div>
+
+      <div class="accordion" data-accordion>
+        <button class="acc-trigger" type="button" aria-expanded="false">
+          <span>How the team formed (1994–2000)</span>
+          <span class="acc-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="acc-panel" hidden>
+          <div class="acc-inner">
+            <ul class="bullets">
+              <li>Team approved in March 1994; county order established membership soon after.</li>
+              <li>Forest Service advisor support in early years; later the team operated without an advisor.</li>
+              <li>Nonprofit decision in 1999; IRS recognition as a 501(c)(3) in April 2000.</li>
+              <li>Monthly meetings with residents and visitors (often 10–20 attendees).</li>
+            </ul>
+          </div>
+        </div>
+
+        <button class="acc-trigger" type="button" aria-expanded="false">
+          <span>Planning approach</span>
+          <span class="acc-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="acc-panel" hidden>
+          <div class="acc-inner">
+            <p class="muted">
+              The plan documents a community process: public meetings, a SWOT analysis, resident surveys, then narrowing
+              down projects into a workable list. Completed items make room for new priorities.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="accomplishments">
+      <div class="section-head">
+        <h2>What has been accomplished</h2>
+        <p>
+          The Community Action Plan lists many improvements completed over the years. Below is a curated summary you
+          can expand and refine as more history and photos are added.
+        </p>
+      </div>
+
+      <div class="filters" aria-label="Accomplishments filters">
+        <button class="chip is-active" type="button" data-filter="all">All</button>
+        <button class="chip" type="button" data-filter="parks">Parks &amp; recreation</button>
+        <button class="chip" type="button" data-filter="health">Health</button>
+        <button class="chip" type="button" data-filter="safety">Safety</button>
+        <button class="chip" type="button" data-filter="downtown">Downtown</button>
+        <button class="chip" type="button" data-filter="community">Community services</button>
+      </div>
+
+      <div class="grid accomplishments" data-grid>
+        <article class="card accomplishment" data-tags="parks community">
+          <h3>Community Park + Fire Lookout Museum</h3>
+          <p>
+            Park improvements included restrooms, playground equipment, paving, memorial items, and the relocation of the
+            Bly Fire lookout tower to serve as a fire museum.
+          </p>
+        </article>
+
+        <article class="card accomplishment" data-tags="health community">
+          <h3>Sprague Valley Medical Center renovations</h3>
+          <p>
+            Outside renovations, accessibility improvements, and equipment upgrades helped keep local medical service
+            available in Bly.
+          </p>
+        </article>
+
+        <article class="card accomplishment" data-tags="safety community">
+          <h3>Fire district equipment upgrades</h3>
+          <p>
+            Grants supported firefighting equipment, extrication tools, radios, and replacement apparatus—helping improve
+            emergency readiness.
+          </p>
+        </article>
+
+        <article class="card accomplishment" data-tags="community">
+          <h3>Community hall upgrades</h3>
+          <p>
+            Kitchen appliances, tables and chairs, announcement board, roofing, and flooring updates helped keep the hall
+            usable for meetings and community events.
+          </p>
+        </article>
+
+        <article class="card accomplishment" data-tags="parks">
+          <h3>Little League field rebuild</h3>
+          <p>
+            Volunteers and grants rebuilt condemned facilities and added a much-needed restroom.
+          </p>
+        </article>
+
+        <article class="card accomplishment" data-tags="downtown community">
+          <h3>Streetscape items + safer walking</h3>
+          <p>
+            Sidewalk and lighting planning, plus benches, planters, and other streetscape elements supported a more
+            walkable downtown.
+          </p>
+        </article>
+
+        <article class="card accomplishment" data-tags="downtown parks">
+          <h3>Bike + pedestrian path</h3>
+          <p>
+            A path connecting the community park and Forest Service office improved safe access for residents.
+          </p>
+        </article>
+
+        <article class="card accomplishment" data-tags="community">
+          <h3>Cleanups, flowerpots, and pride projects</h3>
+          <p>
+            Annual cleanups, planters, trash receptacles, mowing vacant lots, and a rebuilt welcome sign helped keep Bly
+            looking cared-for.
+          </p>
+        </article>
+
+        <article class="card accomplishment" data-tags="community">
+          <h3>Bly Bulletin newsletter + oral history interviews</h3>
+          <p>
+            A quarterly newsletter keeps residents informed, and volunteer-led oral history interviews preserved stories from
+            longtime residents.
+          </p>
+        </article>
+      </div>
+
+      <div class="section-foot">
+        <p class="muted">
+          Want to add photos, dates, or names for any of these items? Each card can be expanded into a full story page.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="priorities">
+      <div class="section-head">
+        <h2>Strengths, challenges, and priorities</h2>
+        <p>
+          The action plan includes a SWOT analysis and a resident survey. Here’s a simple way to browse the themes.
+        </p>
+      </div>
+
+      <div class="tabs" data-tabs>
+        <div class="tab-list" role="tablist" aria-label="SWOT tabs">
+          <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="strengths">Strengths</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-tab="weaknesses">Weaknesses</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-tab="opportunities">Opportunities</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-tab="threats">Threats</button>
+        </div>
+
+        <div class="tab-panels">
+          <div class="tab-panel is-active" data-panel="strengths" role="tabpanel">
+            <ul class="bullets cols">
+              <li>Close-knit community and pride</li>
+              <li>Local services (fire, ambulance, clinic, water/sewer, library, post office)</li>
+              <li>Outdoor recreation and natural resources</li>
+              <li>Highway 140 access and quiet rural setting</li>
+            </ul>
+          </div>
+
+          <div class="tab-panel" data-panel="weaknesses" role="tabpanel" hidden>
+            <ul class="bullets cols">
+              <li>Limited job opportunities and seasonal work</li>
+              <li>Volunteer burnout and need for more leaders</li>
+              <li>Limited services (law enforcement, day care, banking, news coverage)</li>
+              <li>Housing limitations and some older homes needing major work</li>
+            </ul>
+          </div>
+
+          <div class="tab-panel" data-panel="opportunities" role="tabpanel" hidden>
+            <ul class="bullets cols">
+              <li>Tourism support (kiosk/info at the park)</li>
+              <li>Activity center / community spaces</li>
+              <li>Day care and youth opportunities</li>
+              <li>Small-business support and local services</li>
+            </ul>
+          </div>
+
+          <div class="tab-panel" data-panel="threats" role="tabpanel" hidden>
+            <ul class="bullets cols">
+              <li>Loss of school, clinic, or library if use/enrollment drops</li>
+              <li>Dependence on timber and agency hiring changes</li>
+              <li>Volunteer burnout and shortage of trained EMTs</li>
+              <li>Limited law enforcement coverage</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="minutes">
+      <div class="section-head">
+        <h2>Meeting minutes</h2>
+        <p>
+          Eventually, each month’s minutes can be uploaded and automatically listed here. For now, this is ready as a
+          structured landing spot.
+        </p>
+      </div>
+
+      <div class="minutes">
+        <div class="minutes-tools">
+          <label class="field">
+            <span class="field-label">Filter by year</span>
+            <select class="select" data-minutes-filter>
+              <option value="all">All</option>
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+            </select>
+          </label>
+          <div class="hint">
+            Upload location suggestion: <code>/community/minutes/YYYY/MM/</code>
+          </div>
+        </div>
+
+        <div class="minutes-list" data-minutes-list>
+          <a class="minute" href="#" aria-disabled="true" data-year="2026">
+            <div class="minute-title">January 2026 minutes (placeholder)</div>
+            <div class="minute-meta">PDF · Coming soon</div>
+          </a>
+          <a class="minute" href="#" aria-disabled="true" data-year="2025">
+            <div class="minute-title">December 2025 minutes (placeholder)</div>
+            <div class="minute-meta">PDF · Coming soon</div>
+          </a>
+          <a class="minute" href="#" aria-disabled="true" data-year="2024">
+            <div class="minute-title">November 2024 minutes (placeholder)</div>
+            <div class="minute-meta">PDF · Coming soon</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="pdf-frame" aria-label="Community Action Plan PDF" id="plan">
+      <iframe src="/assets/Community%20Action%20Plan.doc%20-%20Google%20Docs.pdf" title="Community Action Plan PDF"></iframe>
+    </section>
+  </main>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
+  <script>
+    (function () {
+      // Smooth-scroll for in-page buttons
+      document.querySelectorAll('a.button[href^="#"]').forEach((a) => {
+        a.addEventListener('click', (e) => {
+          const targetId = a.getAttribute('href');
+          const el = document.querySelector(targetId);
+          if (!el) return;
+          e.preventDefault();
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.replaceState(null, '', targetId);
+        });
+      });
+
+      // Accordion
+      document.querySelectorAll('[data-accordion] .acc-trigger').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const panel = btn.nextElementSibling;
+          const isOpen = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', String(!isOpen));
+          const icon = btn.querySelector('.acc-icon');
+          if (icon) icon.textContent = isOpen ? '+' : '–';
+          if (panel) {
+            panel.hidden = isOpen;
+          }
+        });
+      });
+
+      // Accomplishments filter chips
+      const chips = Array.from(document.querySelectorAll('[data-filter]'));
+      const cards = Array.from(document.querySelectorAll('[data-grid] .accomplishment'));
+
+      function applyFilter(tag) {
+        cards.forEach((card) => {
+          const tags = (card.getAttribute('data-tags') || '').split(/\s+/).filter(Boolean);
+          const show = tag === 'all' || tags.includes(tag);
+          card.style.display = show ? '' : 'none';
+        });
+      }
+
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          chips.forEach((c) => c.classList.remove('is-active'));
+          chip.classList.add('is-active');
+          applyFilter(chip.getAttribute('data-filter'));
+        });
+      });
+
+      // Tabs
+      const tabButtons = Array.from(document.querySelectorAll('[data-tabs] .tab'));
+      const tabPanels = Array.from(document.querySelectorAll('[data-tabs] .tab-panel'));
+
+      function setTab(name) {
+        tabButtons.forEach((b) => {
+          const active = b.getAttribute('data-tab') === name;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-selected', String(active));
+        });
+
+        tabPanels.forEach((p) => {
+          const active = p.getAttribute('data-panel') === name;
+          p.classList.toggle('is-active', active);
+          p.hidden = !active;
+        });
+      }
+
+      tabButtons.forEach((btn) => {
+        btn.addEventListener('click', () => setTab(btn.getAttribute('data-tab')));
+      });
+
+      // Minutes year filter
+      const yearSelect = document.querySelector('[data-minutes-filter]');
+      const minutes = Array.from(document.querySelectorAll('[data-minutes-list] .minute'));
+
+      function filterMinutes(year) {
+        minutes.forEach((m) => {
+          const y = m.getAttribute('data-year');
+          const show = year === 'all' || y === year;
+          m.style.display = show ? '' : 'none';
+        });
+      }
+
+      if (yearSelect) {
+        yearSelect.addEventListener('change', () => filterMinutes(yearSelect.value));
+      }
+    })();
+  </script>
+</body>
+</html>
