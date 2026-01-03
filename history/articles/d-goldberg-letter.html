@@ -143,7 +143,7 @@
       background: var(--card);
     }
 
-    .letter-photo + .pdf-embed {
+    .letter-photo + .letter-photo {
       margin-top: 1.5rem;
     }
 
@@ -154,18 +154,16 @@
       object-fit: cover;
     }
 
-    .pdf-embed {
-      border-radius: 18px;
-      overflow: hidden;
-      border: 1px solid rgba(31, 64, 48, 0.12);
-      box-shadow: var(--shadow);
-      background: #fff;
+    .letter-gallery {
+      margin: 1.8rem 0 0;
+      display: grid;
+      gap: 1.5rem;
     }
 
-    .pdf-embed iframe {
-      width: 100%;
-      height: 80vh;
-      border: 0;
+    @media (min-width: 900px) {
+      .letter-gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     .download-links {
@@ -247,15 +245,21 @@ D Goldberg
       <img src="/assets/DGoldbergCasketPhoto.jpg" alt="D Goldberg casket photo">
     </figure>
 
-    <section class="pdf-embed" aria-label="D Goldberg letter PDF">
-      <iframe src="/assets/DGoldbergLetter.pdf" title="D Goldberg letter PDF"></iframe>
-    </section>
+    <div class="letter-gallery">
+      <figure class="letter-photo">
+        <img src="/assets/DGoldbergLetter-1.jpg" alt="D Goldberg letter page 1">
+      </figure>
+
+      <figure class="letter-photo">
+        <img src="/assets/DGoldbergLetter-2.jpg" alt="D Goldberg letter page 2">
+      </figure>
+    </div>
 
     <section>
       <h2 class="section-header">Downloads</h2>
       <div class="download-links">
         <a href="/assets/DGoldbergLetter.pdf" download>Download letter (PDF)</a>
-        <a href="/assets/DGoldbergCasketPhoto.jpg" download>Download casket photo (JPG)</a>
+        <a href="/history/documents/D%20Goldberg.doc" download>Download clean transcript (DOC)</a>
       </div>
     </section>
   </main>
