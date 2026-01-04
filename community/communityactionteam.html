@@ -284,6 +284,40 @@
 
     .bullets li { margin: 0.28rem 0; }
 
+    .timeline {
+      margin-top: 1.2rem;
+      border-left: 2px solid rgba(31, 64, 48, 0.2);
+      padding-left: 1.2rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .timeline-item {
+      display: grid;
+      gap: 0.35rem;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -1.45rem;
+      top: 0.35rem;
+      width: 0.7rem;
+      height: 0.7rem;
+      border-radius: 999px;
+      background: var(--sun);
+      border: 2px solid var(--forest);
+    }
+
+    .timeline-year {
+      font-weight: 800;
+      color: var(--forest);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.78rem;
+    }
+
     .callout {
       margin-top: 1.4rem;
       padding: 1.2rem 1.3rem;
@@ -641,7 +675,9 @@
       <h2>What we do</h2>
       <p>
         The Bly Community Action Team (CAT) is a local nonprofit group formed in the 1990s to help residents organize,
-        plan, and follow through on projects that strengthen Bly’s quality of life.
+        plan, and follow through on projects that strengthen Bly’s quality of life. Recent work includes stewardship of
+        the Ruth Obenchain Recreation Center (Gearhart Gym), community events, and grant coordination captured in the
+        meeting minutes.
       </p>
       <div class="actions">
         <a class="button" href="#about">What is the CAT?</a>
@@ -756,6 +792,21 @@
             </p>
           </div>
         </div>
+
+        <button class="acc-trigger" type="button" aria-expanded="false">
+          <span>Gym transfer + revival (2012–2016)</span>
+          <span class="acc-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="acc-panel" hidden>
+          <div class="acc-inner">
+            <ul class="bullets">
+              <li>Gearhart Gym closed in 2012 after years of declining enrollment and rising upkeep costs.</li>
+              <li>A deed clause required the property to return to the Edsall family if unused for two years.</li>
+              <li>Senate Bill 953 (2015) allowed the school district to clear title and transfer the building.</li>
+              <li>On July 21, 2016, the school board voted to transfer the gym to the Bly CAT.</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -777,6 +828,23 @@
       </div>
 
       <div class="grid accomplishments" data-grid>
+        <article class="card accomplishment" data-tags="parks community">
+          <h3>Ruth Obenchain Recreation Center revival</h3>
+          <p>
+            The Gearhart Gym was transferred to the Bly CAT in 2016 and has been restored through volunteer work, grants,
+            and donations. The facility was rededicated as the Ruth Obenchain Recreation Center and continues to receive
+            upgrades like ADA access and facility repairs.
+          </p>
+        </article>
+
+        <article class="card accomplishment" data-tags="community">
+          <h3>Community events + outreach</h3>
+          <p>
+            The minutes track ongoing programs like Fishing Day at Obenchain Reservoir, Halloween gatherings at the gym,
+            the annual Christmas giveaway, town cleanups, and support for community fundraisers.
+          </p>
+        </article>
+
         <article class="card accomplishment" data-tags="parks community">
           <h3>Community Park + Fire Lookout Museum</h3>
           <p>
@@ -854,7 +922,7 @@
       <div class="section-head">
         <h2>Strengths, challenges, and priorities</h2>
         <p>
-          The action plan includes a SWOT analysis and a resident survey. Here’s a simple way to browse the themes.
+          The action plan includes a SWOT analysis and a resident survey. This section reflects that original work.
         </p>
       </div>
 
@@ -902,6 +970,81 @@
               <li>Limited law enforcement coverage</li>
             </ul>
           </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="section" id="recent-focus">
+      <div class="section-head">
+        <h2>Recent focus from meeting minutes</h2>
+        <p>
+          Themes pulled from the CAT minutes across all available years (2017–2025).
+        </p>
+      </div>
+
+      <ul class="bullets">
+        <li>Gym access and maintenance, including ADA ramp funding, roof repairs, and tables, chairs, and banners.</li>
+        <li>Community events at the gym and around town, including Halloween, Christmas programs, and memorial services.</li>
+        <li>Outdoor and youth programs like Fishing Day at Obenchain Reservoir.</li>
+        <li>Town cleanups and downtown improvements supported by grants and volunteer coordination.</li>
+        <li>Public health and safety coordination, including rabies clinics and fire district updates.</li>
+        <li>Partnerships with county, Forest Service, and local organizations on shared projects.</li>
+      </ul>
+    </section>
+
+    <section class="section" id="timeline">
+      <div class="section-head">
+        <h2>Bly CAT timeline</h2>
+        <p>
+          Key milestones from founding through recent projects, based on CAT history and meeting minutes.
+        </p>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-year">1994</div>
+          <p>Community Action Team approved and organized with county support.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">1999–2000</div>
+          <p>Nonprofit status pursued in 1999; IRS 501(c)(3) recognition in April 2000.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2012</div>
+          <p>Gearhart Gym closed after years of declining enrollment and rising maintenance costs.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2015</div>
+          <p>Senate Bill 953 cleared legal hurdles so the district could transfer the gym to a community owner.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2016</div>
+          <p>The school board voted to transfer Gearhart Gym to the Bly CAT, opening the door for restoration.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2022</div>
+          <p>Minutes document the decision to rename the gym as the Ruth Obenchain Recreation Center.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2022</div>
+          <p>Blue Star Memorial planning and construction updates appear as a community heritage project.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2023</div>
+          <p>The recreation center rededication plaque and exterior lettering are tracked in the minutes.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2024</div>
+          <p>Minutes note grant applications tied to downtown improvements and community facilities.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2025</div>
+          <p>ADA ramp installation at the recreation center is recorded in the minutes.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2025</div>
+          <p>Funding to repair the gym roof over the girls’ locker room is documented in the minutes.</p>
         </div>
       </div>
     </section>
