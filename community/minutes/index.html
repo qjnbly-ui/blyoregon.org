@@ -206,6 +206,35 @@
       padding: 0 0.15rem;
     }
 
+    .archive-details {
+      margin-top: 1.2rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    details.archive-panel {
+      border-radius: 16px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 0.4rem 0.9rem;
+    }
+
+    details.archive-panel summary {
+      list-style: none;
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--forest);
+      padding: 0.55rem 0;
+    }
+
+    details.archive-panel summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.archive-panel[open] {
+      box-shadow: 0 14px 28px rgba(12, 26, 20, 0.08);
+    }
+
     .empty-state {
       margin-top: 1rem;
       color: #4a5c54;
@@ -352,6 +381,56 @@
         <p>Browse and download meeting minutes by year or month.</p>
       </div>
 
+      <div class="archive-details">
+        <details class="archive-panel" open>
+          <summary>Recent minutes</summary>
+          <div class="minute-grid" data-recent-list></div>
+        </details>
+
+        <details class="archive-panel" id="downloads">
+          <summary>Download by year</summary>
+          <p>Download a ZIP bundle of minutes for a full year.</p>
+          <div class="bundle-grid">
+            <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2025.zip" download>
+              <span class="bundle-year">2025</span>
+              <span class="bundle-meta">Download 2025 minutes (ZIP)</span>
+            </a>
+            <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2024.zip" download>
+              <span class="bundle-year">2024</span>
+              <span class="bundle-meta">Download 2024 minutes (ZIP)</span>
+            </a>
+            <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2023.zip" download>
+              <span class="bundle-year">2023</span>
+              <span class="bundle-meta">Download 2023 minutes (ZIP)</span>
+            </a>
+            <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2022.zip" download>
+              <span class="bundle-year">2022</span>
+              <span class="bundle-meta">Download 2022 minutes (ZIP)</span>
+            </a>
+            <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2021.zip" download>
+              <span class="bundle-year">2021</span>
+              <span class="bundle-meta">Download 2021 minutes (ZIP)</span>
+            </a>
+            <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2020.zip" download>
+              <span class="bundle-year">2020</span>
+              <span class="bundle-meta">Download 2020 minutes (ZIP)</span>
+            </a>
+            <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2019.zip" download>
+              <span class="bundle-year">2019</span>
+              <span class="bundle-meta">Download 2019 minutes (ZIP)</span>
+            </a>
+            <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2018.zip" download>
+              <span class="bundle-year">2018</span>
+              <span class="bundle-meta">Download 2018 minutes (ZIP)</span>
+            </a>
+            <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2017.zip" download>
+              <span class="bundle-year">2017</span>
+              <span class="bundle-meta">Download 2017 minutes (ZIP)</span>
+            </a>
+          </div>
+        </details>
+      </div>
+
       <div class="tools">
         <label class="field">
           <span class="field-label">Filter by year</span>
@@ -374,64 +453,7 @@
         </label>
         <button class="button" type="button" data-minutes-reset>Reset</button>
       </div>
-    </section>
 
-    <section class="section">
-      <div class="section-head">
-        <h2>Recent minutes</h2>
-      </div>
-      <div class="minute-grid" data-recent-list></div>
-    </section>
-
-    <section class="section" id="downloads">
-      <div class="section-head">
-        <h2>Download by year</h2>
-        <p>Download a ZIP bundle of minutes for a full year.</p>
-      </div>
-      <div class="bundle-grid">
-        <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2025.zip" download>
-          <span class="bundle-year">2025</span>
-          <span class="bundle-meta">Download 2025 minutes (ZIP)</span>
-        </a>
-        <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2024.zip" download>
-          <span class="bundle-year">2024</span>
-          <span class="bundle-meta">Download 2024 minutes (ZIP)</span>
-        </a>
-        <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2023.zip" download>
-          <span class="bundle-year">2023</span>
-          <span class="bundle-meta">Download 2023 minutes (ZIP)</span>
-        </a>
-        <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2022.zip" download>
-          <span class="bundle-year">2022</span>
-          <span class="bundle-meta">Download 2022 minutes (ZIP)</span>
-        </a>
-        <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2021.zip" download>
-          <span class="bundle-year">2021</span>
-          <span class="bundle-meta">Download 2021 minutes (ZIP)</span>
-        </a>
-        <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2020.zip" download>
-          <span class="bundle-year">2020</span>
-          <span class="bundle-meta">Download 2020 minutes (ZIP)</span>
-        </a>
-        <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2019.zip" download>
-          <span class="bundle-year">2019</span>
-          <span class="bundle-meta">Download 2019 minutes (ZIP)</span>
-        </a>
-        <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2018.zip" download>
-          <span class="bundle-year">2018</span>
-          <span class="bundle-meta">Download 2018 minutes (ZIP)</span>
-        </a>
-        <a class="bundle-card" href="/community/cat-minutes/bundles/CAT-minutes-2017.zip" download>
-          <span class="bundle-year">2017</span>
-          <span class="bundle-meta">Download 2017 minutes (ZIP)</span>
-        </a>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <h2>All minutes</h2>
-      </div>
       <div class="minute-grid" data-minutes-list></div>
       <p class="empty-state" data-empty-message hidden>No minutes match your search.</p>
     </section>
@@ -543,7 +565,7 @@
         const recent = minutesData
           .slice()
           .sort((a, b) => b.year - a.year || b.month_num - a.month_num || a.title.localeCompare(b.title))
-          .slice(0, 6);
+          .slice(0, 3);
         recentList.innerHTML = '';
         recent.forEach((item) => recentList.append(buildCard(item, '')));
       }
