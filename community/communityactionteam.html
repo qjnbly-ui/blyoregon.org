@@ -464,6 +464,30 @@
       padding: 1.1rem;
     }
 
+    .minutes-actions {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .minutes-recent {
+      margin-top: 1.2rem;
+    }
+
+    .minutes-recent h3 {
+      margin: 0 0 0.75rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      color: var(--forest);
+      font-size: 1.2rem;
+    }
+
+    .minutes-recent-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
     .minute {
       display: grid;
       gap: 0.25rem;
@@ -582,6 +606,7 @@
       .tab-list { justify-content: center; }
       .minutes-tools { justify-content: center; }
       .subnav { gap: 0.5rem; }
+      .minutes-actions { justify-content: center; }
       .modal-actions { width: 100%; justify-content: center; }
     }
 
@@ -589,6 +614,7 @@
       .grid { grid-template-columns: 1fr; }
       .quick-stats { grid-template-columns: 1fr; }
       .minutes-list { grid-template-columns: 1fr; }
+      .minutes-recent-list { grid-template-columns: 1fr; }
       .cols { columns: 1; }
     }
   </style>
@@ -886,6 +912,41 @@
         <p>
           Meeting minutes from recent and past CAT meetings.
         </p>
+      </div>
+
+      <div class="minutes-actions">
+        <a class="button" href="/community/minutes/">View full minutes archive</a>
+        <a class="button" href="/community/minutes/#downloads">Download by year</a>
+      </div>
+
+      <div class="minutes-recent">
+        <h3>Recent minutes</h3>
+        <div class="minutes-recent-list">
+          <a class="minute" href="/community/cat-minutes/October2025Minutes.docx" data-year="2025" data-doc>
+            <div class="minute-title">October 2025 minutes</div>
+            <div class="minute-meta">DOCX</div>
+          </a>
+          <a class="minute" href="/community/cat-minutes/SeptemberMinutes2025.docx" data-year="2025" data-doc>
+            <div class="minute-title">September 2025 minutes</div>
+            <div class="minute-meta">DOCX</div>
+          </a>
+          <a class="minute" href="/community/cat-minutes/August2025Minutes.docx" data-year="2025" data-doc>
+            <div class="minute-title">August 2025 minutes</div>
+            <div class="minute-meta">DOCX</div>
+          </a>
+          <a class="minute" href="/community/cat-minutes/JuneMinutes2025.docx" data-year="2025" data-doc>
+            <div class="minute-title">June 2025 minutes</div>
+            <div class="minute-meta">DOCX</div>
+          </a>
+          <a class="minute" href="/community/cat-minutes/AprilMinutes2025.docx" data-year="2025" data-doc>
+            <div class="minute-title">April 2025 minutes</div>
+            <div class="minute-meta">DOCX</div>
+          </a>
+          <a class="minute" href="/community/cat-minutes/MarchMinutes2025.docx" data-year="2025" data-doc>
+            <div class="minute-title">March 2025 minutes</div>
+            <div class="minute-meta">DOCX</div>
+          </a>
+        </div>
       </div>
 
       <div class="minutes">
