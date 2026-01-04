@@ -490,6 +490,77 @@
       font-size: 0.92rem;
     }
 
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 30, 24, 0.72);
+      padding: 1.5rem;
+      z-index: 20;
+    }
+
+    .modal.is-open { display: flex; }
+
+    .modal-dialog {
+      width: min(1000px, 95vw);
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 20px 45px rgba(12, 26, 20, 0.35);
+      border: 1px solid rgba(31, 64, 48, 0.18);
+      overflow: hidden;
+      display: grid;
+    }
+
+    .modal-header {
+      padding: 0.9rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: rgba(245, 239, 229, 0.9);
+      border-bottom: 1px solid rgba(31, 64, 48, 0.12);
+    }
+
+    .modal-title {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.2rem;
+      color: var(--forest);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .modal-actions a,
+    .modal-close {
+      border: 1px solid rgba(31, 64, 48, 0.25);
+      border-radius: 999px;
+      padding: 0.35rem 0.85rem;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--forest);
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .modal-body {
+      background: #fff;
+      min-height: 60vh;
+    }
+
+    .modal-body iframe {
+      width: 100%;
+      height: 70vh;
+      border: 0;
+      display: block;
+    }
+
     @media (max-width: 720px) {
       .header-inner { padding: 0.9rem 1.2rem; }
       .header-top { flex-direction: column; align-items: center; }
@@ -511,6 +582,7 @@
       .tab-list { justify-content: center; }
       .minutes-tools { justify-content: center; }
       .subnav { gap: 0.5rem; }
+      .modal-actions { width: 100%; justify-content: center; }
     }
 
     @media (max-width: 980px) {
@@ -535,11 +607,6 @@
 
   <div class="subnav" aria-label="Community Action Team navigation">
     <a href="/community/">Return to Community Home</a>
-    <a href="#top">Overview</a>
-    <a href="#about">About the CAT</a>
-    <a href="#accomplishments">Accomplishments</a>
-    <a href="#priorities">Priorities</a>
-    <a href="#minutes">Minutes</a>
   </div>
 
   <main>
@@ -624,16 +691,6 @@
         </article>
       </div>
 
-      <div class="callout">
-        <div>
-          <h3 class="callout-title">How this page will evolve</h3>
-          <p class="callout-text">
-            This page is meant to be living. As minutes, projects, and updates are added, it becomes a public memory of
-            what the community is working on and what gets finished.
-          </p>
-        </div>
-        <a class="button" href="#minutes">Jump to minutes</a>
-      </div>
     </section>
 
     <section class="section" id="history">
@@ -680,8 +737,7 @@
       <div class="section-head">
         <h2>What has been accomplished</h2>
         <p>
-          The Community Action Plan lists many improvements completed over the years. Below is a curated summary you
-          can expand and refine as more history and photos are added.
+          The Community Action Plan lists many improvements completed over the years.
         </p>
       </div>
 
@@ -766,11 +822,6 @@
         </article>
       </div>
 
-      <div class="section-foot">
-        <p class="muted">
-          Want to add photos, dates, or names for any of these items? Each card can be expanded into a full story page.
-        </p>
-      </div>
     </section>
 
     <section class="section" id="priorities">
@@ -833,8 +884,7 @@
       <div class="section-head">
         <h2>Meeting minutes</h2>
         <p>
-          Eventually, each month’s minutes can be uploaded and automatically listed here. For now, this is ready as a
-          structured landing spot.
+          Meeting minutes from recent and past CAT meetings.
         </p>
       </div>
 
@@ -844,34 +894,55 @@
             <span class="field-label">Filter by year</span>
             <select class="select" data-minutes-filter>
               <option value="all">All</option>
+              <option value="2017">2017</option>
               <option value="2026">2026</option>
               <option value="2025">2025</option>
               <option value="2024">2024</option>
             </select>
           </label>
-          <div class="hint">
-            Upload location suggestion: <code>/community/minutes/YYYY/MM/</code>
-          </div>
         </div>
 
         <div class="minutes-list" data-minutes-list>
-          <a class="minute" href="#" aria-disabled="true" data-year="2026">
-            <div class="minute-title">January 2026 minutes (placeholder)</div>
-            <div class="minute-meta">PDF · Coming soon</div>
+          <a class="minute" href="/community/cat-minutes/Feb2017Minutes.docx" data-year="2017" data-doc>
+            <div class="minute-title">February 2017 minutes</div>
+            <div class="minute-meta">DOCX</div>
           </a>
-          <a class="minute" href="#" aria-disabled="true" data-year="2025">
-            <div class="minute-title">December 2025 minutes (placeholder)</div>
-            <div class="minute-meta">PDF · Coming soon</div>
+          <a class="minute" href="/community/cat-minutes/April2017Minutes.docx" data-year="2017" data-doc>
+            <div class="minute-title">April 2017 minutes</div>
+            <div class="minute-meta">DOCX</div>
           </a>
-          <a class="minute" href="#" aria-disabled="true" data-year="2024">
-            <div class="minute-title">November 2024 minutes (placeholder)</div>
-            <div class="minute-meta">PDF · Coming soon</div>
+          <a class="minute" href="/community/cat-minutes/May2017Minutes.docx" data-year="2017" data-doc>
+            <div class="minute-title">May 2017 minutes</div>
+            <div class="minute-meta">DOCX</div>
+          </a>
+          <a class="minute" href="/community/cat-minutes/June2017Minutes.docx" data-year="2017" data-doc>
+            <div class="minute-title">June 2017 minutes</div>
+            <div class="minute-meta">DOCX</div>
+          </a>
+          <a class="minute" href="/community/cat-minutes/Sept2017Minutes.docx" data-year="2017" data-doc>
+            <div class="minute-title">September 2017 minutes</div>
+            <div class="minute-meta">DOCX</div>
           </a>
         </div>
       </div>
     </section>
 
   </main>
+
+  <div class="modal" id="minutes-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="minutes-modal-title">Meeting minutes</h3>
+        <div class="modal-actions">
+          <a href="#" id="minutes-download" download>Download</a>
+          <button class="modal-close" type="button" id="minutes-close">Close</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <iframe src="" title="Meeting minutes preview" id="minutes-frame"></iframe>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
@@ -962,6 +1033,56 @@
       if (yearSelect) {
         yearSelect.addEventListener('change', () => filterMinutes(yearSelect.value));
       }
+
+      const modal = document.getElementById('minutes-modal');
+      const modalTitle = document.getElementById('minutes-modal-title');
+      const modalFrame = document.getElementById('minutes-frame');
+      const modalDownload = document.getElementById('minutes-download');
+      const modalClose = document.getElementById('minutes-close');
+      const modalLinks = Array.from(document.querySelectorAll('[data-doc]'));
+
+      function openMinutesModal(docUrl, title) {
+        if (!modal || !modalFrame || !modalTitle || !modalDownload) return;
+        const origin = window.location.origin === 'null' ? '' : window.location.origin;
+        const absoluteUrl = origin ? `${origin}${docUrl}` : docUrl;
+        const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(absoluteUrl)}`;
+        modalTitle.textContent = title || 'Meeting minutes';
+        modalFrame.src = viewerUrl;
+        modalDownload.href = docUrl;
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeMinutesModal() {
+        if (!modal || !modalFrame) return;
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        modalFrame.src = '';
+      }
+
+      modalLinks.forEach((link) => {
+        link.addEventListener('click', (e) => {
+          const titleEl = link.querySelector('.minute-title');
+          e.preventDefault();
+          openMinutesModal(link.getAttribute('href'), titleEl ? titleEl.textContent : '');
+        });
+      });
+
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeMinutesModal();
+        });
+      }
+
+      if (modalClose) {
+        modalClose.addEventListener('click', closeMinutesModal);
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && modal.classList.contains('is-open')) {
+          closeMinutesModal();
+        }
+      });
     })();
   </script>
 </body>
