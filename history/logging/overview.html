@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logging History of Bly, Oregon | Bly, Oregon Historic Archives</title>
+  <meta name="description" content="A full narrative history of logging in Bly, Oregon from the earliest days to the present." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sage: #9fb39f;
+      --sand: #f5efe5;
+      --clay: #cbb59a;
+      --sun: #f4b35b;
+      --ink: #1e1f1c;
+      --white: #fff;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.2rem 1.5rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      text-align: center;
+    }
+
+    .page-title {
+      margin: 0 0 0.4rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 3.6vw, 2.6rem);
+      color: var(--white);
+    }
+
+    .page-title-secondary {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(1.15rem, 2.2vw, 1.7rem);
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .page-title-article {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .page-subtitle {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 760px;
+    }
+
+    .subnav {
+      max-width: 1100px;
+      margin: 1.2rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .subnav a {
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 64, 48, 0.2);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+    }
+
+    .section-header {
+      margin: 1.8rem 0 0.8rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.7rem;
+      color: var(--forest);
+    }
+
+    .intro {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 1.6rem 1.8rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+    }
+
+    .sources {
+      background: rgba(244, 179, 91, 0.12);
+      border-radius: 16px;
+      padding: 1.2rem 1.5rem;
+      border: 1px solid rgba(244, 179, 91, 0.4);
+      margin-top: 2rem;
+    }
+
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1 class="page-title">Bly, Oregon</h1>
+      <h2 class="page-title-secondary">Historic Archives: Logging</h2>
+      <h3 class="page-title-article">Logging History of Bly, Oregon (From Earliest Days to Present)</h3>
+      <p class="page-subtitle">A full narrative overview of the mills, camps, rail lines, and the Weyerhaeuser era.</p>
+    </div>
+  </header>
+
+  <div class="subnav" aria-label="History section navigation">
+    <a href="/history/">Return to History</a>
+    <a href="/history/logging/">Return to Logging Home</a>
+  </div>
+
+  <main class="container">
+    <section class="intro">
+      <p>
+        Bly grew from a remote ranching community into a timber town shaped by mills, logging camps, and rail lines.
+        The following history traces that arc from the earliest local sawmills through the Weyerhaeuser era and into the
+        present day.
+      </p>
+    </section>
+
+    <h2 class="section-header">Early Settlers and the First Sawmills (1870s-1920s)</h2>
+    <p>
+      In the late 19th century, Bly was a remote ranching community in the Sprague River Valley of south-central Oregon.
+      Early homesteaders built their barns and cabins from hand-hewn logs and shakes, with only very small whip-saw mills
+      or Indian Agency mills providing limited lumber locally. One of the first steam-driven sawmills in the region was
+      set up by Colahan around 1885 on Bly Mountain, later moved to the White Ranch west of Bly and run by A. J. Fitch.
+      By the 1890s, a few portable mills (such as a mill operated by Jesse Parker just west of Bly) supplied rough-cut
+      lumber for local use. These primitive sawmills were small and seasonal, as there was no practical way to ship large
+      quantities of lumber out of Bly's isolated valley before the railroad. For the most part, Bly remained a quiet
+      frontier settlement of ranchers through the turn of the century, its buildings made from local timber but no
+      large-scale logging industry yet in place.
+    </p>
+    <p>
+      This began to change after 1905, when the surrounding forest lands were brought under federal protection (first as
+      part of the Fremont Forest Reserve). Timber speculators, including the Weyerhaeuser Timber Company, had acquired
+      vast ponderosa pine tracts in the region in the early 1900s. However, without transportation, these stands stayed
+      largely untouched. Everything hinged on the arrival of a railroad to haul lumber to distant markets. Bly's
+      transformation from ranching hamlet to logging town truly began in the late 1920s, when the steel rails finally
+      reached the valley.
+    </p>
+
+    <h2 class="section-header">The Railroad Arrives and a Logging Boom (1927-1930)</h2>
+    <p>
+      The Oregon, California and Eastern Railway (OC&amp;E) - a logging railroad promoted by Robert E. Strahorn - gradually
+      pushed east from Klamath Falls in the 1920s. Construction reached the end of the line at Bly on November 24, 1928,
+      at last connecting Bly to the national rail network. Almost immediately, timber companies swarmed in to tap the
+      vast pine forests that blanketed the surrounding mountains. In mid-1928, even before the rail line was finished,
+      the Pelican Bay Lumber Company announced plans to build a private logging railroad south of Bly and establish a
+      large logging camp in the woods. By January 1929, Pelican Bay crews were already grading their spur line; by
+      March 1, 1929, they had 7 miles of track laid into the timber south of town.
+    </p>
+    <p>
+      At the same time, the Ewauna Box Company (a major mill in Klamath Falls that made wooden boxes) purchased a
+      37,000-acre tract of old-growth pine east of Bly (the Booth-Kelly timber block) and began building its own
+      railroad line toward Quartz Mountain, northeast of Bly. By the fall of 1929, Ewauna's logging railroad extended
+      about 18 miles east from Bly over Quartz Mountain into that timber area. The first trainloads of logs rolled into
+      Klamath Falls from the Bly country in spring 1929 - Pelican Bay Lumber Co. made its first shipment of raw logs to
+      the sawmill on April 13, 1929. Ewauna Box soon installed switching tracks at Bly to interchange their log trains
+      with the OC&amp;E main line. Within a year or two, Bly was transformed from a sleepy ranch village into a bustling
+      logging hub, with locomotives chugging in and out daily and fresh-cut ponderosa pine logs piled high at the rail
+      siding.
+    </p>
+
+    <h2 class="section-header">Logging Camps and Life in the 1930s</h2>
+    <p>
+      With the timber boom underway, logging camps sprang up deep in the woods around Bly. The Pelican Bay Lumber
+      Company set up what became one of the largest logging camps in all of southern Oregon at Robinson Springs, about
+      11-12 miles southeast of Bly. By September 1929, Pelican Bay Camp on Fishhole had nearly 200 men employed, plus
+      many of their wives and children living on site. The company erected rows of wooden bunkhouses and cookhouse tents
+      in a natural alpine meadow fed by clear springs. New cabins were continuously being built to house workers'
+      families, and even a one-room schoolhouse was established at the camp for about 20 children. For a once-isolated
+      area, it was astounding. Each day, loggers felled the huge ponderosa pines with crosscut saws and hauled them by
+      company railroad to Bly, where they were transferred to the OC&amp;E trains bound for the company's main sawmill on
+      Klamath Lake. At camp, horses and cats (caterpillar tractors) skidded logs to the rail landings, and steam donkeys
+      and jammers (crane loaders) lifted the logs onto rail cars. Despite the rugged work, Pelican's camp provided
+      decent living conditions for the era - good spring water, hot meals in a big cookhouse, and even recreation.
+    </p>
+    <p>
+      To the northeast of Bly, the Ewauna Box Company maintained its own remote logging camp at Quartz Mountain. There,
+      a tank steam engine (a saddle-tank locomotive) chuffed up and down steep grades hauling pine logs back toward Bly.
+      Photographs from winter 1930 show the Ewauna camp's cook house on Quartz Mountain, perched amid deep snow, serving
+      hearty food to a hardy logging crew. Ewauna's operation was noted for its well-built logging railroad - 18 miles
+      of track with Heisler and rod locomotives in use. A post office was even established at Quartz Mountain in 1930
+      to serve the camp community. By the late 1930s, Ewauna's timber up on Quartz Mountain was largely cut over. In
+      1940, as operations wound down, the company moved the bachelor bunkhouses from Quartz Mountain to another
+      location, signaling the end of that camp's era.
+    </p>
+    <p>
+      Back in the town of Bly, the logging boom drove a period of rapid growth. Hundreds of workers and their families
+      moved into the area seeking jobs. In 1929, Bly's population was only around 300, but it swelled as logging took
+      off. In response, local entrepreneurs built new amenities: a fine new depot greeted arriving trains, and boarding
+      houses, stores, and even a theater sprang up in Bly to serve the influx of loggers. Bly gained a reputation as a
+      rowdy timber town - it even boasted a tavern called the Logger's Club and, at a nearby mill camp called Ivory Pine,
+      there was reportedly a house of ill repute alongside the dance hall to entertain lumberjacks on payday.
+    </p>
+
+    <h2 class="section-header">Sawmills in Bly: From Crane's Mill to Podunk</h2>
+    <p>
+      Interestingly, during the initial boom, most logs were shipped out of Bly raw, to be milled at large factories in
+      Klamath Falls (Pelican Bay Lumber's mill at Pelican City, and Ewauna's box factory). But soon Bly got its own
+      sawmills, which anchored the town's economy for the next half-century. The first major mill was established by
+      H. R. Crane. In spring 1931, Harold Crane brought in an electrically driven, portable band sawmill and set it up
+      just north of town on the Garrett ranch property. By May 1931, Crane's crew had excavated a mill pond and erected
+      the new mill, which boasted a capacity of 30-40 thousand board feet per day. On June 14, 1931, Crane Mills, Inc.
+      sawed its first log in Bly, marking the town's transition into a true mill town. Initially, Crane's portable band
+      mill employed about 25-40 men and cut roughly 20,000 board feet per day, but it could scale up production as
+      needed. The impact on Bly was immediate - the industry had already left its mark on the town, having added about
+      12 new families with more coming.
+    </p>
+    <p>
+      Crane also set up a secondary mill on the North Fork of Sprague River, a few miles from Bly, to cut timber from
+      that area. This smaller North Fork mill was sold to the Ivory Pine Company in 1936. Crane's main Bly mill operated
+      through the Depression years, albeit with some shutdowns in 1932 when lumber inventories piled up. By 1933,
+      Crane's mill and logging camp were operating steadily despite the hard times.
+    </p>
+    <p>
+      Meanwhile, another big player arrived: the Ivory Pine Lumber Company. Ivory Pine started in 1933 when
+      entrepreneur E. P. Ivory took over an idle mill near Klamath Falls. In 1936, Ivory Pine moved its operations to
+      Bly by purchasing Crane's North Fork mill and timber rights in that vicinity. Ivory Pine set up a sawmill camp
+      about 10 miles northwest of Bly, along the North Fork Sprague River - a place the locals nicknamed Podunk. The
+      Ivory Pine mill became a major operation. It ran two shifts and by the late 1930s was cutting around 12 million
+      board-feet of lumber per year, chiefly ponderosa pine. At its peak, around 150 men worked for Ivory Pine, and a
+      full company town sprouted around the mill site - complete with bunkhouses, family houses, a cookhouse, and even
+      electricity by 1940. Podunk had a reputation as a pretty wild community - it even had a row of houses of
+      prostitution and a dance hall for after-hours entertainment. Children from the Ivory Pine camp were bused into
+      Bly's school, bouncing over muddy roads - indeed, spring mud could get so bad that the school bus sometimes
+      couldn't reach the camp. Nonetheless, Ivory Pine camp life had its comforts: the cookhouse meals were hearty and a
+      bull cook even did chores like making beds for the loggers. In the evenings, workers relaxed by listening to
+      radio, and in later years one camp even boasted a television set in the rec hall.
+    </p>
+    <p>
+      Ivory Pine thrived during the late 1930s and early WWII years. The mill filled large orders for national defense -
+      everything from lumber for military housing to boxes for munitions. However, by the late 1940s the accessible
+      timber was depleted. In 1948, Ivory Pine Lumber Co. shut down its Bly-area mill and Podunk was dismantled,
+      bringing an end to that colorful chapter. Many of the portable buildings and machinery were hauled off to a new
+      venture in Danuba, California, and the forest slowly reclaimed the old mill site.
+    </p>
+
+    <h2 class="section-header">Weyerhaeuser's East Side Expansion (Late 1930s-1940s)</h2>
+    <p>
+      As smaller companies like Pelican Bay and Ewauna were logging out their tracts, the Weyerhaeuser Timber Company
+      was steadily increasing its footprint around Bly. Weyerhaeuser had actually been involved behind the scenes
+      since 1929 - that year it partnered with the Oregon Land &amp; Livestock Co. to form the Bly Timber Company, a joint
+      venture that pooled timberlands and contracted sales of logs to Ewauna Box Co. This arrangement gave Weyerhaeuser
+      a stake in the Bly area harvest early on. But the company's biggest move came at the end of the 1930s.
+    </p>
+    <p>
+      By 1939-1940, Weyerhaeuser began constructing its own private logging railroad network into the vast pine forests
+      north of Bly - the so-called East Block of its Klamath timber holdings. While most outfits were turning to trucks
+      by the 1940s, Weyerhaeuser still invested in a heavy-duty logging railroad to tap remote stands in western Lake
+      County. They extended a branch from the OC&amp;E at Sycan (near Beatty) and pushed 45 miles north into the woods,
+      eventually reaching a terminus known as Camp 500. Along this Weyerhaeuser Woods Line, camps sprung up with simple
+      names like Camp 6, Camp 9, Camp 14, etc., corresponding to rail stations or mileposts. Camp 6 was about 16 miles
+      from Bly, Camp 9 about 50 miles out in the deep timber. In these camps, Weyerhaeuser loggers lived in bunkhouses
+      (usually four men to a cabin) and worked in the woods year-round, even through snowy winters. Life at the
+      Weyerhaeuser camps was famously well-organized: the company provided big cookhouses with professional cooks and
+      bakers, and meals served family style at long tables. A bull cook would tidy up the bunkhouses and even make the
+      loggers' beds daily, so the men returned from 10 hours of felling trees to clean quarters and hot food. These
+      camps were isolated enclaves of civilization in the forest.
+    </p>
+    <p>
+      During World War II, demand for timber soared, and Weyerhaeuser's Klamath Falls mill (opened in 1929) ran at full
+      tilt, producing lumber for barracks, crating, and other war uses. Many men went off to war, so for the first time
+      Weyerhaeuser hired women to work in the mills and planing sheds in Klamath Falls. In Bly's logging camps,
+      operations continued with older men and those exempt from service, supplying logs to feed that wartime production.
+      The Fremont National Forest sold record volumes of timber during the early 1940s, fueling the war effort. This
+      intense harvesting on both private and federal lands around Bly could not be sustained indefinitely, however. By
+      the late 1940s, some of the big pine stands near Bly had been cut over and the initial logging boom subsided.
+      Pelican Bay Lumber Company ceased its Bly-area logging by 1934, and Ewauna's branch line was done by the early
+      1940s. Weyerhaeuser's logging railroad would keep running for a few more decades, but even they would eventually
+      transition to modern methods.
+    </p>
+
+    <h2 class="section-header">Post-War Changes: Mill Consolidation and Community Impacts (1950s-1960s)</h2>
+    <p>
+      After WWII, Bly's logging industry went through consolidation and modernization. Smaller family-owned mills were
+      absorbed or replaced by larger operations. Harold Crane's pioneer sawmill, for example, was sold in 1946 to the
+      Spangler Lumber Company, marking the end of the Crane era. The new owners took over Crane's mill and timber
+      holdings, planning to continue operations as long as timber lasted. Under Spangler's tenure, the mill was upgraded
+      to a six-foot single band headrig and a planer, and Bly's logging economy chugged along through the late 1940s.
+    </p>
+    <p>
+      Disaster struck in 1954 when a fire destroyed the Spangler mill in Bly. Within nine months, the community
+      rebounded - local businessmen Don McGee and Gilbert Lilly rebuilt the facility and reopened it in mid-1955 as the
+      Bly Lumber Company. The reopening was a big event, with some 250 people attending the ceremony, and initially the
+      mill ran with one shift of 18 workers. By that summer of 1955, Bly Lumber Co. was already adding a second shift to
+      increase output. The mill supplied lumber under contract to Weyerhaeuser Timber Co., hinting at the close ties
+      between the small outfit and the timber giant. Bly Lumber Company also aggressively bid on U.S. Forest Service
+      timber sales in the Fremont National Forest. This reflected a growing emphasis on sustainable forestry practices
+      in that era, with companies replanting and the Forest Service managing for long-term yields.
+    </p>
+    <p>
+      Bly's mill suffered another devastating fire in March 1958, but again it was rebuilt - this time as an even
+      larger, all-steel facility dedicated in June 1958. Through the late 1950s, the Bly Lumber Company was the main
+      employer in town, cutting its own logs and running day and night shifts. In 1959, the McGees leased the mill to
+      the E. H. and A. H. Loveness Timber Company. Under Loveness, logs were harvested around Bly but often trucked to
+      the company's planing mill in the Willamette Valley for finishing. This foreshadowed a trend of raw logs and
+      unfinished lumber being shipped out of the area for further processing, as larger companies centralized their
+      operations.
+    </p>
+    <p>
+      Throughout these changes, Bly remained a robust logging community. The 1950s and 1960s saw relative prosperity -
+      logs were plentiful, and the mills ran steadily to feed America's post-war housing boom. Logging techniques were
+      gradually shifting: trucks began to haul more logs to the mill instead of railroad spur lines, especially for
+      shorter distances. Many loggers still recall the 1960s as a kind of golden age - high production, good pay, and a
+      tight-knit community. They also recall the occasional dangers and rough edges of a timber town.
+    </p>
+
+    <h2 class="section-header">The Weyerhaeuser Era and Modern Logging (1970s-1980s)</h2>
+    <p>
+      In 1970, Weyerhaeuser Company bought the Bly sawmill outright, heralding a new era of corporate ownership. The
+      giant timber firm folded the operation into its empire as the Bly Division. Weyerhaeuser immediately invested in
+      modernizing the mill - notably building a new stud mill in 1973 to process the smaller-diameter logs that were
+      then being harvested in second-growth stands. This new mill allowed more efficient production of 2x4 studs for
+      construction, and it also signaled a shift in logger lifestyle: once the new mill opened, Weyerhaeuser shut down
+      its old remote logging camps. By 1973, it was deemed more cost-effective to have loggers live in Bly or commute
+      daily, rather than maintain the extensive camp infrastructure in the woods. The era of Camp 6, Camp 9, etc., came
+      to an end - crews now rode to work in crew buses (fondly called crummies) each morning or drove logging trucks
+      into the cutting areas and returned to town by evening. Thus, after nearly four decades, Bly's surrounding forests
+      fell silent at night without the glow of camp lights - the loggers were back home in Bly with their families.
+    </p>
+    <p>
+      Under Weyerhaeuser's ownership, the Bly operation reached peak production. In 1975, Weyerhaeuser purchased the
+      entire OC&amp;E Railroad from Southern Pacific and Great Northern, gaining full control of the transportation link
+      from Bly to Klamath Falls. They ran long log trains and also shipped finished lumber and wood chips out from the
+      Bly mill to market. By the late 1970s, the OC&amp;E was carrying 35,000 carloads per year, an all-time high, including
+      about 4,000 carloads of lumber and chips from Bly annually. The mill itself was upgraded with modern equipment,
+      and Weyerhaeuser employed dozens of workers in two shifts. These were the high-output years.
+    </p>
+    <p>
+      Yet, change was on the horizon. The early 1980s brought a downturn - high interest rates slowed construction,
+      federal timber sales became more restricted due to environmental laws, and the richest timber stands around Bly
+      had been largely harvested. Car loadings on the OC&amp;E fell to less than half the peak by the mid-1980s.
+      Weyerhaeuser began to scale back. In 1984, the Bly sawmill was permanently shut down, ending over half a century
+      of milling in the town. Many jobs were lost, and Bly's population dwindled from nearly 500 in 1980 to under 300 in
+      the ensuing years as families moved away. For a few more years, Weyerhaeuser kept logging some remaining tracts
+      and hauled raw logs on the OC&amp;E, but even that could not last. By 1990, the local forests were essentially logged
+      out, and Weyerhaeuser ceased all operations on May 1, 1990, closing the book on Bly's logging era. The company
+      pulled out, selling off timberlands or transferring them to the U.S. Forest Service in land exchanges. The same
+      year, the venerable OC&amp;E railroad saw its last train, and the tracks were soon ripped up.
+    </p>
+
+    <h2 class="section-header">Legacy and Reflection</h2>
+    <p>
+      Today, Bly is a quieter place, surrounded by second-growth pine forests and memories of its logging heyday. In
+      the 1990s, the old rail grade that once carried trainloads of logs was converted into the OC&amp;E Woods Line State
+      Trail, a 100-mile rail-trail for hikers and cyclists that stands as Oregon's longest linear park. Interpretive
+      signs along the trail near Bly remind visitors of the gigantic log trains and the camps named by numbers. Locals
+      and historians have worked to preserve this heritage, ensuring that future generations know how this small town
+      helped power a region's timber economy for decades.
+    </p>
+    <p>
+      From the earliest sawmill pioneers to the might of Weyerhaeuser, Bly's logging history is rich and multilayered.
+      It is a story of boom and bust, of technological change (steam trains to diesel trucks), of human grit and
+      community, and of the forest itself, enduring and renewing. The town that once proclaimed itself in the heart of
+      the timber country now stands as a quiet monument to Oregon's lumber heritage, with the voice of the past still
+      whispering through the tall pines.
+    </p>
+
+    <section class="sources">
+      <strong>Sources</strong>
+      <p><strong>🛤️ Railroad &amp; Transportation (Core Logging Infrastructure)</strong></p>
+      <ul>
+        <li>
+          <strong>Oregon, California &amp; Eastern Railway (OC&amp;E) History — Wikipedia</strong><br>
+          An overview of the rail line that reached Bly in 1928 and carried logs, lumber, and mill products for decades.<br>
+          🔗 <a href="https://en.wikipedia.org/wiki/Oregon%2C_California_and_Eastern_Railway">https://en.wikipedia.org/wiki/Oregon%2C_California_and_Eastern_Railway</a>
+        </li>
+        <li>
+          <strong>OC&amp;E Woods Line State Trail — Oregon State Parks</strong><br>
+          Official state history of the former logging railroad corridor and its conversion to a rail-to-trail after Weyerhaeuser operations ended.<br>
+          🔗 <a href="https://stateparks.oregon.gov/index.cfm?do=park.profile&amp;parkId=167">https://stateparks.oregon.gov/index.cfm?do=park.profile&amp;parkId=167</a>
+        </li>
+        <li>
+          <strong>OC&amp;E Woods Line State Trail — TrailLink</strong><br>
+          Trail overview with historical context describing the original logging rail line and its role in regional timber transport.<br>
+          🔗 <a href="https://www.traillink.com/trail/oce-woods-line-state-trail/">https://www.traillink.com/trail/oce-woods-line-state-trail/</a>
+        </li>
+        <li>
+          <strong>OC&amp;E &amp; Woods Line — Cheryl Hill Travel Blog (Contextual History)</strong><br>
+          Narrative account explaining how the OC&amp;E railroad functioned during the logging era and how it later transitioned into a public trail.<br>
+          🔗 <a href="https://cherylhill.net/blog/2018/05/14/oce-woods-line-state-trail/">https://cherylhill.net/blog/2018/05/14/oce-woods-line-state-trail/</a>
+        </li>
+      </ul>
+      <p>⸻</p>
+      <p><strong>🪵 Local Logging Industry &amp; Bly-Specific History</strong></p>
+      <ul>
+        <li>
+          <strong>Bly, Oregon — Historical Overview (OregonCities.us)</strong><br>
+          Summary of Bly’s development as a logging town, including mills, rail access, and Weyerhaeuser’s later presence.<br>
+          🔗 <a href="https://oregoncities.us/bly/index.htm">https://oregoncities.us/bly/index.htm</a>
+        </li>
+        <li>
+          <strong>Klamath Echoes No. 12 — Sprague River &amp; Bly Area History</strong><br>
+          Primary local historical journal covering early settlement, logging, mills, and community development around Bly.<br>
+          🔗 <a href="https://klamathcountyhistoricalsociety.org/images/Echoes/Klamath-Echoes-No.-12—Sprague-River-Bly.pdf">https://klamathcountyhistoricalsociety.org/images/Echoes/Klamath-Echoes-No.-12—Sprague-River-Bly.pdf</a>
+        </li>
+        <li>
+          <strong>Klamath Echoes No. 18 — Industry &amp; Timber</strong><br>
+          Detailed accounts of mills, logging companies, and timber operations in Klamath County, including Bly-area activity.<br>
+          🔗 <a href="https://klamathcountyhistoricalsociety.org/images/Echoes/Klamath-Echoes-No.-18—Industry.pdf">https://klamathcountyhistoricalsociety.org/images/Echoes/Klamath-Echoes-No.-18—Industry.pdf</a>
+        </li>
+        <li>
+          <strong>Klamath Echoes No. 27 — Post-War Logging &amp; Corporate Era</strong><br>
+          Covers the transition into large-scale corporate logging, including Weyerhaeuser-era operations and mill changes.<br>
+          🔗 <a href="https://klamathcountyhistoricalsociety.org/images/Echoes/Klamath-Echoes-No.-27.pdf">https://klamathcountyhistoricalsociety.org/images/Echoes/Klamath-Echoes-No.-27.pdf</a>
+        </li>
+      </ul>
+      <p>⸻</p>
+      <p><strong>🚂 Railroads &amp; Logging Spurs (Supporting Documents)</strong></p>
+      <ul>
+        <li>
+          <strong>Klamath Echoes No. 16 — Railroads of Klamath County</strong><br>
+          Authoritative county-wide railroad history, including logging spurs, OC&amp;E operations, and timber transport routes.<br>
+          🔗 <a href="https://klamathcountyhistoricalsociety.org/images/Echoes/Klamath-Echoes-No.-16—Railroads.pdf">https://klamathcountyhistoricalsociety.org/images/Echoes/Klamath-Echoes-No.-16—Railroads.pdf</a>
+        </li>
+      </ul>
+      <p>⸻</p>
+      <p><strong>🌲 Federal Forest &amp; Environmental Context</strong></p>
+      <ul>
+        <li>
+          <strong>Fremont–Winema National Forest — U.S. Forest Service</strong><br>
+          Covers the forest lands surrounding Bly, including timber sales, management practices, and post-logging restoration.<br>
+          🔗 <a href="https://www.fs.usda.gov/fremont-winema">https://www.fs.usda.gov/fremont-winema</a>
+        </li>
+        <li>
+          <strong>Woods Line Trail — U.S. Forest Service Recreation Page</strong><br>
+          Federal perspective on the former logging rail corridor and its ecological transition after industrial use ended.<br>
+          🔗 <a href="https://www.fs.usda.gov/recarea/fremont-winema/recarea/?recid=59757">https://www.fs.usda.gov/recarea/fremont-winema/recarea/?recid=59757</a>
+        </li>
+      </ul>
+      <p>⸻</p>
+      <p><strong>🏭 Timber Industry &amp; Mill Context (Regional)</strong></p>
+      <ul>
+        <li>
+          <strong>Running the Mill — Oregon History Project</strong><br>
+          Explains mill operations, box companies (including Ewauna), and timber processing in the Klamath Basin.<br>
+          🔗 <a href="https://www.oregonhistoryproject.org/narratives/nature-and-history-in-the-klamath-basin/putting-nature-to-work/running-the-mill/">https://www.oregonhistoryproject.org/narratives/nature-and-history-in-the-klamath-basin/putting-nature-to-work/running-the-mill/</a>
+        </li>
+        <li>
+          <strong>Timber Industry in Oregon — Oregon Encyclopedia</strong><br>
+          Statewide timber history for environmental, legal, and economic background.<br>
+          🔗 <a href="https://www.oregonencyclopedia.org/articles/timber_industry/">https://www.oregonencyclopedia.org/articles/timber_industry/</a>
+        </li>
+      </ul>
+      <p>⸻</p>
+      <p><strong>🏗️ Corporate &amp; Institutional Context</strong></p>
+      <ul>
+        <li>
+          <strong>Weyerhaeuser Company — Corporate History</strong><br>
+          Official corporate timeline providing context for Weyerhaeuser’s expansion into eastern Oregon timberlands.<br>
+          🔗 <a href="https://www.weyerhaeuser.com/company/history/">https://www.weyerhaeuser.com/company/history/</a>
+        </li>
+        <li>
+          <strong>Weyerhaeuser &amp; Western Logging — HistoryLink (Contextual)</strong><br>
+          Broader Pacific Northwest context for Weyerhaeuser’s logging practices and camp systems.<br>
+          🔗 <a href="https://www.historylink.org/File/5360">https://www.historylink.org/File/5360</a>
+        </li>
+      </ul>
+      <p>⸻</p>
+      <p><strong>🧠 Oral History &amp; Community Memory (Non-Digitized but Credible)</strong></p>
+      <ul>
+        <li>
+          <strong>Bly Oral History Interviews (Local Archive)</strong><br>
+          Recorded interviews with former loggers, mill workers, and residents (including Weyerhaeuser camp life, mills, and rail hauling).<br>
+          📍 Held locally; excerpts published on blyoregon.org/history/oralhistories\n        </li>
+        <li>
+          <strong>Klamath County Museum — Physical Archives</strong><br>
+          Photographs, maps, mill records, and unpublished notes related to Bly, Ivory Pine, Quartz Mountain, and logging camps.<br>
+          📍 In-person archive (Klamath Falls, Oregon)\n        </li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; Bly, Oregon - Community History Archive</p>
+  </footer>
+</body>
+</html>

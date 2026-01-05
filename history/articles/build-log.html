@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Build Log — Dec 30 to Jan 4 | Bly, Oregon</title>
+  <meta name="description" content="Build log for blyoregon.org, documenting progress from Dec 30 to Jan 4." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sage: #9fb39f;
+      --sand: #f5efe5;
+      --clay: #cbb59a;
+      --sun: #f4b35b;
+      --ink: #1e1f1c;
+      --white: #fff;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.2rem 1.5rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      text-align: center;
+    }
+
+    .page-title {
+      margin: 0 0 0.4rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 3.6vw, 2.6rem);
+      color: var(--white);
+    }
+
+    .page-title-secondary {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(1.15rem, 2.2vw, 1.7rem);
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .page-title-article {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .page-subtitle {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 760px;
+    }
+
+    .subnav {
+      max-width: 1100px;
+      margin: 1.2rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .subnav a {
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 64, 48, 0.2);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1.6rem;
+    }
+
+    section {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 1.6rem 1.8rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin: 0 0 0.8rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.6rem;
+      color: var(--forest);
+    }
+
+    ul {
+      margin: 0.6rem 0 0;
+      padding-left: 1.2rem;
+    }
+
+    .quiet {
+      color: rgba(30, 31, 28, 0.75);
+    }
+
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1 class="page-title">Bly, Oregon</h1>
+      <h2 class="page-title-secondary">Historic Archives</h2>
+      <h3 class="page-title-article">Build Log — Dec 30 to Jan 4</h3>
+      <p class="page-subtitle">Notes on how blyoregon.org came together during the first intensive build sprint.</p>
+    </div>
+  </header>
+
+  <div class="subnav" aria-label="History section navigation">
+    <a href="/history/">Return to History</a>
+  </div>
+
+  <main class="container">
+    <section>
+      <h2>Context</h2>
+      <p>
+        I’m Quentin Nichols. I’ve always been interested in Bly’s history. My great-grandfather, Bill Nixon (Howard
+        William Nixon), worked for Weyerhaeuser and shared countless stories with me. We spent many hours driving
+        around the area, seeing places, and visiting with people—many of whom are mentioned on this site and are no
+        longer with us including my grandpa bill who passed away when I was 12. Those experiences shaped how I
+        understand Bly and why its history matters to me.
+      </p>
+      <p>
+        Bly once had a website that held pieces of this history, but it’s no longer available. This is my attempt to
+        bring that back—preserved, expanded, and made more accessible. I hope others come to value it as much as I do.
+      </p>
+      <p>
+        I recently started using Visual Studio Code. At first, I was just experimenting—building small websites,
+        learning how things worked, breaking them, fixing them. Out of that tinkering came the idea to build
+        blyoregon.org.
+      </p>
+      <p>
+        I originally planned to take New Year’s Eve, New Year’s Day, and the weekend mostly off. I expected to use
+        Wednesday through Sunday to work on TikTok and try to generate income.
+      </p>
+      <p>That plan didn’t hold.</p>
+      <p>
+        Instead, almost unintentionally, I spent that entire stretch building the website. I wasn’t following a plan.
+        I was pulled forward by momentum. Each solved problem revealed another possibility, and the process itself
+        became exciting.
+      </p>
+    </section>
+
+    <section>
+      <h2>Time Recorded</h2>
+      <p>Between December 30 and January 4, I spent 50 hours and 13 minutes working almost entirely on the website.</p>
+      <p>Daily breakdown:</p>
+      <ul>
+        <li>Tue Dec 30 — 5h 25m (Medium)</li>
+        <li>Wed Dec 31 — 7h 36m (Medium–High)</li>
+        <li>Thu Jan 1 — 15h 02m (Extreme)</li>
+        <li>Fri Jan 2 — 10h 46m (High)</li>
+        <li>Sat Jan 3 — 1h 34m (Low)</li>
+        <li>Sun Jan 4 — 9h 50m (High)</li>
+      </ul>
+      <p class="quiet">This time was not planned. It accumulated through momentum rather than intention.</p>
+    </section>
+
+    <section>
+      <h2>How the time was spent (estimated)</h2>
+      <ul>
+        <li>Core website construction (VS Code): ~40–45%</li>
+        <li>Research / reference / testing (browser): ~30–35%</li>
+        <li>Content production (audio, images, documents): ~15–20%</li>
+        <li>Support / coordination (ChatGPT, file management, misc): ~5–10%</li>
+      </ul>
+      <p class="quiet">There was almost no recreational use.</p>
+    </section>
+
+    <section>
+      <h2>Result</h2>
+      <p>
+        By the end of this period, the site had a strong foundation. The core architecture was built. Adding features
+        now feels smooth instead of fragile.
+      </p>
+      <p>
+        For the first time since buying my coding books in 2019, I built a fully self-designed website that I
+        understand end-to-end. The site is personally hosted, costs nothing beyond the domain, and includes advanced
+        functionality—such as searchable Community Action Team meeting minutes that instantly reference an entire
+        dataset by keyword.
+      </p>
+    </section>
+
+    <section>
+      <h2>Cost</h2>
+      <p>
+        By Sunday, I was drained. I spent very little time outside. I didn’t exercise. I was mentally exhausted and
+        ended up missing work the following day because I had nothing left. This wasn’t intentional, and it didn’t
+        feel good. It felt like a mistake.
+      </p>
+    </section>
+
+    <section>
+      <h2>Current state (Monday, Jan 5 — 10:37 AM)</h2>
+      <p>
+        I’m now dealing with a technical limitation. GitHub restricts uploads to 1/10 GB, and a two-hour MP3 interview
+        exceeds that. I temporarily hosted the file on Google Drive and linked to it, but it’s not an appropriate or
+        clean solution. It doesn’t look right, and it doesn’t feel right.
+      </p>
+      <p>
+        I’m actively researching external storage options (including Amazon and other providers) because GitHub’s
+        large file system doesn’t support direct MP3 playback the way I need.
+      </p>
+      <p>
+        These are real hurdles—ones that only appear once the foundation exists. From the outside, they can look like
+        wasted time.
+      </p>
+    </section>
+
+    <section>
+      <h2>Outlook</h2>
+      <p>
+        I feel worn out and don’t want to look at my computer, yet I still have logging history data ready to upload.
+        Realistically, I may not accomplish other goals I set for today and will likely continue working on the website
+        instead.
+      </p>
+      <p>
+        Despite the cost, this feels like a real foundation—both for the site and for the skills behind it. I can see
+        how these skills could one day be used in a profitable way. For now, the site exists as something built
+        carefully, for the community, and with intention—even though the process took more out of me than I expected.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; Bly, Oregon - Community History Archive</p>
+  </footer>
+</body>
+</html>
