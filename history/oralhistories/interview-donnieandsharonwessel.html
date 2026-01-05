@@ -184,6 +184,31 @@
       font-size: 0.9rem;
     }
 
+    .play-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.85rem 1.4rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--sun), #f08c3a);
+      color: #2a1605;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 12px 24px rgba(244, 179, 91, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .play-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 30px rgba(244, 179, 91, 0.4);
+    }
+
+    .audio-note {
+      margin: 0.4rem 0 0;
+      color: rgba(30, 31, 28, 0.7);
+      font-size: 0.95rem;
+    }
+
     @media (max-width: 700px) {
       section { padding: 1.4rem; }
     }
@@ -290,12 +315,12 @@
 
     <section id="audio" aria-labelledby="audio-title">
       <h2 id="audio-title">Listen to the interview</h2>
-      <audio controls preload="metadata">
-        <source src="https://drive.google.com/uc?export=download&id=1_dMuVcXDemCqHp_WK2M13ExGVT6dNLbl" type="audio/mpeg" />
-        Your browser does not support the audio element.
-      </audio>
-      <p><a href="https://drive.google.com/uc?export=download&id=1_dMuVcXDemCqHp_WK2M13ExGVT6dNLbl" download>Download audio (MP3)</a></p>
-      <p><a href="https://drive.google.com/file/d/1_dMuVcXDemCqHp_WK2M13ExGVT6dNLbl/preview" rel="noopener">Stream on Google Drive</a></p>
+      <p>
+        <a href="https://drive.google.com/file/d/1_dMuVcXDemCqHp_WK2M13ExGVT6dNLbl/preview" class="play-button" rel="noopener">
+          ▶ Play interview (Google Drive preview)
+        </a>
+      </p>
+      <p class="audio-note">A better audio player is coming to the website soon.</p>
     </section>
 
     <section id="transcript" aria-labelledby="transcript-title">
@@ -403,7 +428,6 @@
       <h2 id="source-title">Source & notes</h2>
       <ul>
         <li><strong>Source:</strong> “Interview with Donnie Wessel, May 10, 2000” (document text)</li>
-        <li>🔊 <a href="https://drive.google.com/uc?export=download&id=1_dMuVcXDemCqHp_WK2M13ExGVT6dNLbl" download>Download interview audio (MP3)</a></li>
         <li>📄 <a href="/history/documents/Interviews/Interview%20with%20Donnie%20and%20Sharon%20Wessel.docx">Download original interview (DOC/PDF)</a></li>
       </ul>
     </section>
