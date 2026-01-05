@@ -159,6 +159,40 @@
       background: rgba(255, 255, 255, 0.8);
     }
 
+    #toc + ul a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      border: 1px solid rgba(31, 64, 48, 0.2);
+      background: rgba(244, 179, 91, 0.18);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #toc + ul a:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(31, 64, 48, 0.12);
+    }
+
+    #toc + ul .toc-play {
+      background: linear-gradient(135deg, var(--sun), #f08c3a);
+      color: #2a1605;
+      border-color: rgba(240, 140, 58, 0.6);
+    }
+
+    #toc + ul {
+      list-style: none;
+      padding-left: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+
     nav[aria-label="Next"] {
       text-align: center;
     }
@@ -358,7 +392,7 @@
 
         <p>One day it was sleeting out and I asked Carolyn if there wasn't another way to make a living and she said, "Well, I wouldn't be anywhere else". We love ranching, out in the open, but you can't go anywhere. Always have to be someone there watching for scours, lung trouble etc. I cooked for the crew while the other women helped with the branding. Branding day, 10-12 is all. Campbell ranch has a big crew all year round. Can't hire people for the wage they can make everywhere else. Have old equipment but don't owe anything. We start baling after the 4th of July. Baled hay stores easier than the shocks people used to leave in the fields or store in the barn. Dave Campbell built a large hay slide. They would slide under the shocks of hay, yarded to the nets and fastened a cable and the derrick driver pulled it up. It made a good-looking solid stack. Rain ruins the hay. Hay in the barn is like money in the bank.</p>
 
-        <p>It was all ranchers when I moved here then logging came in. Young guys worked on the ranches. What grew to be a logging town, started out as a stage stop. Ollie Howard had the hotel and barn.</p>
+        <p id="logging-town-shift">It was all ranchers when I moved here then logging came in. Young guys worked on the ranches. What grew to be a logging town, started out as a stage stop. Ollie Howard had the hotel and barn.</p>
 
         <p>Breaking horses? We don't do that anymore. We don't ride enough to keep them tame. We have two horses left. Carolyn can't ride anymore. The fences are expensive to put up and maintain.</p>
 

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logging History | Bly, Oregon Historic Archives</title>
+  <meta name="description" content="Logging history in Bly, Oregon: camps, mills, rail lines, and the Weyerhaeuser era." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sage: #9fb39f;
+      --sand: #f5efe5;
+      --clay: #cbb59a;
+      --sun: #f4b35b;
+      --ink: #1e1f1c;
+      --white: #fff;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.2rem 1.5rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      text-align: center;
+    }
+
+    .page-title {
+      margin: 0 0 0.4rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 3.6vw, 2.6rem);
+      color: var(--white);
+    }
+
+    .page-title-secondary {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(1.15rem, 2.2vw, 1.7rem);
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .page-title-article {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .page-subtitle {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 760px;
+    }
+
+    .subnav {
+      max-width: 1100px;
+      margin: 1.2rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .subnav a {
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 64, 48, 0.2);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 2rem;
+    }
+
+    .hero-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 1.8rem 2rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .hero-card h2 {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.8rem;
+      color: var(--forest);
+    }
+
+    .section-header {
+      margin: 0 0 0.8rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.6rem;
+      color: var(--forest);
+    }
+
+    .timeline {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 1.3rem 1.5rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--forest);
+    }
+
+    .card p {
+      margin: 0;
+      color: #41514a;
+    }
+
+    .callout {
+      background: rgba(244, 179, 91, 0.15);
+      border-radius: 16px;
+      border: 1px solid rgba(244, 179, 91, 0.4);
+      padding: 1.2rem 1.5rem;
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .callout strong {
+      color: var(--forest);
+    }
+
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 700px) {
+      .hero-card { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1 class="page-title">Bly, Oregon</h1>
+      <h2 class="page-title-secondary">Historic Archives: Logging</h2>
+      <h3 class="page-title-article">Logging History</h3>
+      <p class="page-subtitle">Bly's mills, camps, rail lines, and working stories from the timber era.</p>
+    </div>
+  </header>
+
+  <div class="subnav" aria-label="History section navigation">
+    <a href="/history/">Return to History</a>
+  </div>
+
+  <main class="container">
+    <section class="hero-card">
+      <h2>Welcome to the Logging Archive</h2>
+      <p>
+        This section will collect documents, photographs, and stories about the logging industry around Bly -
+        from camp life and rail lines to mill eras and family memory. As new materials are added, they will be
+        grouped here for easy discovery.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-header">Logging history overview</h2>
+      <p>
+        Bly grew into a timber town through a mix of local mills, camp systems, and rail routes that carried logs and
+        lumber out of the upper Sprague River country. Oral histories describe a steady rhythm of camp life, mill work,
+        and rail activity through the mid-20th century, followed by a long shift as camps closed and mill-era work
+        thinned out.
+      </p>
+      <ul class="timeline">
+        <li><strong>Early 1900s</strong> — Rail access and timber hauling expand in the upper Sprague River region.</li>
+        <li><strong>1930s</strong> — Logging camps and lumber work support families and schools in the Bly area.</li>
+        <li><strong>1940s</strong> — Multiple mills operate around Bly and Ivory Pine, shaping daily life and jobs.</li>
+        <li><strong>1950s–1960s</strong> — Weyerhaeuser-era logging expands; camp routines and rail hauling dominate.</li>
+        <li><strong>1973</strong> — Camp life begins to fade as the stud mill era shifts travel and work patterns.</li>
+        <li><strong>1976–1990</strong> — Sort yard period; mills decline and eventually disappear from Bly.</li>
+        <li><strong>1990s</strong> — Rail activity winds down as the logging economy shifts.</li>
+      </ul>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h3>Weyerhaeuser &amp; the Camp Era</h3>
+        <p>Camp life, winter routines, and the scale of timber work in the region.</p>
+      </article>
+      <article class="card">
+        <h3>Mills, Sort Yards, and Shifts</h3>
+        <p>How mills shaped the town - and what changed as the era faded.</p>
+      </article>
+      <article class="card">
+        <h3>Rail Lines &amp; Timber Routes</h3>
+        <p>Logging rail spurs, transfer yards, and the routes used to move timber.</p>
+      </article>
+      <article class="card">
+        <h3>Community Memory</h3>
+        <p>Oral history highlights and personal stories from longtime residents.</p>
+      </article>
+    </section>
+
+    <section>
+      <h2 class="section-header">Oral history highlights</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Camp life &amp; Weyerhaeuser</h3>
+          <p>Donnie talks about winter camps, cookhouses, and daily routines.</p>
+          <p><a href="/history/oralhistories/interview-donnieandsharonwessel.html#logging-camps">Read the interview</a></p>
+        </article>
+        <article class="card">
+          <h3>Logging era town shift</h3>
+          <p>Ruth talks about Bly shifting from ranching into logging.</p>
+          <p><a href="/history/oralhistories/interview-ruth-obenchain.html#logging-town-shift">Read the interview</a></p>
+        </article>
+        <article class="card">
+          <h3>Mills &amp; Ivory Pine</h3>
+          <p>Corky talks about sawmills, Ivory Pine, and Weyerhaeuser operations.</p>
+          <p><a href="/history/oralhistories/interview-corky-smith.html#mills-ivory-pine">Read the interview</a></p>
+        </article>
+        <article class="card">
+          <h3>Rail lines &amp; timber routes</h3>
+          <p>John talks about rail depots, Camp 6 structures, and hauling routes.</p>
+          <p><a href="/history/oralhistories/interview-john-dillavou.html#rail-hauling">Read the interview</a></p>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>&copy; Bly, Oregon - Community History Archive</p>
+  </footer>
+</body>
+</html>

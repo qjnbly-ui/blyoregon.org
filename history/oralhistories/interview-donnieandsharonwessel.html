@@ -159,6 +159,39 @@
       background: rgba(255, 255, 255, 0.8);
     }
 
+    #toc + ul a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      border: 1px solid rgba(31, 64, 48, 0.2);
+      background: rgba(244, 179, 91, 0.18);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #toc + ul a:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(31, 64, 48, 0.12);
+    }
+
+    #toc + ul .toc-play {
+      background: linear-gradient(135deg, var(--sun), #f08c3a);
+      color: #2a1605;
+      border-color: rgba(240, 140, 58, 0.6);
+    }
+
+    #toc + ul {
+      list-style: none;
+      padding-left: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
     nav[aria-label="Next"] {
       text-align: center;
     }
@@ -236,6 +269,7 @@
       <h2 id="toc">On this page</h2>
       <ul>
         <li><a href="#summary">Quick summary</a></li>
+        <li><a href="#audio" class="toc-play">Listen to the interview</a></li>
         <li><a href="#highlights">Highlights (quotable moments)</a></li>
         <li><a href="#timeline">Timeline anchors</a></li>
         <li><a href="#themes">Themes</a></li>
@@ -251,20 +285,21 @@
         ranch and logging work, decades with Weyerhaeuser, and community changes—especially the mill era ending
         and the railroad being removed and becoming “Rails to Trails.”
       </p>
+      <p><a href="/history/people/donniewessel.html">Read Donnie Wessel’s biography</a>.</p>
     </section>
 
     <section id="highlights" aria-labelledby="highlights-title">
       <h2 id="highlights-title">Highlights (quotable moments)</h2>
 
       <article>
-        <h3><a href="/history/people/ruthobenchain.html">Ruth Obenchain</a> as a teacher</h3>
+        <h3>Ruth Obenchain as a teacher</h3>
         <blockquote>
           <p>“Ruth Obenchain was my teacher for the 6 &amp; 7th grades… the best teacher I ever had.”</p>
         </blockquote>
       </article>
 
       <article>
-        <h3>Life in the logging camps</h3>
+        <h3 id="logging-camps">Life in the logging camps</h3>
         <blockquote>
           <p>“During the winter, stayed in a logging camp… big cookhouse… we never had a bad meal.”</p>
         </blockquote>
@@ -332,9 +367,9 @@
       <details open>
         <summary><strong>Transcript text</strong></summary>
 
-        <p>Donald Wessel, was born in Karo Iowa in 1934; came o Oregon in 1947. He moved to Bly when he was 13, after a family tragedy in Iowa. His brother and relatives helped move the family because they had relatives in Bly. His Uncle John Dillavou lived here and another Uncle ran a garage. Mother ran the restaurant in the Logger’s Club bar. Mother’s name was Pauline Waters Wessel. She ran the restaurant until 1949.</p>
+        <p>Donald Wessel, was born in Carroll, Iowa in 1934; came o Oregon in 1947. He moved to Bly when he was 13, after a family tragedy in Iowa. His brother and relatives helped move the family because they had relatives in Bly. His Uncle John Dillavou lived here and another Uncle ran a garage. Mother ran the restaurant in the Logger’s Club bar. Mother’s name was Pauline Waters Wessel. She ran the restaurant until 1949.</p>
 
-        <p>Bly was nothing similar to Iowa where his father was a farmer. I was overwhelmed by the mountains. We came to visit Bly in 1946 and also L.A. I remember the trip and all the places we visited. It was a different world. <a href="/history/people/ruthobenchain.html">Ruth Obenchain</a> was my teacher for the 6 &amp; 7th grades. She was the best teacher I ever had. She was very strict but dedicated and taught the full circle. I’ve had contact with her every since. It became a long-term friendship.</p>
+        <p>Bly was nothing similar to Iowa where his father was a farmer. I was overwhelmed by the mountains. We came to visit Bly in 1946 and also L.A. I remember the trip and all the places we visited. It was a different world. Ruth Obenchain was my teacher for the 6 &amp; 7th grades. She was the best teacher I ever had. She was very strict but dedicated and taught the full circle. I’ve had contact with her every since. It became a long-term friendship.</p>
 
         <p>I have one brother 3 years younger; one sister was killed. My brother Ken lives out of Yreka.</p>
 
