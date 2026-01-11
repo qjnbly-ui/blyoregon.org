@@ -87,6 +87,45 @@ function pickFallback() {
   return FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function findNameMentions(chunks, fullName) {
+  const trimmed = fullName.trim();
+  const parts = trimmed.split(/\s+/).filter(Boolean);
+  const lastName = parts.length > 1 ? parts[parts.length - 1] : "";
+  const fullRe = trimmed ? new RegExp(`\\b${escapeRegExp(trimmed)}\\b`, "i") : null;
+  const lastRe = lastName ? new RegExp(`\\b${escapeRegExp(lastName)}\\b`, "i") : null;
+  const fullTitles = new Set();
+  const lastTitles = new Set();
+
+  for (const chunk of chunks) {
+    const title = chunk.title || chunk.url || "Site page";
+    if (fullRe && fullRe.test(chunk.text)) {
+      fullTitles.add(title);
+      continue;
+    }
+    if (lastRe && lastRe.test(chunk.text)) {
+      lastTitles.add(title);
+    }
+  }
+
+  return {
+    fullTitles: Array.from(fullTitles),
+    lastTitles: Array.from(lastTitles),
+    lastName,
+  };
+}
+
+function formatTitleList(titles, max = 3) {
+  const listed = titles.slice(0, max);
+  if (listed.length === 0) return "";
+  if (listed.length === 1) return listed[0];
+  if (listed.length === 2) return `${listed[0]} and ${listed[1]}`;
+  return `${listed.slice(0, -1).join(", ")}, and ${listed[listed.length - 1]}`;
+}
+
 const GREETING_RESPONSES = [
   "Hello—I’m Bly. I’m a small town with deep roots, and I keep my stories in these pages. Ask me what you’d like to explore.",
   "Hi, I’m Bly. I speak from our town’s records—people, places, and history. Tell me where to begin.",
@@ -194,6 +233,8 @@ module.exports = async (req, res) => {
     const body = await readJsonBody(req);
     const question = String(body.question || "").trim();
     const history = body.history || [];
+    const userName = typeof body.userName === "string" ? body.userName.trim() : "";
+    const nameSubmission = body.nameSubmission === true;
     if (!question) {
       res.statusCode = 400;
       res.setHeader("Content-Type", "application/json");
@@ -217,6 +258,30 @@ module.exports = async (req, res) => {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ answer: pickFallback() }));
+      return;
+    }
+
+    if (nameSubmission && userName) {
+      const { fullTitles, lastTitles, lastName } = findNameMentions(chunks, userName);
+      let answer = "";
+      if (fullTitles.length > 0) {
+        const list = formatTitleList(fullTitles);
+        answer =
+          `I found your full name in our pages, including ${list}. ` +
+          "Are you related to that mention, and if so how?";
+      } else if (lastTitles.length > 0 && lastName) {
+        const list = formatTitleList(lastTitles);
+        answer =
+          `I didn’t find your full name, but I did see the last name “${lastName}” in ${list}. ` +
+          "Are you related, and if so how?";
+      } else {
+        answer =
+          "I don’t see your name in the pages I have right now. " +
+          "If you think it should be there, tell me where to look.";
+      }
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify({ answer }));
       return;
     }
 

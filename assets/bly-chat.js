@@ -41,7 +41,9 @@
   const input = widget.querySelector(".bly-chat-form input");
   const messages = widget.querySelector(".bly-chat-messages");
   const storageKey = "blyChatHistory";
+  const nameKey = "blyChatUserName";
   let history = [];
+  let userName = sessionStorage.getItem(nameKey) || "";
   let usingViewportFix = false;
   let voiceEnabled = false;
   let recognition = null;
@@ -74,7 +76,7 @@
     document.documentElement.style.overflow = isOpen ? "hidden" : "";
     if (isOpen) {
       input.focus();
-      if (history.length === 0) {
+      if (history.length === 0 && !userName) {
         const greeting = "Hello—I’m Bly. I’m a small town with deep roots, and I keep my stories in these pages. What’s your full name?";
         addMessage(greeting, "bly");
       }
@@ -177,6 +179,12 @@
     const question = input.value.trim();
     if (!question) return;
 
+    const nameSubmission = !userName && question.split(/\s+/).filter(Boolean).length >= 2;
+    if (nameSubmission) {
+      userName = question;
+      sessionStorage.setItem(nameKey, userName);
+    }
+
     addMessage(question, "user");
     input.value = "";
     input.disabled = true;
@@ -186,7 +194,12 @@
       const response = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, history }),
+        body: JSON.stringify({
+          question,
+          history,
+          userName,
+          nameSubmission,
+        }),
       });
       const data = await response.json();
       const answer = data.answer || data.error || "I do not know that yet.";
