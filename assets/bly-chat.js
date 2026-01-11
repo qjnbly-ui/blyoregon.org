@@ -74,6 +74,10 @@
     document.documentElement.style.overflow = isOpen ? "hidden" : "";
     if (isOpen) {
       input.focus();
+      if (history.length === 0) {
+        const greeting = "Hello—I’m Bly. I’m a small town with deep roots, and I keep my stories in these pages. What’s your full name?";
+        addMessage(greeting, "bly");
+      }
     } else {
       if (recognition) recognition.stop();
       if (window.speechSynthesis) window.speechSynthesis.cancel();
