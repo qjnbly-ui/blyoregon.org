@@ -200,6 +200,7 @@ async function askGroq(question, context, history) {
             "You may lightly rephrase and summarize, but do not add or infer any new facts, names, dates, numbers, " +
             "or claims not explicitly present. " +
             "If a detail is missing, say you do not know yet and ask one helpful follow-up question. " +
+            "Do not repeat greetings or self-introductions except on the first greeting. " +
             "Keep it warm, grounded, and provide 2–3 short paragraphs when the context supports it. " +
             "End with a short source nod like 'From the [title] page' if it fits naturally.",
         },

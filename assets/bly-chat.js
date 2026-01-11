@@ -14,12 +14,16 @@
             <strong>Bly</strong>
             <span>Ask about our town history</span>
           </div>
-        <button class="bly-chat-close" type="button" aria-label="Close chat">&times;</button>
+        <div class="bly-chat-header-actions">
+          <button class="bly-chat-voice" type="button" aria-pressed="false" aria-label="Toggle voice">🔈</button>
+          <button class="bly-chat-play" type="button" aria-label="Play selected text" disabled>▶︎</button>
+          <button class="bly-chat-stop" type="button" aria-label="Stop audio">⏹</button>
+          <button class="bly-chat-close" type="button" aria-label="Close chat">&times;</button>
+        </div>
         </div>
         <div class="bly-chat-messages" role="log" aria-live="polite"></div>
         <form class="bly-chat-form">
           <input type="text" name="question" placeholder="Ask Bly something..." autocomplete="off" required>
-          <button class="bly-chat-voice" type="button" aria-pressed="false" aria-label="Toggle voice">🔈</button>
           <button class="bly-chat-mic" type="button" aria-pressed="false" aria-label="Use voice input">🎤</button>
           <button type="submit">Send</button>
         </form>
@@ -34,6 +38,8 @@
   const toggle = widget.querySelector(".bly-chat-toggle");
   const closeBtn = widget.querySelector(".bly-chat-close");
   const voiceBtn = widget.querySelector(".bly-chat-voice");
+  const playBtn = widget.querySelector(".bly-chat-play");
+  const stopBtn = widget.querySelector(".bly-chat-stop");
   const micBtn = widget.querySelector(".bly-chat-mic");
   const overlay = widget.querySelector(".bly-chat-overlay");
   const panel = widget.querySelector(".bly-chat-panel");
@@ -67,6 +73,8 @@
   if (!window.speechSynthesis) {
     voiceBtn.disabled = true;
     voiceBtn.title = "Voice output not supported";
+    stopBtn.disabled = true;
+    playBtn.disabled = true;
   }
 
   function setOpen(isOpen) {
@@ -127,6 +135,15 @@
     window.speechSynthesis.speak(utterance);
   }
 
+  function getSelectedText() {
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed) return "";
+    const text = selection.toString().trim();
+    if (!text) return "";
+    if (!panel.contains(selection.anchorNode) || !panel.contains(selection.focusNode)) return "";
+    return text;
+  }
+
   if (history.length) {
     history.forEach((entry) => {
       const type = entry.role === "user" ? "user" : "bly";
@@ -143,6 +160,24 @@
     voiceBtn.setAttribute("aria-pressed", voiceEnabled ? "true" : "false");
     voiceBtn.textContent = voiceEnabled ? "🔊" : "🔈";
     voiceBtn.classList.toggle("is-active", voiceEnabled);
+  });
+
+  stopBtn.addEventListener("click", () => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  });
+
+  playBtn.addEventListener("click", () => {
+    const selected = getSelectedText();
+    if (!selected) return;
+    if (!voiceEnabled) {
+      voiceEnabled = true;
+      voiceBtn.setAttribute("aria-pressed", "true");
+      voiceBtn.textContent = "🔊";
+      voiceBtn.classList.add("is-active");
+    }
+    speak(selected);
   });
 
   if (recognition) {
@@ -169,6 +204,12 @@
       recognition.start();
     });
   }
+
+  document.addEventListener("selectionchange", () => {
+    const selected = getSelectedText();
+    if (!window.speechSynthesis) return;
+    playBtn.disabled = !selected;
+  });
 
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", applyViewportFix);

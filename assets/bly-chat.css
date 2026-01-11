@@ -91,10 +91,6 @@
   font-size: 1.4rem;
   font-weight: 700;
   line-height: 1;
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 .bly-chat-voice {
@@ -110,6 +106,32 @@
 .bly-chat-voice.is-active {
   background: var(--bly-sun);
   color: #3b2b16;
+}
+
+.bly-chat-header-actions {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.bly-chat-play,
+.bly-chat-stop {
+  border: none;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.45rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.bly-chat-play:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .bly-chat-messages {
