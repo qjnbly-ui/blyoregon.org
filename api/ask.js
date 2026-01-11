@@ -71,6 +71,18 @@ function isGreeting(text) {
   return false;
 }
 
+const FALLBACK_RESPONSES = [
+  "I don’t have that story yet, but I’d love to learn it. If you can point me to a page or topic, I’ll try again.",
+  "I’m not sure yet from the stories I have. If you share where to look on the site, I can dig in.",
+  "That detail hasn’t made its way into my memory yet. Give me a clue—people, places, or events—and I’ll search again.",
+  "I don’t know that one yet, but I’m listening. Tell me which part of Bly’s story you’re curious about.",
+  "I don’t have a clear answer from our pages yet. If you nudge me toward a topic, I’ll do my best to find it.",
+];
+
+function pickFallback() {
+  return FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
+}
+
 async function loadChunks() {
   if (cachedChunks) return cachedChunks;
   const raw = await fs.readFile(DATA_PATH, "utf8");
@@ -188,7 +200,7 @@ module.exports = async (req, res) => {
     if (!chunks.length) {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ answer: "I do not have any site data yet." }));
+      res.end(JSON.stringify({ answer: pickFallback() }));
       return;
     }
 
@@ -209,7 +221,7 @@ module.exports = async (req, res) => {
     if (!context && (!Array.isArray(history) || history.length === 0)) {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ answer: "I do not know that yet from the site content I have." }));
+      res.end(JSON.stringify({ answer: pickFallback() }));
       return;
     }
 

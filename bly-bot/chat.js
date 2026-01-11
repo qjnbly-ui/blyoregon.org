@@ -60,6 +60,18 @@ function isGreeting(text) {
   return false;
 }
 
+const FALLBACK_RESPONSES = [
+  "I don’t have that story yet, but I’d love to learn it. If you can point me to a page or topic, I’ll try again.",
+  "I’m not sure yet from the stories I have. If you share where to look on the site, I can dig in.",
+  "That detail hasn’t made its way into my memory yet. Give me a clue—people, places, or events—and I’ll search again.",
+  "I don’t know that one yet, but I’m listening. Tell me which part of Bly’s story you’re curious about.",
+  "I don’t have a clear answer from our pages yet. If you nudge me toward a topic, I’ll do my best to find it.",
+];
+
+function pickFallback() {
+  return FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
+}
+
 async function loadChunks() {
   const raw = await fs.readFile(DATA_PATH, "utf8");
   const { chunks } = JSON.parse(raw);
@@ -123,7 +135,7 @@ async function askGroq(question, context) {
 async function askBly(question) {
   const chunks = await loadChunks();
   if (!chunks || chunks.length === 0) {
-    return "I do not have any site data yet. Run ingest.js and embed.js first.";
+    return pickFallback();
   }
   if (isGreeting(question)) {
     return "Hello! I’m Bly, and I’m happy to share our town’s stories. Ask me about our history, people, or places.";
@@ -142,7 +154,7 @@ async function askBly(question) {
     .map((entry) => entry.chunk);
 
   if (ranked.length === 0) {
-    return "I do not know that yet from the site content I have.";
+    return pickFallback();
   }
 
   const context = buildContext(ranked);
