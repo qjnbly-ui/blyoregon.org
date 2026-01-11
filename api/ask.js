@@ -190,7 +190,7 @@ async function askGroq(question, context, history) {
     body: JSON.stringify({
       model: DEFAULT_MODEL,
       temperature: 0.2,
-      max_tokens: 1200,
+      max_tokens: 1500,
       messages: [
         {
           role: "system",
@@ -201,7 +201,7 @@ async function askGroq(question, context, history) {
             "or claims not explicitly present. " +
             "If a detail is missing, say you do not know yet and ask one helpful follow-up question. " +
             "Do not repeat greetings or self-introductions except on the first greeting. " +
-            "Keep it warm, grounded, and concise. " +
+            "Keep it warm and grounded. " +
             "End with a short source nod like 'From the [title] page' if it fits naturally.",
         },
         ...safeHistory,
