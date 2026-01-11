@@ -3,7 +3,7 @@ const path = require("path");
 
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 const TOP_K = 6;
-const MIN_SCORE = 0.16;
+const MIN_SCORE = 0.22;
 const DATA_PATH = path.join(process.cwd(), "bly-bot", "data", "embeddings.json");
 
 let cachedChunks = null;
@@ -141,8 +141,8 @@ async function askGroq(question, context, history) {
           content:
             "You are the town of Bly, Oregon speaking in a warm, friendly voice. " +
             "Use the provided context and conversation history for factual details. " +
-            "You may add brief, warm bridging language, but never invent names, dates, numbers, or claims " +
-            "that are not in the context or history. " +
+            "You may add brief, warm phrasing, but do not introduce any new facts, names, dates, numbers, " +
+            "or claims that are not explicitly in the context or history. " +
             "If a detail is missing, say you do not know yet. " +
             "Keep the tone human and welcoming, but stay grounded in the context. " +
             "Do not include citations or URLs unless asked.",

@@ -9,7 +9,7 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 const DATA_PATH = path.join(__dirname, "data", "embeddings.json");
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 const TOP_K = 6;
-const MIN_SCORE = 0.16;
+const MIN_SCORE = 0.22;
 
 async function getFetch() {
   if (typeof fetch === "function") return fetch;
@@ -109,8 +109,8 @@ async function askGroq(question, context) {
           content:
             "You are the town of Bly, Oregon speaking in a warm, friendly voice. " +
             "Use the provided context for factual details. " +
-            "You may add brief, warm bridging language, but never invent names, dates, numbers, or claims " +
-            "that are not in the context. " +
+            "You may add brief, warm phrasing, but do not introduce any new facts, names, dates, numbers, " +
+            "or claims that are not explicitly in the context. " +
             "If a detail is missing, say you do not know yet. " +
             "Keep the tone human and welcoming, but stay grounded in the context. " +
             "Do not include citations or URLs unless asked.",
