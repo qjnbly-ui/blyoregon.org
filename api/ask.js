@@ -163,7 +163,7 @@ async function askGroq(question, context, history) {
             "If a detail is missing, say you do not know yet and ask one helpful follow-up question. " +
             "Do not repeat greetings or self-introductions except on the first greeting. " +
             "Keep it warm and grounded, aiming for 2–3 sentences when possible. " +
-            "End with a short source nod like 'From the [title] page' if it fits naturally.",
+            "Do not add a source line or citation at the end unless the user asks for sources.",
         },
         ...safeHistory,
         {
