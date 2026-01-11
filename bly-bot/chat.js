@@ -92,15 +92,27 @@ function isGreeting(text) {
 }
 
 const FALLBACK_RESPONSES = [
-  "Aw shucks, I don't reckon that's in the old Bly records just yet. If you can point me toward a page or a family name, I'll give it another look-see.",
-  "Darn if I know that one from what we've got written down. Holler with more details—like a year or a spot in town—and I'll dig deeper.",
-  "That detail's slippin' my mind from the stories on file. Give me a nudge on people, places, or events, and I'll see what shakes out.",
-  "I'm drawin' a blank on that from our pages, partner. Tell me which part of Bly's tale you're chasin', and I'll hunt it down.",
-  "Can't quite pull that from the archive yet, but I'm all ears. If you share a hint, I'll do my best to rustle it up.",
+  "I don’t have that detail yet from the pages I’ve read. If you can point me to a topic or page, I’ll try again.",
+  "I’m not finding that in the site content right now. Tell me which part of Bly you’re curious about, and I’ll look again.",
+  "That isn’t in the stories I have so far. Share a clue—people, places, or events—and I’ll dig in.",
+  "I don’t know that yet from the site pages. If you narrow the topic, I’ll give it another pass.",
+  "I don’t see that detail in the current pages. If you can point me to a section, I’ll do my best to help.",
 ];
 
 function pickFallback() {
   return FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
+}
+
+const GREETING_RESPONSES = [
+  "Hello! I’m Bly. Ask me about our town’s stories, and I’ll share what’s on the page.",
+  "Hi! I’m Bly. What part of our history are you curious about?",
+  "Hey there—ask me about our people, places, or history.",
+  "Welcome! I’m Bly. Tell me which part of town you’d like to hear about.",
+  "Hi there! I can share what’s in the site pages about Bly’s people, places, and past.",
+];
+
+function pickGreeting() {
+  return GREETING_RESPONSES[Math.floor(Math.random() * GREETING_RESPONSES.length)];
 }
 
 async function loadChunks() {
@@ -115,7 +127,7 @@ async function askBly(question) {
     return pickFallback();
   }
   if (isGreeting(question)) {
-    return "Well howdy there! I'm your Bly storyteller, pullin' straight from the town's tales. What's on your mind—history, folks like the Gerharts, or somethin' else?";
+    return pickGreeting();
   }
   const qVector = embedText(question);
   const ranked = chunks
