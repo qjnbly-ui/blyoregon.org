@@ -57,6 +57,18 @@ function keywordOverlapScore(question, text) {
   return hits / Math.max(tTokens.length, 1);
 }
 
+function categoryBoost(question, chunk) {
+  const q = question.toLowerCase();
+  const url = String(chunk.url || "").toLowerCase();
+  const title = String(chunk.title || "").toLowerCase();
+  const isFoodQuery = /\b(eat|food|restaurant|restaurants|cafe|coffee|diner|breakfast|lunch|dinner)\b/.test(q);
+  if (isFoodQuery) {
+    if (url.includes("/businesses/") || title.includes("businesses")) return 0.25;
+    if (url.includes("/history/") || title.includes("history")) return -0.15;
+  }
+  return 0;
+}
+
 function isGreeting(text) {
   const cleaned = text.toLowerCase().replace(/[^a-z\s]/g, " ").trim();
   if (!cleaned) return false;
@@ -162,6 +174,7 @@ async function askGroq(question, context, history) {
             "or claims not explicitly present. " +
             "If a detail is missing, say you do not know yet and ask one helpful follow-up question. " +
             "Do not repeat greetings or self-introductions except on the first greeting. " +
+            "If the question is about current services or businesses, prioritize business listings and avoid historical anecdotes unless asked. " +
             "Keep it warm and grounded, aiming for 2–3 sentences when possible. " +
             "Do not add a source line or citation at the end unless the user asks for sources.",
         },
@@ -227,7 +240,8 @@ module.exports = async (req, res) => {
         chunk,
         score:
           cosineSimilarity(qVector, chunk.vector) * 0.7 +
-          keywordOverlapScore(question, chunk.text) * 0.3,
+          keywordOverlapScore(question, chunk.text) * 0.3 +
+          categoryBoost(question, chunk),
       }))
       .sort((a, b) => b.score - a.score)
       .filter((entry) => entry.score >= MIN_SCORE)

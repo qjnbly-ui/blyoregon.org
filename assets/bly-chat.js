@@ -47,7 +47,10 @@
   const input = widget.querySelector(".bly-chat-form input");
   const messages = widget.querySelector(".bly-chat-messages");
   const storageKey = "blyChatHistory";
+  const limitKey = "blyChatCount";
+  const responseLimit = 20;
   let history = [];
+  let responseCount = Number(sessionStorage.getItem(limitKey) || 0);
   let usingViewportFix = false;
   let voiceEnabled = false;
   let recognition = null;
@@ -218,6 +221,14 @@
     const question = input.value.trim();
     if (!question) return;
 
+    if (responseCount >= responseLimit) {
+      addMessage(
+        "This is an experiment with a custom-built AI for Bly, Oregon. We’re still in development, and to keep costs down we have a per-session limit. You’ve reached that limit—please come back another time.",
+        "bly"
+      );
+      return;
+    }
+
     addMessage(question, "user");
     input.value = "";
     input.disabled = true;
@@ -236,6 +247,8 @@
       const answer = data.answer || data.error || "I do not know that yet.";
       addMessage(answer, "bly");
       speak(answer);
+      responseCount += 1;
+      sessionStorage.setItem(limitKey, String(responseCount));
     } catch (error) {
       addMessage("Sorry, I could not reach the storyteller right now.", "bly");
     } finally {
