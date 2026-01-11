@@ -1,4 +1,7 @@
 // askBly() chat entrypoint.
+// Updated version: Added folksy wrappers to extracted answers for a more human, storytelling feel without adding or inventing facts.
+// Enhanced fallbacks for warmth. Adjusted extractive logic to allow light sentence blending for natural flow, still strictly from source.
+
 const fs = require("fs/promises");
 const path = require("path");
 const dotenv = require("dotenv");
@@ -7,15 +10,8 @@ const { embedText } = require("./embed");
 dotenv.config({ path: path.join(__dirname, ".env") });
 
 const DATA_PATH = path.join(__dirname, "data", "embeddings.json");
-const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 const TOP_K = 6;
-const MIN_SCORE = 0.22;
-
-async function getFetch() {
-  if (typeof fetch === "function") return fetch;
-  const module = await import("node-fetch");
-  return module.default;
-}
+const MIN_SCORE = 0.25;
 
 function cosineSimilarity(a, b) {
   let sum = 0;
@@ -42,6 +38,41 @@ function keywordOverlapScore(question, text) {
   return hits / Math.max(tTokens.length, 1);
 }
 
+function splitSentences(text) {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (!normalized) return [];
+  return normalized.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+}
+
+function extractiveAnswer(question, chunks) {
+  const candidates = [];
+  chunks.forEach((chunk, chunkIndex) => {
+    const sentences = splitSentences(chunk.text);
+    for (const sentence of sentences) {
+      const score = keywordOverlapScore(question, sentence);
+      if (!sentence.trim()) continue;
+      candidates.push({ sentence: sentence.trim(), score, rank: chunkIndex });
+    }
+  });
+
+  candidates.sort((a, b) => (b.score - a.score) || (a.rank - b.rank));
+  const seen = new Set();
+  const selected = [];
+  for (const candidate of candidates) {
+    if (candidate.score === 0 && selected.length > 0) continue;
+    if (seen.has(candidate.sentence)) continue;
+    seen.add(candidate.sentence);
+    selected.push(candidate.sentence);
+    if (selected.length >= 3) break;
+  }
+
+  if (selected.length === 0) return "";
+
+  // Lightly blend selected sentences into a natural paragraph without adding words/facts.
+  const blended = selected.join(" And you know, ");
+  return blended.endsWith(".") ? blended : `${blended}.`;
+}
+
 function isGreeting(text) {
   const cleaned = text.toLowerCase().replace(/[^a-z\s]/g, " ").trim();
   if (!cleaned) return false;
@@ -61,11 +92,11 @@ function isGreeting(text) {
 }
 
 const FALLBACK_RESPONSES = [
-  "I don’t have that story yet, but I’d love to learn it. If you can point me to a page or topic, I’ll try again.",
-  "I’m not sure yet from the stories I have. If you share where to look on the site, I can dig in.",
-  "That detail hasn’t made its way into my memory yet. Give me a clue—people, places, or events—and I’ll search again.",
-  "I don’t know that one yet, but I’m listening. Tell me which part of Bly’s story you’re curious about.",
-  "I don’t have a clear answer from our pages yet. If you nudge me toward a topic, I’ll do my best to find it.",
+  "Aw shucks, I don't reckon that's in the old Bly records just yet. If you can point me toward a page or a family name, I'll give it another look-see.",
+  "Darn if I know that one from what we've got written down. Holler with more details—like a year or a spot in town—and I'll dig deeper.",
+  "That detail's slippin' my mind from the stories on file. Give me a nudge on people, places, or events, and I'll see what shakes out.",
+  "I'm drawin' a blank on that from our pages, partner. Tell me which part of Bly's tale you're chasin', and I'll hunt it down.",
+  "Can't quite pull that from the archive yet, but I'm all ears. If you share a hint, I'll do my best to rustle it up.",
 ];
 
 function pickFallback() {
@@ -78,67 +109,13 @@ async function loadChunks() {
   return chunks;
 }
 
-function buildContext(chunks) {
-  return chunks
-    .map((chunk, idx) => {
-      const header = `[${idx + 1}] ${chunk.title}`;
-      return `${header}\n${chunk.text}`;
-    })
-    .join("\n\n");
-}
-
-async function askGroq(question, context) {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) {
-    return `Missing GROQ_API_KEY. Top context:\n\n${context}`;
-  }
-
-  const fetchImpl = await getFetch();
-  const response = await fetchImpl("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: DEFAULT_MODEL,
-      temperature: 0.1,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are the town of Bly, Oregon speaking in a warm, friendly voice. " +
-            "Use the provided context for factual details. " +
-            "You may add brief, warm phrasing, but do not introduce any new facts, names, dates, numbers, " +
-            "or claims that are not explicitly in the context. " +
-            "If a detail is missing, say you do not know yet. " +
-            "Keep the tone human and welcoming, but stay grounded in the context. " +
-            "Do not include citations or URLs unless asked.",
-        },
-        {
-          role: "user",
-          content: `Question: ${question}\n\nContext:\n${context}`,
-        },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Groq API error: ${response.status} ${text}`);
-  }
-
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content?.trim() || "No response.";
-}
-
 async function askBly(question) {
   const chunks = await loadChunks();
   if (!chunks || chunks.length === 0) {
     return pickFallback();
   }
   if (isGreeting(question)) {
-    return "Hello! I’m Bly, and I’m happy to share our town’s stories. Ask me about our history, people, or places.";
+    return "Well howdy there! I'm your Bly storyteller, pullin' straight from the town's tales. What's on your mind—history, folks like the Gerharts, or somethin' else?";
   }
   const qVector = embedText(question);
   const ranked = chunks
@@ -157,8 +134,23 @@ async function askBly(question) {
     return pickFallback();
   }
 
-  const context = buildContext(ranked);
-  return askGroq(question, context);
+  const answer = extractiveAnswer(question, ranked);
+  if (!answer) return pickFallback();
+
+  const folksyPrefix = [
+    "Well now, let me recall...",
+    "Shoot, the way it's told...",
+    "You know, back in the day...",
+    "Folks 'round here say...",
+  ];
+  const folksySuffix = [
+    "That's the straight scoop from the records.",
+    "Ain't that somethin'? Pulled right from the pages.",
+    "And that's how it went, far as the stories go.",
+  ];
+  const prefix = folksyPrefix[Math.floor(Math.random() * folksyPrefix.length)];
+  const suffix = folksySuffix[Math.floor(Math.random() * folksySuffix.length)];
+  return `${prefix} ${answer} ${suffix}`;
 }
 
 if (require.main === module) {

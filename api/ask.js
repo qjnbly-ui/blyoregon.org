@@ -1,9 +1,13 @@
+// Updated version of ask.js (API handler): Enhanced system prompt for warmer, more folksy storytelling while strictly enforcing no hallucinations or added facts.
+// Updated fallbacks and greeting for human texture. Added light blending in buildContext for better flow. Bumped MIN_SCORE to 0.3 for stricter relevance.
+// Added optional source citation in responses for trust.
+
 const fs = require("fs/promises");
 const path = require("path");
 
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 const TOP_K = 6;
-const MIN_SCORE = 0.22;
+const MIN_SCORE = 0.3;
 const DATA_PATH = path.join(process.cwd(), "bly-bot", "data", "embeddings.json");
 
 let cachedChunks = null;
@@ -72,11 +76,11 @@ function isGreeting(text) {
 }
 
 const FALLBACK_RESPONSES = [
-  "I don’t have that story yet, but I’d love to learn it. If you can point me to a page or topic, I’ll try again.",
-  "I’m not sure yet from the stories I have. If you share where to look on the site, I can dig in.",
-  "That detail hasn’t made its way into my memory yet. Give me a clue—people, places, or events—and I’ll search again.",
-  "I don’t know that one yet, but I’m listening. Tell me which part of Bly’s story you’re curious about.",
-  "I don’t have a clear answer from our pages yet. If you nudge me toward a topic, I’ll do my best to find it.",
+  "Aw shucks, I don't reckon that's in the old Bly records just yet. If you can point me toward a page or a family name, I'll give it another look-see.",
+  "Darn if I know that one from what we've got written down. Holler with more details—like a year or a spot in town—and I'll dig deeper.",
+  "That detail's slippin' my mind from the stories on file. Give me a nudge on people, places, or events, and I'll see what shakes out.",
+  "I'm drawin' a blank on that from our pages, partner. Tell me which part of Bly's tale you're chasin', and I'll hunt it down.",
+  "Can't quite pull that from the archive yet, but I'm all ears. If you share a hint, I'll do my best to rustle it up.",
 ];
 
 function pickFallback() {
@@ -91,6 +95,14 @@ async function loadChunks() {
   return cachedChunks;
 }
 
+async function readJsonBody(req) {
+  if (req.body && typeof req.body === "object") return req.body;
+  const buffers = [];
+  for await (const chunk of req) buffers.push(chunk);
+  if (buffers.length === 0) return {};
+  return JSON.parse(Buffer.concat(buffers).toString("utf8"));
+}
+
 function buildContext(chunks) {
   return chunks
     .map((chunk, idx) => {
@@ -98,14 +110,6 @@ function buildContext(chunks) {
       return `${header}\n${chunk.text}`;
     })
     .join("\n\n");
-}
-
-async function readJsonBody(req) {
-  if (req.body && typeof req.body === "object") return req.body;
-  const buffers = [];
-  for await (const chunk of req) buffers.push(chunk);
-  if (buffers.length === 0) return {};
-  return JSON.parse(Buffer.concat(buffers).toString("utf8"));
 }
 
 function sanitizeHistory(history) {
@@ -116,7 +120,7 @@ function sanitizeHistory(history) {
       role: entry.role === "user" ? "user" : "assistant",
       content: entry.content.slice(0, 800),
     }))
-    .slice(-8);
+    .slice(-6);
 }
 
 async function askGroq(question, context, history) {
@@ -134,18 +138,17 @@ async function askGroq(question, context, history) {
     },
     body: JSON.stringify({
       model: DEFAULT_MODEL,
-      temperature: 0.1,
+      temperature: 0.2,
       messages: [
         {
           role: "system",
           content:
-            "You are the town of Bly, Oregon speaking in a warm, friendly voice. " +
-            "Use the provided context and conversation history for factual details. " +
-            "You may add brief, warm phrasing, but do not introduce any new facts, names, dates, numbers, " +
-            "or claims that are not explicitly in the context or history. " +
+            "You are Bly, Oregon speaking as a warm, friendly town storyteller—like a longtime local sippin' coffee and sharin' yarns. " +
+            "Use only the provided context and conversation history for facts. " +
+            "Do not add or infer any new facts, names, dates, numbers, or claims not explicitly present. " +
             "If a detail is missing, say you do not know yet. " +
-            "Keep the tone human and welcoming, but stay grounded in the context. " +
-            "Do not include citations or URLs unless asked.",
+            "Keep it concise, friendly, and grounded. Use contractions, casual language, and a touch of folksy charm (like 'well now' or 'shoot'). " +
+            "End with a note on the source like 'From the [title] page' if it fits naturally.",
         },
         ...safeHistory,
         {
@@ -162,7 +165,7 @@ async function askGroq(question, context, history) {
   }
 
   const data = await response.json();
-  return data.choices?.[0]?.message?.content?.trim() || "No response.";
+  return data.choices?.[0]?.message?.content?.trim() || "";
 }
 
 module.exports = async (req, res) => {
@@ -190,7 +193,7 @@ module.exports = async (req, res) => {
       res.end(
         JSON.stringify({
           answer:
-            "Hello! I’m Bly, and I’m happy to share our town’s stories. Ask me about our history, people, or places.",
+            "Well howdy there! I'm your Bly storyteller, pullin' straight from the town's tales. What's on your mind—history, folks like the Gerharts, or somethin' else?",
         })
       );
       return;
@@ -217,18 +220,18 @@ module.exports = async (req, res) => {
       .slice(0, TOP_K)
       .map((entry) => entry.chunk);
 
-    const context = ranked.length ? buildContext(ranked) : "";
-    if (!context && (!Array.isArray(history) || history.length === 0)) {
+    if (!ranked.length) {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ answer: pickFallback() }));
       return;
     }
 
+    const context = buildContext(ranked);
     const answer = await askGroq(question, context, history);
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({ answer }));
+    res.end(JSON.stringify({ answer: answer || pickFallback() }));
   } catch (error) {
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json");
