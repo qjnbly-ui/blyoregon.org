@@ -143,19 +143,21 @@
     right: 0;
     bottom: 0;
     left: 0;
-    display: flex;
-    justify-content: center;
+    pointer-events: none;
   }
 
   .bly-chat-toggle {
-    width: calc(100% - 32px);
+    width: auto;
+    margin: 0 16px 16px auto;
+    pointer-events: auto;
   }
 
   .bly-chat-panel {
     width: calc(100% - 24px);
-    height: min(88dvh, 640px);
+    height: calc(100dvh - 24px - env(safe-area-inset-bottom));
     margin: 0 12px 12px;
     border-radius: 24px;
+    pointer-events: auto;
   }
 
   .bly-chat-messages {
@@ -164,6 +166,8 @@
   }
 
   .bly-chat-form {
+    position: sticky;
+    bottom: 0;
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
   }
 
