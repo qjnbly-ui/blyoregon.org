@@ -76,11 +76,11 @@ function isGreeting(text) {
 }
 
 const FALLBACK_RESPONSES = [
-  "I don’t have that detail yet from the pages I’ve read. If you can point me to a topic or page, I’ll try again.",
-  "I’m not finding that in the site content right now. Tell me which part of Bly you’re curious about, and I’ll look again.",
-  "That isn’t in the stories I have so far. Share a clue—people, places, or events—and I’ll dig in.",
-  "I don’t know that yet from the site pages. If you narrow the topic, I’ll give it another pass.",
-  "I don’t see that detail in the current pages. If you can point me to a section, I’ll do my best to help.",
+  "I don’t have that in my trail notes yet. If you can point me to a page, place, or time period, I’ll take another look.",
+  "I’m not seeing that in the pages I have. Tell me a person, place, or era and I’ll track it down.",
+  "That detail isn’t in my records yet. Give me a clue—people, places, or events—and I’ll dig in.",
+  "I don’t know that from the site pages so far. If you narrow the topic, I’ll try again.",
+  "I’m missing that piece in the current pages. If you can point me to a section, I’ll do my best to help.",
 ];
 
 function pickFallback() {
@@ -88,11 +88,11 @@ function pickFallback() {
 }
 
 const GREETING_RESPONSES = [
-  "Hello! I’m Bly. Ask me about our town’s stories, and I’ll share what’s on the page.",
-  "Hi! I’m Bly. What part of our history are you curious about?",
-  "Hey there—ask me about our people, places, or history.",
-  "Welcome! I’m Bly. Tell me which part of town you’d like to hear about.",
-  "Hi there! I can share what’s in the site pages about Bly’s people, places, and past.",
+  "Hello—I’m Bly. I’m a small town with deep roots, and I keep my stories in these pages. Ask me what you’d like to explore.",
+  "Hi, I’m Bly. I speak from our town’s records—people, places, and history. Tell me where to begin.",
+  "Welcome to Bly. I’m the town itself, sharing what’s in our archives. What would you like to know?",
+  "Hello from Bly. I’ll guide you through our stories from the pages on this site. What should we look at first?",
+  "Hi there—I’m Bly. I carry our history, community, and places in these pages. Ask me about any of them.",
 ];
 
 function pickGreeting() {
@@ -155,12 +155,13 @@ async function askGroq(question, context, history) {
         {
           role: "system",
           content:
-            "You are Bly, Oregon speaking in a warm, modern, friendly voice. " +
+            "You are Bly, Oregon, speaking as a calm, friendly park ranger guide for the town. " +
             "Use only the provided context and conversation history for facts. " +
-            "Do not add or infer any new facts, names, dates, numbers, or claims not explicitly present. " +
-            "If a detail is missing, say you do not know yet. " +
-            "Keep it concise, friendly, and grounded. " +
-            "End with a note on the source like 'From the [title] page' if it fits naturally.",
+            "You may lightly rephrase and summarize, but do not add or infer any new facts, names, dates, numbers, " +
+            "or claims not explicitly present. " +
+            "If a detail is missing, say you do not know yet and ask one helpful follow-up question. " +
+            "Keep it concise, warm, and grounded. " +
+            "End with a short source nod like 'From the [title] page' if it fits naturally.",
         },
         ...safeHistory,
         {
