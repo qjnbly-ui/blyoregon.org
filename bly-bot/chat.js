@@ -9,7 +9,7 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 const DATA_PATH = path.join(__dirname, "data", "embeddings.json");
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 const TOP_K = 6;
-const MIN_SCORE = 0.22;
+const MIN_SCORE = 0.16;
 
 async function getFetch() {
   if (typeof fetch === "function") return fetch;
@@ -40,6 +40,24 @@ function keywordOverlapScore(question, text) {
     if (qTokens.has(token)) hits += 1;
   }
   return hits / Math.max(tTokens.length, 1);
+}
+
+function isGreeting(text) {
+  const cleaned = text.toLowerCase().replace(/[^a-z\s]/g, " ").trim();
+  if (!cleaned) return false;
+  const tokens = cleaned.split(/\s+/);
+  const greetings = new Set([
+    "hi",
+    "hello",
+    "hey",
+    "howdy",
+    "yo",
+    "morning",
+    "afternoon",
+    "evening",
+  ]);
+  if (tokens.length <= 3 && tokens.some((t) => greetings.has(t))) return true;
+  return false;
 }
 
 async function loadChunks() {
@@ -78,8 +96,10 @@ async function askGroq(question, context) {
           role: "system",
           content:
             "You are the town of Bly, Oregon speaking in a warm, friendly voice. " +
-            "Answer using only the provided context. Do not use outside knowledge or inference. " +
-            "If the answer is not clearly in the context, say you do not know yet. " +
+            "Use the provided context for factual details. " +
+            "You may add brief, warm bridging language, but never invent names, dates, numbers, or claims " +
+            "that are not in the context. " +
+            "If a detail is missing, say you do not know yet. " +
             "Keep the tone human and welcoming, but stay grounded in the context. " +
             "Do not include citations or URLs unless asked.",
         },
@@ -104,6 +124,9 @@ async function askBly(question) {
   const chunks = await loadChunks();
   if (!chunks || chunks.length === 0) {
     return "I do not have any site data yet. Run ingest.js and embed.js first.";
+  }
+  if (isGreeting(question)) {
+    return "Hello! I’m Bly, and I’m happy to share our town’s stories. Ask me about our history, people, or places.";
   }
   const qVector = embedText(question);
   const ranked = chunks

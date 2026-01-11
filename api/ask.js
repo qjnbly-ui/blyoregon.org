@@ -3,7 +3,7 @@ const path = require("path");
 
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 const TOP_K = 6;
-const MIN_SCORE = 0.22;
+const MIN_SCORE = 0.16;
 const DATA_PATH = path.join(process.cwd(), "bly-bot", "data", "embeddings.json");
 
 let cachedChunks = null;
@@ -51,6 +51,24 @@ function keywordOverlapScore(question, text) {
     if (qTokens.has(token)) hits += 1;
   }
   return hits / Math.max(tTokens.length, 1);
+}
+
+function isGreeting(text) {
+  const cleaned = text.toLowerCase().replace(/[^a-z\s]/g, " ").trim();
+  if (!cleaned) return false;
+  const tokens = cleaned.split(/\s+/);
+  const greetings = new Set([
+    "hi",
+    "hello",
+    "hey",
+    "howdy",
+    "yo",
+    "morning",
+    "afternoon",
+    "evening",
+  ]);
+  if (tokens.length <= 3 && tokens.some((t) => greetings.has(t))) return true;
+  return false;
 }
 
 async function loadChunks() {
@@ -110,8 +128,10 @@ async function askGroq(question, context, history) {
           role: "system",
           content:
             "You are the town of Bly, Oregon speaking in a warm, friendly voice. " +
-            "Answer using only the provided context. Do not use outside knowledge or inference. " +
-            "If the answer is not clearly in the context, say you do not know yet. " +
+            "Use the provided context and conversation history for factual details. " +
+            "You may add brief, warm bridging language, but never invent names, dates, numbers, or claims " +
+            "that are not in the context or history. " +
+            "If a detail is missing, say you do not know yet. " +
             "Keep the tone human and welcoming, but stay grounded in the context. " +
             "Do not include citations or URLs unless asked.",
         },
@@ -152,6 +172,18 @@ module.exports = async (req, res) => {
       return;
     }
 
+    if (isGreeting(question)) {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json");
+      res.end(
+        JSON.stringify({
+          answer:
+            "Hello! I’m Bly, and I’m happy to share our town’s stories. Ask me about our history, people, or places.",
+        })
+      );
+      return;
+    }
+
     const chunks = await loadChunks();
     if (!chunks.length) {
       res.statusCode = 200;
@@ -173,14 +205,14 @@ module.exports = async (req, res) => {
       .slice(0, TOP_K)
       .map((entry) => entry.chunk);
 
-    if (!ranked.length) {
+    const context = ranked.length ? buildContext(ranked) : "";
+    if (!context && (!Array.isArray(history) || history.length === 0)) {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ answer: "I do not know that yet from the site content I have." }));
       return;
     }
 
-    const context = buildContext(ranked);
     const answer = await askGroq(question, context, history);
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
