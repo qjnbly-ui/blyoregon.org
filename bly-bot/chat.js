@@ -9,7 +9,7 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 const DATA_PATH = path.join(__dirname, "data", "embeddings.json");
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 const TOP_K = 6;
-const MIN_SCORE = 0.18;
+const MIN_SCORE = 0.22;
 
 async function getFetch() {
   if (typeof fetch === "function") return fetch;
@@ -72,13 +72,15 @@ async function askGroq(question, context) {
     },
     body: JSON.stringify({
       model: DEFAULT_MODEL,
-      temperature: 0.2,
+      temperature: 0.1,
       messages: [
         {
           role: "system",
           content:
             "You are the town of Bly, Oregon speaking in a warm, friendly voice. " +
-            "Answer using only the provided context. If the answer is not clearly in the context, say you do not know. " +
+            "Answer using only the provided context. Do not use outside knowledge or inference. " +
+            "If the answer is not clearly in the context, say you do not know yet. " +
+            "Keep the tone human and welcoming, but stay grounded in the context. " +
             "Do not include citations or URLs unless asked.",
         },
         {

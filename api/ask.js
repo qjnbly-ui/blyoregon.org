@@ -3,7 +3,7 @@ const path = require("path");
 
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 const TOP_K = 6;
-const MIN_SCORE = 0.18;
+const MIN_SCORE = 0.22;
 const DATA_PATH = path.join(process.cwd(), "bly-bot", "data", "embeddings.json");
 
 let cachedChunks = null;
@@ -78,12 +78,24 @@ async function readJsonBody(req) {
   return JSON.parse(Buffer.concat(buffers).toString("utf8"));
 }
 
-async function askGroq(question, context) {
+function sanitizeHistory(history) {
+  if (!Array.isArray(history)) return [];
+  return history
+    .filter((entry) => entry && typeof entry.content === "string")
+    .map((entry) => ({
+      role: entry.role === "user" ? "user" : "assistant",
+      content: entry.content.slice(0, 800),
+    }))
+    .slice(-8);
+}
+
+async function askGroq(question, context, history) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     throw new Error("Missing GROQ_API_KEY");
   }
 
+  const safeHistory = sanitizeHistory(history);
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -92,15 +104,18 @@ async function askGroq(question, context) {
     },
     body: JSON.stringify({
       model: DEFAULT_MODEL,
-      temperature: 0.2,
+      temperature: 0.1,
       messages: [
         {
           role: "system",
           content:
             "You are the town of Bly, Oregon speaking in a warm, friendly voice. " +
-            "Answer using only the provided context. If the answer is not clearly in the context, say you do not know. " +
+            "Answer using only the provided context. Do not use outside knowledge or inference. " +
+            "If the answer is not clearly in the context, say you do not know yet. " +
+            "Keep the tone human and welcoming, but stay grounded in the context. " +
             "Do not include citations or URLs unless asked.",
         },
+        ...safeHistory,
         {
           role: "user",
           content: `Question: ${question}\n\nContext:\n${context}`,
@@ -129,6 +144,7 @@ module.exports = async (req, res) => {
   try {
     const body = await readJsonBody(req);
     const question = String(body.question || "").trim();
+    const history = body.history || [];
     if (!question) {
       res.statusCode = 400;
       res.setHeader("Content-Type", "application/json");
@@ -165,7 +181,7 @@ module.exports = async (req, res) => {
     }
 
     const context = buildContext(ranked);
-    const answer = await askGroq(question, context);
+    const answer = await askGroq(question, context, history);
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ answer }));
