@@ -6,8 +6,8 @@ const fs = require("fs/promises");
 const path = require("path");
 
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
-const TOP_K = 10;
-const MIN_SCORE = 0.18;
+const TOP_K = 20;
+const MIN_SCORE = 0.14;
 const DATA_PATH = path.join(process.cwd(), "bly-bot", "data", "embeddings.json");
 
 let cachedChunks = null;
@@ -151,6 +151,7 @@ async function askGroq(question, context, history) {
     body: JSON.stringify({
       model: DEFAULT_MODEL,
       temperature: 0.2,
+      max_tokens: 2000,
       messages: [
         {
           role: "system",
@@ -160,7 +161,7 @@ async function askGroq(question, context, history) {
             "You may lightly rephrase and summarize, but do not add or infer any new facts, names, dates, numbers, " +
             "or claims not explicitly present. " +
             "If a detail is missing, say you do not know yet and ask one helpful follow-up question. " +
-            "Keep it concise, warm, and grounded. " +
+            "Keep it warm, grounded, and provide 2–3 short paragraphs when the context supports it. " +
             "End with a short source nod like 'From the [title] page' if it fits naturally.",
         },
         ...safeHistory,
