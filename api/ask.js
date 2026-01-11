@@ -5,7 +5,7 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.1-70b-versatile";
+const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama3-8b-8192";
 const TOP_K = 10;
 const MIN_SCORE = 0.18;
 const DATA_PATH = path.join(process.cwd(), "bly-bot", "data", "embeddings.json");
