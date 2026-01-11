@@ -14,14 +14,12 @@
             <strong>Bly</strong>
             <span>Ask about our town history</span>
           </div>
-          <div class="bly-chat-header-actions">
-            <button class="bly-chat-voice" type="button" aria-pressed="false" aria-label="Toggle voice">🔈</button>
-            <button class="bly-chat-close" type="button" aria-label="Close chat">&times;</button>
-          </div>
+        <button class="bly-chat-close" type="button" aria-label="Close chat">&times;</button>
         </div>
         <div class="bly-chat-messages" role="log" aria-live="polite"></div>
         <form class="bly-chat-form">
           <input type="text" name="question" placeholder="Ask Bly something..." autocomplete="off" required>
+          <button class="bly-chat-voice" type="button" aria-pressed="false" aria-label="Toggle voice">🔈</button>
           <button class="bly-chat-mic" type="button" aria-pressed="false" aria-label="Use voice input">🎤</button>
           <button type="submit">Send</button>
         </form>
@@ -138,6 +136,7 @@
     voiceEnabled = !voiceEnabled;
     voiceBtn.setAttribute("aria-pressed", voiceEnabled ? "true" : "false");
     voiceBtn.textContent = voiceEnabled ? "🔊" : "🔈";
+    voiceBtn.classList.toggle("is-active", voiceEnabled);
   });
 
   if (recognition) {

@@ -113,12 +113,7 @@ async function extractText(filePath) {
     const $ = cheerio.load(raw);
     $("script, style, noscript").remove();
     const title = normalizeText($("title").text());
-    const $root =
-      $("main").first().length > 0
-        ? $("main").first()
-        : $("article").first().length > 0
-          ? $("article").first()
-          : $("body").first();
+    const $root = $("body").first();
     $root.find("nav, header, footer, aside").remove();
     const sections = extractSections($, $root);
     const blocks = extractBlocks($, $root);

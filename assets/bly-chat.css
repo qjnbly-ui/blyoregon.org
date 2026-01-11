@@ -97,16 +97,6 @@
   transform: translateY(-50%);
 }
 
-.bly-chat-header-actions {
-  position: absolute;
-  right: 0.8rem;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
 .bly-chat-voice {
   border: none;
   background: rgba(255, 255, 255, 0.16);
@@ -115,6 +105,11 @@
   padding: 0.25rem 0.45rem;
   border-radius: 999px;
   cursor: pointer;
+}
+
+.bly-chat-voice.is-active {
+  background: var(--bly-sun);
+  color: #3b2b16;
 }
 
 .bly-chat-messages {
@@ -187,6 +182,14 @@
   background: var(--bly-sun);
   color: #3b2b16;
   border-color: transparent;
+  box-shadow: 0 0 0 6px rgba(244, 179, 91, 0.25);
+  animation: micPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+  0% { box-shadow: 0 0 0 2px rgba(244, 179, 91, 0.25); }
+  70% { box-shadow: 0 0 0 10px rgba(244, 179, 91, 0.05); }
+  100% { box-shadow: 0 0 0 2px rgba(244, 179, 91, 0.25); }
 }
 
 .bly-chat-note {
