@@ -14,11 +14,15 @@
             <strong>Bly</strong>
             <span>Ask about our town history</span>
           </div>
-          <button class="bly-chat-close" type="button" aria-label="Close chat">&times;</button>
+          <div class="bly-chat-header-actions">
+            <button class="bly-chat-voice" type="button" aria-pressed="false" aria-label="Toggle voice">🔈</button>
+            <button class="bly-chat-close" type="button" aria-label="Close chat">&times;</button>
+          </div>
         </div>
         <div class="bly-chat-messages" role="log" aria-live="polite"></div>
         <form class="bly-chat-form">
           <input type="text" name="question" placeholder="Ask Bly something..." autocomplete="off" required>
+          <button class="bly-chat-mic" type="button" aria-pressed="false" aria-label="Use voice input">🎤</button>
           <button type="submit">Send</button>
         </form>
         <p class="bly-chat-note">Bly answers using the stories and pages on this site.</p>
@@ -31,6 +35,8 @@
 
   const toggle = widget.querySelector(".bly-chat-toggle");
   const closeBtn = widget.querySelector(".bly-chat-close");
+  const voiceBtn = widget.querySelector(".bly-chat-voice");
+  const micBtn = widget.querySelector(".bly-chat-mic");
   const overlay = widget.querySelector(".bly-chat-overlay");
   const panel = widget.querySelector(".bly-chat-panel");
   const form = widget.querySelector(".bly-chat-form");
@@ -39,11 +45,28 @@
   const storageKey = "blyChatHistory";
   let history = [];
   let usingViewportFix = false;
+  let voiceEnabled = false;
+  let recognition = null;
 
   try {
     history = JSON.parse(sessionStorage.getItem(storageKey)) || [];
   } catch (err) {
     history = [];
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+  } else {
+    micBtn.disabled = true;
+    micBtn.title = "Voice input not supported";
+  }
+
+  if (!window.speechSynthesis) {
+    voiceBtn.disabled = true;
+    voiceBtn.title = "Voice output not supported";
   }
 
   function setOpen(isOpen) {
@@ -53,6 +76,9 @@
     document.documentElement.style.overflow = isOpen ? "hidden" : "";
     if (isOpen) {
       input.focus();
+    } else {
+      if (recognition) recognition.stop();
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
     }
   }
 
@@ -87,6 +113,16 @@
     }
   }
 
+  function speak(text) {
+    if (!voiceEnabled || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+  }
+
   if (history.length) {
     history.forEach((entry) => {
       const type = entry.role === "user" ? "user" : "bly";
@@ -98,6 +134,36 @@
   closeBtn.addEventListener("click", () => setOpen(false));
   input.addEventListener("focus", applyViewportFix);
   input.addEventListener("blur", clearViewportFix);
+  voiceBtn.addEventListener("click", () => {
+    voiceEnabled = !voiceEnabled;
+    voiceBtn.setAttribute("aria-pressed", voiceEnabled ? "true" : "false");
+    voiceBtn.textContent = voiceEnabled ? "🔊" : "🔈";
+  });
+
+  if (recognition) {
+    recognition.addEventListener("result", (event) => {
+      const transcript = event.results[0]?.[0]?.transcript || "";
+      if (transcript) {
+        input.value = transcript.trim();
+        input.focus();
+      }
+    });
+
+    recognition.addEventListener("end", () => {
+      micBtn.setAttribute("aria-pressed", "false");
+      micBtn.classList.remove("is-listening");
+    });
+
+    micBtn.addEventListener("click", () => {
+      if (micBtn.getAttribute("aria-pressed") === "true") {
+        recognition.stop();
+        return;
+      }
+      micBtn.setAttribute("aria-pressed", "true");
+      micBtn.classList.add("is-listening");
+      recognition.start();
+    });
+  }
 
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", applyViewportFix);
@@ -122,6 +188,7 @@
       const data = await response.json();
       const answer = data.answer || data.error || "I do not know that yet.";
       addMessage(answer, "bly");
+      speak(answer);
     } catch (error) {
       addMessage("Sorry, I could not reach the storyteller right now.", "bly");
     } finally {
