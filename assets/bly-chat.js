@@ -10,16 +10,16 @@
     <div class="bly-chat-overlay" aria-hidden="true">
       <div class="bly-chat-panel" role="dialog" aria-modal="true" aria-label="Ask Bly">
         <div class="bly-chat-header">
-          <div>
+          <div class="bly-chat-header-title">
             <strong>Bly</strong>
             <span>Ask about our town history</span>
           </div>
-        <div class="bly-chat-header-actions">
-          <button class="bly-chat-voice" type="button" aria-pressed="false" aria-label="Toggle voice">🔈</button>
-          <button class="bly-chat-play" type="button" aria-label="Play selected text" disabled>▶︎</button>
-          <button class="bly-chat-stop" type="button" aria-label="Stop audio">⏹</button>
-          <button class="bly-chat-close" type="button" aria-label="Close chat">&times;</button>
-        </div>
+          <div class="bly-chat-header-actions">
+            <button class="bly-chat-voice" type="button" aria-pressed="false" aria-label="Toggle voice">🔈</button>
+            <button class="bly-chat-play" type="button" aria-label="Play selected text" disabled>▶︎</button>
+            <button class="bly-chat-stop" type="button" aria-label="Stop audio">⏹</button>
+            <button class="bly-chat-close" type="button" aria-label="Close chat">&times;</button>
+          </div>
         </div>
         <div class="bly-chat-messages" role="log" aria-live="polite"></div>
         <form class="bly-chat-form">
