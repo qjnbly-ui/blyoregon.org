@@ -6,8 +6,8 @@ const fs = require("fs/promises");
 const path = require("path");
 
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
-const TOP_K = 20;
-const MIN_SCORE = 0.14;
+const TOP_K = 30;
+const MIN_SCORE = 0.25;
 const DATA_PATH = path.join(process.cwd(), "bly-bot", "data", "embeddings.json");
 
 let cachedChunks = null;
@@ -100,7 +100,6 @@ function pickFallback() {
 }
 
 const GREETING_RESPONSES = [
-  "Hello—I’m Bly. I’m a small town with deep roots, and I keep my stories in these pages. Ask me what you’d like to explore.",
   "Hi, I’m Bly. I speak from our town’s records—people, places, and history. Tell me where to begin.",
   "Welcome to Bly. I’m the town itself, sharing what’s in our archives. What would you like to know?",
   "Hello from Bly. I’ll guide you through our stories from the pages on this site. What should we look at first?",
