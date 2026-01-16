@@ -9,6 +9,7 @@ const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 const TOP_K = 24;
 const MIN_SCORE = 0.12;
 const DATA_PATH = path.join(process.cwd(), "bly-bot", "data", "embeddings.json");
+const EXCLUDED_RECOMMENDATION_TERMS = ["gerber reservoir"];
 
 let cachedChunks = null;
 
@@ -95,13 +96,16 @@ function containsExternalSuggestion(sentence) {
   return /\b(search online|google|look up|visit google|web search)\b/i.test(sentence);
 }
 
-function filterToContext(answer, contextText) {
+function filterToContext(answer, contextText, excludedTerms = []) {
   const sentences = splitSentences(answer);
   if (!sentences.length) return "";
   const context = contextText.toLowerCase();
   const kept = [];
   for (const sentence of sentences) {
     const normalized = sentence.toLowerCase();
+    if (excludedTerms.some((term) => normalized.includes(term))) {
+      continue;
+    }
     if (sentence.trim().endsWith("?")) {
       kept.push(sentence.trim());
       continue;
@@ -364,6 +368,20 @@ function buildContext(chunks) {
     .join("\n\n");
 }
 
+function shouldAvoidRecommendations(text) {
+  return /\b(visit|visiting|trip|itinerary|plan|planning|road trip|see|places|things to do|go to|go see|check out|attractions|tour|recommend|recommendations)\b/i.test(
+    text
+  );
+}
+
+function filterExcludedChunks(chunks, excludedTerms) {
+  if (!excludedTerms.length) return chunks;
+  return chunks.filter((chunk) => {
+    const text = `${chunk.title || ""}\n${chunk.text || ""}`.toLowerCase();
+    return !excludedTerms.some((term) => text.includes(term));
+  });
+}
+
 function sanitizeHistory(history) {
   if (!Array.isArray(history)) return [];
   return history
@@ -464,18 +482,22 @@ module.exports = async (req, res) => {
     }
 
     const qVector = embedText(question);
-    const ranked = chunks
-      .map((chunk) => ({
-        chunk,
-        score:
-          cosineSimilarity(qVector, chunk.vector) * 0.7 +
-          keywordOverlapScore(question, chunk.text) * 0.3 +
-          categoryBoost(question, chunk),
-      }))
-      .sort((a, b) => b.score - a.score)
-      .filter((entry) => entry.score >= MIN_SCORE)
-      .slice(0, TOP_K)
-      .map((entry) => entry.chunk);
+    const rankedRaw = 
+      chunks
+        .map((chunk) => ({
+          chunk,
+          score:
+            cosineSimilarity(qVector, chunk.vector) * 0.7 +
+            keywordOverlapScore(question, chunk.text) * 0.3 +
+            categoryBoost(question, chunk),
+        }))
+        .sort((a, b) => b.score - a.score)
+        .filter((entry) => entry.score >= MIN_SCORE)
+        .slice(0, TOP_K)
+        .map((entry) => entry.chunk);
+    const avoidRecommendations = shouldAvoidRecommendations(question);
+    const excludeTerms = avoidRecommendations ? EXCLUDED_RECOMMENDATION_TERMS : [];
+    const ranked = filterExcludedChunks(rankedRaw, excludeTerms);
 
     if (!ranked.length) {
       res.statusCode = 200;
@@ -519,7 +541,7 @@ module.exports = async (req, res) => {
       : question;
     const answer = await askGroq(prompt, context, history);
     const contextBlob = buildContextBlob(ranked);
-    const filtered = filterToContext(answer, contextBlob);
+    const filtered = filterToContext(answer, contextBlob, excludeTerms);
     const wantsSources = isSourceRequest(question);
     const sources = wantsSources ? formatSources(ranked) : "";
     const baseAnswer = filtered || pickFallback();
