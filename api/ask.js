@@ -67,6 +67,16 @@ function isTripRequest(text) {
   return /\b(plan|planning|trip|itinerary|visit|visiting|travel|weekend|getaway|road trip)\b/i.test(text);
 }
 
+function isBusinessQuery(text) {
+  return /\b(business|businesses|services|shop|shops|store|stores|directory|local|open now|open today)\b/i.test(text);
+}
+
+function isLodgingQuery(text) {
+  return /\b(lodging|hotel|motel|inn|resort|cabin|cabins|guest ranch|ranch|campground|rv|trailer park|overnight|stay|staying|accommodations)\b/i.test(
+    text
+  );
+}
+
 function splitSentences(text) {
   const normalized = text.replace(/\s+/g, " ").trim();
   if (!normalized) return [];
@@ -75,6 +85,10 @@ function splitSentences(text) {
 
 function buildContextBlob(chunks) {
   return chunks.map((chunk) => chunk.text || "").join(" ");
+}
+
+function containsExternalSuggestion(sentence) {
+  return /\b(search online|google|look up|visit google|web search)\b/i.test(sentence);
 }
 
 function filterToContext(answer, contextText) {
@@ -88,12 +102,153 @@ function filterToContext(answer, contextText) {
       kept.push(sentence.trim());
       continue;
     }
+    if (containsExternalSuggestion(normalized)) {
+      continue;
+    }
     const overlap = keywordOverlapScore(normalized, contextText);
     if (overlap >= 0.08 || context.includes(normalized.replace(/[^\w\s]/g, "").trim())) {
       kept.push(sentence.trim());
     }
   }
   return kept.join(" ");
+}
+
+function extractLodgingEntries(chunks) {
+  const categoryStops = new Set([
+    "Education",
+    "Faith & Churches",
+    "Utilities",
+    "Recreation & Community Space",
+    "Health & Wellness",
+    "Services & Trades",
+    "Shopping",
+    "Food & Drink",
+    "Community & Government",
+    "Highlights",
+  ]);
+  const targets = ["Aspen Ridge Resort", "Lone Pine Trailer Park"];
+  const entries = [];
+
+  for (const chunk of chunks) {
+    if (!chunk.text) continue;
+    const lines = chunk.text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    for (const target of targets) {
+      const start = lines.findIndex((line) => line === target);
+      if (start === -1) continue;
+      const entry = { name: target, description: "", meta: [] };
+      for (let i = start + 1; i < lines.length; i += 1) {
+        const line = lines[i];
+        if (targets.includes(line) || categoryStops.has(line)) break;
+        if (line.includes(":")) {
+          entry.meta.push(line);
+          continue;
+        }
+        if (!entry.description) {
+          entry.description = line;
+        }
+      }
+      if (entry.description || entry.meta.length) {
+        entries.push(entry);
+      }
+    }
+  }
+
+  const unique = new Map(entries.map((entry) => [entry.name, entry]));
+  return Array.from(unique.values());
+}
+
+function formatLodgingResponse(entries) {
+  if (!entries.length) return "";
+  const lines = ["Here are lodging options listed in the Business Directory:"];
+  for (const entry of entries) {
+    lines.push(`- ${entry.name}${entry.description ? ` — ${entry.description}` : ""}`);
+    for (const meta of entry.meta) {
+      lines.push(`  ${meta}`);
+    }
+  }
+  lines.push("Would you like details on any of these, or are you looking for something specific?");
+  return lines.join("\n");
+}
+
+function extractBusinessDirectory(chunks) {
+  const entryTitles = new Set([
+    "Bly Ranger District (Forest Service)",
+    "Bly Community Action Team",
+    "Bly Fire Department",
+    "United States Postal Service (Bly)",
+    "Bly Branch Library",
+    "The Breadwagon",
+    "Sycan Store",
+    "The Highway Cafe",
+    "Fastbreak Convenience Store - Bly Market",
+    "The Bly Outdoor Store",
+    "Outlaw Rocks",
+    "Rustic Rain",
+    "Main Street Mercantile",
+    "Country Crafts",
+    "Delta-S Designs",
+    "Grant Plumbing",
+    "Holgate Plumbing",
+    "John Richmond Contracting",
+    "Melsness Logging",
+    "Millen Construction",
+    "Paul Melsness Refinishing",
+    "Duarte Sales",
+    "Running W Enterprises",
+    "Bly Beauties",
+    "Klamath Hospice and Palliative Care",
+    "The Bonanza Clinic",
+    "Aspen Ridge Resort",
+    "Lone Pine Trailer Park",
+    "Gearhart Elementary School",
+    "Bly Preschool",
+    "Abiding Place Ministries",
+    "Beatty Valley Church",
+    "Standing Stone Church",
+    "St. James Catholic Church",
+    "Bly Water and Sanitation District",
+    "Ruth Obenchain Recreation Center",
+  ]);
+
+  const entries = [];
+  for (const chunk of chunks) {
+    if (!chunk.text) continue;
+    const lines = chunk.text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    for (let i = 0; i < lines.length; i += 1) {
+      const line = lines[i];
+      if (!entryTitles.has(line)) continue;
+      const entry = { name: line, description: "", meta: [] };
+      for (let j = i + 1; j < lines.length; j += 1) {
+        const next = lines[j];
+        if (entryTitles.has(next)) break;
+        if (next.includes(":")) {
+          entry.meta.push(next);
+        } else if (!entry.description) {
+          entry.description = next;
+        }
+      }
+      entries.push(entry);
+    }
+  }
+
+  const unique = new Map(entries.map((entry) => [entry.name, entry]));
+  return Array.from(unique.values());
+}
+
+function formatBusinessResponse(entries, max = 12) {
+  if (!entries.length) return "";
+  const lines = ["Here are current listings from the Business Directory:"];
+  for (const entry of entries.slice(0, max)) {
+    lines.push(`- ${entry.name}${entry.description ? ` — ${entry.description}` : ""}`);
+  }
+  lines.push("Want details on any of these, or a specific category?");
+  return lines.join("\n");
 }
 
 function formatSources(chunks, max = 3) {
@@ -115,14 +270,11 @@ function categoryBoost(question, chunk) {
   const url = String(chunk.url || "").toLowerCase();
   const title = String(chunk.title || "").toLowerCase();
   const isFoodQuery = /\b(eat|food|restaurant|restaurants|cafe|coffee|diner|breakfast|lunch|dinner)\b/.test(q);
-  const isLodgingQuery = /\b(lodging|hotel|motel|inn|resort|cabin|cabins|guest ranch|ranch|campground|rv|trailer park|overnight|stay|staying|accommodations)\b/.test(
-    q
-  );
   if (isFoodQuery) {
     if (url.includes("/businesses/") || title.includes("businesses")) return 0.25;
     if (url.includes("/history/") || title.includes("history")) return -0.15;
   }
-  if (isLodgingQuery) {
+  if (isLodgingQuery(q)) {
     if (url.includes("/businesses/") || title.includes("businesses")) return 0.25;
     if (url.includes("/history/") || title.includes("history")) return -0.15;
   }
@@ -234,6 +386,7 @@ async function askGroq(question, context, history) {
             "If a detail is missing, say you do not know yet and ask one helpful follow-up question. " +
             "Do not repeat greetings or self-introductions except on the first greeting. " +
             "If the question is about current services or businesses, prioritize business listings and avoid historical anecdotes unless asked. " +
+            "Never suggest searching online; only use the provided context. " +
             "Keep it warm and grounded, aiming for 2–3 sentences when possible. " +
             "Do not add a source line or citation at the end unless the user asks for sources.",
         },
@@ -314,6 +467,28 @@ module.exports = async (req, res) => {
       return;
     }
 
+    if (isLodgingQuery(question)) {
+      const entries = extractLodgingEntries(ranked);
+      const response = formatLodgingResponse(entries);
+      if (response) {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ answer: response }));
+        return;
+      }
+    }
+
+    if (isBusinessQuery(question)) {
+      const entries = extractBusinessDirectory(ranked);
+      const response = formatBusinessResponse(entries);
+      if (response) {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ answer: response }));
+        return;
+      }
+    }
+
     const context = buildContext(ranked);
     const wantsTripPlan = isTripRequest(question);
     const prompt = wantsTripPlan
@@ -331,7 +506,7 @@ module.exports = async (req, res) => {
     const wantsSources = isSourceRequest(question);
     const sources = wantsSources ? formatSources(ranked) : "";
     const baseAnswer = filtered || pickFallback();
-    const finalAnswer = sources ? `${baseAnswer}\n\n${sources}` : baseAnswer;
+    const finalAnswer = wantsSources ? (sources || "Sources: Not available from the current context.") : baseAnswer;
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ answer: finalAnswer }));
