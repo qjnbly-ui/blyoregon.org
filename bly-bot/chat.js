@@ -92,7 +92,7 @@ function isGreeting(text) {
 }
 
 const FALLBACK_RESPONSES = [
-  "I don’t have that in my trail notes yet. If you can point me to a page, place, or time period, I’ll take another look.",
+  "I don’t have that in my notes yet—but if you give me a landmark, a name, or a time period, I’ll take another look.",
   "I’m not seeing that in the pages I have. Tell me a person, place, or era and I’ll track it down.",
   "That detail isn’t in my records yet. Give me a clue—people, places, or events—and I’ll dig in.",
   "I don’t know that from the site pages so far. If you narrow the topic, I’ll try again.",

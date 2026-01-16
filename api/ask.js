@@ -57,6 +57,26 @@ function keywordOverlapScore(question, text) {
   return hits / Math.max(tTokens.length, 1);
 }
 
+function isSourceRequest(text) {
+  return /\b(source|sources|citation|citations|where did you get|where did this come from|reference|references)\b/i.test(
+    text
+  );
+}
+
+function formatSources(chunks, max = 3) {
+  const seen = new Set();
+  const list = [];
+  for (const chunk of chunks) {
+    const title = chunk.title || chunk.url || "Site page";
+    if (seen.has(title)) continue;
+    seen.add(title);
+    list.push(`${title}${chunk.url ? ` — ${chunk.url}` : ""}`);
+    if (list.length >= max) break;
+  }
+  if (!list.length) return "";
+  return `Sources: ${list.join(" | ")}`;
+}
+
 function categoryBoost(question, chunk) {
   const q = question.toLowerCase();
   const url = String(chunk.url || "").toLowerCase();
@@ -88,7 +108,7 @@ function isGreeting(text) {
 }
 
 const FALLBACK_RESPONSES = [
-  "I don’t have that in my trail notes yet. If you can point me to a page, place, or time period, I’ll take another look.",
+  "I don’t have that in my notes yet—but if you give me a landmark, a name, or a time period, I’ll take another look.",
   "I’m not seeing that in the pages I have. Tell me a person, place, or era and I’ll track it down.",
   "That detail isn’t in my records yet. Give me a clue—people, places, or events—and I’ll dig in.",
   "I don’t know that from the site pages so far. If you narrow the topic, I’ll try again.",
@@ -256,9 +276,12 @@ module.exports = async (req, res) => {
 
     const context = buildContext(ranked);
     const answer = await askGroq(question, context, history);
+    const wantsSources = isSourceRequest(question);
+    const sources = wantsSources ? formatSources(ranked) : "";
+    const finalAnswer = sources ? `${answer || pickFallback()}\n\n${sources}` : answer || pickFallback();
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({ answer: answer || pickFallback() }));
+    res.end(JSON.stringify({ answer: finalAnswer }));
   } catch (error) {
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json");

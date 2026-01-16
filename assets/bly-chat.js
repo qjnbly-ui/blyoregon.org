@@ -48,9 +48,11 @@
   const messages = widget.querySelector(".bly-chat-messages");
   const storageKey = "blyChatHistory";
   const limitKey = "blyChatCount";
+  const introKey = "blyChatIntroShown";
   const responseLimit = 20;
   let history = [];
   let responseCount = Number(sessionStorage.getItem(limitKey) || 0);
+  let introShown = sessionStorage.getItem(introKey) === "true";
   let usingViewportFix = false;
   let voiceEnabled = false;
   let recognition = null;
@@ -85,9 +87,16 @@
     document.documentElement.style.overflow = isOpen ? "hidden" : "";
     if (isOpen) {
       input.focus();
-      if (history.length === 0) {
-        const greeting = "Hello—I’m Bly. I’m a small town with deep roots, and I keep my stories in these pages. What’s your full name?";
+      if (history.length === 0 && !introShown) {
+        const greeting =
+          "Hi, I’m Bly. I speak from our town’s records—people, places, and history. " +
+          "If you want, you can tell me your name and I’ll keep things a little more personal—or we can just talk about Bly.";
+        const paths =
+          "We can do a few things here. I can point you to places that are open now, share stories from the past, or help track down something specific you’ve heard about. Where do you want to start?";
         addMessage(greeting, "bly");
+        addMessage(paths, "bly");
+        introShown = true;
+        sessionStorage.setItem(introKey, "true");
       }
     } else {
       if (recognition) recognition.stop();
