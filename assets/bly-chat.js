@@ -90,11 +90,9 @@
       if (history.length === 0 && !introShown) {
         const greeting =
           "Hi, I’m Bly. I speak from our town’s records—people, places, and history. " +
-          "If you want, you can tell me your name and I’ll keep things a little more personal—or we can just talk about Bly.";
-        const paths =
+          "If you want, you can tell me your name and I’ll keep things a little more personal—or we can just talk about Bly. " +
           "We can do a few things here. I can point you to places that are open now, share stories from the past, or help track down something specific you’ve heard about. Where do you want to start?";
         addMessage(greeting, "bly");
-        addMessage(paths, "bly");
         introShown = true;
         sessionStorage.setItem(introKey, "true");
       }

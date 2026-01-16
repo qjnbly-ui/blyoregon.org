@@ -63,6 +63,31 @@ function isSourceRequest(text) {
   );
 }
 
+function splitSentences(text) {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (!normalized) return [];
+  return normalized.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+}
+
+function buildContextBlob(chunks) {
+  return chunks.map((chunk) => chunk.text || "").join(" ");
+}
+
+function filterToContext(answer, contextText) {
+  const sentences = splitSentences(answer);
+  if (!sentences.length) return "";
+  const context = contextText.toLowerCase();
+  const kept = [];
+  for (const sentence of sentences) {
+    const normalized = sentence.toLowerCase();
+    const overlap = keywordOverlapScore(normalized, contextText);
+    if (overlap >= 0.08 || context.includes(normalized.replace(/[^\w\s]/g, "").trim())) {
+      kept.push(sentence.trim());
+    }
+  }
+  return kept.join(" ");
+}
+
 function formatSources(chunks, max = 3) {
   const seen = new Set();
   const list = [];
@@ -276,9 +301,12 @@ module.exports = async (req, res) => {
 
     const context = buildContext(ranked);
     const answer = await askGroq(question, context, history);
+    const contextBlob = buildContextBlob(ranked);
+    const filtered = filterToContext(answer, contextBlob);
     const wantsSources = isSourceRequest(question);
     const sources = wantsSources ? formatSources(ranked) : "";
-    const finalAnswer = sources ? `${answer || pickFallback()}\n\n${sources}` : answer || pickFallback();
+    const baseAnswer = filtered || pickFallback();
+    const finalAnswer = sources ? `${baseAnswer}\n\n${sources}` : baseAnswer;
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ answer: finalAnswer }));
