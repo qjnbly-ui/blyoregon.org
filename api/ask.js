@@ -77,6 +77,10 @@ function isLodgingQuery(text) {
   );
 }
 
+function isContactRequest(text) {
+  return /\b(phone|contact|address|website|web site|email|call|number|location)\b/i.test(text);
+}
+
 function splitSentences(text) {
   const normalized = text.replace(/\s+/g, " ").trim();
   if (!normalized) return [];
@@ -160,16 +164,29 @@ function extractLodgingEntries(chunks) {
   return Array.from(unique.values());
 }
 
-function formatLodgingResponse(entries) {
+function formatLodgingResponse(entries, question) {
   if (!entries.length) return "";
+  const wantsContacts = isContactRequest(question);
+  const prefersTrailer = /\b(trailer|rv|camper|camp trailer)\b/i.test(question);
+  const sorted = [...entries].sort((a, b) => {
+    if (prefersTrailer) {
+      if (a.name === "Lone Pine Trailer Park") return -1;
+      if (b.name === "Lone Pine Trailer Park") return 1;
+    }
+    return 0;
+  });
   const lines = ["Here are lodging options listed in the Business Directory:"];
-  for (const entry of entries) {
+  for (const entry of sorted) {
     lines.push(`- ${entry.name}${entry.description ? ` — ${entry.description}` : ""}`);
-    for (const meta of entry.meta) {
-      lines.push(`  ${meta}`);
+    if (wantsContacts) {
+      for (const meta of entry.meta) {
+        lines.push(`  ${meta}`);
+      }
     }
   }
-  lines.push("Would you like details on any of these, or are you looking for something specific?");
+  lines.push(wantsContacts
+    ? "Would you like details on any of these, or are you looking for something specific?"
+    : "If you want contact details or addresses, just ask.");
   return lines.join("\n");
 }
 
@@ -469,7 +486,7 @@ module.exports = async (req, res) => {
 
     if (isLodgingQuery(question)) {
       const entries = extractLodgingEntries(ranked);
-      const response = formatLodgingResponse(entries);
+      const response = formatLodgingResponse(entries, question);
       if (response) {
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
