@@ -149,11 +149,11 @@
     main {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 2.5rem 1.5rem 3.5rem;
+      padding: 2.2rem 1.5rem 3rem;
     }
 
     section {
-      margin-bottom: 3rem;
+      margin-bottom: 2.1rem;
     }
 
     .section-kicker {
@@ -167,36 +167,36 @@
     .section-title {
       font-family: "Fraunces", "Times New Roman", serif;
       font-size: 1.8rem;
-      margin: 0.4rem 0 1rem;
+      margin: 0.35rem 0 0.75rem;
       color: var(--forest);
     }
 
     .card {
       background: var(--card);
       border-radius: 18px;
-      padding: 1.4rem;
+      padding: 1.1rem 1.25rem;
       border: 1px solid rgba(31, 64, 48, 0.12);
       box-shadow: var(--shadow);
       display: grid;
-      gap: 0.8rem;
+      gap: 0.6rem;
     }
 
     .two-col {
       display: grid;
-      gap: 1.5rem;
+      gap: 1.1rem;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
 
     .chat-card {
       background: var(--card);
       border-radius: 22px;
-      padding: 1.5rem;
+      padding: 1.2rem 1.4rem;
       border: 1px solid rgba(31, 64, 48, 0.12);
       box-shadow: var(--shadow);
     }
 
     .chat-card p {
-      margin: 0 0 1rem;
+      margin: 0 0 0.7rem;
       color: #3f4f47;
     }
 
@@ -210,7 +210,7 @@
       margin: 0;
       padding-left: 1.2rem;
       color: #3f4f47;
-      line-height: 1.7;
+      line-height: 1.6;
     }
 
     footer {
@@ -284,6 +284,51 @@
           We are still in development, and to keep costs down there is a per-session limit.
         </p>
         <div class="bly-chat-slot"></div>
+      </div>
+    </section>
+
+    <section>
+      <span class="section-kicker">Behind the scenes</span>
+      <h2 class="section-title">How Ask Bly works</h2>
+      <div class="card">
+        <p>
+          Ask Bly is built from the pages on this site. We regularly scan the public
+          HTML, extract the text, and store it as a searchable library. When you ask
+          a question, the system compares your words to that library and pulls the
+          most relevant passages.
+        </p>
+        <p>
+          A language model then turns those passages into a short, friendly answer.
+          It is instructed to stay grounded in the retrieved text and avoid adding
+          facts that are not explicitly in the site content. If a detail is missing,
+          it should say so and ask a brief follow-up question.
+        </p>
+        <p>
+          For practical questions like lodging, food, or services, Ask Bly prioritizes
+          the Business Directory so it can respond with current listings. It will only
+          include contact details when asked. For trip or visit requests, it builds a
+          simple plan using the same business listings and nearby locations already
+          listed on the site.
+        </p>
+        <p>
+          This is an evolving project. If you notice an error or a missing story,
+          send feedback and we will update the source pages so the next refresh
+          improves the answer quality.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <span class="section-kicker">Feedback</span>
+      <h2 class="section-title">Share a correction or story</h2>
+      <div class="card">
+        <p>
+          If Ask Bly missed something, said something wrong, or you want to contribute
+          a story, send us a note. Community tips help keep this archive accurate.
+        </p>
+        <p>
+          <a href="mailto:quentin@quentinnichols.com">quentin@quentinnichols.com</a>
+        </p>
       </div>
     </section>
   </main>
