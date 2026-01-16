@@ -63,6 +63,10 @@ function isSourceRequest(text) {
   );
 }
 
+function isTripRequest(text) {
+  return /\b(plan|planning|trip|itinerary|visit|visiting|travel|weekend|getaway|road trip)\b/i.test(text);
+}
+
 function splitSentences(text) {
   const normalized = text.replace(/\s+/g, " ").trim();
   if (!normalized) return [];
@@ -80,6 +84,10 @@ function filterToContext(answer, contextText) {
   const kept = [];
   for (const sentence of sentences) {
     const normalized = sentence.toLowerCase();
+    if (sentence.trim().endsWith("?")) {
+      kept.push(sentence.trim());
+      continue;
+    }
     const overlap = keywordOverlapScore(normalized, contextText);
     if (overlap >= 0.08 || context.includes(normalized.replace(/[^\w\s]/g, "").trim())) {
       kept.push(sentence.trim());
@@ -107,7 +115,14 @@ function categoryBoost(question, chunk) {
   const url = String(chunk.url || "").toLowerCase();
   const title = String(chunk.title || "").toLowerCase();
   const isFoodQuery = /\b(eat|food|restaurant|restaurants|cafe|coffee|diner|breakfast|lunch|dinner)\b/.test(q);
+  const isLodgingQuery = /\b(lodging|hotel|motel|inn|resort|cabin|cabins|guest ranch|ranch|campground|rv|trailer park|overnight|stay|staying|accommodations)\b/.test(
+    q
+  );
   if (isFoodQuery) {
+    if (url.includes("/businesses/") || title.includes("businesses")) return 0.25;
+    if (url.includes("/history/") || title.includes("history")) return -0.15;
+  }
+  if (isLodgingQuery) {
     if (url.includes("/businesses/") || title.includes("businesses")) return 0.25;
     if (url.includes("/history/") || title.includes("history")) return -0.15;
   }
@@ -300,7 +315,17 @@ module.exports = async (req, res) => {
     }
 
     const context = buildContext(ranked);
-    const answer = await askGroq(question, context, history);
+    const wantsTripPlan = isTripRequest(question);
+    const prompt = wantsTripPlan
+      ? [
+          "Trip planning request.",
+          "Using only the provided context, suggest a simple, practical visit plan.",
+          "Include specific places only if they appear in the context.",
+          "Then ask 2–3 clarifying questions (dates, overnight vs. day trip, interests).",
+          `User request: ${question}`,
+        ].join(" ")
+      : question;
+    const answer = await askGroq(prompt, context, history);
     const contextBlob = buildContextBlob(ranked);
     const filtered = filterToContext(answer, contextBlob);
     const wantsSources = isSourceRequest(question);
