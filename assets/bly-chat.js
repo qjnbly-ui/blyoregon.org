@@ -3,6 +3,17 @@
   if (!slot) return;
   if (slot.querySelector(".bly-chat")) return;
 
+  const path = window.location.pathname.replace(/\/index\.html$/, "/");
+  const isHomePage = path === "/" || path === "";
+  if (isHomePage) {
+    const link = document.createElement("a");
+    link.className = "bly-chat-toggle";
+    link.href = "/askbly/";
+    link.textContent = "Ask Bly";
+    slot.appendChild(link);
+    return;
+  }
+
   const widget = document.createElement("div");
   widget.className = "bly-chat embed";
   widget.dataset.open = "false";
