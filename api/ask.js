@@ -10,6 +10,18 @@ const TOP_K = 24;
 const MIN_SCORE = 0.12;
 const DATA_PATH = path.join(process.cwd(), "bly-bot", "data", "embeddings.json");
 const EXCLUDED_RECOMMENDATION_TERMS = ["gerber reservoir"];
+const BUSINESS_CATEGORIES = new Set([
+  "Community & Government",
+  "Food & Drink",
+  "Shopping",
+  "Services & Trades",
+  "Health & Wellness",
+  "Lodging",
+  "Education",
+  "Faith & Churches",
+  "Utilities",
+  "Recreation & Community Space",
+]);
 
 let cachedChunks = null;
 
@@ -78,6 +90,10 @@ function isLodgingQuery(text) {
   );
 }
 
+function isFoodQuery(text) {
+  return /\b(eat|food|restaurant|restaurants|cafe|coffee|diner|breakfast|lunch|dinner)\b/i.test(text);
+}
+
 function isContactRequest(text) {
   return /\b(phone|contact|address|website|web site|email|call|number|location)\b/i.test(text);
 }
@@ -121,61 +137,16 @@ function filterToContext(answer, contextText, excludedTerms = []) {
   return kept.join(" ");
 }
 
-function extractLodgingEntries(chunks) {
-  const categoryStops = new Set([
-    "Education",
-    "Faith & Churches",
-    "Utilities",
-    "Recreation & Community Space",
-    "Health & Wellness",
-    "Services & Trades",
-    "Shopping",
-    "Food & Drink",
-    "Community & Government",
-    "Highlights",
-  ]);
-  const targets = ["Aspen Ridge Resort", "Lone Pine Trailer Park"];
-  const entries = [];
-
-  for (const chunk of chunks) {
-    if (!chunk.text) continue;
-    const lines = chunk.text
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-    for (const target of targets) {
-      const start = lines.findIndex((line) => line === target);
-      if (start === -1) continue;
-      const entry = { name: target, description: "", meta: [] };
-      for (let i = start + 1; i < lines.length; i += 1) {
-        const line = lines[i];
-        if (targets.includes(line) || categoryStops.has(line)) break;
-        if (line.includes(":")) {
-          entry.meta.push(line);
-          continue;
-        }
-        if (!entry.description) {
-          entry.description = line;
-        }
-      }
-      if (entry.description || entry.meta.length) {
-        entries.push(entry);
-      }
-    }
-  }
-
-  const unique = new Map(entries.map((entry) => [entry.name, entry]));
-  return Array.from(unique.values());
-}
-
 function formatLodgingResponse(entries, question) {
   if (!entries.length) return "";
   const wantsContacts = isContactRequest(question);
   const prefersTrailer = /\b(trailer|rv|camper|camp trailer)\b/i.test(question);
   const sorted = [...entries].sort((a, b) => {
     if (prefersTrailer) {
-      if (a.name === "Lone Pine Trailer Park") return -1;
-      if (b.name === "Lone Pine Trailer Park") return 1;
+      const aTrailer = /trailer|rv|camper/i.test(a.name + (a.description || ""));
+      const bTrailer = /trailer|rv|camper/i.test(b.name + (b.description || ""));
+      if (aTrailer && !bTrailer) return -1;
+      if (!aTrailer && bTrailer) return 1;
     }
     return 0;
   });
@@ -188,9 +159,11 @@ function formatLodgingResponse(entries, question) {
       }
     }
   }
-  lines.push(wantsContacts
-    ? "Would you like details on any of these, or are you looking for something specific?"
-    : "If you want contact details or addresses, just ask.");
+  lines.push(
+    wantsContacts
+      ? "Would you like details on any of these, or are you looking for something specific?"
+      : "If you want contact details or addresses, just ask."
+  );
   return lines.join("\n");
 }
 
@@ -241,13 +214,18 @@ function extractBusinessDirectory(chunks) {
       .split("\n")
       .map((line) => line.trim())
       .filter(Boolean);
+    let currentCategory = null;
     for (let i = 0; i < lines.length; i += 1) {
       const line = lines[i];
+      if (BUSINESS_CATEGORIES.has(line)) {
+        currentCategory = line;
+        continue;
+      }
       if (!entryTitles.has(line)) continue;
-      const entry = { name: line, description: "", meta: [] };
+      const entry = { name: line, description: "", meta: [], category: currentCategory };
       for (let j = i + 1; j < lines.length; j += 1) {
         const next = lines[j];
-        if (entryTitles.has(next)) break;
+        if (BUSINESS_CATEGORIES.has(next) || entryTitles.has(next)) break;
         if (next.includes(":")) {
           entry.meta.push(next);
         } else if (!entry.description) {
@@ -272,6 +250,54 @@ function formatBusinessResponse(entries, max = 12) {
   return lines.join("\n");
 }
 
+function filterEntriesByCategory(entries, categories) {
+  const set = new Set(categories);
+  return entries.filter((entry) => entry.category && set.has(entry.category));
+}
+
+function formatTripResponse(entries, question) {
+  if (!entries.length) return "";
+  const prefersTrailer = /\b(trailer|rv|camper|camp trailer)\b/i.test(question);
+  const wantsFood = isFoodQuery(question);
+  const wantsLodging = isLodgingQuery(question);
+  const wantsShopping = /\b(shop|shopping|supplies|gear|outdoor|store)\b/i.test(question);
+
+  let lodging = filterEntriesByCategory(entries, ["Lodging"]);
+  let food = filterEntriesByCategory(entries, ["Food & Drink"]);
+  let shopping = filterEntriesByCategory(entries, ["Shopping"]);
+
+  if (prefersTrailer) {
+    lodging = [...lodging].sort((a, b) => {
+      const aTrailer = /trailer|rv|camper/i.test(a.name + (a.description || ""));
+      const bTrailer = /trailer|rv|camper/i.test(b.name + (b.description || ""));
+      if (aTrailer && !bTrailer) return -1;
+      if (!aTrailer && bTrailer) return 1;
+      return 0;
+    });
+  }
+
+  const parts = [];
+  if (wantsLodging || (!wantsFood && !wantsShopping)) {
+    if (lodging.length) {
+      parts.push(`Lodging includes ${lodging.slice(0, 3).map((entry) => entry.name).join(" and ")}.`);
+    }
+  }
+  if (wantsFood || (!wantsLodging && !wantsShopping)) {
+    if (food.length) {
+      parts.push(`Food and essentials include ${food.slice(0, 4).map((entry) => entry.name).join(", ")}.`);
+    }
+  }
+  if (wantsShopping) {
+    if (shopping.length) {
+      parts.push(`Shopping includes ${shopping.slice(0, 3).map((entry) => entry.name).join(", ")}.`);
+    }
+  }
+
+  if (!parts.length) return "";
+  return `Here are a few practical starting points from our Business Directory: ${parts.join(" ")} ` +
+    "If you want contact details or addresses, just ask. Are you staying overnight or just passing through?";
+}
+
 function formatSources(chunks, max = 3) {
   const seen = new Set();
   const list = [];
@@ -290,8 +316,7 @@ function categoryBoost(question, chunk) {
   const q = question.toLowerCase();
   const url = String(chunk.url || "").toLowerCase();
   const title = String(chunk.title || "").toLowerCase();
-  const isFoodQuery = /\b(eat|food|restaurant|restaurants|cafe|coffee|diner|breakfast|lunch|dinner)\b/.test(q);
-  if (isFoodQuery) {
+  if (isFoodQuery(q)) {
     if (url.includes("/businesses/") || title.includes("businesses")) return 0.25;
     if (url.includes("/history/") || title.includes("history")) return -0.15;
   }
@@ -507,7 +532,7 @@ module.exports = async (req, res) => {
     }
 
     if (isLodgingQuery(question)) {
-      const entries = extractLodgingEntries(ranked);
+      const entries = filterEntriesByCategory(extractBusinessDirectory(chunks), ["Lodging"]);
       const response = formatLodgingResponse(entries, question);
       if (response) {
         res.statusCode = 200;
@@ -517,8 +542,19 @@ module.exports = async (req, res) => {
       }
     }
 
+    if (isTripRequest(question)) {
+      const entries = extractBusinessDirectory(chunks);
+      const response = formatTripResponse(entries, question);
+      if (response) {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ answer: response }));
+        return;
+      }
+    }
+
     if (isBusinessQuery(question)) {
-      const entries = extractBusinessDirectory(ranked);
+      const entries = extractBusinessDirectory(chunks);
       const response = formatBusinessResponse(entries);
       if (response) {
         res.statusCode = 200;
@@ -535,6 +571,7 @@ module.exports = async (req, res) => {
           "Trip planning request.",
           "Using only the provided context, suggest a simple, practical visit plan.",
           "Include specific places only if they appear in the context.",
+          "Do not suggest publications or journals. Focus on places and current listings in the context.",
           "Then ask 2–3 clarifying questions (dates, overnight vs. day trip, interests).",
           `User request: ${question}`,
         ].join(" ")
