@@ -154,34 +154,17 @@
   function splitTtsText(text, maxLen = 200) {
     const cleaned = text.replace(/\s+/g, " ").trim();
     if (!cleaned) return [];
-    const sentences = cleaned.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [cleaned];
+    const words = cleaned.split(" ");
     const chunks = [];
     let current = "";
 
-    sentences.forEach((sentence) => {
-      const trimmed = sentence.trim();
-      if (!trimmed) return;
-      if ((current + " " + trimmed).trim().length <= maxLen) {
-        current = (current + " " + trimmed).trim();
-        return;
+    words.forEach((word) => {
+      if ((current + " " + word).trim().length <= maxLen) {
+        current = (current + " " + word).trim();
+      } else {
+        if (current) chunks.push(current);
+        current = word;
       }
-      if (current) chunks.push(current);
-      if (trimmed.length <= maxLen) {
-        current = trimmed;
-        return;
-      }
-      const words = trimmed.split(" ");
-      let part = "";
-      words.forEach((word) => {
-        if ((part + " " + word).trim().length <= maxLen) {
-          part = (part + " " + word).trim();
-        } else {
-          if (part) chunks.push(part);
-          part = word;
-        }
-      });
-      if (part) chunks.push(part);
-      current = "";
     });
 
     if (current) chunks.push(current);
@@ -231,10 +214,11 @@
     ttsSession += 1;
     const sessionId = ttsSession;
 
-    for (const chunk of chunks) {
+    const fetchPromises = chunks.map((chunk) => fetchTtsAudio(chunk));
+    for (let i = 0; i < fetchPromises.length; i += 1) {
       if (sessionId !== ttsSession) return;
       try {
-        const url = await fetchTtsAudio(chunk);
+        const url = await fetchPromises[i];
         if (sessionId !== ttsSession) return;
         await playAudio(url, sessionId);
       } catch (error) {
