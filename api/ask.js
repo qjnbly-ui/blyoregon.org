@@ -261,6 +261,10 @@ function formatTripResponse(entries, question) {
   const wantsFood = isFoodQuery(question);
   const wantsLodging = isLodgingQuery(question);
   const wantsShopping = /\b(shop|shopping|supplies|gear|outdoor|store)\b/i.test(question);
+  const hasOvernight = /\b(overnight|stay|staying|lodging|hotel|motel|resort|cabin|camp|camping|rv|trailer|accommodations)\b/i.test(question);
+  const hasDayTrip = /\b(day trip|day-trip|just passing through|passing through)\b/i.test(question);
+  const hasDates = /\b(jan|january|feb|february|mar|march|apr|april|may|jun|june|jul|july|aug|august|sep|sept|september|oct|october|nov|november|dec|december|spring|summer|fall|autumn|winter|weekend|today|tomorrow|this week|next week|this month|next month)\b/i.test(question);
+  const hasInterests = /\b(history|historic|museum|monument|trail|hike|hiking|fishing|camping|outdoor|wildlife|bird|birdwatch|family|kids|photography|scenic|food|restaurants)\b/i.test(question);
 
   let lodging = filterEntriesByCategory(entries, ["Lodging"]);
   let food = filterEntriesByCategory(entries, ["Food & Drink"]);
@@ -294,8 +298,20 @@ function formatTripResponse(entries, question) {
   }
 
   if (!parts.length) return "";
+  const questions = [];
+  if (!hasOvernight && !hasDayTrip) {
+    questions.push("Are you staying overnight or making a day trip?");
+  }
+  if (!hasInterests) {
+    questions.push("What are your main interests (history, outdoor, community)?");
+  }
+  if (!hasDates) {
+    questions.push("What time of year are you visiting?");
+  }
+
+  const followUp = questions.length ? ` ${questions.slice(0, 2).join(" ")}` : "";
   return `Here are a few practical starting points from our Business Directory: ${parts.join(" ")} ` +
-    "If you want contact details or addresses, just ask. Are you staying overnight or just passing through?";
+    `If you want contact details or addresses, just ask.${followUp}`;
 }
 
 function formatSources(chunks, max = 3) {
@@ -572,7 +588,7 @@ module.exports = async (req, res) => {
           "Using only the provided context, suggest a simple, practical visit plan.",
           "Include specific places only if they appear in the context.",
           "Do not suggest publications or journals. Focus on places and current listings in the context.",
-          "Then ask 2–3 clarifying questions (dates, overnight vs. day trip, interests).",
+          "Then ask up to 2 clarifying questions only if the user has not already provided the answers.",
           `User request: ${question}`,
         ].join(" ")
       : question;
