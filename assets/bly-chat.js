@@ -147,7 +147,10 @@
   }
 
   function normalizeDomains(value) {
-    return value.replace(/\b([a-z0-9][a-z0-9-]*)\s*\.\s*([a-z]{2,})\b/gi, "$1.$2");
+    const tld =
+      "(?:com|org|net|edu|gov|us|io|co|biz|info|me|tv|ai|app|dev|ca|uk|au|nz)";
+    const regex = new RegExp(`\\b([a-z0-9][a-z0-9-]*)\\s*\\.\\s*(${tld})\\b`, "gi");
+    return value.replace(regex, "$1.$2");
   }
 
   function linkifyText(value) {
@@ -164,8 +167,9 @@
       (match) => `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
     );
 
+    const domainRegex = /\b([a-z0-9][a-z0-9-]*\.(?:com|org|net|edu|gov|us|io|co|biz|info|me|tv|ai|app|dev|ca|uk|au|nz)(?:\/[^\s<]*)?)\b/gi;
     html = html.replace(
-      /\b([a-z0-9][a-z0-9-]*\.[a-z]{2,}(?:\/[^\s<]*)?)\b/gi,
+      domainRegex,
       (match) => `<a href="https://${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
     );
 
