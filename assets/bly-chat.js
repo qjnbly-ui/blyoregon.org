@@ -137,10 +137,58 @@
     sessionStorage.setItem(storageKey, JSON.stringify(history));
   }
 
+  function escapeHtml(value) {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function normalizeDomains(value) {
+    return value.replace(/\b([a-z0-9][a-z0-9-]*)\s*\.\s*([a-z]{2,})\b/gi, "$1.$2");
+  }
+
+  function linkifyText(value) {
+    const normalized = normalizeDomains(value);
+    let html = escapeHtml(normalized);
+
+    html = html.replace(
+      /\b([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})\b/gi,
+      '<a href="mailto:$1">$1</a>'
+    );
+
+    html = html.replace(
+      /\bhttps?:\/\/[^\s<]+/gi,
+      (match) => `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
+    );
+
+    html = html.replace(
+      /\b([a-z0-9][a-z0-9-]*\.[a-z]{2,}(?:\/[^\s<]*)?)\b/gi,
+      (match) => `<a href="https://${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
+    );
+
+    html = html.replace(
+      /\b(\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/g,
+      (match) => {
+        const digits = match.replace(/[^\d]/g, "");
+        const tel = digits.length === 10 ? `+1${digits}` : `+${digits}`;
+        return `<a href="tel:${tel}">${match}</a>`;
+      }
+    );
+
+    return html;
+  }
+
   function addMessage(text, type, shouldStore = true) {
     const message = document.createElement("div");
     message.className = `bly-chat-message ${type}`;
-    message.textContent = text;
+    if (type === "bly") {
+      message.innerHTML = linkifyText(text);
+    } else {
+      message.textContent = text;
+    }
     messages.appendChild(message);
     messages.scrollTop = messages.scrollHeight;
     if (shouldStore) {
