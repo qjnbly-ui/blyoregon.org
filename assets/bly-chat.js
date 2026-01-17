@@ -67,6 +67,8 @@
   let usingViewportFix = false;
   let voiceEnabled = false;
   let recognition = null;
+  let ttsSession = 0;
+  let currentAudio = null;
 
   try {
     history = JSON.parse(sessionStorage.getItem(storageKey)) || [];
@@ -84,7 +86,7 @@
     micBtn.title = "Voice input not supported";
   }
 
-  if (!window.speechSynthesis) {
+  if (!window.Audio) {
     voiceBtn.disabled = true;
     voiceBtn.title = "Voice output not supported";
     stopBtn.disabled = true;
@@ -109,7 +111,12 @@
       }
     } else {
       if (recognition) recognition.stop();
-      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      ttsSession += 1;
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+      }
     }
   }
 
@@ -144,14 +151,96 @@
     }
   }
 
-  function speak(text) {
-    if (!voiceEnabled || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    window.speechSynthesis.speak(utterance);
+  function splitTtsText(text, maxLen = 200) {
+    const cleaned = text.replace(/\s+/g, " ").trim();
+    if (!cleaned) return [];
+    const sentences = cleaned.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [cleaned];
+    const chunks = [];
+    let current = "";
+
+    sentences.forEach((sentence) => {
+      const trimmed = sentence.trim();
+      if (!trimmed) return;
+      if ((current + " " + trimmed).trim().length <= maxLen) {
+        current = (current + " " + trimmed).trim();
+        return;
+      }
+      if (current) chunks.push(current);
+      if (trimmed.length <= maxLen) {
+        current = trimmed;
+        return;
+      }
+      const words = trimmed.split(" ");
+      let part = "";
+      words.forEach((word) => {
+        if ((part + " " + word).trim().length <= maxLen) {
+          part = (part + " " + word).trim();
+        } else {
+          if (part) chunks.push(part);
+          part = word;
+        }
+      });
+      if (part) chunks.push(part);
+      current = "";
+    });
+
+    if (current) chunks.push(current);
+    return chunks;
+  }
+
+  async function fetchTtsAudio(text) {
+    const response = await fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!response.ok) {
+      throw new Error("TTS request failed");
+    }
+    const buffer = await response.arrayBuffer();
+    return URL.createObjectURL(new Blob([buffer], { type: "audio/wav" }));
+  }
+
+  async function playAudio(url, sessionId) {
+    return new Promise((resolve) => {
+      const audio = new Audio(url);
+      currentAudio = audio;
+      audio.onended = () => {
+        if (currentAudio === audio) currentAudio = null;
+        URL.revokeObjectURL(url);
+        resolve();
+      };
+      audio.onerror = () => {
+        if (currentAudio === audio) currentAudio = null;
+        URL.revokeObjectURL(url);
+        resolve();
+      };
+      if (sessionId !== ttsSession) {
+        URL.revokeObjectURL(url);
+        resolve();
+        return;
+      }
+      audio.play().catch(() => resolve());
+    });
+  }
+
+  async function speak(text) {
+    if (!voiceEnabled) return;
+    const chunks = splitTtsText(text);
+    if (!chunks.length) return;
+    ttsSession += 1;
+    const sessionId = ttsSession;
+
+    for (const chunk of chunks) {
+      if (sessionId !== ttsSession) return;
+      try {
+        const url = await fetchTtsAudio(chunk);
+        if (sessionId !== ttsSession) return;
+        await playAudio(url, sessionId);
+      } catch (error) {
+        return;
+      }
+    }
   }
 
   function getSelectedText() {
@@ -182,8 +271,11 @@
   });
 
   stopBtn.addEventListener("click", () => {
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
+    ttsSession += 1;
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      currentAudio = null;
     }
   });
 
@@ -226,7 +318,6 @@
 
   document.addEventListener("selectionchange", () => {
     const selected = getSelectedText();
-    if (!window.speechSynthesis) return;
     playBtn.disabled = !selected;
   });
 

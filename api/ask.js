@@ -310,8 +310,8 @@ function formatTripResponse(entries, question) {
   }
 
   const followUp = questions.length ? ` ${questions.slice(0, 2).join(" ")}` : "";
-  return `Here are a few practical starting points from our Business Directory: ${parts.join(" ")} ` +
-    `If you want contact details or addresses, just ask.${followUp}`;
+  const intro = "If I were planning a quick visit, I'd start with these local basics:";
+  return `${intro} ${parts.join(" ")} If you want contact details or addresses, just ask.${followUp}`;
 }
 
 function formatSources(chunks, max = 3) {
@@ -459,7 +459,9 @@ async function askGroq(question, context, history) {
             "Use only the provided context and conversation history for facts. " +
             "You may lightly rephrase and summarize, but do not add or infer any new facts, names, dates, numbers, " +
             "or claims not explicitly present. " +
-            "If a detail is missing, say you do not know yet and ask one helpful follow-up question. " +
+            "If the context includes relevant details, answer directly from it and avoid saying you do not know. " +
+            "Use the most specific details available in the context rather than vague hedging. " +
+            "Only say you do not know if the context truly lacks the information, then ask one helpful follow-up question. " +
             "Do not repeat greetings or self-introductions except on the first greeting. " +
             "If the question is about current services or businesses, prioritize business listings and avoid historical anecdotes unless asked. " +
             "Never suggest searching online; only use the provided context. " +
@@ -525,13 +527,16 @@ module.exports = async (req, res) => {
     const qVector = embedText(question);
     const rankedRaw = 
       chunks
-        .map((chunk) => ({
-          chunk,
-          score:
-            cosineSimilarity(qVector, chunk.vector) * 0.7 +
-            keywordOverlapScore(question, chunk.text) * 0.3 +
-            categoryBoost(question, chunk),
-        }))
+        .map((chunk) => {
+          const keywordSource = `${chunk.title || ""} ${chunk.text || ""}`.trim();
+          return {
+            chunk,
+            score:
+              cosineSimilarity(qVector, chunk.vector) * 0.7 +
+              keywordOverlapScore(question, keywordSource) * 0.3 +
+              categoryBoost(question, chunk),
+          };
+        })
         .sort((a, b) => b.score - a.score)
         .filter((entry) => entry.score >= MIN_SCORE)
         .slice(0, TOP_K)
@@ -585,9 +590,10 @@ module.exports = async (req, res) => {
     const prompt = wantsTripPlan
       ? [
           "Trip planning request.",
-          "Using only the provided context, suggest a simple, practical visit plan.",
+          "Using only the provided context, suggest a simple, practical visit plan in a friendly, human tone.",
           "Include specific places only if they appear in the context.",
           "Do not suggest publications or journals. Focus on places and current listings in the context.",
+          "Avoid listing too many items; pick a few and explain why in plain language.",
           "Then ask up to 2 clarifying questions only if the user has not already provided the answers.",
           `User request: ${question}`,
         ].join(" ")
