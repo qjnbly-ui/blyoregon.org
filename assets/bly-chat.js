@@ -259,9 +259,30 @@
     });
   }
 
+  function formatDomainForTts(domain) {
+    return domain.replace(/\./g, " dot ");
+  }
+
+  function prepareTtsText(text) {
+    let out = text;
+    out = out.replace(/\bRd\b/g, "Road");
+    out = out.replace(/\bOR\b/g, "Oregon");
+    out = out.replace(/\b(\d{5})\b/g, (match, digits) => digits.split("").join(" "));
+    out = out.replace(
+      /\bhttps?:\/\/(?:www\.)?([a-z0-9.-]+)(?:\/\S*)?/gi,
+      (match, domain) => formatDomainForTts(domain)
+    );
+    out = out.replace(
+      /\b([a-z0-9.-]+\.[a-z]{2,})\b/gi,
+      (match) => formatDomainForTts(match)
+    );
+    return out;
+  }
+
   async function speak(text) {
     if (!voiceEnabled) return;
-    const chunks = splitTtsText(text);
+    const prepared = prepareTtsText(text);
+    const chunks = splitTtsText(prepared);
     if (!chunks.length) return;
     ttsSession += 1;
     const sessionId = ttsSession;

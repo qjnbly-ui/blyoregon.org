@@ -98,35 +98,16 @@
 
     .hero {
       position: relative;
-      min-height: 280px;
-      display: grid;
-      align-items: center;
-      color: var(--white);
-      overflow: hidden;
-    }
-
-    .hero img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.85;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(120deg, rgba(11, 26, 21, 0.85), rgba(11, 26, 21, 0.35) 60%, rgba(11, 26, 21, 0.2));
+      padding: 3.2rem 1.5rem;
+      background: radial-gradient(circle at 20% 30%, rgba(244, 179, 91, 0.2), transparent 55%),
+        radial-gradient(circle at 80% 15%, rgba(20, 50, 39, 0.12), transparent 50%),
+        linear-gradient(140deg, rgba(20, 50, 39, 0.08), rgba(244, 179, 91, 0.18));
+      border-bottom: 1px solid rgba(31, 64, 48, 0.12);
     }
 
     .hero-content {
-      position: relative;
-      z-index: 1;
-      max-width: 1100px;
+      max-width: 900px;
       margin: 0 auto;
-      padding: 3.2rem 1.5rem;
       text-align: center;
       display: grid;
       gap: 0.75rem;
@@ -142,8 +123,32 @@
     .hero p {
       margin: 0;
       max-width: 640px;
-      color: rgba(255, 255, 255, 0.82);
+      color: #3f4f47;
       line-height: 1.6;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      background: rgba(20, 50, 39, 0.12);
+      color: var(--forest);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .hero-kicker {
+      display: grid;
+      gap: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.75rem;
+      color: var(--moss);
+      font-weight: 700;
     }
 
     main {
@@ -179,6 +184,15 @@
       box-shadow: var(--shadow);
       display: grid;
       gap: 0.6rem;
+      align-content: start;
+    }
+
+    .card .section-kicker {
+      min-height: 1.2rem;
+    }
+
+    .card .section-title {
+      min-height: 0;
     }
 
     .two-col {
@@ -187,23 +201,78 @@
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
 
-    .chat-card {
-      background: var(--card);
-      border-radius: 22px;
-      padding: 1.2rem 1.4rem;
+    .askbly-card {
+      background: linear-gradient(135deg, rgba(20, 50, 39, 0.08), rgba(244, 179, 91, 0.18));
+      border-radius: 24px;
+      padding: 1.6rem 1.7rem;
       border: 1px solid rgba(31, 64, 48, 0.12);
       box-shadow: var(--shadow);
-    }
-
-    .chat-card p {
-      margin: 0 0 0.7rem;
-      color: #3f4f47;
-    }
-
-    .bly-chat-slot {
+      position: relative;
+      overflow: hidden;
       display: grid;
-      place-items: center;
-      min-height: 160px;
+      gap: 1.1rem;
+      margin: 0;
+      text-align: center;
+    }
+
+    .askbly-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 80% 15%, rgba(244, 179, 91, 0.22), transparent 55%),
+        radial-gradient(circle at 12% 80%, rgba(20, 50, 39, 0.1), transparent 50%);
+      pointer-events: none;
+    }
+
+    .askbly-card h3 {
+      font-family: "Fraunces", "Times New Roman", serif;
+      margin: 0;
+      color: var(--forest);
+      font-size: 1.6rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .askbly-card p {
+      margin: 0;
+      color: #3f4f47;
+      position: relative;
+      z-index: 1;
+      line-height: 1.6;
+    }
+
+    .askbly-card .meta {
+      font-size: 0.95rem;
+      color: #4a5a52;
+    }
+
+    .askbly-card .bly-chat-slot {
+      min-height: auto;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .askbly-card .bly-chat-toggle {
+      padding: 0.85rem 1.8rem;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      background: #143227;
+      color: #fff;
+      border: 1px solid rgba(20, 50, 39, 0.2);
+      box-shadow: 0 18px 30px rgba(12, 26, 20, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .askbly-card .bly-chat-toggle:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 24px 40px rgba(12, 26, 20, 0.3);
+    }
+
+    .askbly-card .bly-chat-toggle:focus-visible {
+      outline: 3px solid rgba(244, 179, 91, 0.6);
+      outline-offset: 3px;
     }
 
     ul {
@@ -246,9 +315,9 @@
   </header>
 
   <section class="hero">
-    <img src="/assets/woods-line-trail.jpg" alt="Forest trail near Bly">
     <div class="hero-content">
-      <h1>Ask Bly</h1>
+      <span class="hero-pill">Ask Bly</span>
+      <h1>Talk with Bly’s living archive</h1>
       <p>An in-development AI storyteller built from the pages of this site. It speaks as the town and shares what our archives know.</p>
     </div>
   </section>
@@ -278,19 +347,24 @@
     <section>
       <span class="section-kicker">Ask Bly</span>
       <h2 class="section-title">Start a conversation</h2>
-      <div class="chat-card">
+      <div class="askbly-card">
+        <h3>Talk to Bly</h3>
         <p>
-          Ask Bly is an experiment with a custom-built AI for Bly, Oregon.
-          We are still in development, and to keep costs down there is a per-session limit.
+          Ask about local history, places, and community resources. Bly answers from the stories and
+          archives on this site, so it feels more like a neighbor than a search box.
+        </p>
+        <p class="meta">
+          It is still in development. To keep costs down, there is a per-session limit.
         </p>
         <div class="bly-chat-slot"></div>
+        <p class="meta">Use the mic or type a question. Voice is available on supported browsers.</p>
       </div>
     </section>
 
-    <section>
-      <span class="section-kicker">Behind the scenes</span>
-      <h2 class="section-title">How Ask Bly works</h2>
+    <section class="two-col">
       <div class="card">
+        <span class="section-kicker">Behind the scenes</span>
+        <h2 class="section-title">How Ask Bly works</h2>
         <p>
           Ask Bly is built from the pages on this site. We regularly scan the public
           HTML, extract the text, and store it as a searchable library. When you ask
@@ -303,17 +377,18 @@
           facts that are not explicitly in the site content. If a detail is missing,
           it should say so and ask a brief follow-up question.
         </p>
+      </div>
+      <div class="card">
+        <span class="section-kicker">When to use it</span>
+        <h2 class="section-title">Best questions</h2>
+        <ul>
+          <li>Local history, people, and places in Bly.</li>
+          <li>Named landmarks, events, and timelines.</li>
+          <li>Services, lodging, or places to visit.</li>
+        </ul>
         <p>
-          For practical questions like lodging, food, or services, Ask Bly prioritizes
-          the Business Directory so it can respond with current listings. It will only
-          include contact details when asked. For trip or visit requests, it builds a
-          simple plan using the same business listings and nearby locations already
-          listed on the site.
-        </p>
-        <p>
-          This is an evolving project. If you notice an error or a missing story,
-          send feedback and we will update the source pages so the next refresh
-          improves the answer quality.
+          For practical questions, Ask Bly prioritizes the Business Directory. It only
+          includes contact details when asked.
         </p>
       </div>
     </section>

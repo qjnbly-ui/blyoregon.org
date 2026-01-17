@@ -405,13 +405,60 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .ask-bly-section {
+    .ask-bly-panel {
+      border-radius: 24px;
+      padding: 2rem;
+      display: grid;
+      gap: 1rem;
       text-align: center;
-      margin: 0 auto;
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.18), transparent 55%),
+        linear-gradient(140deg, rgba(20, 50, 39, 0.08), rgba(20, 50, 39, 0));
+      border: 1px solid rgba(31, 64, 48, 0.12);
     }
 
-    .ask-bly-section a {
-      display: inline-block;
+    .ask-bly-tag {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.75rem;
+      color: var(--forest);
+      font-weight: 700;
+    }
+
+    .ask-bly-panel h3 {
+      margin: 0;
+      font-size: 1.7rem;
+      color: var(--forest);
+    }
+
+    .ask-bly-panel p {
+      margin: 0;
+      color: #3f4f47;
+      line-height: 1.65;
+    }
+
+    .ask-bly-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .ask-bly-actions a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.7rem 1.6rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid rgba(31, 64, 48, 0.2);
+      color: #fff;
+      background: #143227;
+      box-shadow: none;
+      transition: transform 0.2s ease;
+    }
+
+    .ask-bly-actions a:hover {
+      transform: translateY(-2px);
     }
 
     @media (max-width: 800px) {
@@ -577,17 +624,17 @@
       </div>
     </section>
 
-    <section class="spotlight">
-      <div class="ask-bly-section">
-        <span class="section-kicker">New</span>
-        <h3>Meet Ask Bly</h3>
+    <section>
+      <div class="ask-bly-panel">
+        <span class="ask-bly-tag">Ask Bly</span>
+        <h3>The town storyteller, on demand</h3>
         <p>
-          Ask Bly is our in‑development AI guide to local history and community stories.
-          Most answers are accurate, but this storyteller is still learning. If something
-          sounds off, let us know so we can improve it.
+          Ask Bly pulls from our history pages, oral interviews, and community notes to answer in a neighborly voice.
+          It is still learning, but it already knows the people and places that make this valley home.
         </p>
-        <a href="mailto:quentin@quentinnichols.com">Share feedback</a>
-        <div class="bly-chat-slot"></div>
+        <div class="ask-bly-actions">
+          <a href="/askbly/">Open Ask Bly</a>
+        </div>
       </div>
     </section>
 
