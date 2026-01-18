@@ -26,7 +26,14 @@
             <span>Ask about our town history</span>
           </div>
           <div class="bly-chat-header-actions">
-            <button class="bly-chat-voice" type="button" aria-pressed="false" aria-label="Toggle voice">🔈</button>
+            <button class="bly-chat-voice" type="button" aria-pressed="false" aria-label="Toggle voice replies">
+              <span class="bly-chat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img" focusable="false" aria-hidden="true">
+                  <path d="M4 10v4h4l5 4V6L8 10H4zm12.5 2c0-1.8-1-3.4-2.5-4.2v8.4c1.5-.8 2.5-2.4 2.5-4.2zm2.5 0c0 3-1.7 5.6-4.2 6.9v-2.3c1.4-1 2.2-2.6 2.2-4.6s-.8-3.6-2.2-4.6V5.1c2.5 1.3 4.2 3.9 4.2 6.9z" />
+                </svg>
+              </span>
+              <span class="bly-chat-label">Voice Reply: Off</span>
+            </button>
             <button class="bly-chat-play" type="button" aria-label="Play selected text" disabled>▶︎</button>
             <button class="bly-chat-stop" type="button" aria-label="Stop audio">⏹</button>
             <button class="bly-chat-close" type="button" aria-label="Close chat">&times;</button>
@@ -35,7 +42,14 @@
         <div class="bly-chat-messages" role="log" aria-live="polite"></div>
         <form class="bly-chat-form">
           <input type="text" name="question" placeholder="Ask Bly something..." autocomplete="off" required>
-          <button class="bly-chat-mic" type="button" aria-pressed="false" aria-label="Use voice input">🎤</button>
+          <button class="bly-chat-mic" type="button" aria-pressed="false" aria-label="Speak">
+            <span class="bly-chat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img" focusable="false" aria-hidden="true">
+                <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V20h2v-2.1A7 7 0 0 0 19 11h-2z" />
+              </svg>
+            </span>
+            <span class="bly-chat-label">Speak</span>
+          </button>
           <button type="submit">Send</button>
         </form>
         <p class="bly-chat-note">Bly answers using the stories and pages on this site.</p>
@@ -52,6 +66,7 @@
   const playBtn = widget.querySelector(".bly-chat-play");
   const stopBtn = widget.querySelector(".bly-chat-stop");
   const micBtn = widget.querySelector(".bly-chat-mic");
+  const voiceLabel = widget.querySelector(".bly-chat-voice .bly-chat-label");
   const overlay = widget.querySelector(".bly-chat-overlay");
   const panel = widget.querySelector(".bly-chat-panel");
   const form = widget.querySelector(".bly-chat-form");
@@ -327,7 +342,9 @@
   voiceBtn.addEventListener("click", () => {
     voiceEnabled = !voiceEnabled;
     voiceBtn.setAttribute("aria-pressed", voiceEnabled ? "true" : "false");
-    voiceBtn.textContent = voiceEnabled ? "🔊" : "🔈";
+    if (voiceLabel) {
+      voiceLabel.textContent = voiceEnabled ? "Voice Reply: On" : "Voice Reply: Off";
+    }
     voiceBtn.classList.toggle("is-active", voiceEnabled);
   });
 
@@ -346,7 +363,9 @@
     if (!voiceEnabled) {
       voiceEnabled = true;
       voiceBtn.setAttribute("aria-pressed", "true");
-      voiceBtn.textContent = "🔊";
+      if (voiceLabel) {
+        voiceLabel.textContent = "Voice Reply: On";
+      }
       voiceBtn.classList.add("is-active");
     }
     speak(selected);
