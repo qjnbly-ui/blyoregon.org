@@ -270,14 +270,15 @@ function extractBusinessDirectory(chunks) {
   return Array.from(unique.values());
 }
 
-function formatBusinessResponse(entries, max = 12) {
+function formatBusinessResponse(entries, max = 5) {
   if (!entries.length) return "";
-  const lines = ["Here are current listings from the Business Directory:"];
-  for (const entry of entries.slice(0, max)) {
-    lines.push(`- ${entry.name}${entry.description ? ` — ${entry.description}` : ""}`);
-  }
-  lines.push("Want details on any of these, or a specific category?");
-  return lines.join("\n");
+  const picks = entries.slice(0, max).map((entry) => {
+    if (entry.description) {
+      return `${entry.name} (${entry.description})`;
+    }
+    return entry.name;
+  });
+  return `A few local spots people ask about: ${picks.join(", ")}. Want a specific category or contact details?`;
 }
 
 function filterEntriesByCategory(entries, categories) {
