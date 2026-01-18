@@ -146,43 +146,46 @@
       .replace(/'/g, "&#39;");
   }
 
+  const tldList = "(?:com|org|net|edu|gov|us|io|co|biz|info|me|tv|ai|app|dev|ca|uk|au|nz)";
+  const spacedDomainRegex = new RegExp(`\\b([a-z0-9][a-z0-9-]*)\\s*\\.\\s*(${tldList})\\b`, "gi");
+  const urlRegex = /\bhttps?:\/\/[^\s<]+/gi;
+  const emailRegex = /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/gi;
+  const domainRegex = new RegExp(`\\b[a-z0-9][a-z0-9-]*\\.${tldList}(?:\\/[^\\s<]*)?\\b`, "gi");
+  const phoneRegex = /\b(\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/g;
+
   function normalizeDomains(value) {
-    const tld =
-      "(?:com|org|net|edu|gov|us|io|co|biz|info|me|tv|ai|app|dev|ca|uk|au|nz)";
-    const regex = new RegExp(`\\b([a-z0-9][a-z0-9-]*)\\s*\\.\\s*(${tld})\\b`, "gi");
-    return value.replace(regex, "$1.$2");
+    return value.replace(spacedDomainRegex, "$1.$2");
   }
 
   function linkifyText(value) {
     const normalized = normalizeDomains(value);
-    let html = escapeHtml(normalized);
-
-    html = html.replace(
-      /\b([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})\b/gi,
-      '<a href="mailto:$1">$1</a>'
+    const escaped = escapeHtml(normalized);
+    const combined = new RegExp(
+      `${urlRegex.source}|${emailRegex.source}|${domainRegex.source}|${phoneRegex.source}`,
+      "gi"
     );
 
-    html = html.replace(
-      /\bhttps?:\/\/[^\s<]+/gi,
-      (match) => `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
-    );
-
-    const domainRegex = /\b([a-z0-9][a-z0-9-]*\.(?:com|org|net|edu|gov|us|io|co|biz|info|me|tv|ai|app|dev|ca|uk|au|nz)(?:\/[^\s<]*)?)\b/gi;
-    html = html.replace(
-      domainRegex,
-      (match) => `<a href="https://${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
-    );
-
-    html = html.replace(
-      /\b(\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/g,
-      (match) => {
+    return escaped.replace(combined, (match) => {
+      if (urlRegex.test(match)) {
+        urlRegex.lastIndex = 0;
+        return `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+      }
+      if (emailRegex.test(match)) {
+        emailRegex.lastIndex = 0;
+        return `<a href="mailto:${match}">${match}</a>`;
+      }
+      if (domainRegex.test(match)) {
+        domainRegex.lastIndex = 0;
+        return `<a href="https://${match}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+      }
+      if (phoneRegex.test(match)) {
+        phoneRegex.lastIndex = 0;
         const digits = match.replace(/[^\d]/g, "");
         const tel = digits.length === 10 ? `+1${digits}` : `+${digits}`;
         return `<a href="tel:${tel}">${match}</a>`;
       }
-    );
-
-    return html;
+      return match;
+    });
   }
 
   function addMessage(text, type, shouldStore = true) {
@@ -268,6 +271,7 @@
     out = out.replace(/\bRd\b/g, "Road");
     out = out.replace(/\bOR\b/g, "Oregon");
     out = out.replace(/\b(\d{5})\b/g, (match, digits) => digits.split("").join(" "));
+    out = normalizeDomains(out);
     out = out.replace(
       /\bhttps?:\/\/(?:www\.)?([a-z0-9.-]+)(?:\/\S*)?/gi,
       (match, domain) => formatDomainForTts(domain)

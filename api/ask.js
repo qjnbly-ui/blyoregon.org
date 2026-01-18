@@ -101,7 +101,15 @@ function isContactRequest(text) {
 function splitSentences(text) {
   const normalized = text.replace(/\s+/g, " ").trim();
   if (!normalized) return [];
-  return normalized.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+  const urlRegex = /\bhttps?:\/\/[^\s<]+/gi;
+  const emailRegex = /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/gi;
+  const domainRegex = /\b[a-z0-9][a-z0-9-]*\.[a-z]{2,}(?:\/[^\s<]*)?\b/gi;
+  const protectedText = normalized.replace(
+    new RegExp(`${urlRegex.source}|${emailRegex.source}|${domainRegex.source}`, "gi"),
+    (match) => match.replace(/\./g, "<DOT>")
+  );
+  const parts = protectedText.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+  return parts.map((part) => part.replace(/<DOT>/g, "."));
 }
 
 function buildContextBlob(chunks) {
