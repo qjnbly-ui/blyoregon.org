@@ -228,6 +228,20 @@
     const chunks = [];
     let current = "";
 
+    function splitByPunctuation(sentenceText) {
+      const parts = sentenceText
+        .split(/([,;:])/)
+        .reduce((acc, part, idx, arr) => {
+          if (idx % 2 === 0) {
+            const nextPunct = arr[idx + 1] || "";
+            acc.push(`${part}${nextPunct}`.trim());
+          }
+          return acc;
+        }, [])
+        .filter(Boolean);
+      return parts.length ? parts : [sentenceText];
+    }
+
     sentences.forEach((sentence) => {
       const trimmed = sentence.trim();
       if (!trimmed) return;
@@ -240,15 +254,30 @@
         current = trimmed;
         return;
       }
-      const words = trimmed.split(" ");
+      const subparts = splitByPunctuation(trimmed);
       let part = "";
-      words.forEach((word) => {
-        if ((part + " " + word).trim().length <= maxLen) {
-          part = (part + " " + word).trim();
-        } else {
-          if (part) chunks.push(part);
-          part = word;
+      subparts.forEach((subpart) => {
+        if ((part + " " + subpart).trim().length <= maxLen) {
+          part = (part + " " + subpart).trim();
+          return;
         }
+        if (part) chunks.push(part);
+        if (subpart.length <= maxLen) {
+          part = subpart;
+          return;
+        }
+        const words = subpart.split(" ");
+        let wordPart = "";
+        words.forEach((word) => {
+          if ((wordPart + " " + word).trim().length <= maxLen) {
+            wordPart = (wordPart + " " + word).trim();
+          } else {
+            if (wordPart) chunks.push(wordPart);
+            wordPart = word;
+          }
+        });
+        if (wordPart) chunks.push(wordPart);
+        part = "";
       });
       if (part) chunks.push(part);
       current = "";
