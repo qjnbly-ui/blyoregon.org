@@ -199,6 +199,44 @@
       width: fit-content;
     }
 
+    .embed-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 1.4rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .embed-card h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: var(--forest);
+    }
+
+    .embed-card p {
+      margin: 0;
+      color: #43524a;
+      line-height: 1.6;
+    }
+
+    .embed-card a {
+      color: var(--forest);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .embed-card a:hover {
+      text-decoration: underline;
+    }
+
+    .airbnb-embed-frame {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
     footer {
       background: #162f25;
       color: rgba(255, 255, 255, 0.7);
@@ -265,6 +303,20 @@
         <h2>Seasonal updates</h2>
         <p>Closures, fire restrictions, and road conditions that affect access.</p>
       </div>
+    </section>
+
+    <section class="embed-card">
+      <h2>Featured stay near the trails</h2>
+      <p>
+        Want to stay close to the OC&amp;E trailhead? Here is a featured listing in Bly. You can also browse the full
+        lodging list in the Business Directory.
+      </p>
+      <div class="airbnb-embed-frame" data-id="1224719521013161560" data-view="home" data-hide-price="true" style="height: 300px;">
+        <a href="https://www.airbnb.com/rooms/1224719521013161560?guests=1&amp;adults=1&amp;s=66&amp;source=embed_widget">View On Airbnb</a>
+        <a href="https://www.airbnb.com/rooms/1224719521013161560?guests=1&amp;adults=1&amp;s=66&amp;source=embed_widget" rel="nofollow">Home in Bly · ★4.93 · 2 bedrooms · 2 beds · 1 bath</a>
+        <script async="" src="https://www.airbnb.com/embeddable/airbnb_jssdk"></script>
+      </div>
+      <a href="/businesses/#lodging">See all lodging in Bly</a>
     </section>
 
     <section class="callout">
