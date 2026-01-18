@@ -6,8 +6,8 @@ const fs = require("fs/promises");
 const path = require("path");
 
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
-const TOP_K = 24;
-const MIN_SCORE = 0.12;
+const TOP_K = 36;
+const MIN_SCORE = 0.1;
 const DATA_PATH = path.join(process.cwd(), "bly-bot", "data", "embeddings.json");
 const EXCLUDED_RECOMMENDATION_TERMS = ["gerber reservoir"];
 const BUSINESS_CATEGORIES = new Set([
@@ -68,6 +68,19 @@ function keywordOverlapScore(question, text) {
     if (qTokens.has(token)) hits += 1;
   }
   return hits / Math.max(tTokens.length, 1);
+}
+
+function keywordBoost(question, chunk) {
+  const qTokens = tokenize(question).filter((token) => token.length >= 4);
+  if (!qTokens.length) return 0;
+  const haystack = `${chunk.title || ""} ${chunk.text || ""}`.toLowerCase();
+  let hits = 0;
+  qTokens.forEach((token) => {
+    if (haystack.includes(token)) hits += 1;
+  });
+  const title = String(chunk.title || "").toLowerCase();
+  const titleHits = qTokens.filter((token) => title.includes(token)).length;
+  return Math.min(0.18, hits * 0.02 + titleHits * 0.03);
 }
 
 function isSourceRequest(text) {
@@ -553,7 +566,8 @@ module.exports = async (req, res) => {
             score:
               cosineSimilarity(qVector, chunk.vector) * 0.7 +
               keywordOverlapScore(question, keywordSource) * 0.3 +
-              categoryBoost(question, chunk),
+              categoryBoost(question, chunk) +
+              keywordBoost(question, chunk),
           };
         })
         .sort((a, b) => b.score - a.score)
