@@ -81,6 +81,7 @@ function isTripRequest(text) {
 }
 
 function isBusinessQuery(text) {
+  if (isLodgingQuery(text)) return false;
   return /\b(business|businesses|services|shop|shops|store|stores|directory|local|open now|open today)\b/i.test(text);
 }
 
@@ -149,7 +150,15 @@ function formatLodgingResponse(entries, question) {
   if (!entries.length) return "";
   const wantsContacts = isContactRequest(question);
   const prefersTrailer = /\b(trailer|rv|camper|camp trailer)\b/i.test(question);
-  const sorted = [...entries].sort((a, b) => {
+  let lodgingEntries = filterEntriesByCategory(entries, ["Lodging"]);
+  if (!lodgingEntries.length) {
+    lodgingEntries = entries.filter((entry) => {
+      const haystack = `${entry.name} ${entry.description || ""}`.toLowerCase();
+      return /(lodg|resort|cabin|camp|campground|trailer|rv|park|guest ranch|inn|motel|hotel)/i.test(haystack);
+    });
+  }
+  if (!lodgingEntries.length) return "";
+  const sorted = [...lodgingEntries].sort((a, b) => {
     if (prefersTrailer) {
       const aTrailer = /trailer|rv|camper/i.test(a.name + (a.description || ""));
       const bTrailer = /trailer|rv|camper/i.test(b.name + (b.description || ""));
@@ -158,21 +167,21 @@ function formatLodgingResponse(entries, question) {
     }
     return 0;
   });
-  const lines = ["Here are lodging options listed in the Business Directory:"];
-  for (const entry of sorted) {
-    lines.push(`- ${entry.name}${entry.description ? ` — ${entry.description}` : ""}`);
-    if (wantsContacts) {
-      for (const meta of entry.meta) {
-        lines.push(`  ${meta}`);
-      }
-    }
+  const picks = sorted.slice(0, 2).map((entry) => {
+    const detail = entry.description ? ` ${entry.description}` : "";
+    return `${entry.name}.${detail}`;
+  });
+  const lines = [`Places to stay listed in our directory include ${picks.join(" ")}.`];
+  if (wantsContacts) {
+    sorted.slice(0, 2).forEach((entry) => {
+      entry.meta.forEach((meta) => {
+        lines.push(`${entry.name} — ${meta}`);
+      });
+    });
+  } else {
+    lines.push("Want contact details for either one?");
   }
-  lines.push(
-    wantsContacts
-      ? "Would you like details on any of these, or are you looking for something specific?"
-      : "If you want contact details or addresses, just ask."
-  );
-  return lines.join("\n");
+  return lines.join(" ");
 }
 
 function extractBusinessDirectory(chunks) {
