@@ -82,6 +82,28 @@
       max-width: 680px;
     }
 
+    .bio-photo {
+      margin: 0 auto 1.8rem;
+      max-width: 780px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      background: var(--card);
+    }
+
+    .bio-photo img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .bio-photo figcaption {
+      padding: 0.6rem 0.9rem;
+      font-size: 0.92rem;
+      color: #43524a;
+    }
+
     .subnav {
       max-width: 1100px;
       margin: 1.2rem auto 0;
@@ -115,6 +137,28 @@
       color: var(--forest);
     }
 
+    .inline-photo {
+      margin: 1.4rem auto;
+      max-width: 720px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      background: var(--card);
+    }
+
+    .inline-photo img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .inline-photo figcaption {
+      padding: 0.6rem 0.9rem;
+      font-size: 0.92rem;
+      color: #43524a;
+    }
+
     footer {
       background: #162f25;
       color: rgba(255, 255, 255, 0.7);
@@ -140,6 +184,10 @@
   </div>
 
   <main class="container">
+    <figure class="bio-photo">
+      <img src="/assets/MikeMansfieldPhoto.jpg" alt="Mike Mansfield">
+      <figcaption>Mike Mansfield.</figcaption>
+    </figure>
     <section>
       <h2 class="section-header">Family Roots and Early Life</h2>
       <p>
@@ -207,6 +255,10 @@
         deserving eighth-grade boy. For many years, each spring at Bly School's promotion ceremony, the award was
         announced as part of the school's formal recognition of students.
       </p>
+      <figure class="inline-photo">
+        <img src="/assets/MikeMansfieldPlauqe.jpg" alt="Mike Mansfield plaque">
+        <figcaption>Mike Mansfield plaque honoring the award legacy in Bly.</figcaption>
+      </figure>
       <p>
         The award carried no monetary prize. Instead, it served as a symbolic honor recognizing character, citizenship,
         and positive influence - qualities the community associated with Mike himself. Each year it was given, Mike's
