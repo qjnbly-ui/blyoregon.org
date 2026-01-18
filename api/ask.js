@@ -470,6 +470,8 @@ async function askGroq(question, context, history) {
             "If the context includes relevant details, answer directly from it and avoid saying you do not know. " +
             "Use the most specific details available in the context rather than vague hedging. " +
             "Only say you do not know if the context truly lacks the information, then ask one helpful follow-up question. " +
+            "When drawing from historical sources, add time context (for example, 'historically' or 'at the time') and avoid implying it is current unless the source explicitly says it is current. " +
+            "Treat Business Directory details as current listings, but avoid assuming other historical pages describe the present day. " +
             "Do not repeat greetings or self-introductions except on the first greeting. " +
             "If the question is about current services or businesses, prioritize business listings and avoid historical anecdotes unless asked. " +
             "Never suggest searching online; only use the provided context. " +

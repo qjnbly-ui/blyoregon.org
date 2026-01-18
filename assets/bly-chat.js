@@ -224,17 +224,34 @@
   function splitTtsText(text, maxLen = 200) {
     const cleaned = text.replace(/\s+/g, " ").trim();
     if (!cleaned) return [];
-    const words = cleaned.split(" ");
+    const sentences = cleaned.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [cleaned];
     const chunks = [];
     let current = "";
 
-    words.forEach((word) => {
-      if ((current + " " + word).trim().length <= maxLen) {
-        current = (current + " " + word).trim();
-      } else {
-        if (current) chunks.push(current);
-        current = word;
+    sentences.forEach((sentence) => {
+      const trimmed = sentence.trim();
+      if (!trimmed) return;
+      if ((current + " " + trimmed).trim().length <= maxLen) {
+        current = (current + " " + trimmed).trim();
+        return;
       }
+      if (current) chunks.push(current);
+      if (trimmed.length <= maxLen) {
+        current = trimmed;
+        return;
+      }
+      const words = trimmed.split(" ");
+      let part = "";
+      words.forEach((word) => {
+        if ((part + " " + word).trim().length <= maxLen) {
+          part = (part + " " + word).trim();
+        } else {
+          if (part) chunks.push(part);
+          part = word;
+        }
+      });
+      if (part) chunks.push(part);
+      current = "";
     });
 
     if (current) chunks.push(current);

@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
   try {
     const body = await readJsonBody(req);
     const text = String(body.text || "").trim();
-    const voice = String(body.voice || "hannah").trim();
+    const voice = String(body.voice || "daniel").trim();
     const model = "canopylabs/orpheus-v1-english";
 
     if (!text) {
