@@ -219,6 +219,10 @@
       margin-bottom: 3.5rem;
     }
 
+    .quick-links {
+      margin-top: -1rem;
+    }
+
     .section-title {
       font-family: "Fraunces", "Times New Roman", serif;
       font-size: 1.85rem;
@@ -245,6 +249,34 @@
 
     .grid.three {
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .compact-grid {
+      grid-template-columns: repeat(auto-fit, 220px);
+      gap: 1rem;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .compact-card {
+      padding: 1rem 1.1rem;
+      gap: 0.55rem;
+      box-shadow: none;
+      min-height: 200px;
+      width: 100%;
+    }
+
+    .compact-card h3 {
+      font-size: 1.05rem;
+    }
+
+    .compact-card p {
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .compact-card a {
+      font-size: 0.95rem;
     }
 
     .card {
@@ -349,9 +381,14 @@
     }
 
     .story-grid {
-      display: grid;
+      display: flex;
+      flex-wrap: wrap;
       gap: 1.5rem;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      justify-content: center;
+    }
+
+    .story-grid .card {
+      flex: 0 1 260px;
     }
 
     .cta {
@@ -362,6 +399,8 @@
       display: grid;
       gap: 0.9rem;
       box-shadow: var(--shadow);
+      text-align: center;
+      justify-items: center;
     }
 
     .cta h3 {
@@ -382,6 +421,38 @@
       text-decoration: none;
       border-bottom: 1px solid rgba(255, 255, 255, 0.4);
       width: fit-content;
+    }
+
+    @media (min-width: 900px) {
+      main {
+        text-align: center;
+      }
+
+      .compact-grid {
+        grid-template-columns: repeat(4, 220px);
+      }
+
+      .compact-grid > :nth-last-child(2) {
+        grid-column: 2;
+      }
+
+
+      .card {
+        text-align: center;
+        justify-items: center;
+      }
+
+      .card a {
+        justify-content: center;
+      }
+
+      .spotlight {
+        text-align: center;
+      }
+
+      .spotlight a {
+        justify-content: center;
+      }
     }
 
     footer {
@@ -515,7 +586,7 @@
     <div class="hero-content">
       <h1>Welcome to Bly</h1>
       <p>
-       Bly, Oregon is a small high-country community on Route 140. 
+       Bly, Oregon is a small community on Route 140. 
        Use this site to find local services, places to go, things to do, 
        and the people and history that hold it together.
       </p>
@@ -532,39 +603,45 @@
   </section>
 
   <main>
-    <section>
-      <span class="section-kicker">Explore</span>
-      <h2 class="section-title">Start with the basics</h2>
-      <div class="grid three stagger">
-        <div class="card">
+    <section class="quick-links">
+      <span class="section-kicker">Quick links</span>
+      <h2 class="section-title">Find what you need fast</h2>
+      <div class="grid compact-grid stagger">
+        <div class="card compact-card">
           <span class="pill">Overview</span>
           <h3>About Bly</h3>
-          <p>Community profile, quick facts, geography, and local background.</p>
+          <p>Profile, quick facts, and background.</p>
           <a href="/about/">Read the overview</a>
         </div>
-        <div class="card">
-          <span class="pill">Archive</span>
-          <h3>History Library</h3>
-          <p>Key stories, articles, and historic timelines connected to Bly.</p>
-          <a href="/history/">Visit history</a>
-        </div>
-        <div class="card">
+        <div class="card compact-card">
           <span class="pill">Directory</span>
           <h3>Businesses</h3>
-          <p>Local services, shops, and organizations across town and nearby.</p>
+          <p>Services, shops, and organizations.</p>
           <a href="/businesses/">Browse listings</a>
         </div>
-        <div class="card">
-          <span class="pill">Coming soon</span>
-          <h3>Community</h3>
-          <p>Events, volunteer opportunities, and Bly Community Action Team.</p>
-          <a href="/community/">Check progress</a>
+        <div class="card compact-card">
+          <span class="pill">Community</span>
+          <h3>Community Action Team</h3>
+          <p>Minutes and project updates.</p>
+          <a href="/community/">See updates</a>
         </div>
-        <div class="card">
-          <span class="pill">Coming soon</span>
+        <div class="card compact-card">
+          <span class="pill">History</span>
+          <h3>History Library</h3>
+          <p>Stories, timelines, and articles.</p>
+          <a href="/history/">Visit history</a>
+        </div>
+        <div class="card compact-card">
+          <span class="pill">Outdoors</span>
           <h3>Recreation</h3>
-          <p>Trails, lakes, and outdoor updates for the Bly area.</p>
-          <a href="/recreation/">Preview the page</a>
+          <p>Trails, lakes, and routes.</p>
+          <a href="/recreation/">Plan a visit</a>
+        </div>
+        <div class="card compact-card">
+          <span class="pill">Ask</span>
+          <h3>Ask Bly</h3>
+          <p>Search the local archive.</p>
+          <a href="/askbly/">Start a question</a>
         </div>
       </div>
     </section>
@@ -583,33 +660,8 @@
     </section>
 
     <section>
-      <span class="section-kicker">Highlights</span>
-      <h2 class="section-title">Places to know</h2>
-      <div class="grid three stagger">
-        <div class="card">
-          <img src="assets/bly-ranger-station.jpg" alt="Bly Ranger Station">
-          <h3>Bly Ranger Station</h3>
-          <p>Historic CCC-built station and gateway to forest resources.</p>
-          <a href="/history/">Learn the story</a>
-        </div>
-        <div class="card">
-          <img src="assets/mitchell-monument.jpg" alt="Mitchell Monument">
-          <h3>Mitchell Monument</h3>
-          <p>Memorial and picnic site marking the WWII balloon incident.</p>
-          <a href="/history/">Visit the memorial</a>
-        </div>
-        <div class="card">
-          <img src="assets/woods-line-trail.jpg" alt="OC&E Woods Line Trail">
-          <h3>OC&E Woods Line Trail</h3>
-          <p>Oregon's longest linear state park with hiking and biking access.</p>
-          <a href="/recreation/">Plan a visit</a>
-        </div>
-      </div>
-    </section>
-
-    <section>
       <span class="section-kicker">Archives</span>
-      <h2 class="section-title">Stories and photos</h2>
+      <h2 class="section-title">Stories, documents, and people</h2>
       <div class="story-grid stagger">
         <div class="card">
           <h3>History Articles</h3>
@@ -617,9 +669,24 @@
           <a href="/history/articles/">Open articles</a>
         </div>
         <div class="card">
+          <h3>Oral Histories</h3>
+          <p>Recorded interviews that preserve local voices and memories.</p>
+          <a href="/history/oralhistories/">Hear the interviews</a>
+        </div>
+        <div class="card">
           <h3>Photo Galleries</h3>
-          <p>Explore historical photos, recent events, and community projects.</p>
+          <p>Historical photos, recent events, and community projects.</p>
           <a href="/history/photos/">View galleries</a>
+        </div>
+        <div class="card">
+          <h3>People of Bly</h3>
+          <p>Profiles of residents, leaders, and families that shaped the town.</p>
+          <a href="/history/people/">Meet the people</a>
+        </div>
+        <div class="card">
+          <h3>Places and Landmarks</h3>
+          <p>Historic buildings, routes, and places that define the area.</p>
+          <a href="/history/places/">Explore places</a>
         </div>
       </div>
     </section>
