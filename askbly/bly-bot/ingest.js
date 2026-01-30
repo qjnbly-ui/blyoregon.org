@@ -5,7 +5,7 @@ const path = require("path");
 const cheerio = require("cheerio");
 const axios = require("axios"); // npm install axios if not there
 
-const SITE_ROOT = path.resolve(__dirname, ".."); // Local root
+const SITE_ROOT = path.resolve(__dirname, "..", ".."); // Local root
 const SITE_BASE_URL = process.env.SITE_BASE_URL || "https://blyoregon.org"; // For URLs, fallback to live
 const OUTPUT_DIR = path.join(__dirname, "data");
 const OUTPUT_PATH = path.join(OUTPUT_DIR, "documents.json");

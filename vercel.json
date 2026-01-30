@@ -1,4 +1,9 @@
 {
+  "version": 2,
   "cleanUrls": true,
-  "trailingSlash": true
+  "trailingSlash": true,
+  "builds": [
+    { "src": "askbly/api/*.js", "use": "@vercel/node" },
+    { "src": "**/*", "use": "@vercel/static" }
+  ]
 }
