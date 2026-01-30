@@ -8,7 +8,7 @@ const path = require("path");
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 const TOP_K = 36;
 const MIN_SCORE = 0.1;
-const DATA_PATH = path.join(__dirname, "..", "bly-bot", "data", "embeddings.json");
+const DATA_PATH = path.join(__dirname, "..", "askbly", "bly-bot", "data", "embeddings.json");
 const EXCLUDED_RECOMMENDATION_TERMS = ["gerber reservoir"];
 const BUSINESS_CATEGORIES = new Set([
   "Community & Government",

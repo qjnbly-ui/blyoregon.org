@@ -288,7 +288,7 @@
   }
 
   async function fetchTtsAudio(text) {
-    const response = await fetch("/askbly/api/tts", {
+    const response = await fetch("/api/tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
@@ -470,7 +470,7 @@
     form.querySelector("button").disabled = true;
 
     try {
-      const response = await fetch("/askbly/api/ask", {
+      const response = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
