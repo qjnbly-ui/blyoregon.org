@@ -10,7 +10,6 @@ const TOP_K = 36;
 const MIN_SCORE = 0.1;
 const DATA_DIR = path.join(__dirname, "..", "askbly", "site_text_data");
 const MAX_CHUNK_CHARS = 1400;
-const EXCLUDED_RECOMMENDATION_TERMS = ["gerber reservoir"];
 const BUSINESS_CATEGORIES = new Set([
   "Community & Government",
   "Food & Drink",
@@ -189,52 +188,6 @@ function isContactRequest(text) {
   return /\b(phone|contact|address|website|web site|email|call|number|location)\b/i.test(text);
 }
 
-function splitSentences(text) {
-  const normalized = text.replace(/\s+/g, " ").trim();
-  if (!normalized) return [];
-  const urlRegex = /\bhttps?:\/\/[^\s<]+/gi;
-  const emailRegex = /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/gi;
-  const domainRegex = /\b[a-z0-9][a-z0-9-]*\.[a-z]{2,}(?:\/[^\s<]*)?\b/gi;
-  const protectedText = normalized.replace(
-    new RegExp(`${urlRegex.source}|${emailRegex.source}|${domainRegex.source}`, "gi"),
-    (match) => match.replace(/\./g, "<DOT>")
-  );
-  const parts = protectedText.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
-  return parts.map((part) => part.replace(/<DOT>/g, "."));
-}
-
-function buildContextBlob(chunks) {
-  return chunks.map((chunk) => chunk.text || "").join(" ");
-}
-
-function containsExternalSuggestion(sentence) {
-  return /\b(search online|google|look up|visit google|web search)\b/i.test(sentence);
-}
-
-function filterToContext(answer, contextText, excludedTerms = []) {
-  const sentences = splitSentences(answer);
-  if (!sentences.length) return "";
-  const context = contextText.toLowerCase();
-  const kept = [];
-  for (const sentence of sentences) {
-    const normalized = sentence.toLowerCase();
-    if (excludedTerms.some((term) => normalized.includes(term))) {
-      continue;
-    }
-    if (sentence.trim().endsWith("?")) {
-      kept.push(sentence.trim());
-      continue;
-    }
-    if (containsExternalSuggestion(normalized)) {
-      continue;
-    }
-    const overlap = keywordOverlapScore(normalized, contextText);
-    if (overlap >= 0.08 || context.includes(normalized.replace(/[^\w\s]/g, "").trim())) {
-      kept.push(sentence.trim());
-    }
-  }
-  return kept.join(" ");
-}
 
 function formatLodgingResponse(entries, question) {
   if (!entries.length) return "";
@@ -529,20 +482,6 @@ function buildContext(chunks) {
     .join("\n\n");
 }
 
-function shouldAvoidRecommendations(text) {
-  return /\b(visit|visiting|trip|itinerary|plan|planning|road trip|see|places|things to do|go to|go see|check out|attractions|tour|recommend|recommendations)\b/i.test(
-    text
-  );
-}
-
-function filterExcludedChunks(chunks, excludedTerms) {
-  if (!excludedTerms.length) return chunks;
-  return chunks.filter((chunk) => {
-    const text = `${chunk.title || ""}\n${chunk.text || ""}`.toLowerCase();
-    return !excludedTerms.some((term) => text.includes(term));
-  });
-}
-
 function sanitizeHistory(history) {
   if (!Array.isArray(history)) return [];
   return history
@@ -554,13 +493,47 @@ function sanitizeHistory(history) {
     .slice(-6);
 }
 
-async function askGroq(question, context, history) {
+function sanitizeMessages(messages) {
+  if (!Array.isArray(messages)) return [];
+  return messages
+    .filter((entry) => entry && typeof entry.content === "string")
+    .map((entry) => ({
+      role: entry.role === "user" ? "user" : "assistant",
+      content: entry.content.slice(0, 1200),
+    }))
+    .slice(-12);
+}
+
+function injectContextIntoMessages(messages, context, fallbackQuestion) {
+  const hydrated = messages.length ? [...messages] : [];
+  let lastUserIndex = -1;
+  for (let i = hydrated.length - 1; i >= 0; i -= 1) {
+    if (hydrated[i].role === "user") {
+      lastUserIndex = i;
+      break;
+    }
+  }
+  if (lastUserIndex === -1) {
+    hydrated.push({
+      role: "user",
+      content: `Question: ${fallbackQuestion}\n\nContext:\n${context}`,
+    });
+    return hydrated;
+  }
+  const lastUser = hydrated[lastUserIndex];
+  hydrated[lastUserIndex] = {
+    role: "user",
+    content: `Question: ${lastUser.content}\n\nContext:\n${context}`,
+  };
+  return hydrated;
+}
+
+async function askGroq(messages) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     throw new Error("Missing GROQ_API_KEY");
   }
 
-  const safeHistory = sanitizeHistory(history);
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -571,31 +544,7 @@ async function askGroq(question, context, history) {
       model: DEFAULT_MODEL,
       temperature: 0.2,
       max_tokens: 2000,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are Bly, Oregon, speaking in a calm, friendly guide voice for the town. " +
-            "Use only the provided context and conversation history for facts. " +
-            "You may lightly rephrase and summarize, but do not add or infer any new facts, names, dates, numbers, " +
-            "or claims not explicitly present. " +
-            "If the context includes relevant details, answer directly from it and avoid saying you do not know. " +
-            "Use the most specific details available in the context rather than vague hedging. " +
-            "Only say you do not know if the context truly lacks the information, then ask one helpful follow-up question. " +
-            "When drawing from historical sources, add time context (for example, 'historically' or 'at the time') and avoid implying it is current unless the source explicitly says it is current. " +
-            "Treat Business Directory details as current listings, but avoid assuming other historical pages describe the present day. " +
-            "Do not repeat greetings or self-introductions except on the first greeting. " +
-            "If the question is about current services or businesses, prioritize business listings and avoid historical anecdotes unless asked. " +
-            "Never suggest searching online; only use the provided context. " +
-            "Keep it warm and grounded, aiming for 2–3 sentences when possible. " +
-            "Do not add a source line or citation at the end unless the user asks for sources.",
-        },
-        ...safeHistory,
-        {
-          role: "user",
-          content: `Question: ${question}\n\nContext:\n${context}`,
-        },
-      ],
+      messages,
     }),
   });
 
@@ -618,7 +567,12 @@ module.exports = async (req, res) => {
 
   try {
     const body = await readJsonBody(req);
-    const question = String(body.question || "").trim();
+    const rawMessages = sanitizeMessages(body.messages);
+    const questionFromMessages = rawMessages
+      .slice()
+      .reverse()
+      .find((entry) => entry.role === "user")?.content;
+    const question = String(questionFromMessages || body.question || "").trim();
     const history = body.history || [];
     if (!question) {
       res.statusCode = 400;
@@ -664,9 +618,7 @@ module.exports = async (req, res) => {
         .filter((entry) => entry.score >= MIN_SCORE)
         .slice(0, TOP_K)
         .map((entry) => entry.chunk);
-    const avoidRecommendations = shouldAvoidRecommendations(question);
-    const excludeTerms = avoidRecommendations ? EXCLUDED_RECOMMENDATION_TERMS : [];
-    const ranked = filterExcludedChunks(rankedRaw, excludeTerms);
+    const ranked = rankedRaw;
 
     if (!ranked.length) {
       res.statusCode = 200;
@@ -709,24 +661,28 @@ module.exports = async (req, res) => {
     }
 
     const context = buildContext(ranked);
-    const wantsTripPlan = isTripRequest(question);
-    const prompt = wantsTripPlan
-      ? [
-          "Trip planning request.",
-          "Using only the provided context, suggest a simple, practical visit plan in a friendly, human tone.",
-          "Include specific places only if they appear in the context.",
-          "Do not suggest publications or journals. Focus on places and current listings in the context.",
-          "Avoid listing too many items; pick a few and explain why in plain language.",
-          "Then ask up to 2 clarifying questions only if the user has not already provided the answers.",
-          `User request: ${question}`,
-        ].join(" ")
-      : question;
-    const answer = await askGroq(prompt, context, history);
-    const contextBlob = buildContextBlob(ranked);
-    const filtered = filterToContext(answer, contextBlob, excludeTerms);
+    const systemMessage = {
+      role: "system",
+      content:
+        "You are a friendly guide for Bly, Oregon. " +
+        "Use the provided context and conversation history for facts, and keep the tone warm and natural. " +
+        "If the context doesn't cover something, say so plainly and ask one helpful follow-up question. " +
+        "Default to short, conversational paragraphs; use lists only if the user asks.",
+    };
+    const safeHistory = sanitizeHistory(history);
+    const conversation = rawMessages.length
+      ? injectContextIntoMessages(rawMessages, context, question)
+      : [
+          ...safeHistory,
+          {
+            role: "user",
+            content: `Question: ${question}\n\nContext:\n${context}`,
+          },
+        ];
+    const answer = await askGroq([systemMessage, ...conversation]);
     const wantsSources = isSourceRequest(question);
     const sources = wantsSources ? formatSources(ranked) : "";
-    const baseAnswer = filtered || pickFallback();
+    const baseAnswer = answer || pickFallback();
     const finalAnswer = wantsSources ? (sources || "Sources: Not available from the current context.") : baseAnswer;
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
