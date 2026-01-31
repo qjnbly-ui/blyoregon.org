@@ -8,7 +8,8 @@ const path = require("path");
 const DEFAULT_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 const TOP_K = 36;
 const MIN_SCORE = 0.1;
-const DATA_PATH = path.join(__dirname, "..", "askbly", "bly-bot", "data", "embeddings.json");
+const DATA_DIR = path.join(__dirname, "..", "askbly", "site_text_data");
+const MAX_CHUNK_CHARS = 1400;
 const EXCLUDED_RECOMMENDATION_TERMS = ["gerber reservoir"];
 const BUSINESS_CATEGORIES = new Set([
   "Community & Government",
@@ -57,6 +58,82 @@ function cosineSimilarity(a, b) {
   let sum = 0;
   for (let i = 0; i < a.length; i += 1) sum += a[i] * b[i];
   return sum;
+}
+
+function buildChunk({ title, text, url, date, source }) {
+  return {
+    title,
+    text,
+    url,
+    date,
+    source,
+    vector: embedText(`${title || ""} ${text || ""}`.trim()),
+  };
+}
+
+function splitMarkdownIntoChunks({ title, body, url, date, source }) {
+  if (!body) return [];
+  const paragraphs = body.split(/\n\s*\n/).map((para) => para.trim()).filter(Boolean);
+  const chunks = [];
+  let buffer = "";
+  let part = 1;
+
+  for (const para of paragraphs) {
+    const next = buffer ? `${buffer}\n\n${para}` : para;
+    if (next.length > MAX_CHUNK_CHARS && buffer) {
+      chunks.push(buildChunk({ title: part === 1 ? title : `${title} — Part ${part}`, text: buffer, url, date, source }));
+      part += 1;
+      buffer = para;
+      continue;
+    }
+    buffer = next;
+  }
+
+  if (buffer) {
+    chunks.push(buildChunk({ title: part === 1 ? title : `${title} — Part ${part}`, text: buffer, url, date, source }));
+  }
+
+  return chunks;
+}
+
+function parseMarkdownFile(content, filename) {
+  const lines = content.split(/\r?\n/);
+  let title = "";
+  let url = "";
+  let date = "";
+  let idx = 0;
+
+  if (lines[0] && /^#\s+/.test(lines[0])) {
+    title = lines[0].replace(/^#+\s*/, "").trim();
+    idx = 1;
+  }
+
+  for (; idx < lines.length; idx += 1) {
+    const line = lines[idx].trim();
+    if (!line) {
+      idx += 1;
+      break;
+    }
+    if (/^date:/i.test(line)) {
+      date = line.replace(/^date:\s*/i, "").trim();
+      continue;
+    }
+    if (/^url:/i.test(line)) {
+      url = line.replace(/^url:\s*/i, "").trim();
+      continue;
+    }
+    break;
+  }
+
+  const body = lines.slice(idx).join("\n").trim();
+  const fallbackTitle = title || filename.replace(/\.md$/i, "");
+  return splitMarkdownIntoChunks({
+    title: fallbackTitle,
+    body,
+    url,
+    date,
+    source: filename,
+  });
 }
 
 function keywordOverlapScore(question, text) {
@@ -417,9 +494,21 @@ function pickGreeting() {
 
 async function loadChunks() {
   if (cachedChunks) return cachedChunks;
-  const raw = await fs.readFile(DATA_PATH, "utf8");
-  const { chunks } = JSON.parse(raw);
-  cachedChunks = chunks || [];
+  let entries = [];
+  try {
+    entries = await fs.readdir(DATA_DIR, { withFileTypes: true });
+  } catch (error) {
+    cachedChunks = [];
+    return cachedChunks;
+  }
+  const files = entries.filter((entry) => entry.isFile() && entry.name.endsWith(".md"));
+  const chunks = [];
+  for (const file of files) {
+    const filePath = path.join(DATA_DIR, file.name);
+    const content = await fs.readFile(filePath, "utf8");
+    chunks.push(...parseMarkdownFile(content, file.name));
+  }
+  cachedChunks = chunks;
   return cachedChunks;
 }
 
