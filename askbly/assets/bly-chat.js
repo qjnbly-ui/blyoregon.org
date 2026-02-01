@@ -364,6 +364,8 @@
     out = out.replace(/\bRd\b/g, "Road");
     out = out.replace(/\bOR\b/g, "Oregon");
     out = out.replace(/\b(\d{5})\b/g, (match, digits) => digits.split("").join(" "));
+    out = out.replace(/\b100\b/g, "one hundred");
+    out = out.replace(/\bKness\b/g, "Ness");
     out = normalizeDomains(out);
     out = out.replace(
       /\bhttps?:\/\/(?:www\.)?([a-z0-9.-]+)(?:\/\S*)?/gi,

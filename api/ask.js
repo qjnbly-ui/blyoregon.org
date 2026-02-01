@@ -41,6 +41,7 @@ function buildSystemPrompt(siteContext) {
     "If the user asks about a phone number, list the entries that show that number and any contact name listed with it. " +
     "Only attach a contact name to a phone number when they appear together in the same entry; otherwise say no contact listed for that entry. " +
     "When a question asks for numbers (dates, counts, sizes), repeat the numbers exactly as written in the content. " +
+    "Only mention the OC&E Woods Line State Trail if the user explicitly asks about trails, hiking, biking, horseback riding, or the OC&E. " +
     "If something isn't covered, say so clearly and ask one helpful follow-up question. " +
     "Default to a natural narrative voice instead of bullet lists; use lists only if the user asks."
   );
