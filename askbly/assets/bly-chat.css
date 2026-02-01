@@ -82,6 +82,13 @@
   margin-top: 0.2rem;
 }
 
+.bly-chat-status {
+  font-size: 0.7rem;
+  letter-spacing: 0.01em;
+  opacity: 0.75;
+  margin-top: 0.35rem;
+}
+
 .bly-chat-close {
   border: none;
   background: transparent;
@@ -144,6 +151,16 @@
   margin-top: 0.55rem;
 }
 
+.bly-chat-clear {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
 .bly-chat-play,
 .bly-chat-stop {
   border: none;
@@ -176,6 +193,13 @@
   font-size: 0.92rem;
   line-height: 1.45;
   max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.bly-chat-message-text {
+  margin: 0;
 }
 
 .bly-chat-message.user {
@@ -188,6 +212,35 @@
   align-self: flex-start;
   background: #fdfcf9;
   border: 1px solid rgba(20, 50, 39, 0.15);
+}
+
+.bly-chat-message-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.bly-chat-tts,
+.bly-chat-tts-stop {
+  border: 1px solid rgba(20, 50, 39, 0.2);
+  background: #fff;
+  color: var(--bly-ink);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.bly-chat-tts-stop {
+  background: var(--bly-sun);
+  color: #3b2b16;
+  border-color: transparent;
+}
+
+.bly-chat-tts-progress {
+  width: 110px;
+  height: 8px;
+  accent-color: var(--bly-sun);
 }
 
 .bly-chat-form {

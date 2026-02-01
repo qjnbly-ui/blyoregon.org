@@ -24,6 +24,7 @@
           <div class="bly-chat-header-title">
             <strong>Bly</strong>
             <span>Ask about our town history</span>
+            <span class="bly-chat-status">Memory: saved on this device</span>
           </div>
           <div class="bly-chat-header-actions">
             <button class="bly-chat-voice" type="button" aria-pressed="false" aria-label="Toggle voice replies">
@@ -34,8 +35,7 @@
               </span>
               <span class="bly-chat-label">Voice Reply: Off</span>
             </button>
-            <button class="bly-chat-play" type="button" aria-label="Play selected text" disabled>▶︎</button>
-            <button class="bly-chat-stop" type="button" aria-label="Stop audio">⏹</button>
+            <button class="bly-chat-clear" type="button">Clear chat</button>
             <button class="bly-chat-close" type="button" aria-label="Close chat">&times;</button>
           </div>
         </div>
@@ -63,8 +63,7 @@
   const toggle = widget.querySelector(".bly-chat-toggle");
   const closeBtn = widget.querySelector(".bly-chat-close");
   const voiceBtn = widget.querySelector(".bly-chat-voice");
-  const playBtn = widget.querySelector(".bly-chat-play");
-  const stopBtn = widget.querySelector(".bly-chat-stop");
+  const clearBtn = widget.querySelector(".bly-chat-clear");
   const micBtn = widget.querySelector(".bly-chat-mic");
   const voiceLabel = widget.querySelector(".bly-chat-voice .bly-chat-label");
   const overlay = widget.querySelector(".bly-chat-overlay");
@@ -84,9 +83,10 @@
   let recognition = null;
   let ttsSession = 0;
   let currentAudio = null;
+  let activeControls = null;
 
   try {
-    history = JSON.parse(sessionStorage.getItem(storageKey)) || [];
+    history = JSON.parse(localStorage.getItem(storageKey)) || [];
   } catch (err) {
     history = [];
   }
@@ -104,8 +104,6 @@
   if (!window.Audio) {
     voiceBtn.disabled = true;
     voiceBtn.title = "Voice output not supported";
-    stopBtn.disabled = true;
-    playBtn.disabled = true;
   }
 
   function setOpen(isOpen) {
@@ -132,6 +130,13 @@
         currentAudio.currentTime = 0;
         currentAudio = null;
       }
+      if (activeControls) {
+        activeControls.stopBtn.hidden = true;
+        activeControls.listenBtn.hidden = false;
+        activeControls.progress.hidden = true;
+        activeControls.progress.value = 0;
+        activeControls = null;
+      }
     }
   }
 
@@ -149,7 +154,7 @@
   }
 
   function saveHistory() {
-    sessionStorage.setItem(storageKey, JSON.stringify(history));
+    localStorage.setItem(storageKey, JSON.stringify(history));
   }
 
   function escapeHtml(value) {
@@ -206,11 +211,38 @@
   function addMessage(text, type, shouldStore = true) {
     const message = document.createElement("div");
     message.className = `bly-chat-message ${type}`;
+    const textEl = document.createElement("p");
+    textEl.className = "bly-chat-message-text";
     if (type === "bly") {
-      message.innerHTML = linkifyText(text);
+      textEl.innerHTML = linkifyText(text);
     } else {
-      message.textContent = text;
+      textEl.textContent = text;
     }
+    message.appendChild(textEl);
+
+    if (type === "bly") {
+      const controls = document.createElement("div");
+      controls.className = "bly-chat-message-controls";
+      const listenBtn = document.createElement("button");
+      listenBtn.type = "button";
+      listenBtn.className = "bly-chat-tts";
+      listenBtn.textContent = "Listen";
+      const stopBtn = document.createElement("button");
+      stopBtn.type = "button";
+      stopBtn.className = "bly-chat-tts-stop";
+      stopBtn.textContent = "Stop";
+      stopBtn.hidden = true;
+      const progress = document.createElement("progress");
+      progress.className = "bly-chat-tts-progress";
+      progress.max = 1;
+      progress.value = 0;
+      progress.hidden = true;
+      controls.appendChild(listenBtn);
+      controls.appendChild(stopBtn);
+      controls.appendChild(progress);
+      message.appendChild(controls);
+    }
+
     messages.appendChild(message);
     messages.scrollTop = messages.scrollHeight;
     if (shouldStore) {
@@ -344,13 +376,30 @@
     return out;
   }
 
-  async function speak(text) {
-    if (!voiceEnabled) return;
+  async function speak(text, controls = null) {
+    if (!voiceEnabled && !controls) return;
     const prepared = prepareTtsText(text);
     const chunks = splitTtsText(prepared);
     if (!chunks.length) return;
     ttsSession += 1;
     const sessionId = ttsSession;
+    const total = chunks.length;
+    let completed = 0;
+
+    if (controls) {
+      const { listenBtn, stopBtn, progress } = controls;
+      if (activeControls && activeControls !== controls) {
+        activeControls.stopBtn.hidden = true;
+        activeControls.listenBtn.hidden = false;
+        activeControls.progress.hidden = true;
+        activeControls.progress.value = 0;
+      }
+      activeControls = controls;
+      listenBtn.hidden = true;
+      stopBtn.hidden = false;
+      progress.hidden = false;
+      progress.value = 0;
+    }
 
     const fetchPromises = chunks.map((chunk) => fetchTtsAudio(chunk));
     for (let i = 0; i < fetchPromises.length; i += 1) {
@@ -359,19 +408,22 @@
         const url = await fetchPromises[i];
         if (sessionId !== ttsSession) return;
         await playAudio(url, sessionId);
+        completed += 1;
+        if (controls) {
+          controls.progress.value = total ? completed / total : 1;
+        }
       } catch (error) {
-        return;
+        break;
       }
     }
-  }
 
-  function getSelectedText() {
-    const selection = window.getSelection();
-    if (!selection || selection.isCollapsed) return "";
-    const text = selection.toString().trim();
-    if (!text) return "";
-    if (!panel.contains(selection.anchorNode) || !panel.contains(selection.focusNode)) return "";
-    return text;
+    if (controls && activeControls === controls) {
+      controls.stopBtn.hidden = true;
+      controls.listenBtn.hidden = false;
+      controls.progress.hidden = true;
+      controls.progress.value = 0;
+      activeControls = null;
+    }
   }
 
   if (history.length) {
@@ -394,27 +446,18 @@
     voiceBtn.classList.toggle("is-active", voiceEnabled);
   });
 
-  stopBtn.addEventListener("click", () => {
+  clearBtn.addEventListener("click", () => {
+    history = [];
+    saveHistory();
+    messages.innerHTML = "";
+    introShown = false;
+    sessionStorage.removeItem(introKey);
     ttsSession += 1;
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
       currentAudio = null;
     }
-  });
-
-  playBtn.addEventListener("click", () => {
-    const selected = getSelectedText();
-    if (!selected) return;
-    if (!voiceEnabled) {
-      voiceEnabled = true;
-      voiceBtn.setAttribute("aria-pressed", "true");
-      if (voiceLabel) {
-        voiceLabel.textContent = "Voice Reply: On";
-      }
-      voiceBtn.classList.add("is-active");
-    }
-    speak(selected);
   });
 
   if (recognition) {
@@ -442,9 +485,35 @@
     });
   }
 
-  document.addEventListener("selectionchange", () => {
-    const selected = getSelectedText();
-    playBtn.disabled = !selected;
+  messages.addEventListener("click", (event) => {
+    const listenBtn = event.target.closest(".bly-chat-tts");
+    const stopBtn = event.target.closest(".bly-chat-tts-stop");
+    if (!listenBtn && !stopBtn) return;
+    const bubble = event.target.closest(".bly-chat-message.bly");
+    if (!bubble) return;
+    const text = bubble.querySelector(".bly-chat-message-text")?.textContent || "";
+    const controls = {
+      listenBtn: bubble.querySelector(".bly-chat-tts"),
+      stopBtn: bubble.querySelector(".bly-chat-tts-stop"),
+      progress: bubble.querySelector(".bly-chat-tts-progress"),
+    };
+    if (stopBtn) {
+      ttsSession += 1;
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+      }
+      if (controls) {
+        controls.stopBtn.hidden = true;
+        controls.listenBtn.hidden = false;
+        controls.progress.hidden = true;
+        controls.progress.value = 0;
+        if (activeControls === controls) activeControls = null;
+      }
+      return;
+    }
+    speak(text, controls);
   });
 
   if (window.visualViewport) {
