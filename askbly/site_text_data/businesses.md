@@ -65,6 +65,7 @@ Website:klamathlibrary.org
 Food & Drink
 
 The Breadwagon
+Contact:Donna Kness
 
 Local favorite for food in the Bly area. Also offers Gearhart Sugar Shack and The Breadwagon mobile concessions and catering.
 
@@ -137,6 +138,7 @@ Email:rusticrain@hotmail.com
 Website/Social:Facebook
 
 Main Street Mercantile
+Contact:Donna Kness
 
 Gifts, home décor, and more.
 
