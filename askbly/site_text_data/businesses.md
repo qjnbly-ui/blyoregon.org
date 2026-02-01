@@ -65,7 +65,6 @@ Website:klamathlibrary.org
 Food & Drink
 
 The Breadwagon
-Contact:Donna Kness
 
 Local favorite for food in the Bly area. Also offers Gearhart Sugar Shack and The Breadwagon mobile concessions and catering.
 
@@ -138,7 +137,6 @@ Email:rusticrain@hotmail.com
 Website/Social:Facebook
 
 Main Street Mercantile
-Contact:Donna Kness
 
 Gifts, home décor, and more.
 
@@ -388,7 +386,7 @@ Recreation & Community Space
 
 Ruth Obenchain Recreation Center
 
-A membership-run community gym with scheduled events. For current access and details, see the website.
+Membership-run community gym with scheduled events. The building is not staffed and the doors stay locked; access is arranged through the website (typically at least a day in advance) for monthly memberships and open gym nights. Rentals are also handled online—call if you have questions.
 
 Address:19140 Edler Street, Bly, OR 97622
 
