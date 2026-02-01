@@ -4,9 +4,7 @@ URL: https://blyoregon.org/community/
 
 Community updates are on the way.
 
-This page will become the home for local events, volunteer opportunities, and the Bly
-        Community Action Team updates. We are gathering details now so the information stays current
-        and useful for residents and visitors.
+This page will become the home for local events, volunteer opportunities, and the Bly Community Action Team updates. We are gathering details now so the information stays current and useful for residents and visitors.
 
 Events calendar
 

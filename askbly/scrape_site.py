@@ -6,6 +6,7 @@ from urllib.parse import quote
 BASE_URL = "https://blyoregon.org"
 ROOT_DIR = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = ROOT_DIR / "askbly" / "site_text_data"
+MIN_BODY_CHARS = 200
 
 SKIP_DIRS = {
     ".git",
@@ -45,12 +46,16 @@ def extract_page_content(soup, url):
     for elem in main_content.find_all(["h1", "h2", "h3", "p", "li"]):
         text = elem.get_text(strip=True)
         if text:
-            text_parts.append(text)
+            text_parts.append(" ".join(text.split()))
+
+    body = "\n\n".join(text_parts)
+    if len(body.strip()) < MIN_BODY_CHARS:
+        return None
 
     return {
         "title": title,
         "date": date,
-        "body": "\n\n".join(text_parts),
+        "body": body,
         "url": url,
     }
 
@@ -93,7 +98,10 @@ def file_path_to_url(path: Path) -> str:
 
 def scrape_local_site():
     html_files = []
-    for path in ROOT_DIR.rglob("index.html"):
+    if OUTPUT_DIR.exists():
+        for path in OUTPUT_DIR.glob("*.md"):
+            path.unlink()
+    for path in ROOT_DIR.rglob("*.html"):
         if any(part in SKIP_DIRS or part.startswith(".") for part in path.parts):
             continue
         html_files.append(path)

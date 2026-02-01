@@ -278,9 +278,7 @@ Lodging
 
 Aspen Ridge Resort
 
-A family-owned guest ranch and resort on a century-old working cattle ranch, offering rustic lodging in
-                handcrafted log cabins and lodge rooms, hearty dining, and ranch-style recreation (horseback riding,
-                fishing, hiking, and more).
+A family-owned guest ranch and resort on a century-old working cattle ranch, offering rustic lodging in handcrafted log cabins and lodge rooms, hearty dining, and ranch-style recreation (horseback riding, fishing, hiking, and more).
 
 Address:Mile Marker 18 Fishhole Creek Rd, Bly, OR 97622
 
@@ -290,9 +288,7 @@ Website:aspenrr.com
 
 The Barn at Marvin Garden
 
-Peaceful off-the-beaten-path stay with original post-and-beam craftsmanship, open rafters, and a chef-ready
-                kitchen. Steps to the OC&E Trail, a private patio with Gearhart Mountain views, and easy access to the
-                Bread Wagon, Aspen Ridge, and the Cowboy Dinner Tree.
+Peaceful off-the-beaten-path stay with original post-and-beam craftsmanship, open rafters, and a chef-ready kitchen. Steps to the OC&E Trail, a private patio with Gearhart Mountain views, and easy access to the Bread Wagon, Aspen Ridge, and the Cowboy Dinner Tree.
 
 Space:2 bedrooms, 2 queen beds, 1 bathroom.
 

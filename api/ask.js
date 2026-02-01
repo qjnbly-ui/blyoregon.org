@@ -1,7 +1,3 @@
-// Updated version of ask.js (API handler): Enhanced system prompt for warmer, more folksy storytelling while strictly enforcing no hallucinations or added facts.
-// Updated fallbacks and greeting for human texture. Added light blending in buildContext for better flow. Bumped MIN_SCORE to 0.3 for stricter relevance.
-// Added optional source citation in responses for trust.
-
 const fs = require("fs/promises");
 const path = require("path");
 
@@ -10,18 +6,6 @@ const TOP_K = 36;
 const MIN_SCORE = 0.1;
 const DATA_DIR = path.join(__dirname, "..", "askbly", "site_text_data");
 const MAX_CHUNK_CHARS = 1400;
-const BUSINESS_CATEGORIES = new Set([
-  "Community & Government",
-  "Food & Drink",
-  "Shopping",
-  "Services & Trades",
-  "Health & Wellness",
-  "Lodging",
-  "Education",
-  "Faith & Churches",
-  "Utilities",
-  "Recreation & Community Space",
-]);
 
 let cachedChunks = null;
 
@@ -146,233 +130,10 @@ function keywordOverlapScore(question, text) {
   return hits / Math.max(tTokens.length, 1);
 }
 
-function keywordBoost(question, chunk) {
-  const qTokens = tokenize(question).filter((token) => token.length >= 4);
-  if (!qTokens.length) return 0;
-  const haystack = `${chunk.title || ""} ${chunk.text || ""}`.toLowerCase();
-  let hits = 0;
-  qTokens.forEach((token) => {
-    if (haystack.includes(token)) hits += 1;
-  });
-  const title = String(chunk.title || "").toLowerCase();
-  const titleHits = qTokens.filter((token) => title.includes(token)).length;
-  return Math.min(0.18, hits * 0.02 + titleHits * 0.03);
-}
-
 function isSourceRequest(text) {
   return /\b(source|sources|citation|citations|where did you get|where did this come from|reference|references)\b/i.test(
     text
   );
-}
-
-function isTripRequest(text) {
-  return /\b(plan|planning|trip|itinerary|visit|visiting|travel|weekend|getaway|road trip)\b/i.test(text);
-}
-
-function isBusinessQuery(text) {
-  if (isLodgingQuery(text)) return false;
-  return /\b(business|businesses|services|shop|shops|store|stores|directory|local|open now|open today)\b/i.test(text);
-}
-
-function isLodgingQuery(text) {
-  return /\b(lodging|hotel|motel|inn|resort|cabin|cabins|guest ranch|ranch|campground|rv|trailer park|overnight|stay|staying|accommodations)\b/i.test(
-    text
-  );
-}
-
-function isFoodQuery(text) {
-  return /\b(eat|food|restaurant|restaurants|cafe|coffee|diner|breakfast|lunch|dinner)\b/i.test(text);
-}
-
-function isContactRequest(text) {
-  return /\b(phone|contact|address|website|web site|email|call|number|location)\b/i.test(text);
-}
-
-
-function formatLodgingResponse(entries, question) {
-  if (!entries.length) return "";
-  const wantsContacts = isContactRequest(question);
-  const prefersTrailer = /\b(trailer|rv|camper|camp trailer)\b/i.test(question);
-  let lodgingEntries = filterEntriesByCategory(entries, ["Lodging"]);
-  if (!lodgingEntries.length) {
-    lodgingEntries = entries.filter((entry) => {
-      const haystack = `${entry.name} ${entry.description || ""}`.toLowerCase();
-      return /(lodg|resort|cabin|camp|campground|trailer|rv|park|guest ranch|inn|motel|hotel)/i.test(haystack);
-    });
-  }
-  if (!lodgingEntries.length) return "";
-  const sorted = [...lodgingEntries].sort((a, b) => {
-    if (prefersTrailer) {
-      const aTrailer = /trailer|rv|camper/i.test(a.name + (a.description || ""));
-      const bTrailer = /trailer|rv|camper/i.test(b.name + (b.description || ""));
-      if (aTrailer && !bTrailer) return -1;
-      if (!aTrailer && bTrailer) return 1;
-    }
-    return 0;
-  });
-  const picks = sorted.slice(0, 2).map((entry) => {
-    const detail = entry.description ? ` ${entry.description}` : "";
-    return `${entry.name}.${detail}`;
-  });
-  const lines = [`Places to stay listed in our directory include ${picks.join(" ")}.`];
-  if (wantsContacts) {
-    sorted.slice(0, 2).forEach((entry) => {
-      entry.meta.forEach((meta) => {
-        lines.push(`${entry.name} — ${meta}`);
-      });
-    });
-  } else {
-    lines.push("Want contact details for either one?");
-  }
-  return lines.join(" ");
-}
-
-function extractBusinessDirectory(chunks) {
-  const entryTitles = new Set([
-    "Bly Ranger District (Forest Service)",
-    "Bly Community Action Team",
-    "Bly Fire Department",
-    "United States Postal Service (Bly)",
-    "Bly Branch Library",
-    "The Breadwagon",
-    "Sycan Store",
-    "The Highway Cafe",
-    "Fastbreak Convenience Store - Bly Market",
-    "The Bly Outdoor Store",
-    "Outlaw Rocks",
-    "Rustic Rain",
-    "Main Street Mercantile",
-    "Country Crafts",
-    "Delta-S Designs",
-    "Grant Plumbing",
-    "Holgate Plumbing",
-    "John Richmond Contracting",
-    "Melsness Logging",
-    "Millen Construction",
-    "Paul Melsness Refinishing",
-    "Duarte Sales",
-    "Running W Enterprises",
-    "Bly Beauties",
-    "Klamath Hospice and Palliative Care",
-    "The Bonanza Clinic",
-    "Aspen Ridge Resort",
-    "Lone Pine Trailer Park",
-    "Gearhart Elementary School",
-    "Bly Preschool",
-    "Abiding Place Ministries",
-    "Beatty Valley Church",
-    "Standing Stone Church",
-    "St. James Catholic Church",
-    "Bly Water and Sanitation District",
-    "Ruth Obenchain Recreation Center",
-  ]);
-
-  const entries = [];
-  for (const chunk of chunks) {
-    if (!chunk.text) continue;
-    const lines = chunk.text
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-    let currentCategory = null;
-    for (let i = 0; i < lines.length; i += 1) {
-      const line = lines[i];
-      if (BUSINESS_CATEGORIES.has(line)) {
-        currentCategory = line;
-        continue;
-      }
-      if (!entryTitles.has(line)) continue;
-      const entry = { name: line, description: "", meta: [], category: currentCategory };
-      for (let j = i + 1; j < lines.length; j += 1) {
-        const next = lines[j];
-        if (BUSINESS_CATEGORIES.has(next) || entryTitles.has(next)) break;
-        if (next.includes(":")) {
-          entry.meta.push(next);
-        } else if (!entry.description) {
-          entry.description = next;
-        }
-      }
-      entries.push(entry);
-    }
-  }
-
-  const unique = new Map(entries.map((entry) => [entry.name, entry]));
-  return Array.from(unique.values());
-}
-
-function formatBusinessResponse(entries, max = 5) {
-  if (!entries.length) return "";
-  const picks = entries.slice(0, max).map((entry) => {
-    if (entry.description) {
-      return `${entry.name} (${entry.description})`;
-    }
-    return entry.name;
-  });
-  return `A few local spots people ask about: ${picks.join(", ")}. Want a specific category or contact details?`;
-}
-
-function filterEntriesByCategory(entries, categories) {
-  const set = new Set(categories);
-  return entries.filter((entry) => entry.category && set.has(entry.category));
-}
-
-function formatTripResponse(entries, question) {
-  if (!entries.length) return "";
-  const prefersTrailer = /\b(trailer|rv|camper|camp trailer)\b/i.test(question);
-  const wantsFood = isFoodQuery(question);
-  const wantsLodging = isLodgingQuery(question);
-  const wantsShopping = /\b(shop|shopping|supplies|gear|outdoor|store)\b/i.test(question);
-  const hasOvernight = /\b(overnight|stay|staying|lodging|hotel|motel|resort|cabin|camp|camping|rv|trailer|accommodations)\b/i.test(question);
-  const hasDayTrip = /\b(day trip|day-trip|just passing through|passing through)\b/i.test(question);
-  const hasDates = /\b(jan|january|feb|february|mar|march|apr|april|may|jun|june|jul|july|aug|august|sep|sept|september|oct|october|nov|november|dec|december|spring|summer|fall|autumn|winter|weekend|today|tomorrow|this week|next week|this month|next month)\b/i.test(question);
-  const hasInterests = /\b(history|historic|museum|monument|trail|hike|hiking|fishing|camping|outdoor|wildlife|bird|birdwatch|family|kids|photography|scenic|food|restaurants)\b/i.test(question);
-
-  let lodging = filterEntriesByCategory(entries, ["Lodging"]);
-  let food = filterEntriesByCategory(entries, ["Food & Drink"]);
-  let shopping = filterEntriesByCategory(entries, ["Shopping"]);
-
-  if (prefersTrailer) {
-    lodging = [...lodging].sort((a, b) => {
-      const aTrailer = /trailer|rv|camper/i.test(a.name + (a.description || ""));
-      const bTrailer = /trailer|rv|camper/i.test(b.name + (b.description || ""));
-      if (aTrailer && !bTrailer) return -1;
-      if (!aTrailer && bTrailer) return 1;
-      return 0;
-    });
-  }
-
-  const parts = [];
-  if (wantsLodging || (!wantsFood && !wantsShopping)) {
-    if (lodging.length) {
-      parts.push(`Lodging includes ${lodging.slice(0, 3).map((entry) => entry.name).join(" and ")}.`);
-    }
-  }
-  if (wantsFood || (!wantsLodging && !wantsShopping)) {
-    if (food.length) {
-      parts.push(`Food and essentials include ${food.slice(0, 4).map((entry) => entry.name).join(", ")}.`);
-    }
-  }
-  if (wantsShopping) {
-    if (shopping.length) {
-      parts.push(`Shopping includes ${shopping.slice(0, 3).map((entry) => entry.name).join(", ")}.`);
-    }
-  }
-
-  if (!parts.length) return "";
-  const questions = [];
-  if (!hasOvernight && !hasDayTrip) {
-    questions.push("Are you staying overnight or making a day trip?");
-  }
-  if (!hasInterests) {
-    questions.push("What are your main interests (history, outdoor, community)?");
-  }
-  if (!hasDates) {
-    questions.push("What time of year are you visiting?");
-  }
-
-  const followUp = questions.length ? ` ${questions.slice(0, 2).join(" ")}` : "";
-  const intro = "If I were planning a quick visit, I'd start with these local basics:";
-  return `${intro} ${parts.join(" ")} If you want contact details or addresses, just ask.${followUp}`;
 }
 
 function formatSources(chunks, max = 3) {
@@ -389,39 +150,6 @@ function formatSources(chunks, max = 3) {
   return `Sources: ${list.join(" | ")}`;
 }
 
-function categoryBoost(question, chunk) {
-  const q = question.toLowerCase();
-  const url = String(chunk.url || "").toLowerCase();
-  const title = String(chunk.title || "").toLowerCase();
-  if (isFoodQuery(q)) {
-    if (url.includes("/businesses/") || title.includes("businesses")) return 0.25;
-    if (url.includes("/history/") || title.includes("history")) return -0.15;
-  }
-  if (isLodgingQuery(q)) {
-    if (url.includes("/businesses/") || title.includes("businesses")) return 0.25;
-    if (url.includes("/history/") || title.includes("history")) return -0.15;
-  }
-  return 0;
-}
-
-function isGreeting(text) {
-  const cleaned = text.toLowerCase().replace(/[^a-z\s]/g, " ").trim();
-  if (!cleaned) return false;
-  const tokens = cleaned.split(/\s+/);
-  const greetings = new Set([
-    "hi",
-    "hello",
-    "hey",
-    "howdy",
-    "yo",
-    "morning",
-    "afternoon",
-    "evening",
-  ]);
-  if (tokens.length <= 3 && tokens.some((t) => greetings.has(t))) return true;
-  return false;
-}
-
 const FALLBACK_RESPONSES = [
   "I don’t have that in my notes yet—but if you give me a landmark, a name, or a time period, I’ll take another look.",
   "I’m not seeing that in the pages I have. Tell me a person, place, or era and I’ll track it down.",
@@ -432,17 +160,6 @@ const FALLBACK_RESPONSES = [
 
 function pickFallback() {
   return FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
-}
-
-const GREETING_RESPONSES = [
-  "Hi, I’m Bly. I speak from our town’s records—people, places, and history. Tell me where to begin.",
-  "Welcome to Bly. I’m the town itself, sharing what’s in our archives. What would you like to know?",
-  "Hello from Bly. I’ll guide you through our stories from the pages on this site. What should we look at first?",
-  "Hi there—I’m Bly. I carry our history, community, and places in these pages. Ask me about any of them.",
-];
-
-function pickGreeting() {
-  return GREETING_RESPONSES[Math.floor(Math.random() * GREETING_RESPONSES.length)];
 }
 
 async function loadChunks() {
@@ -574,23 +291,12 @@ module.exports = async (req, res) => {
       .find((entry) => entry.role === "user")?.content;
     const question = String(questionFromMessages || body.question || "").trim();
     const history = body.history || [];
-    if (!question) {
-      res.statusCode = 400;
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ error: "Missing question" }));
-      return;
-    }
-
-    if (isGreeting(question)) {
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
-      res.end(
-        JSON.stringify({
-          answer: pickGreeting(),
-        })
-      );
-      return;
-    }
+  if (!question) {
+    res.statusCode = 400;
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify({ error: "Missing question" }));
+    return;
+  }
 
     const chunks = await loadChunks();
     if (!chunks.length) {
@@ -609,9 +315,7 @@ module.exports = async (req, res) => {
             chunk,
             score:
               cosineSimilarity(qVector, chunk.vector) * 0.7 +
-              keywordOverlapScore(question, keywordSource) * 0.3 +
-              categoryBoost(question, chunk) +
-              keywordBoost(question, chunk),
+              keywordOverlapScore(question, keywordSource) * 0.3,
           };
         })
         .sort((a, b) => b.score - a.score)
@@ -627,47 +331,13 @@ module.exports = async (req, res) => {
       return;
     }
 
-    if (isLodgingQuery(question)) {
-      const entries = filterEntriesByCategory(extractBusinessDirectory(chunks), ["Lodging"]);
-      const response = formatLodgingResponse(entries, question);
-      if (response) {
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ answer: response }));
-        return;
-      }
-    }
-
-    if (isTripRequest(question)) {
-      const entries = extractBusinessDirectory(chunks);
-      const response = formatTripResponse(entries, question);
-      if (response) {
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ answer: response }));
-        return;
-      }
-    }
-
-    if (isBusinessQuery(question)) {
-      const entries = extractBusinessDirectory(chunks);
-      const response = formatBusinessResponse(entries);
-      if (response) {
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ answer: response }));
-        return;
-      }
-    }
-
     const context = buildContext(ranked);
     const systemMessage = {
       role: "system",
       content:
         "You are a friendly guide for Bly, Oregon. " +
-        "Use the provided context and conversation history for facts, and keep the tone warm and natural. " +
-        "If the context doesn't cover something, say so plainly and ask one helpful follow-up question. " +
-        "Default to short, conversational paragraphs; use lists only if the user asks.",
+        "Use the provided context for facts. " +
+        "If the context doesn't cover something, say so plainly and ask one helpful follow-up question.",
     };
     const safeHistory = sanitizeHistory(history);
     const conversation = rawMessages.length
@@ -683,7 +353,7 @@ module.exports = async (req, res) => {
     const wantsSources = isSourceRequest(question);
     const sources = wantsSources ? formatSources(ranked) : "";
     const baseAnswer = answer || pickFallback();
-    const finalAnswer = wantsSources ? (sources || "Sources: Not available from the current context.") : baseAnswer;
+    const finalAnswer = sources ? `${baseAnswer}\n\n${sources}` : baseAnswer;
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ answer: finalAnswer }));

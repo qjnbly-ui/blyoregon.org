@@ -30,8 +30,7 @@ Search the local archive.
 
 Standing Stone Church rebuild
 
-The historic Standing Stone Church was lost to fire and is being rebuilt with help from
-          the community. Read the latest article and stay connected to progress.
+The historic Standing Stone Church was lost to fire and is being rebuilt with help from the community. Read the latest article and stay connected to progress.
 
 Stories, documents, and people
 
@@ -57,10 +56,8 @@ Historic buildings, routes, and places that define the area.
 
 The town storyteller, on demand
 
-Ask Bly pulls from our history pages, oral interviews, and community notes to answer in a neighborly voice.
-          It is still learning, but it already knows the people and places that make this valley home.
+Ask Bly pulls from our history pages, oral interviews, and community notes to answer in a neighborly voice. It is still learning, but it already knows the people and places that make this valley home.
 
 Get involved in Bly
 
-Whether you are a resident or visitor, this community stays strong through volunteer
-        energy and local support. Reach out or share updates that should be included here.
+Whether you are a resident or visitor, this community stays strong through volunteer energy and local support. Reach out or share updates that should be included here.

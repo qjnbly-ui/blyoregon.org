@@ -4,8 +4,7 @@ URL: https://blyoregon.org/recreation/
 
 Recreation updates are on the way.
 
-This page will be a guide to trails, lakes, and outdoor access around Bly. We are building
-        a clear list of destinations, trailheads, and seasonal notes so visitors can plan safely.
+This page will be a guide to trails, lakes, and outdoor access around Bly. We are building a clear list of destinations, trailheads, and seasonal notes so visitors can plan safely.
 
 Trail and hike guides
 
@@ -21,8 +20,7 @@ Closures, fire restrictions, and road conditions that affect access.
 
 Featured stay near the trails
 
-Want to stay close to the OC&E trailhead? Here is a featured listing in Bly. You can also browse the full
-        lodging list in the Business Directory.
+Want to stay close to the OC&E trailhead? Here is a featured listing in Bly. You can also browse the full lodging list in the Business Directory.
 
 Know a great spot?
 
