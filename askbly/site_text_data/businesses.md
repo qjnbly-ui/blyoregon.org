@@ -388,7 +388,7 @@ Recreation & Community Space
 
 Ruth Obenchain Recreation Center
 
-A volunteer-run community gym with memberships, open gym nights, and community events.
+A membership-run community gym with scheduled events. For current access and details, see the website.
 
 Address:19140 Edler Street, Bly, OR 97622
 
