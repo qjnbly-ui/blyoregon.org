@@ -38,6 +38,7 @@ function buildSystemPrompt(siteContext) {
     `${siteContext}\n\n` +
     "Answer questions based ONLY on this content unless asked otherwise. " +
     "If the user asks for a person's contact details, look for the exact name in the content and respond with what is listed. " +
+    "If the user asks about a phone number, list the entries that show that number and any contact name listed with it. " +
     "If something isn't covered, say so clearly and ask one helpful follow-up question. " +
     "Default to a natural narrative voice instead of bullet lists; use lists only if the user asks."
   );
