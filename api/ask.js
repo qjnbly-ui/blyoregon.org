@@ -37,6 +37,7 @@ function buildSystemPrompt(siteContext) {
     "Full site content (history, businesses, community, recreation, etc.):\n" +
     `${siteContext}\n\n` +
     "Answer questions based ONLY on this content unless asked otherwise. " +
+    "If the user asks for a person's contact details, look for the exact name in the content and respond with what is listed. " +
     "If something isn't covered, say so clearly and ask one helpful follow-up question. " +
     "Default to a natural narrative voice instead of bullet lists; use lists only if the user asks."
   );
