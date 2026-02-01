@@ -40,6 +40,7 @@ function buildSystemPrompt(siteContext) {
     "If the user asks for a person's contact details, look for the exact name in the content and respond with what is listed. " +
     "If the user asks about a phone number, list the entries that show that number and any contact name listed with it. " +
     "Only attach a contact name to a phone number when they appear together in the same entry; otherwise say no contact listed for that entry. " +
+    "When a question asks for numbers (dates, counts, sizes), repeat the numbers exactly as written in the content. " +
     "If something isn't covered, say so clearly and ask one helpful follow-up question. " +
     "Default to a natural narrative voice instead of bullet lists; use lists only if the user asks."
   );
@@ -54,6 +55,61 @@ function sanitizeMessages(messages) {
       content: entry.content.slice(0, 1200),
     }))
     .slice(-12);
+}
+
+function extractPhoneDigits(text) {
+  const digits = String(text || "").replace(/\D/g, "");
+  if (digits.length >= 10) return digits.slice(-10);
+  return "";
+}
+
+function isPhoneLookup(question) {
+  return /\b(phone|number|call|contact|who.*number)\b/i.test(question || "");
+}
+
+async function findPhoneMatches(phoneDigits) {
+  const filePath = path.join(DATA_DIR, "businesses.md");
+  let content = "";
+  try {
+    content = await fs.readFile(filePath, "utf8");
+  } catch (error) {
+    return [];
+  }
+  const blocks = content.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
+  const matches = [];
+
+  blocks.forEach((block) => {
+    const lines = block.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    if (!lines.length) return;
+    const name = lines[0];
+    const phoneLine = lines.find((line) => /^Phone:/i.test(line) || /^Cell:/i.test(line));
+    if (!phoneLine) return;
+    const phoneDigitsInBlock = extractPhoneDigits(phoneLine);
+    if (!phoneDigitsInBlock || phoneDigitsInBlock !== phoneDigits) return;
+    const contactLine = lines.find((line) => /^Contact:/i.test(line));
+    matches.push({
+      name,
+      phone: phoneLine.replace(/^Phone:|^Cell:/i, "").trim(),
+      contact: contactLine ? contactLine.replace(/^Contact:/i, "").trim() : "",
+    });
+  });
+
+  return matches;
+}
+
+function formatPhoneLookup(matches, phoneDigits) {
+  if (!matches.length) return "";
+  const display = phoneDigits
+    ? `(${phoneDigits.slice(0, 3)}) ${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6)}`
+    : "";
+  const intro = display
+    ? `Here’s where ${display} appears in the business directory:`
+    : "Here’s where that number appears in the business directory:";
+  const details = matches.map((entry) => {
+    const contact = entry.contact ? ` Contact: ${entry.contact}.` : " Contact: not listed.";
+    return `${entry.name} — ${entry.phone}.${contact}`;
+  });
+  return `${intro} ${details.join(" ")}`;
 }
 
 async function askGroq(messages) {
@@ -107,6 +163,20 @@ module.exports = async (req, res) => {
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ error: "Missing question" }));
       return;
+    }
+
+    if (isPhoneLookup(question)) {
+      const phoneDigits = extractPhoneDigits(question);
+      if (phoneDigits) {
+        const matches = await findPhoneMatches(phoneDigits);
+        const response = formatPhoneLookup(matches, phoneDigits);
+        if (response) {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ answer: response }));
+          return;
+        }
+      }
     }
 
     const siteContext = await loadSiteContext();
