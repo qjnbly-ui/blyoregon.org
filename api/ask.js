@@ -7,6 +7,7 @@ const MAX_CONTEXT_WORDS = Math.floor(MAX_CONTEXT_TOKENS / 1.3);
 const DATA_DIR = path.join(__dirname, "..", "askbly", "site_text_data");
 
 let cachedContext = null;
+let cachedBusinesses = null;
 
 async function loadSiteContext() {
   if (cachedContext) return cachedContext;
@@ -37,6 +38,8 @@ function buildSystemPrompt(siteContext) {
     "Full site content (history, businesses, community, recreation, etc.):\n" +
     `${siteContext}\n\n` +
     "Answer questions based ONLY on this content unless asked otherwise. " +
+    "If the user asks for contact details, respond only for the specific place/person they mention (or the most recent place/person just discussed). " +
+    "Do NOT list multiple entries unless the user explicitly asks for a list. " +
     "If the user asks for a person's contact details, look for the exact name in the content and respond with what is listed. " +
     "If the user asks about a phone number, list the entries that show that number and any contact name listed with it. " +
     "Only attach a contact name to a phone number when they appear together in the same entry; otherwise say no contact listed for that entry. " +
@@ -64,37 +67,134 @@ function extractPhoneDigits(text) {
   return "";
 }
 
+function normalizeName(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
 function isPhoneLookup(question) {
   return /\b(phone|number|call|contact|who.*number)\b/i.test(question || "");
 }
 
-async function findPhoneMatches(phoneDigits) {
+async function loadBusinessEntries() {
+  if (cachedBusinesses) return cachedBusinesses;
   const filePath = path.join(DATA_DIR, "businesses.md");
   let content = "";
   try {
     content = await fs.readFile(filePath, "utf8");
   } catch (error) {
-    return [];
+    cachedBusinesses = [];
+    return cachedBusinesses;
   }
+
   const blocks = content.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
-  const matches = [];
+  const entries = [];
+  const contactKeys = new Set(["address", "phone", "cell", "email", "website", "website/social", "contact", "fax"]);
 
   blocks.forEach((block) => {
     const lines = block.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
     if (!lines.length) return;
     const name = lines[0];
-    const phoneLine = lines.find((line) => /^Phone:/i.test(line) || /^Cell:/i.test(line));
-    if (!phoneLine) return;
-    const phoneDigitsInBlock = extractPhoneDigits(phoneLine);
-    if (!phoneDigitsInBlock || phoneDigitsInBlock !== phoneDigits) return;
-    const contactLine = lines.find((line) => /^Contact:/i.test(line));
-    matches.push({
+    const fields = {};
+    const description = [];
+
+    for (let i = 1; i < lines.length; i += 1) {
+      const line = lines[i];
+      const match = line.match(/^([A-Za-z/&\s]+):\s*(.+)$/);
+      if (match) {
+        const key = match[1].trim().toLowerCase();
+        fields[key] = match[2].trim();
+      } else {
+        description.push(line);
+      }
+    }
+
+    const hasContactField = Object.keys(fields).some((key) => contactKeys.has(key));
+    if (!hasContactField) return;
+
+    entries.push({
       name,
-      phone: phoneLine.replace(/^Phone:|^Cell:/i, "").trim(),
-      contact: contactLine ? contactLine.replace(/^Contact:/i, "").trim() : "",
+      fields,
+      description: description.join(" ").trim(),
+      normalizedName: normalizeName(name),
     });
   });
 
+  cachedBusinesses = entries;
+  return cachedBusinesses;
+}
+
+function matchScore(normalizedText, entry) {
+  if (!normalizedText) return 0;
+  if (normalizedText.includes(entry.normalizedName)) return entry.normalizedName.split(" ").length + 2;
+  const tokens = entry.normalizedName.split(" ").filter((token) => token.length >= 3);
+  if (!tokens.length) return 0;
+  let score = 0;
+  tokens.forEach((token) => {
+    if (normalizedText.includes(token)) score += 1;
+  });
+  return score;
+}
+
+function findBestEntry(text, entries) {
+  const normalizedText = normalizeName(text);
+  if (!normalizedText) return { entry: null, candidates: [] };
+  let bestScore = 0;
+  let candidates = [];
+
+  entries.forEach((entry) => {
+    const score = matchScore(normalizedText, entry);
+    if (score > bestScore) {
+      bestScore = score;
+      candidates = [entry];
+    } else if (score === bestScore && score > 0) {
+      candidates.push(entry);
+    }
+  });
+
+  if (bestScore === 0) return { entry: null, candidates: [] };
+  if (candidates.length === 1) return { entry: candidates[0], candidates };
+  return { entry: null, candidates };
+}
+
+function isContactLookup(question) {
+  return /\b(contact|contact info|contact information|contact details|phone|number|call|email|website|address|how to reach)\b/i.test(
+    question || ""
+  );
+}
+
+function formatContactEntry(entry) {
+  const parts = [];
+  const fields = entry.fields || {};
+
+  if (fields.address) parts.push(`Address: ${fields.address}`);
+  if (fields.phone) parts.push(`Phone: ${fields.phone}`);
+  if (fields.cell) parts.push(`Cell: ${fields.cell}`);
+  if (fields.email) parts.push(`Email: ${fields.email}`);
+  if (fields["website"]) parts.push(`Website: ${fields["website"]}`);
+  if (fields["website/social"]) parts.push(`Website/Social: ${fields["website/social"]}`);
+  if (fields.contact) parts.push(`Contact: ${fields.contact}`);
+  if (fields.fax) parts.push(`Fax: ${fields.fax}`);
+
+  if (!parts.length) return `${entry.name} — I don't see contact details listed.`;
+  return `${entry.name} — ${parts.join(" | ")}`;
+}
+
+async function findPhoneMatches(phoneDigits, entries) {
+  if (!phoneDigits) return [];
+  const matches = [];
+  entries.forEach((entry) => {
+    const phoneLine = entry.fields.phone || entry.fields.cell || "";
+    const phoneDigitsInEntry = extractPhoneDigits(phoneLine);
+    if (!phoneDigitsInEntry || phoneDigitsInEntry !== phoneDigits) return;
+    matches.push({
+      name: entry.name,
+      phone: phoneLine,
+      contact: entry.fields.contact || "",
+    });
+  });
   return matches;
 }
 
@@ -166,10 +266,12 @@ module.exports = async (req, res) => {
       return;
     }
 
+    const businessEntries = await loadBusinessEntries();
+
     if (isPhoneLookup(question)) {
       const phoneDigits = extractPhoneDigits(question);
       if (phoneDigits) {
-        const matches = await findPhoneMatches(phoneDigits);
+        const matches = await findPhoneMatches(phoneDigits, businessEntries);
         const response = formatPhoneLookup(matches, phoneDigits);
         if (response) {
           res.statusCode = 200;
@@ -178,6 +280,51 @@ module.exports = async (req, res) => {
           return;
         }
       }
+    }
+
+    if (isContactLookup(question)) {
+      let target = findBestEntry(question, businessEntries);
+      if (!target.entry && !target.candidates.length && rawMessages.length) {
+        for (let i = rawMessages.length - 1; i >= 0; i -= 1) {
+          const { entry, candidates } = findBestEntry(rawMessages[i].content, businessEntries);
+          if (entry) {
+            target = { entry, candidates };
+            break;
+          }
+          if (candidates.length) {
+            target = { entry: null, candidates };
+            break;
+          }
+        }
+      }
+
+      if (target.entry) {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ answer: formatContactEntry(target.entry) }));
+        return;
+      }
+
+      if (target.candidates && target.candidates.length > 1) {
+        const options = target.candidates.slice(0, 3).map((entry) => entry.name).join(", ");
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.end(
+          JSON.stringify({
+            answer: `Which place do you mean? I see ${options}.`,
+          })
+        );
+        return;
+      }
+
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json");
+      res.end(
+        JSON.stringify({
+          answer: "Which place are you asking about? I can share the exact address, phone, and website.",
+        })
+      );
+      return;
     }
 
     const siteContext = await loadSiteContext();
