@@ -1,4 +1,10 @@
 {
   "cleanUrls": true,
-  "trailingSlash": true
+  "trailingSlash": true,
+  "rewrites": [
+    {
+      "source": "/media/:bucket/:path*",
+      "destination": "https://mgxdiolwevcgwgzhzttd.supabase.co/storage/v1/object/public/:bucket/:path*"
+    }
+  ]
 }
