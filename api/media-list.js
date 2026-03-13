@@ -1,31 +1,9 @@
-const fs = require("fs/promises");
-const path = require("path");
-
 const DEFAULT_SUPABASE_URL = "https://mgxdiolwevcgwgzhzttd.supabase.co";
 const IMAGE_EXTENSIONS = /\.(avif|gif|jpe?g|png|webp)$/i;
-
-function getFallbackListPath(bucket) {
-  return path.join(__dirname, "..", "history", "photos", bucket, "list.json");
-}
 
 function getHeaderValue(req, name) {
   const value = req.headers?.[name];
   return Array.isArray(value) ? value[0] : value;
-}
-
-async function readFallbackList(bucket) {
-  try {
-    const filePath = getFallbackListPath(bucket);
-    const contents = await fs.readFile(filePath, "utf8");
-    const items = JSON.parse(contents);
-    return Array.isArray(items)
-      ? items
-          .map((name) => String(name || "").trim())
-          .filter((name) => name && IMAGE_EXTENSIONS.test(name))
-      : [];
-  } catch (error) {
-    return [];
-  }
 }
 
 module.exports = async (req, res) => {
@@ -91,15 +69,6 @@ module.exports = async (req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify(files));
   } catch (error) {
-    const fallbackFiles = await readFallbackList(bucket);
-    if (fallbackFiles.length) {
-      res.statusCode = 200;
-      res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=300");
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify(fallbackFiles));
-      return;
-    }
-
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ error: error.message || "Server error" }));
