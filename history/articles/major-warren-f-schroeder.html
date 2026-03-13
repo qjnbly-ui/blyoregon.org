@@ -342,7 +342,7 @@
         innovation for public protection.
       </p>
       <figure class="inline-photo">
-        <img src="/history/photos/schroeder-pdf/LettertoPresidentEisenhower.jpeg" alt="Letter to President Eisenhower from Warren F. Schroeder">
+        <img src="/media/schroeder-pdf/LettertoPresidentEisenhower.jpeg" alt="Letter to President Eisenhower from Warren F. Schroeder">
         <figcaption>Letter to President Eisenhower from Warren F. Schroeder.</figcaption>
       </figure>
     </section>
@@ -389,7 +389,7 @@
     <section>
       <h2 class="section-header">Document Gallery</h2>
       <div class="carousel-wrap" data-carousel-wrap>
-        <div class="carousel" aria-label="Major Warren F. Schroeder document carousel" data-carousel data-list="/history/photos/schroeder-pdf/carousel.json" data-base="/history/photos/schroeder-pdf/">
+        <div class="carousel" aria-label="Major Warren F. Schroeder document carousel" data-carousel data-api="/api/media-list?bucket=schroeder-pdf" data-base="/media/schroeder-pdf/">
           <div class="carousel-track"></div>
           <div class="carousel-controls" aria-hidden="true">
             <button class="carousel-btn" type="button" data-carousel-prev>&#8249;</button>
@@ -428,7 +428,7 @@
         return;
       }
 
-      const listUrl = carousel.dataset.list;
+      const listUrl = carousel.dataset.api || carousel.dataset.list;
       const baseUrl = carousel.dataset.base;
       if (!listUrl || !baseUrl) {
         return;
