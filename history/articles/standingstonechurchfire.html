@@ -272,7 +272,7 @@
     <section>
       <h2 class="section-header">Fire Day Photo Gallery</h2>
       <div class="carousel-wrap" data-carousel-wrap>
-        <div class="carousel" aria-label="Standing Stone Church fire photo carousel" data-carousel data-list="/history/photos/churchfirephotos/list.json" data-base="/media/churchfirephotos/">
+        <div class="carousel" aria-label="Standing Stone Church fire photo carousel" data-carousel data-api="/api/media-list?bucket=churchfirephotos" data-base="/media/churchfirephotos/">
           <div class="carousel-track"></div>
           <div class="carousel-controls" aria-hidden="true">
             <button class="carousel-btn" type="button" data-carousel-prev>&#8249;</button>
@@ -332,7 +332,7 @@
         return;
       }
 
-      const listUrl = carousel.dataset.list;
+      const listUrl = carousel.dataset.api || carousel.dataset.list;
       const baseUrl = carousel.dataset.base;
       if (!listUrl || !baseUrl) {
         return;

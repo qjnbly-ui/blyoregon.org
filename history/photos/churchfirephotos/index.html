@@ -211,7 +211,7 @@
 
       let files = [];
       try {
-        const response = await fetch('./list.json', { cache: 'no-store' });
+        const response = await fetch('/api/media-list?bucket=churchfirephotos', { cache: 'no-store' });
         if (!response.ok) {
           return;
         }
