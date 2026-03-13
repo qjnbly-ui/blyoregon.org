@@ -199,7 +199,7 @@
       if (!grid) {
         return;
       }
-      const SUPABASE_BASE = 'https://mgxdiolwevcgwgzhzttd.supabase.co/storage/v1/object/public/churchfirephotos';
+      const MEDIA_BASE = '/media/churchfirephotos';
 
       const lightbox = document.getElementById('lightbox');
       const lightboxImage = document.getElementById('lightbox-image');
@@ -223,7 +223,7 @@
       function openLightbox(index) {
         currentIndex = (index + files.length) % files.length;
         const name = files[currentIndex];
-        lightboxImage.src = `${SUPABASE_BASE}/${encodeURIComponent(name)}`;
+        lightboxImage.src = `${MEDIA_BASE}/${encodeURIComponent(name)}`;
         lightboxCounter.textContent = `${currentIndex + 1} of ${files.length}`;
         lightbox.classList.add('open');
         lightbox.setAttribute('aria-hidden', 'false');
@@ -247,7 +247,7 @@
         card.className = 'card';
 
         const img = document.createElement('img');
-        img.src = `${SUPABASE_BASE}/${encodeURIComponent(name)}`;
+        img.src = `${MEDIA_BASE}/${encodeURIComponent(name)}`;
         img.alt = 'Standing Stone Church fire photo';
         img.loading = 'lazy';
         img.addEventListener('click', () => openLightbox(index));
