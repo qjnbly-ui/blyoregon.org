@@ -209,9 +209,11 @@
       const lightboxClose = document.getElementById('lightbox-close');
       let currentIndex = 0;
 
+      const MEDIA_BASE = '/media/standingstonechurchconstructionphotos';
+
       let files = [];
       try {
-        const response = await fetch('./list.json', { cache: 'no-store' });
+        const response = await fetch('/api/media-list?bucket=standingstonechurchconstructionphotos', { cache: 'no-store' });
         if (!response.ok) {
           return;
         }
@@ -223,7 +225,7 @@
       function openLightbox(index) {
         currentIndex = (index + files.length) % files.length;
         const name = files[currentIndex];
-        lightboxImage.src = `./${encodeURIComponent(name)}`;
+        lightboxImage.src = `${MEDIA_BASE}/${encodeURIComponent(name)}`;
         lightboxCounter.textContent = `${currentIndex + 1} of ${files.length}`;
         lightbox.classList.add('open');
         lightbox.setAttribute('aria-hidden', 'false');
@@ -247,7 +249,7 @@
         card.className = 'card';
 
         const img = document.createElement('img');
-        img.src = `./${encodeURIComponent(name)}`;
+        img.src = `${MEDIA_BASE}/${encodeURIComponent(name)}`;
         img.alt = 'Standing Stone Church reconstruction photo';
         img.loading = 'lazy';
         img.addEventListener('click', () => openLightbox(index));
