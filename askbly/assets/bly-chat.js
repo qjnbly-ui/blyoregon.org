@@ -3,13 +3,24 @@
   if (!slot) return;
   if (slot.querySelector(".bly-chat")) return;
 
+  const scope = slot.dataset.chatScope || "";
+  const titleText = slot.dataset.chatTitle || "Bly";
+  const subtitleText = slot.dataset.chatSubtitle || "Ask about our town history";
+  const noteText = slot.dataset.chatNote || "Bly answers using the stories and pages on this site.";
+  const placeholderText = slot.dataset.chatPlaceholder || "Ask Bly something...";
+  const toggleText = slot.dataset.chatToggle || "Ask Bly";
+  const storageKey = slot.dataset.chatStorageKey || "blyChatHistory";
+  const limitKey = slot.dataset.chatLimitKey || "blyChatCount";
+  const introKey = slot.dataset.chatIntroKey || "blyChatIntroShown";
+  const introMessage = slot.dataset.chatIntro || "";
+
   const path = window.location.pathname.replace(/\/index\.html$/, "/");
   const isHomePage = path === "/" || path === "";
   if (isHomePage) {
     const link = document.createElement("a");
     link.className = "bly-chat-toggle";
     link.href = "/askbly/";
-    link.textContent = "Ask Bly";
+    link.textContent = toggleText;
     slot.appendChild(link);
     return;
   }
@@ -22,8 +33,8 @@
       <div class="bly-chat-panel" role="dialog" aria-modal="true" aria-label="Ask Bly">
         <div class="bly-chat-header">
           <div class="bly-chat-header-title">
-            <strong>Bly</strong>
-            <span>Ask about our town history</span>
+            <strong>${titleText}</strong>
+            <span>${subtitleText}</span>
             <span class="bly-chat-status">Memory: saved on this device</span>
           </div>
           <div class="bly-chat-header-actions">
@@ -41,7 +52,7 @@
         </div>
         <div class="bly-chat-messages" role="log" aria-live="polite"></div>
         <form class="bly-chat-form">
-          <input type="text" name="question" placeholder="Ask Bly something..." autocomplete="off" required>
+          <input type="text" name="question" placeholder="${placeholderText}" autocomplete="off" required>
           <button class="bly-chat-mic" type="button" aria-pressed="false" aria-label="Speak">
             <span class="bly-chat-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" role="img" focusable="false" aria-hidden="true">
@@ -52,10 +63,10 @@
           </button>
           <button type="submit">Send</button>
         </form>
-        <p class="bly-chat-note">Bly answers using the stories and pages on this site.</p>
+        <p class="bly-chat-note">${noteText}</p>
       </div>
     </div>
-    <button class="bly-chat-toggle" type="button" aria-expanded="false">Ask Bly</button>
+    <button class="bly-chat-toggle" type="button" aria-expanded="false">${toggleText}</button>
   `;
 
   slot.appendChild(widget);
@@ -71,9 +82,6 @@
   const form = widget.querySelector(".bly-chat-form");
   const input = widget.querySelector(".bly-chat-form input");
   const messages = widget.querySelector(".bly-chat-messages");
-  const storageKey = "blyChatHistory";
-  const limitKey = "blyChatCount";
-  const introKey = "blyChatIntroShown";
   const responseLimit = 20;
   let history = [];
   let responseCount = Number(sessionStorage.getItem(limitKey) || 0);
@@ -114,7 +122,7 @@
     if (isOpen) {
       input.focus();
       if (history.length === 0 && !introShown) {
-        const greeting =
+        const greeting = introMessage ||
           "Hi, I’m Bly. I speak from our town’s records—people, places, and history. " +
           "If you want, you can tell me your name and I’ll keep things a little more personal—or we can just talk about Bly. " +
           "We can do a few things here. I can point you to places that are open now, share stories from the past, or help track down something specific you’ve heard about. Where do you want to start?";
@@ -596,7 +604,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           question,
-          history,
+          scope,
+          messages: history,
         }),
       });
       const data = await response.json();
