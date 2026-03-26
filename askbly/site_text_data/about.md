@@ -36,8 +36,6 @@ Bly grew along the upper Sprague River corridor and became a service point for n
 
 Visit the History page
 
-Read the build log for blyoregon.org
-
 Outdoor access
 
 The OC&E Woods Line State Trail — Oregon’s longest linear state park — passes through Bly, tracing the old railbeds of the Oregon, California and Eastern Railroad. The trail spans roughly 100 miles of mixed-surface paths suitable for hiking, biking, and horseback riding.
