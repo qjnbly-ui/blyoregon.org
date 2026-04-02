@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Members Area | Bly, Oregon</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --moss: #2f5a46;
+      --sand: #f5efe5;
+      --ink: #1e1f1c;
+      --card: #fffdf9;
+      --shadow: 0 18px 40px rgba(12, 26, 20, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(244, 179, 91, 0.16), transparent 25%),
+        linear-gradient(180deg, #f4efe7 0%, #faf7f1 100%);
+    }
+
+    .shell {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 1.2rem 1.25rem 3rem;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .brand {
+      text-decoration: none;
+      color: var(--forest);
+      display: grid;
+      gap: 0.1rem;
+    }
+
+    .brand strong {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.4rem;
+    }
+
+    .brand span {
+      font-size: 0.88rem;
+      color: #567061;
+    }
+
+    .logout {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.8rem 1.1rem;
+      background: var(--forest);
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .hero {
+      background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88));
+      color: white;
+      border-radius: 28px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.4rem;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.76rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0.45rem 0 0.6rem;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      line-height: 1;
+      font-family: "Fraunces", "Times New Roman", serif;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 42rem;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.6;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 22px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.4rem;
+    }
+
+    .card h2 {
+      margin: 0 0 0.45rem;
+      color: var(--forest);
+      font-size: 1.2rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: #47564e;
+      line-height: 1.6;
+    }
+
+    .state {
+      color: var(--moss);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="brand" href="/">
+        <strong>Bly, Oregon</strong>
+        <span>Community Hub</span>
+      </a>
+      <button class="logout" id="logout" type="button">Log out</button>
+    </div>
+
+    <section class="hero">
+      <div class="eyebrow">Members Area</div>
+      <h1 id="title">Checking session...</h1>
+      <p id="intro">Verifying your Supabase session before loading private content.</p>
+      <div class="badges" id="badges"></div>
+    </section>
+
+    <section class="grid" id="content">
+      <article class="card">
+        <h2>Status</h2>
+        <p class="state" id="state">Loading private content.</p>
+      </article>
+    </section>
+  </div>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const titleEl = document.getElementById("title");
+    const introEl = document.getElementById("intro");
+    const stateEl = document.getElementById("state");
+    const contentEl = document.getElementById("content");
+    const badgesEl = document.getElementById("badges");
+    const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
+
+    function renderCards(sections) {
+      const cards = sections.map((section) => {
+        const card = document.createElement("article");
+        card.className = "card";
+
+        const heading = document.createElement("h2");
+        heading.textContent = section.heading;
+
+        const body = document.createElement("p");
+        body.textContent = section.body;
+
+        card.appendChild(heading);
+        card.appendChild(body);
+        return card;
+      });
+
+      cards.forEach((card) => contentEl.appendChild(card));
+    }
+
+    function renderBadges(payload) {
+      badgesEl.innerHTML = "";
+      const badges = [
+        { label: "Signed In" },
+        payload.admin ? { label: "Admin" } : { label: "Member" },
+      ];
+
+      if (payload.email) {
+        badges.push({ label: payload.email });
+      }
+
+      badges.forEach((item) => {
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = item.label;
+        badgesEl.appendChild(badge);
+      });
+    }
+
+    async function loadMembersPage() {
+      try {
+        const session = await window.siteAuth.getSession();
+        if (!session) {
+          window.location.replace(loginUrl);
+          return;
+        }
+
+        const contentResponse = await fetch("/api/member-content", {
+          headers: {
+            Authorization: "Bearer " + session.access_token,
+          },
+        });
+        if (!contentResponse.ok) {
+          if (contentResponse.status === 401) {
+            window.location.replace(loginUrl);
+            return;
+          }
+          throw new Error("Unable to load member content.");
+        }
+
+        const payload = await contentResponse.json();
+        titleEl.textContent = payload.title || "Members Area";
+        introEl.textContent = payload.intro || "Authenticated.";
+        stateEl.textContent = "Authenticated with Supabase and loaded from a protected endpoint.";
+        renderBadges(payload);
+        renderCards(Array.isArray(payload.sections) ? payload.sections : []);
+      } catch (error) {
+        titleEl.textContent = "Access error";
+        introEl.textContent = "The members area could not be loaded.";
+        stateEl.textContent = error.message || "Unable to load private content.";
+      }
+    }
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      await window.siteAuth.logout();
+      window.location.href = "/login/";
+    });
+
+    loadMembersPage();
+  </script>
+</body>
+</html>

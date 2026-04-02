@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Bly, Oregon</title>
+  <meta name="description" content="Sign in with your Supabase account to access the Bly, Oregon members area." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sage: #9fb39f;
+      --sand: #f5efe5;
+      --sun: #f4b35b;
+      --white: #fff;
+      --ink: #1e1f1c;
+      --shadow: 0 24px 50px rgba(12, 26, 20, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(244, 179, 91, 0.2), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(47, 90, 70, 0.18), transparent 28%),
+        linear-gradient(180deg, #f7f2ea 0%, #fcfaf5 50%, #f0ebe2 100%);
+    }
+
+    .shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 1.2rem 1.25rem 2rem;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.8rem 0;
+    }
+
+    .brand {
+      text-decoration: none;
+      color: var(--forest);
+      display: grid;
+      gap: 0.1rem;
+    }
+
+    .brand strong {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.35rem;
+    }
+
+    .brand span {
+      font-size: 0.86rem;
+      color: #567061;
+    }
+
+    .topbar a:last-child {
+      color: var(--forest);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    main {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      align-items: center;
+      min-height: calc(100vh - 120px);
+    }
+
+    .intro {
+      display: grid;
+      gap: 1rem;
+      padding: 1rem 0.2rem;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--moss);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2.3rem, 7vw, 4.2rem);
+      line-height: 0.95;
+      color: var(--forest);
+    }
+
+    .intro p {
+      margin: 0;
+      max-width: 32rem;
+      color: #43524a;
+      font-size: 1.04rem;
+      line-height: 1.65;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 1.6rem;
+      backdrop-filter: blur(16px);
+    }
+
+    form {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      gap: 0.45rem;
+      padding: 0.28rem;
+      border-radius: 999px;
+      background: rgba(20, 50, 39, 0.08);
+      width: fit-content;
+    }
+
+    .mode-switch button {
+      background: transparent;
+      color: var(--forest);
+      padding: 0.55rem 0.95rem;
+    }
+
+    .mode-switch button[data-active="true"] {
+      background: var(--forest);
+      color: var(--white);
+    }
+
+    h2 {
+      margin: 0 0 0.3rem;
+      color: var(--forest);
+      font-size: 1.45rem;
+    }
+
+    .copy {
+      margin: 0;
+      color: #526158;
+      line-height: 1.55;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--forest);
+    }
+
+    input {
+      width: 100%;
+      padding: 0.85rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid rgba(33, 68, 55, 0.18);
+      background: rgba(255, 255, 255, 0.96);
+      font: inherit;
+    }
+
+    input:focus {
+      outline: 2px solid rgba(244, 179, 91, 0.45);
+      border-color: rgba(33, 68, 55, 0.35);
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.9rem 1.2rem;
+      background: var(--forest);
+      color: var(--white);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    .status {
+      min-height: 1.4rem;
+      margin: 0;
+      color: #9d2d28;
+      font-size: 0.92rem;
+    }
+
+    .hint {
+      margin: 0;
+      color: #5c6d63;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="brand" href="/">
+        <strong>Bly, Oregon</strong>
+        <span>Community Hub</span>
+      </a>
+      <a href="/members/">Members area</a>
+    </div>
+
+    <main>
+      <section class="intro">
+        <div class="eyebrow">Private Access</div>
+        <h1>Sign in to the Bly members area.</h1>
+        <p>
+          This login uses Supabase Auth for real user accounts. After sign-in, the members page loads private
+          content from authenticated API requests instead of exposing it in static HTML.
+        </p>
+      </section>
+
+      <section class="panel">
+        <form id="login-form">
+          <div>
+            <h2>Login</h2>
+            <p class="copy" id="form-copy">Sign in with the email and password from your Supabase users table.</p>
+          </div>
+
+          <div class="mode-switch" aria-label="Authentication mode">
+            <button id="signin-mode" type="button" data-active="true">Sign in</button>
+            <button id="signup-mode" type="button" data-active="false">Create account</button>
+          </div>
+
+          <div class="field" id="name-field" hidden>
+            <label for="full_name">Public name</label>
+            <input id="full_name" name="full_name" autocomplete="name" />
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required />
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </div>
+
+          <button id="submit" type="submit">Sign in</button>
+          <p class="status" id="status" aria-live="polite"></p>
+          <p class="hint">Vercel env vars required: <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code>.</p>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const form = document.getElementById("login-form");
+    const statusEl = document.getElementById("status");
+    const submitButton = document.getElementById("submit");
+    const signinModeButton = document.getElementById("signin-mode");
+    const signupModeButton = document.getElementById("signup-mode");
+    const nameField = document.getElementById("name-field");
+    const formCopy = document.getElementById("form-copy");
+    const nextUrl = new URLSearchParams(window.location.search).get("next") || "/members/";
+    let mode = "signin";
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      const signingIn = nextMode === "signin";
+      signinModeButton.dataset.active = signingIn ? "true" : "false";
+      signupModeButton.dataset.active = signingIn ? "false" : "true";
+      nameField.hidden = signingIn;
+      submitButton.textContent = signingIn ? "Sign in" : "Create account";
+      formCopy.textContent = signingIn
+        ? "Sign in with the email and password from your Supabase users table."
+        : "Create an account. Public name is what other users may eventually see on submissions and profile pages. Depending on your Supabase settings, users may need to verify their email before access is complete.";
+      statusEl.textContent = "";
+    }
+
+    signinModeButton.addEventListener("click", () => setMode("signin"));
+    signupModeButton.addEventListener("click", () => setMode("signup"));
+
+    window.siteAuth.getSession()
+      .then((session) => {
+        if (session) window.location.replace(nextUrl);
+      })
+      .catch((error) => {
+        statusEl.textContent = error.message || "Unable to load login.";
+      });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      statusEl.textContent = "";
+      submitButton.disabled = true;
+
+      try {
+        if (mode === "signin") {
+          await window.siteAuth.login(form.email.value.trim(), form.password.value);
+          window.location.href = nextUrl;
+          return;
+        }
+
+        const result = await window.siteAuth.signUp(
+          form.email.value.trim(),
+          form.password.value,
+          { full_name: form.full_name.value.trim() }
+        );
+
+        if (result.session) {
+          window.location.href = nextUrl;
+          return;
+        }
+
+        statusEl.style.color = "#2f5a46";
+        statusEl.textContent = "Account created. Check your email if confirmation is required.";
+        form.reset();
+        setMode("signin");
+      } catch (error) {
+        statusEl.style.color = "#9d2d28";
+        statusEl.textContent = error.message || (mode === "signin" ? "Unable to sign in." : "Unable to create account.");
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
