@@ -1,12 +1,9 @@
-const crypto = require("crypto");
-
-let jwksCache = {
-  expiresAt: 0,
-  keys: [],
-};
-
 function getSupabaseUrl() {
   return String(process.env.SUPABASE_URL || "https://mgxdiolwevcgwgzhzttd.supabase.co").replace(/\/+$/, "");
+}
+
+function getAnonKey() {
+  return String(process.env.SUPABASE_ANON_KEY || "").trim();
 }
 
 function getAdminEmails() {
@@ -21,71 +18,28 @@ function getHeaderValue(req, name) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function parseJwt(token) {
-  const [encodedHeader, encodedPayload, signature] = String(token || "").split(".");
-  if (!encodedHeader || !encodedPayload || !signature) return null;
-
-  try {
-    const header = JSON.parse(Buffer.from(encodedHeader, "base64url").toString("utf8"));
-    const payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8"));
-    return { encodedHeader, encodedPayload, signature, header, payload };
-  } catch {
-    return null;
-  }
-}
-
-async function loadJwks() {
-  if (jwksCache.expiresAt > Date.now() && jwksCache.keys.length) return jwksCache.keys;
-
-  const response = await fetch(`${getSupabaseUrl()}/auth/v1/.well-known/jwks.json`);
-  if (!response.ok) {
-    throw new Error("Unable to load Supabase signing keys");
-  }
-
-  const data = await response.json();
-  const keys = Array.isArray(data?.keys) ? data.keys : [];
-  jwksCache = {
-    keys,
-    expiresAt: Date.now() + 60 * 60 * 1000,
-  };
-  return keys;
-}
-
-function findJwk(keys, kid) {
-  return keys.find((key) => key?.kid === kid && key?.kty === "RSA");
-}
-
-async function verifyJwt(token) {
-  const parsed = parseJwt(token);
-  if (!parsed) return null;
-
-  const keys = await loadJwks();
-  const jwk = findJwk(keys, parsed.header?.kid);
-  if (!jwk) return null;
-
-  const verifier = crypto.createVerify("RSA-SHA256");
-  verifier.update(`${parsed.encodedHeader}.${parsed.encodedPayload}`);
-  verifier.end();
-
-  const publicKey = crypto.createPublicKey({ key: jwk, format: "jwk" });
-  const isValid = verifier.verify(publicKey, Buffer.from(parsed.signature, "base64url"));
-  if (!isValid) return null;
-
-  const now = Math.floor(Date.now() / 1000);
-  const issuer = `${getSupabaseUrl()}/auth/v1`;
-  if (!parsed.payload?.sub) return null;
-  if (parsed.payload.exp && parsed.payload.exp < now) return null;
-  if (parsed.payload.nbf && parsed.payload.nbf > now) return null;
-  if (parsed.payload.iss && parsed.payload.iss !== issuer) return null;
-
-  return parsed.payload;
-}
-
 async function authenticateRequest(req) {
   const authHeader = getHeaderValue(req, "authorization");
   const token = String(authHeader || "").match(/^Bearer\s+(.+)$/i)?.[1];
   if (!token) return null;
-  return verifyJwt(token);
+  const anonKey = getAnonKey();
+  if (!anonKey) {
+    throw new Error("Missing SUPABASE_ANON_KEY");
+  }
+
+  const response = await fetch(`${getSupabaseUrl()}/auth/v1/user`, {
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status === 401) return null;
+  if (!response.ok) {
+    throw new Error("Unable to validate Supabase session");
+  }
+
+  return response.json();
 }
 
 function isAdmin(session) {
@@ -142,7 +96,7 @@ module.exports = async (req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.end(
       JSON.stringify({
-        title: "Members Area",
+        title: "My Account",
         intro: `Signed in as ${displayName}.`,
         admin,
         email,

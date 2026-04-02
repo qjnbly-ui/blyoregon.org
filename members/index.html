@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Members Area | Bly, Oregon</title>
+  <title>My Account | Bly, Oregon</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -166,7 +166,7 @@
     </div>
 
     <section class="hero">
-      <div class="eyebrow">Members Area</div>
+      <div class="eyebrow">My Account</div>
       <h1 id="title">Checking session...</h1>
       <p id="intro">Verifying your Supabase session before loading private content.</p>
       <div class="badges" id="badges"></div>
@@ -242,14 +242,15 @@
         });
         if (!contentResponse.ok) {
           if (contentResponse.status === 401) {
-            window.location.replace(loginUrl);
+            await window.siteAuth.logout();
+            window.location.replace(loginUrl + "&auth_error=expired");
             return;
           }
           throw new Error("Unable to load member content.");
         }
 
         const payload = await contentResponse.json();
-        titleEl.textContent = payload.title || "Members Area";
+        titleEl.textContent = payload.title || "My Account";
         introEl.textContent = payload.intro || "Authenticated.";
         stateEl.textContent = "Authenticated with Supabase and loaded from a protected endpoint.";
         renderBadges(payload);

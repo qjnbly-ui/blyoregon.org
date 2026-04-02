@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | Bly, Oregon</title>
-  <meta name="description" content="Sign in with your Supabase account to access the Bly, Oregon members area." />
+  <title>Account Login | Bly, Oregon</title>
+  <meta name="description" content="Sign in or create an account for Bly, Oregon." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
@@ -22,6 +22,7 @@
     }
 
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
 
     body {
       margin: 0;
@@ -42,7 +43,7 @@
 
     .topbar {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       gap: 1rem;
       padding: 0.8rem 0;
@@ -63,12 +64,6 @@
     .brand span {
       font-size: 0.86rem;
       color: #567061;
-    }
-
-    .topbar a:last-child {
-      color: var(--forest);
-      text-decoration: none;
-      font-weight: 700;
     }
 
     main {
@@ -219,24 +214,23 @@
         <strong>Bly, Oregon</strong>
         <span>Community Hub</span>
       </a>
-      <a href="/members/">Members area</a>
     </div>
 
     <main>
       <section class="intro">
-        <div class="eyebrow">Private Access</div>
-        <h1>Sign in to the Bly members area.</h1>
+        <div class="eyebrow">Account Access</div>
+        <h1>Sign in to your Bly account.</h1>
         <p>
-          This login uses Supabase Auth for real user accounts. After sign-in, the members page loads private
-          content from authenticated API requests instead of exposing it in static HTML.
+          Create an account or sign in to manage your profile and access future community features like photo
+          submissions, recommendations, and articles.
         </p>
       </section>
 
       <section class="panel">
         <form id="login-form">
           <div>
-            <h2>Login</h2>
-            <p class="copy" id="form-copy">Sign in with the email and password from your Supabase users table.</p>
+            <h2>Account</h2>
+            <p class="copy" id="form-copy">Sign in with your email and password.</p>
           </div>
 
           <div class="mode-switch" aria-label="Authentication mode">
@@ -261,7 +255,7 @@
 
           <button id="submit" type="submit">Sign in</button>
           <p class="status" id="status" aria-live="polite"></p>
-          <p class="hint">Vercel env vars required: <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code>.</p>
+          <p class="hint">Use your email address to sign in or create an account.</p>
         </form>
       </section>
     </main>
@@ -276,7 +270,9 @@
     const signupModeButton = document.getElementById("signup-mode");
     const nameField = document.getElementById("name-field");
     const formCopy = document.getElementById("form-copy");
-    const nextUrl = new URLSearchParams(window.location.search).get("next") || "/members/";
+    const params = new URLSearchParams(window.location.search);
+    const nextUrl = params.get("next") || "/members/";
+    const authError = params.get("auth_error");
     let mode = "signin";
 
     function setMode(nextMode) {
@@ -287,7 +283,7 @@
       nameField.hidden = signingIn;
       submitButton.textContent = signingIn ? "Sign in" : "Create account";
       formCopy.textContent = signingIn
-        ? "Sign in with the email and password from your Supabase users table."
+        ? "Sign in with your email and password."
         : "Create an account. Public name is what other users may eventually see on submissions and profile pages. Depending on your Supabase settings, users may need to verify their email before access is complete.";
       statusEl.textContent = "";
     }
@@ -295,9 +291,14 @@
     signinModeButton.addEventListener("click", () => setMode("signin"));
     signupModeButton.addEventListener("click", () => setMode("signup"));
 
+    if (authError === "expired") {
+      statusEl.style.color = "#9d2d28";
+      statusEl.textContent = "Your session expired or could not be verified. Please sign in again.";
+    }
+
     window.siteAuth.getSession()
       .then((session) => {
-        if (session) window.location.replace(nextUrl);
+        if (session && !authError) window.location.replace(nextUrl);
       })
       .catch((error) => {
         statusEl.textContent = error.message || "Unable to load login.";
