@@ -89,6 +89,11 @@
       border: 1px solid transparent;
     }
 
+    nav a.account-link {
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
     nav a:hover {
       border-color: rgba(255, 255, 255, 0.5);
       background: rgba(255, 255, 255, 0.08);
@@ -201,6 +206,134 @@
 
     .category p.note { margin: 0.25rem 0 1rem; color: #556; }
 
+    .cta {
+      margin-top: 2rem;
+      background: #1d3b2f;
+      color: var(--white);
+      border-radius: 20px;
+      padding: 1.8rem;
+      display: grid;
+      gap: 0.7rem;
+      box-shadow: var(--shadow);
+      justify-items: center;
+      text-align: center;
+    }
+
+    .cta p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.82);
+      line-height: 1.6;
+      max-width: 760px;
+    }
+
+    .cta-toggle {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      padding: 0.85rem 1.3rem;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--white);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      width: fit-content;
+    }
+
+    .cta-panel[hidden] {
+      display: none;
+    }
+
+    .cta-panel {
+      width: 100%;
+      max-width: 860px;
+      text-align: left;
+    }
+
+    .cta-form {
+      display: grid;
+      gap: 0.9rem;
+      margin-top: 0.6rem;
+    }
+
+    .cta-grid {
+      display: grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cta-grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cta-field {
+      display: grid;
+      gap: 0.38rem;
+    }
+
+    .cta-field label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .cta-field input,
+    .cta-field select,
+    .cta-field textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--white);
+      font: inherit;
+      padding: 0.85rem 0.95rem;
+    }
+
+    .cta-field input::placeholder,
+    .cta-field textarea::placeholder {
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .cta-field textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .cta-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-submit {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.85rem 1.35rem;
+      background: var(--sun);
+      color: #2b2114;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .cta-submit:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    .cta-status {
+      min-height: 1.3rem;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 0.95rem;
+    }
+
+    .cta-note {
+      font-size: 0.84rem;
+      color: rgba(255, 255, 255, 0.68);
+      line-height: 1.5;
+    }
+
     footer {
       background: #162f25;
       color: rgba(255, 255, 255, 0.7);
@@ -216,6 +349,11 @@
 
     @media (max-width: 600px) {
       header { position: static; }
+
+      .cta-grid,
+      .cta-grid.three {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
   </head>
@@ -234,6 +372,7 @@
         <a href="/businesses/">Businesses</a>
         <a href="/history/">History</a>
         <a href="/recreation/">Recreation</a>
+        <a class="account-link" href="/account/">Account</a>
       </nav>
     </div>
   </header>
@@ -866,11 +1005,170 @@
 
       <div class="cta">
         <p>
-          Want your business listed here? Email <a href="mailto:quentin@quentinnichols.com">quentin@quentinnichols.com</a> with your name, address, phone, hours, and website.
+          Want your business listed here? Send the details below and we can review it for the directory.
         </p>
+        <button class="cta-toggle" id="business-toggle" type="button" aria-expanded="false" aria-controls="business-panel">
+          Submit business information
+        </button>
+        <div class="cta-panel" id="business-panel" hidden>
+          <form class="cta-form" id="business-form">
+            <div class="cta-grid">
+              <div class="cta-field">
+                <label for="biz-submit-name">Your name</label>
+                <input id="biz-submit-name" name="submitter_name" placeholder="Jane Doe" required>
+              </div>
+              <div class="cta-field">
+                <label for="biz-submit-email">Your email</label>
+                <input id="biz-submit-email" name="submitter_email" type="email" placeholder="you@example.com" required>
+              </div>
+            </div>
+            <div class="cta-grid">
+              <div class="cta-field">
+                <label for="biz-name">Business name</label>
+                <input id="biz-name" name="business_name" placeholder="Business name" required>
+              </div>
+              <div class="cta-field">
+                <label for="biz-category">Category</label>
+                <select id="biz-category" name="business_category" required>
+                  <option value="Community & Government">Community & Government</option>
+                  <option value="Food & Drink">Food & Drink</option>
+                  <option value="Retail">Retail</option>
+                  <option value="Lodging">Lodging</option>
+                  <option value="Services">Services</option>
+                  <option value="Health & Wellness">Health & Wellness</option>
+                  <option value="Education">Education</option>
+                  <option value="Utilities">Utilities</option>
+                  <option value="Recreation & Community Space">Recreation & Community Space</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="cta-field">
+              <label for="biz-description">Description</label>
+              <textarea id="biz-description" name="description" placeholder="Short description of the business or service." required></textarea>
+            </div>
+            <div class="cta-grid three">
+              <div class="cta-field">
+                <label for="biz-contact">Contact person</label>
+                <input id="biz-contact" name="contact" placeholder="Owner or contact name">
+              </div>
+              <div class="cta-field">
+                <label for="biz-phone">Phone</label>
+                <input id="biz-phone" name="phone" placeholder="(541) 555-1234">
+              </div>
+              <div class="cta-field">
+                <label for="biz-email">Business email</label>
+                <input id="biz-email" name="business_email" type="email" placeholder="hello@example.com">
+              </div>
+            </div>
+            <div class="cta-grid">
+              <div class="cta-field">
+                <label for="biz-address">Address</label>
+                <input id="biz-address" name="address" placeholder="Street address or mailing address">
+              </div>
+              <div class="cta-field">
+                <label for="biz-website">Website or social link</label>
+                <input id="biz-website" name="website" placeholder="https://...">
+              </div>
+            </div>
+            <div class="cta-grid">
+              <div class="cta-field">
+                <label for="biz-hours">Hours</label>
+                <input id="biz-hours" name="hours" placeholder="Mon-Fri, 9 am-5 pm">
+              </div>
+              <div class="cta-field">
+                <label for="biz-notes">Extra notes</label>
+                <input id="biz-notes" name="notes" placeholder="Anything else we should know">
+              </div>
+            </div>
+            <div class="cta-actions">
+              <button class="cta-submit" id="business-submit" type="submit">Send business listing</button>
+              <div class="cta-status" id="business-status" aria-live="polite"></div>
+            </div>
+            <div class="cta-note">This sends the listing details to the Bly site inbox for review before anything is published.</div>
+          </form>
+        </div>
       </div>
     </section>
   </main>
+
+  <script>
+    (function () {
+      const form = document.getElementById("business-form");
+      const statusEl = document.getElementById("business-status");
+      const submitButton = document.getElementById("business-submit");
+      const toggleButton = document.getElementById("business-toggle");
+      const panel = document.getElementById("business-panel");
+
+      toggleButton.addEventListener("click", () => {
+        const isHidden = panel.hasAttribute("hidden");
+        if (isHidden) {
+          panel.removeAttribute("hidden");
+          toggleButton.setAttribute("aria-expanded", "true");
+          toggleButton.textContent = "Hide business form";
+          form.querySelector("input, select, textarea")?.focus();
+          return;
+        }
+
+        panel.setAttribute("hidden", "");
+        toggleButton.setAttribute("aria-expanded", "false");
+        toggleButton.textContent = "Submit business information";
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        submitButton.disabled = true;
+        statusEl.textContent = "Sending...";
+
+        try {
+          const details = [
+            `Business name: ${form.business_name.value.trim()}`,
+            `Category: ${form.business_category.value}`,
+            `Description: ${form.description.value.trim()}`,
+            `Contact person: ${form.contact.value.trim() || "-"}`,
+            `Phone: ${form.phone.value.trim() || "-"}`,
+            `Business email: ${form.business_email.value.trim() || "-"}`,
+            `Address: ${form.address.value.trim() || "-"}`,
+            `Website or social: ${form.website.value.trim() || "-"}`,
+            `Hours: ${form.hours.value.trim() || "-"}`,
+            `Extra notes: ${form.notes.value.trim() || "-"}`,
+            "",
+            `Submitted by: ${form.submitter_name.value.trim()} <${form.submitter_email.value.trim()}>`,
+          ].join("\n");
+
+          const payload = {
+            name: form.submitter_name.value.trim(),
+            email: form.submitter_email.value.trim(),
+            category: "Business directory submission",
+            details,
+          };
+
+          const response = await fetch("/api/archive-submit", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(result.error || "Unable to send listing.");
+          }
+
+          form.reset();
+          statusEl.textContent = "Thanks. Your business information was sent.";
+          panel.setAttribute("hidden", "");
+          toggleButton.setAttribute("aria-expanded", "false");
+          toggleButton.textContent = "Submit business information";
+        } catch (error) {
+          statusEl.textContent = error.message || "Unable to send listing.";
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+    })();
+  </script>
 
   <!-- FOOTER -->
   <footer>

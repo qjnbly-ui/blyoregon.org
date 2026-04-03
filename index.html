@@ -104,6 +104,11 @@
       border: 1px solid transparent;
     }
 
+    nav a.account-link {
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
     nav a:hover {
       border-color: rgba(255, 255, 255, 0.5);
       background: rgba(255, 255, 255, 0.08);
@@ -415,12 +420,111 @@
       line-height: 1.6;
     }
 
-    .cta a {
+    .cta-toggle {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      padding: 0.85rem 1.3rem;
+      background: rgba(255, 255, 255, 0.08);
       color: var(--white);
+      font: inherit;
       font-weight: 700;
-      text-decoration: none;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+      cursor: pointer;
       width: fit-content;
+    }
+
+    .cta-panel[hidden] {
+      display: none;
+    }
+
+    .cta-panel {
+      width: 100%;
+      max-width: 760px;
+      text-align: left;
+    }
+
+    .cta-form {
+      display: grid;
+      gap: 0.9rem;
+      margin-top: 0.6rem;
+    }
+
+    .cta-grid {
+      display: grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cta-field {
+      display: grid;
+      gap: 0.38rem;
+    }
+
+    .cta-field label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .cta-field input,
+    .cta-field select,
+    .cta-field textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--white);
+      font: inherit;
+      padding: 0.85rem 0.95rem;
+    }
+
+    .cta-field input::placeholder,
+    .cta-field textarea::placeholder {
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .cta-field textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .cta-field input[type="file"] {
+      padding: 0.7rem 0.75rem;
+    }
+
+    .cta-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-submit {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.85rem 1.35rem;
+      background: var(--sun);
+      color: #2b2114;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .cta-submit:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    .cta-status {
+      min-height: 1.3rem;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 0.95rem;
+    }
+
+    .cta-note {
+      font-size: 0.84rem;
+      color: rgba(255, 255, 255, 0.68);
     }
 
     @media (min-width: 900px) {
@@ -618,6 +722,10 @@
         font-size: 0.9rem;
         justify-content: flex-start;
       }
+
+      .cta-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 420px) {
@@ -642,7 +750,7 @@
         <a href="/businesses/">Businesses</a>
         <a href="/history/">History</a>
         <a href="/recreation/">Recreation</a>
-        <a href="/login/">Login</a>
+        <a class="account-link" href="/account/">Account</a>
       </nav>
     </div>
   </header>
@@ -777,11 +885,139 @@
         This site is still growing. If you have a historical photo, correction, family story,
         business update, or community information that should be included, send it in.
       </p>
-      <a href="mailto:quentin@quentinnichols.com">Send a photo, correction, or update</a>
+      <button class="cta-toggle" id="archive-toggle" type="button" aria-expanded="false" aria-controls="archive-panel">
+        Send a photo, correction, or update
+      </button>
+      <div class="cta-panel" id="archive-panel" hidden>
+      <form class="cta-form" id="archive-form">
+        <div class="cta-grid">
+          <div class="cta-field">
+            <label for="archive-name">Your name</label>
+            <input id="archive-name" name="name" placeholder="Jane Doe" required>
+          </div>
+          <div class="cta-field">
+            <label for="archive-email">Your email</label>
+            <input id="archive-email" name="email" type="email" placeholder="you@example.com" required>
+          </div>
+        </div>
+        <div class="cta-field">
+          <label for="archive-category">What are you sending?</label>
+          <select id="archive-category" name="category" required>
+            <option value="Historical photo">Historical photo</option>
+            <option value="Correction">Correction</option>
+            <option value="Family story">Family story</option>
+            <option value="Business update">Business update</option>
+            <option value="Community information">Community information</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="cta-field">
+          <label for="archive-details">Details</label>
+          <textarea id="archive-details" name="details" placeholder="Tell us what should be added, corrected, or updated." required></textarea>
+        </div>
+        <div class="cta-field">
+          <label for="archive-photo">Optional photo attachment</label>
+          <input id="archive-photo" name="photo" type="file" accept="image/*">
+        </div>
+        <div class="cta-actions">
+          <button class="cta-submit" id="archive-submit" type="submit">Send submission</button>
+          <div class="cta-status" id="archive-status" aria-live="polite"></div>
+        </div>
+        <div class="cta-note">Images are optional. For large files, send a smaller photo first and include context in the message.</div>
+      </form>
+      </div>
     </section>
   </main>
 
   <script src="/askbly/assets/bly-chat.js" defer></script>
+  <script>
+    (function () {
+      const form = document.getElementById("archive-form");
+      const statusEl = document.getElementById("archive-status");
+      const submitButton = document.getElementById("archive-submit");
+      const fileInput = document.getElementById("archive-photo");
+      const toggleButton = document.getElementById("archive-toggle");
+      const panel = document.getElementById("archive-panel");
+
+      toggleButton.addEventListener("click", () => {
+        const isHidden = panel.hasAttribute("hidden");
+        if (isHidden) {
+          panel.removeAttribute("hidden");
+          toggleButton.setAttribute("aria-expanded", "true");
+          toggleButton.textContent = "Hide submission form";
+          form.querySelector("input, select, textarea")?.focus();
+          return;
+        }
+
+        panel.setAttribute("hidden", "");
+        toggleButton.setAttribute("aria-expanded", "false");
+        toggleButton.textContent = "Send a photo, correction, or update";
+      });
+
+      function readFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = String(reader.result || "");
+            resolve(result.includes(",") ? result.split(",").pop() : result);
+          };
+          reader.onerror = () => reject(new Error("Unable to read photo attachment."));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        submitButton.disabled = true;
+        statusEl.textContent = "Sending...";
+
+        try {
+          let photo = null;
+          const file = fileInput.files && fileInput.files[0];
+          if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+              throw new Error("Please use an image smaller than 5 MB.");
+            }
+            photo = {
+              filename: file.name,
+              content: await readFileAsBase64(file),
+            };
+          }
+
+          const payload = {
+            name: form.name.value.trim(),
+            email: form.email.value.trim(),
+            category: form.category.value,
+            details: form.details.value.trim(),
+            photo,
+          };
+
+          const response = await fetch("/api/archive-submit", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(result.error || "Unable to send submission.");
+          }
+
+          form.reset();
+          statusEl.textContent = "Thanks. Your submission was sent.";
+          panel.setAttribute("hidden", "");
+          toggleButton.setAttribute("aria-expanded", "false");
+          toggleButton.textContent = "Send a photo, correction, or update";
+        } catch (error) {
+          statusEl.textContent = error.message || "Unable to send submission.";
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+    })();
+  </script>
 
   <footer>
     <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>

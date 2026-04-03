@@ -86,17 +86,17 @@ module.exports = async (req, res) => {
         heading: "Profile",
         body: profile?.bio
           ? profile.bio
-          : "Your public profile is set up. You can add a bio and contribution details next.",
+          : "Your public profile is set up. You can add a short bio and other details later.",
       },
       {
         heading: "Access",
         body: canUploadPhotos
-          ? "This account can upload photos once the upload tools are added."
-          : "Photo uploads are not enabled for this account yet.",
+          ? "This account has permission to send in photo submissions."
+          : "Photo submissions are not enabled for this account right now.",
       },
       {
         heading: "Next features",
-        body: "Next up: profile editing, photo submissions, article and recommendation forms, and moderation tools.",
+        body: "This account will be used for submissions, profile details, and other site participation features.",
       },
     ];
 
@@ -104,11 +104,11 @@ module.exports = async (req, res) => {
       sections.push(
         {
           heading: "Admin section",
-          body: "Your account is marked as admin in the profiles table. This section should become the home for moderation, publishing, storage management, and broader site controls.",
+          body: "Your account has administrative access for site management, review, and publishing tools.",
         },
         {
           heading: "Admin scope",
-          body: "Admins should be able to approve submissions, edit or unpublish content, manage featured photos, review recommendations, and grant or revoke elevated roles.",
+          body: "Administrative tools can include reviewing submissions, updating site content, and managing elevated permissions.",
         }
       );
     }

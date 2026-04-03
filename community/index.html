@@ -92,6 +92,11 @@
       border: 1px solid transparent;
     }
 
+    nav a.account-link {
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
     nav a:hover {
       border-color: rgba(255, 255, 255, 0.5);
       background: rgba(255, 255, 255, 0.08);
@@ -198,6 +203,8 @@
       display: grid;
       gap: 0.7rem;
       box-shadow: var(--shadow);
+      justify-items: center;
+      text-align: center;
     }
 
     .callout h2 {
@@ -206,12 +213,107 @@
       font-size: 1.6rem;
     }
 
-    .callout a {
+    .callout-toggle {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      padding: 0.85rem 1.3rem;
+      background: rgba(255, 255, 255, 0.08);
       color: var(--white);
-      text-decoration: none;
+      font: inherit;
       font-weight: 700;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+      cursor: pointer;
       width: fit-content;
+    }
+
+    .callout-panel[hidden] {
+      display: none;
+    }
+
+    .callout-panel {
+      width: 100%;
+      max-width: 760px;
+      text-align: left;
+    }
+
+    .callout-form {
+      display: grid;
+      gap: 0.9rem;
+      margin-top: 0.6rem;
+    }
+
+    .callout-grid {
+      display: grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .callout-field {
+      display: grid;
+      gap: 0.38rem;
+    }
+
+    .callout-field label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .callout-field input,
+    .callout-field select,
+    .callout-field textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--white);
+      font: inherit;
+      padding: 0.85rem 0.95rem;
+    }
+
+    .callout-field input::placeholder,
+    .callout-field textarea::placeholder {
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .callout-field textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .callout-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .callout-submit {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.85rem 1.35rem;
+      background: var(--sun);
+      color: #2b2114;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .callout-submit:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    .callout-status {
+      min-height: 1.3rem;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 0.95rem;
+    }
+
+    .callout-note {
+      font-size: 0.84rem;
+      color: rgba(255, 255, 255, 0.68);
     }
 
 
@@ -237,6 +339,10 @@
       header {
         position: static;
       }
+
+      .callout-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
   </head>
@@ -254,6 +360,7 @@
         <a href="/businesses/">Businesses</a>
         <a href="/history/">History</a>
         <a href="/recreation/">Recreation</a>
+        <a class="account-link" href="/account/">Account</a>
       </nav>
     </div>
   </header>
@@ -288,9 +395,107 @@
     <section class="callout">
       <h2>Have something to add?</h2>
       <p>Send events or updates so we can include them here when the page launches.</p>
-      <a href="mailto:quentin@quentinnichols.com">quentin@quentinnichols.com</a>
+      <button class="callout-toggle" id="community-toggle" type="button" aria-expanded="false" aria-controls="community-panel">
+        Send an event or update
+      </button>
+      <div class="callout-panel" id="community-panel" hidden>
+        <form class="callout-form" id="community-form">
+          <div class="callout-grid">
+            <div class="callout-field">
+              <label for="community-name">Your name</label>
+              <input id="community-name" name="name" placeholder="Jane Doe" required>
+            </div>
+            <div class="callout-field">
+              <label for="community-email">Your email</label>
+              <input id="community-email" name="email" type="email" placeholder="you@example.com" required>
+            </div>
+          </div>
+          <div class="callout-field">
+            <label for="community-category">What are you sending?</label>
+            <select id="community-category" name="category" required>
+              <option value="Community event">Community event</option>
+              <option value="Community update">Community update</option>
+              <option value="Volunteer opportunity">Volunteer opportunity</option>
+              <option value="Community correction">Community correction</option>
+              <option value="Other community information">Other community information</option>
+            </select>
+          </div>
+          <div class="callout-field">
+            <label for="community-details">Details</label>
+            <textarea id="community-details" name="details" placeholder="Share the event, update, or information that should be included." required></textarea>
+          </div>
+          <div class="callout-actions">
+            <button class="callout-submit" id="community-submit" type="submit">Send update</button>
+            <div class="callout-status" id="community-status" aria-live="polite"></div>
+          </div>
+          <div class="callout-note">This sends your information directly to the Bly site inbox for review.</div>
+        </form>
+      </div>
     </section>
   </main>
+
+  <script>
+    (function () {
+      const form = document.getElementById("community-form");
+      const statusEl = document.getElementById("community-status");
+      const submitButton = document.getElementById("community-submit");
+      const toggleButton = document.getElementById("community-toggle");
+      const panel = document.getElementById("community-panel");
+
+      toggleButton.addEventListener("click", () => {
+        const isHidden = panel.hasAttribute("hidden");
+        if (isHidden) {
+          panel.removeAttribute("hidden");
+          toggleButton.setAttribute("aria-expanded", "true");
+          toggleButton.textContent = "Hide update form";
+          form.querySelector("input, select, textarea")?.focus();
+          return;
+        }
+
+        panel.setAttribute("hidden", "");
+        toggleButton.setAttribute("aria-expanded", "false");
+        toggleButton.textContent = "Send an event or update";
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        submitButton.disabled = true;
+        statusEl.textContent = "Sending...";
+
+        try {
+          const payload = {
+            name: form.name.value.trim(),
+            email: form.email.value.trim(),
+            category: form.category.value,
+            details: form.details.value.trim(),
+          };
+
+          const response = await fetch("/api/archive-submit", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(result.error || "Unable to send update.");
+          }
+
+          form.reset();
+          statusEl.textContent = "Thanks. Your update was sent.";
+          panel.setAttribute("hidden", "");
+          toggleButton.setAttribute("aria-expanded", "false");
+          toggleButton.textContent = "Send an event or update";
+        } catch (error) {
+          statusEl.textContent = error.message || "Unable to send update.";
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+    })();
+  </script>
 
   <footer>
     <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
