@@ -38,7 +38,7 @@ async function authenticateRequest(req) {
 
 async function fetchProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,bio,role,can_upload_photos,created_at&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_upload_photos,created_at&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -123,6 +123,8 @@ module.exports = async (req, res) => {
         canUploadPhotos,
         email,
         profile: {
+          avatarPath: profile?.avatar_path || "",
+          avatarUrl: profile?.avatar_path ? `/media/profile-photos/${profile.avatar_path}` : "",
           bio: profile?.bio || "",
           createdAt: profile?.created_at || null,
           displayName,

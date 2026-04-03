@@ -178,6 +178,89 @@
       color: #47564e;
       line-height: 1.6;
     }
+    .profile-photo {
+      width: 104px;
+      height: 104px;
+      border-radius: 22px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      background: linear-gradient(180deg, rgba(245, 239, 229, 0.95), rgba(235, 228, 216, 0.95));
+      object-fit: cover;
+      box-shadow: var(--shadow);
+    }
+    .profile-photo-placeholder {
+      display: grid;
+      place-items: center;
+      color: var(--forest);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+    }
+    .card form {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .field {
+      display: grid;
+      gap: 0.45rem;
+    }
+    label {
+      color: var(--forest);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.85rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid rgba(33, 68, 55, 0.18);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--ink);
+      font: inherit;
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    input:focus,
+    textarea:focus {
+      outline: 2px solid rgba(244, 179, 91, 0.45);
+      border-color: rgba(33, 68, 55, 0.35);
+    }
+    .save-button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.9rem 1.2rem;
+      background: var(--forest);
+      color: var(--white);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      width: fit-content;
+    }
+    .save-button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+    .form-status {
+      min-height: 1.4rem;
+      color: #526158;
+      font-size: 0.92rem;
+    }
+    .photo-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .photo-help {
+      color: #526158;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
     .stack {
       display: grid;
       gap: 1rem;
@@ -244,6 +327,13 @@
         <h2>Profile</h2>
         <div class="stack">
           <div>
+            <h3>Profile photo</h3>
+            <div class="photo-row">
+              <img id="profile-avatar" class="profile-photo" alt="Profile photo" hidden />
+              <div id="profile-avatar-placeholder" class="profile-photo profile-photo-placeholder">No photo</div>
+            </div>
+          </div>
+          <div>
             <h3>Public name</h3>
             <p id="display-name" class="meta">Loading...</p>
           </div>
@@ -260,6 +350,28 @@
             <p id="bio" class="meta">No bio added yet.</p>
           </div>
         </div>
+      </article>
+
+      <article class="card">
+        <h2>Edit profile</h2>
+        <p class="meta">Update the public name and short bio that will be used with your account and future submissions.</p>
+        <form id="profile-form">
+          <div class="field">
+            <label for="profile-avatar-input">Profile photo</label>
+            <input id="profile-avatar-input" name="avatar" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+            <p class="photo-help">Square or portrait images work best. The image will be stored with your account in Supabase.</p>
+          </div>
+          <div class="field">
+            <label for="profile-display-name">Public name</label>
+            <input id="profile-display-name" name="display_name" maxlength="80" required />
+          </div>
+          <div class="field">
+            <label for="profile-bio">Bio</label>
+            <textarea id="profile-bio" name="bio" maxlength="500" placeholder="Tell people a little about yourself."></textarea>
+          </div>
+          <button class="save-button" id="profile-save" type="submit">Save profile</button>
+          <p class="form-status" id="profile-status" aria-live="polite"></p>
+        </form>
       </article>
 
       <article class="card">
@@ -295,9 +407,19 @@
     const emailEl = document.getElementById("email");
     const roleEl = document.getElementById("role");
     const bioEl = document.getElementById("bio");
+    const avatarEl = document.getElementById("profile-avatar");
+    const avatarPlaceholderEl = document.getElementById("profile-avatar-placeholder");
     const uploadsEl = document.getElementById("uploads");
     const sectionsEl = document.getElementById("dynamic-sections");
+    const profileForm = document.getElementById("profile-form");
+    const profileAvatarInput = document.getElementById("profile-avatar-input");
+    const profileDisplayNameInput = document.getElementById("profile-display-name");
+    const profileBioInput = document.getElementById("profile-bio");
+    const profileSaveButton = document.getElementById("profile-save");
+    const profileStatusEl = document.getElementById("profile-status");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
+    let activeSession = null;
+    let currentAvatarPath = "";
 
     function addBadge(text) {
       const badge = document.createElement("span");
@@ -321,9 +443,56 @@
       });
     }
 
+    function applyProfile(profile, email) {
+      const displayName = profile?.displayName || "-";
+      const bio = profile?.bio || "";
+      const avatarUrl = profile?.avatarUrl || "";
+      currentAvatarPath = profile?.avatarPath || "";
+      displayNameEl.textContent = displayName;
+      emailEl.textContent = email || "-";
+      roleEl.textContent = profile?.role || "member";
+      bioEl.textContent = bio || "No bio added yet.";
+      profileDisplayNameInput.value = profile?.displayName || "";
+      profileBioInput.value = bio;
+      if (avatarUrl) {
+        avatarEl.src = `${avatarUrl}${avatarUrl.includes("?") ? "&" : "?"}t=${Date.now()}`;
+        avatarEl.hidden = false;
+        avatarPlaceholderEl.hidden = true;
+      } else {
+        avatarEl.removeAttribute("src");
+        avatarEl.hidden = true;
+        avatarPlaceholderEl.hidden = false;
+      }
+    }
+
+    async function uploadProfilePhoto(file) {
+      if (!activeSession?.user?.id) {
+        throw new Error("You must be signed in to upload a profile photo.");
+      }
+
+      if (!file.type.startsWith("image/")) {
+        throw new Error("Please choose an image file.");
+      }
+
+      const extension = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `${activeSession.user.id}/avatar-${Date.now()}.${extension}`;
+      const client = await window.siteAuth.getClient();
+      const { error } = await client.storage.from("profile-photos").upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+      if (error) {
+        throw new Error(error.message || "Unable to upload profile photo.");
+      }
+
+      return path;
+    }
+
     async function loadAccount() {
       try {
         const session = await window.siteAuth.getSession();
+        activeSession = session;
         authLinks.forEach((link) => {
           link.textContent = session ? "Account" : "Login";
           link.href = session ? "/account/" : "/login/";
@@ -352,10 +521,7 @@
         titleEl.textContent = payload.title || "My Account";
         introEl.textContent = payload.intro || "Signed in.";
         stateEl.textContent = "Your account is active and ready.";
-        displayNameEl.textContent = payload.profile?.displayName || "-";
-        emailEl.textContent = payload.email || "-";
-        roleEl.textContent = payload.profile?.role || "member";
-        bioEl.textContent = payload.profile?.bio || "No bio added yet.";
+        applyProfile(payload.profile || {}, payload.email || "");
         uploadsEl.textContent = payload.canUploadPhotos ? "Enabled" : "Not enabled";
 
         badgesEl.innerHTML = "";
@@ -371,6 +537,65 @@
         stateEl.textContent = error.message || "Unable to load account.";
       }
     }
+
+    profileForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!activeSession?.access_token) {
+        window.location.replace(loginUrl);
+        return;
+      }
+
+      profileStatusEl.style.color = "#526158";
+      profileStatusEl.textContent = "";
+      profileSaveButton.disabled = true;
+
+      try {
+        let avatarPath = currentAvatarPath;
+        const file = profileAvatarInput.files?.[0];
+        if (file) {
+          profileStatusEl.textContent = "Uploading photo...";
+          avatarPath = await uploadProfilePhoto(file);
+        }
+
+        const response = await fetch("/api/profile", {
+          method: "PATCH",
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            avatarPath,
+            displayName: profileDisplayNameInput.value.trim(),
+            bio: profileBioInput.value.trim(),
+          }),
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || "Unable to save profile.");
+        }
+
+        applyProfile(
+          {
+            avatarPath: payload.profile?.avatarPath || avatarPath,
+            avatarUrl: payload.profile?.avatarUrl || (avatarPath ? `/media/profile-photos/${avatarPath}` : ""),
+            displayName: payload.profile?.displayName || profileDisplayNameInput.value.trim(),
+            bio: payload.profile?.bio || profileBioInput.value.trim(),
+            role: roleEl.textContent || "member",
+          },
+          emailEl.textContent || ""
+        );
+        introEl.textContent = `Signed in as ${payload.profile?.displayName || profileDisplayNameInput.value.trim()}.`;
+        profileStatusEl.style.color = "#2f5a46";
+        profileStatusEl.textContent = "Profile saved.";
+        profileAvatarInput.value = "";
+      } catch (error) {
+        profileStatusEl.style.color = "#9d2d28";
+        profileStatusEl.textContent = error.message || "Unable to save profile.";
+      } finally {
+        profileSaveButton.disabled = false;
+      }
+    });
 
     document.getElementById("logout").addEventListener("click", async () => {
       await window.siteAuth.logout();

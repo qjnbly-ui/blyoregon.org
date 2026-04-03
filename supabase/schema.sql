@@ -7,12 +7,15 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text unique,
   display_name text,
+  avatar_path text,
   bio text,
   role text not null default 'member' check (role in ('member', 'moderator', 'admin')),
   can_upload_photos boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.profiles add column if not exists avatar_path text;
 
 create or replace function public.is_admin()
 returns boolean
@@ -106,6 +109,50 @@ alter table public.photo_albums enable row level security;
 alter table public.photos enable row level security;
 alter table public.recommendations enable row level security;
 alter table public.articles enable row level security;
+
+insert into storage.buckets (id, name, public)
+values ('profile-photos', 'profile-photos', true)
+on conflict (id) do nothing;
+
+drop policy if exists "profile photos public read" on storage.objects;
+create policy "profile photos public read"
+on storage.objects
+for select
+using (bucket_id = 'profile-photos');
+
+drop policy if exists "profile photos upload own" on storage.objects;
+create policy "profile photos upload own"
+on storage.objects
+for insert
+to authenticated
+with check (
+  bucket_id = 'profile-photos'
+  and auth.uid()::text = (storage.foldername(name))[1]
+);
+
+drop policy if exists "profile photos update own" on storage.objects;
+create policy "profile photos update own"
+on storage.objects
+for update
+to authenticated
+using (
+  bucket_id = 'profile-photos'
+  and auth.uid()::text = (storage.foldername(name))[1]
+)
+with check (
+  bucket_id = 'profile-photos'
+  and auth.uid()::text = (storage.foldername(name))[1]
+);
+
+drop policy if exists "profile photos delete own" on storage.objects;
+create policy "profile photos delete own"
+on storage.objects
+for delete
+to authenticated
+using (
+  bucket_id = 'profile-photos'
+  and auth.uid()::text = (storage.foldername(name))[1]
+);
 
 drop policy if exists "profiles view own or admin" on public.profiles;
 create policy "profiles view own or admin"
