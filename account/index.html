@@ -285,6 +285,12 @@
       gap: 1rem;
       margin-top: 1rem;
     }
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
     .field {
       display: grid;
       gap: 0.45rem;
@@ -402,6 +408,48 @@
       font-size: 0.88rem;
       font-weight: 600;
       cursor: pointer;
+    }
+    .permission-list {
+      display: grid;
+      gap: 0.85rem;
+      margin-top: 1rem;
+    }
+    .permission-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      border-top: 1px solid rgba(20, 50, 39, 0.12);
+    }
+    .permission-row:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+    .permission-name {
+      color: var(--forest);
+      font-weight: 700;
+    }
+    .permission-email {
+      color: #5c6d63;
+      font-size: 0.92rem;
+    }
+    .permission-toggle {
+      appearance: none;
+      border: 1px solid rgba(20, 50, 39, 0.16);
+      border-radius: 999px;
+      padding: 0.5rem 0.8rem;
+      background: transparent;
+      color: var(--forest);
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 7.5rem;
+      text-align: center;
+    }
+    .permission-toggle[data-enabled="true"] {
+      background: rgba(20, 50, 39, 0.1);
     }
     footer {
       background: #162f25;
@@ -597,8 +645,22 @@
             <h3>Photo uploads</h3>
             <p id="uploads" class="meta">Checking access...</p>
           </div>
+          <div>
+            <h3>Media library</h3>
+            <p id="media-access" class="meta">Checking access...</p>
+          </div>
+        </div>
+        <div class="card-actions" id="media-manager-actions" hidden>
+          <a class="edit-toggle" href="/media-manager/">Open media library</a>
         </div>
       </article>
+    </section>
+
+    <section class="card" id="media-access-card" hidden>
+      <h2>Media access</h2>
+      <p class="meta">Grant upload and delete access for the current historical photo buckets without making someone a full admin.</p>
+      <div class="permission-list" id="media-access-list"></div>
+      <p class="form-status" id="media-access-status" aria-live="polite"></p>
     </section>
   </div>
 
@@ -694,6 +756,11 @@
     const avatarEl = document.getElementById("profile-avatar");
     const avatarPlaceholderEl = document.getElementById("profile-avatar-placeholder");
     const uploadsEl = document.getElementById("uploads");
+    const mediaAccessEl = document.getElementById("media-access");
+    const mediaManagerActionsEl = document.getElementById("media-manager-actions");
+    const mediaAccessCardEl = document.getElementById("media-access-card");
+    const mediaAccessListEl = document.getElementById("media-access-list");
+    const mediaAccessStatusEl = document.getElementById("media-access-status");
     const profileEditToggle = document.getElementById("profile-edit-toggle");
     const profileEditPanel = document.getElementById("profile-edit-panel");
     const profileEditClose = document.getElementById("profile-edit-close");
@@ -706,6 +773,11 @@
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     let activeSession = null;
     let currentAvatarPath = "";
+
+    function setMediaAccessStatus(message, error = false) {
+      mediaAccessStatusEl.style.color = error ? "#9d2d28" : "#526158";
+      mediaAccessStatusEl.textContent = message || "";
+    }
 
     function setEditPanelOpen(isOpen) {
       profileEditPanel.hidden = !isOpen;
@@ -778,6 +850,76 @@
       return path;
     }
 
+    function renderMediaAccessProfiles(profiles) {
+      mediaAccessListEl.innerHTML = "";
+      profiles.forEach((profile) => {
+        const row = document.createElement("div");
+        row.className = "permission-row";
+
+        const copy = document.createElement("div");
+        const name = document.createElement("div");
+        name.className = "permission-name";
+        name.textContent = profile.displayName || profile.email || "Unnamed user";
+        const email = document.createElement("div");
+        email.className = "permission-email";
+        email.textContent = profile.email || "";
+        copy.append(name, email);
+
+        const button = document.createElement("button");
+        button.className = "permission-toggle";
+        button.type = "button";
+        button.dataset.enabled = profile.canManageMedia ? "true" : "false";
+        button.textContent = profile.canManageMedia ? "Media access on" : "Grant access";
+        if (profile.role === "admin") {
+          button.disabled = true;
+          button.textContent = "Admin access";
+          button.dataset.enabled = "true";
+        } else {
+          button.addEventListener("click", async () => {
+            button.disabled = true;
+            setMediaAccessStatus("Saving...");
+            try {
+              const response = await fetch("/api/media-access", {
+                method: "PATCH",
+                headers: {
+                  Authorization: "Bearer " + activeSession.access_token,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  userId: profile.id,
+                  canManageMedia: !profile.canManageMedia,
+                }),
+              });
+              const payload = await response.json().catch(() => ({}));
+              if (!response.ok) throw new Error(payload.error || "Unable to update access.");
+              await loadMediaAccessProfiles();
+              setMediaAccessStatus("Media access updated.");
+            } catch (error) {
+              setMediaAccessStatus(error.message || "Unable to update access.", true);
+              button.disabled = false;
+            }
+          });
+        }
+
+        row.append(copy, button);
+        mediaAccessListEl.appendChild(row);
+      });
+    }
+
+    async function loadMediaAccessProfiles() {
+      if (!activeSession?.access_token) return;
+      const response = await fetch("/api/media-access", {
+        headers: {
+          Authorization: "Bearer " + activeSession.access_token,
+        },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || "Unable to load media access list.");
+      }
+      renderMediaAccessProfiles(Array.isArray(payload.profiles) ? payload.profiles : []);
+    }
+
     async function loadAccount() {
       try {
         const session = await window.siteAuth.getSession();
@@ -811,15 +953,24 @@
         introEl.textContent = payload.intro || "Signed in.";
         await applyProfile(payload.profile || {}, payload.email || "");
         uploadsEl.textContent = payload.canUploadPhotos ? "Enabled" : "Not enabled";
+        mediaAccessEl.textContent = payload.canManageMedia ? "Enabled" : "Not enabled";
+        mediaManagerActionsEl.hidden = !payload.canManageMedia;
+        mediaAccessCardEl.hidden = !payload.admin;
 
         badgesEl.innerHTML = "";
         addBadge("Signed In");
         addBadge(payload.admin ? "Admin" : "Member");
         if (payload.canUploadPhotos) addBadge("Uploads Enabled");
+        if (payload.canManageMedia) addBadge("Media Manager");
+
+        if (payload.admin) {
+          await loadMediaAccessProfiles();
+        }
       } catch (error) {
         titleEl.textContent = "Account error";
         introEl.textContent = "The account page could not be loaded.";
         uploadsEl.textContent = error.message || "Unable to load account.";
+        mediaAccessEl.textContent = error.message || "Unable to load account.";
       }
     }
 

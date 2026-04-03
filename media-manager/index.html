@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media Library | Bly, Oregon</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sand: #f5efe5;
+      --ink: #1e1f1c;
+      --card: #fffdf9;
+      --white: #fff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+      --mobile-header-height: 6.2rem;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+    header {
+      z-index: 10;
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      text-align: center;
+    }
+    .brand-title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: 0.02em;
+    }
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    nav {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    .nav-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    nav a.account-link {
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.12);
+    }
+    nav a:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .mobile-nav {
+      display: none;
+      align-items: center;
+      gap: 1.1rem;
+      margin-left: auto;
+    }
+    .mobile-login {
+      color: var(--white);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-size: 0.9rem;
+    }
+    .mobile-menu-toggle {
+      list-style: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.9rem;
+      cursor: pointer;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.9rem;
+      padding: 0.9rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(7, 10, 16, 0.38);
+      appearance: none;
+    }
+    .mobile-menu-toggle::before {
+      content: "";
+      width: 1.4rem;
+      height: 2px;
+      border-radius: 999px;
+      background: currentColor;
+      box-shadow: 0 -0.42rem 0 currentColor, 0 0.42rem 0 currentColor;
+    }
+    .mobile-menu-panel {
+      display: none;
+      position: fixed;
+      inset: 0 0 0;
+      min-width: 0;
+      padding: 0 1.5rem 2rem;
+      border-radius: 0;
+      border: 0;
+      background: linear-gradient(180deg, rgba(247, 242, 234, 0.99), rgba(243, 239, 233, 0.99));
+      box-shadow: none;
+      align-content: start;
+      z-index: 31;
+      overflow-y: auto;
+    }
+    .mobile-menu-panel[hidden] {
+      display: none !important;
+    }
+    body.mobile-menu-open .mobile-menu-panel {
+      display: grid;
+      gap: 0;
+    }
+    body.mobile-menu-open {
+      overflow: hidden;
+    }
+    .mobile-menu-panel a {
+      display: block;
+      padding: 1.7rem 0;
+      border-bottom: 1px solid rgba(20, 50, 39, 0.18);
+      color: var(--forest);
+      text-decoration: none;
+      text-align: center;
+      font-weight: 600;
+    }
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1.25rem;
+    }
+    .hero {
+      background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88));
+      color: white;
+      border-radius: 28px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 0.75rem;
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.76rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 700;
+    }
+    h1 {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      line-height: 1;
+    }
+    .hero p {
+      margin: 0;
+      max-width: 46rem;
+      color: rgba(255, 255, 255, 0.82);
+      line-height: 1.6;
+    }
+    .bucket-card {
+      background: var(--card);
+      border-radius: 22px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.4rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .bucket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .bucket-card h2 {
+      margin: 0;
+      color: var(--forest);
+      font-size: 1.35rem;
+    }
+    .meta {
+      margin: 0;
+      color: #526158;
+      line-height: 1.6;
+    }
+    .upload-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .upload-row input[type="file"] {
+      flex: 1 1 280px;
+      font: inherit;
+    }
+    .button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.85rem 1.15rem;
+      background: var(--forest);
+      color: var(--white);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .button.secondary {
+      background: transparent;
+      color: var(--forest);
+      border: 1px solid rgba(20, 50, 39, 0.18);
+    }
+    .button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+    .status {
+      min-height: 1.35rem;
+      margin: 0;
+      color: #526158;
+      font-size: 0.92rem;
+    }
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 1rem;
+    }
+    .media-item {
+      background: rgba(245, 239, 229, 0.65);
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      border-radius: 18px;
+      padding: 0.8rem;
+      display: grid;
+      gap: 0.7rem;
+    }
+    .media-item img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+    .media-item-name {
+      color: var(--forest);
+      font-size: 0.88rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+    .empty {
+      color: #5c6d63;
+      font-size: 0.95rem;
+    }
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding-top: var(--mobile-header-height);
+      }
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 30;
+        border-bottom: 0;
+      }
+      .header-inner {
+        justify-content: space-between;
+        flex-wrap: nowrap;
+      }
+      .brand {
+        flex: 1 1 auto;
+        text-align: center;
+        align-items: center;
+        position: relative;
+        z-index: 32;
+      }
+      .brand-title,
+      .brand-subtitle,
+      .mobile-login {
+        color: var(--white);
+      }
+      .nav-links,
+      nav a.account-link {
+        display: none;
+      }
+      .mobile-nav {
+        display: flex;
+        gap: 0.8rem;
+        position: relative;
+        z-index: 32;
+      }
+      .mobile-login {
+        font-size: 0.82rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .mobile-menu-toggle {
+        width: 4rem;
+        height: 4rem;
+        justify-content: center;
+        gap: 0;
+        padding: 0;
+        border-radius: 999px;
+        font-size: 0;
+        color: var(--white);
+        background: rgba(7, 10, 16, 0.38);
+        position: relative;
+        z-index: 32;
+      }
+      .mobile-nav.is-open .mobile-menu-toggle {
+        color: var(--forest);
+        background: rgba(245, 239, 229, 0.96);
+      }
+      .mobile-menu-toggle::before {
+        width: 1.15rem;
+        box-shadow: 0 -0.35rem 0 currentColor, 0 0.35rem 0 currentColor;
+      }
+      .mobile-nav.is-open .mobile-menu-toggle::before {
+        content: "";
+        position: absolute;
+        width: 1.45rem;
+        height: 0;
+        background: none;
+        box-shadow: none;
+        border-radius: 0;
+        border-top: 3px solid currentColor;
+        transform: rotate(45deg);
+      }
+      .mobile-nav.is-open .mobile-menu-toggle::after {
+        content: "";
+        position: absolute;
+        width: 1.45rem;
+        height: 0;
+        background: none;
+        border-radius: 0;
+        border-top: 3px solid currentColor;
+        transform: rotate(-45deg);
+      }
+      .mobile-menu-panel {
+        top: var(--mobile-header-height);
+        background: linear-gradient(180deg, #f7f2ea 0%, #f3efe9 100%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">A Community in Klamath County</div>
+      </div>
+      <nav>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/about/">About</a>
+          <a href="/community/">Community</a>
+          <a href="/businesses/">Businesses</a>
+          <a href="/history/">History</a>
+          <a href="/recreation/">Recreation</a>
+        </div>
+        <a class="account-link" href="/account/">Account</a>
+        <div class="mobile-nav">
+          <a class="mobile-login" href="/account/">Account</a>
+          <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-label="Toggle menu"></button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-menu-panel" hidden>
+    <a href="/">Home</a>
+    <a href="/about/">About</a>
+    <a href="/community/">Community</a>
+    <a href="/businesses/">Businesses</a>
+    <a href="/history/">History</a>
+    <a href="/recreation/">Recreation</a>
+  </div>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">Media Manager</div>
+      <h1>Manage current photo libraries.</h1>
+      <p>Upload or remove files from the current historical image buckets. Access is limited to your admin account and anyone you explicitly grant media access.</p>
+    </section>
+
+    <section class="bucket-card" data-bucket-card="churchfirephotos">
+      <div class="bucket-header">
+        <div>
+          <h2>Church Fire Photos</h2>
+          <p class="meta">Current public bucket: <code>churchfirephotos</code></p>
+        </div>
+      </div>
+      <div class="upload-row">
+        <input type="file" data-bucket-input="churchfirephotos" accept="image/png,image/jpeg,image/webp,image/gif" />
+        <button class="button" data-bucket-upload="churchfirephotos" type="button">Upload</button>
+        <button class="button secondary" data-bucket-refresh="churchfirephotos" type="button">Refresh</button>
+      </div>
+      <p class="status" data-bucket-status="churchfirephotos"></p>
+      <div class="media-grid" data-bucket-grid="churchfirephotos"></div>
+    </section>
+
+    <section class="bucket-card" data-bucket-card="standingstonechurchconstructionphotos">
+      <div class="bucket-header">
+        <div>
+          <h2>Standing Stone Construction Photos</h2>
+          <p class="meta">Current public bucket: <code>standingstonechurchconstructionphotos</code></p>
+        </div>
+      </div>
+      <div class="upload-row">
+        <input type="file" data-bucket-input="standingstonechurchconstructionphotos" accept="image/png,image/jpeg,image/webp,image/gif" />
+        <button class="button" data-bucket-upload="standingstonechurchconstructionphotos" type="button">Upload</button>
+        <button class="button secondary" data-bucket-refresh="standingstonechurchconstructionphotos" type="button">Refresh</button>
+      </div>
+      <p class="status" data-bucket-status="standingstonechurchconstructionphotos"></p>
+      <div class="media-grid" data-bucket-grid="standingstonechurchconstructionphotos"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const BUCKETS = [
+      { id: "churchfirephotos", title: "Church Fire Photos" },
+      { id: "standingstonechurchconstructionphotos", title: "Standing Stone Construction Photos" },
+    ];
+
+    (() => {
+      const header = document.querySelector("header");
+      const mobileNav = document.querySelector(".mobile-nav");
+      if (!header || !mobileNav) return;
+      const toggle = mobileNav.querySelector(".mobile-menu-toggle");
+      const panel = document.querySelector(".mobile-menu-panel");
+      if (!toggle || !panel) return;
+      const authLinks = document.querySelectorAll("a.account-link, a.mobile-login");
+
+      const syncMobileHeaderHeight = () => {
+        document.documentElement.style.setProperty("--mobile-header-height", `${header.offsetHeight}px`);
+      };
+
+      const syncAuthNav = async () => {
+        const session = await window.siteAuth.getSession().catch(() => null);
+        authLinks.forEach((link) => {
+          link.textContent = session ? "Account" : "Login";
+          link.href = session ? "/account/" : "/login/";
+        });
+      };
+
+      const closeMenu = () => {
+        mobileNav.classList.remove("is-open");
+        document.body.classList.remove("mobile-menu-open");
+        toggle.setAttribute("aria-expanded", "false");
+        panel.setAttribute("hidden", "");
+      };
+
+      syncMobileHeaderHeight();
+      window.addEventListener("resize", syncMobileHeaderHeight);
+      syncAuthNav();
+
+      toggle.addEventListener("click", () => {
+        syncMobileHeaderHeight();
+        const isOpen = mobileNav.classList.toggle("is-open");
+        document.body.classList.toggle("mobile-menu-open", isOpen);
+        toggle.setAttribute("aria-expanded", String(isOpen));
+        if (isOpen) panel.removeAttribute("hidden");
+        else panel.setAttribute("hidden", "");
+      });
+
+      panel.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
+    })();
+
+    const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
+    let activeSession = null;
+
+    function setStatus(bucket, message, error = false) {
+      const element = document.querySelector(`[data-bucket-status="${bucket}"]`);
+      if (!element) return;
+      element.style.color = error ? "#9d2d28" : "#526158";
+      element.textContent = message || "";
+    }
+
+    function sanitizeFilename(name) {
+      return String(name || "")
+        .replace(/[^\w.\- ]+/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-");
+    }
+
+    async function renderBucket(bucket) {
+      const grid = document.querySelector(`[data-bucket-grid="${bucket}"]`);
+      if (!grid) return;
+      setStatus(bucket, "Loading files...");
+      grid.innerHTML = "";
+
+      const response = await fetch(`/api/media-list?bucket=${encodeURIComponent(bucket)}`, { cache: "no-store" });
+      const files = await response.json();
+      if (!response.ok) {
+        throw new Error(files.error || "Unable to load files.");
+      }
+
+      if (!Array.isArray(files) || !files.length) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = "No files yet.";
+        grid.appendChild(empty);
+        setStatus(bucket, "");
+        return;
+      }
+
+      files.forEach((name) => {
+        const article = document.createElement("article");
+        article.className = "media-item";
+
+        const image = document.createElement("img");
+        image.src = `/media/${bucket}/${name}`;
+        image.alt = name;
+
+        const label = document.createElement("div");
+        label.className = "media-item-name";
+        label.textContent = name;
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "button secondary";
+        removeButton.type = "button";
+        removeButton.textContent = "Delete";
+        removeButton.addEventListener("click", async () => {
+          if (!window.confirm(`Delete ${name}?`)) return;
+          removeButton.disabled = true;
+          try {
+            const client = await window.siteAuth.getClient();
+            const { error } = await client.storage.from(bucket).remove([name]);
+            if (error) throw error;
+            setStatus(bucket, "File deleted.");
+            await renderBucket(bucket);
+          } catch (error) {
+            setStatus(bucket, error.message || "Unable to delete file.", true);
+            removeButton.disabled = false;
+          }
+        });
+
+        article.append(image, label, removeButton);
+        grid.appendChild(article);
+      });
+
+      setStatus(bucket, "");
+    }
+
+    async function uploadToBucket(bucket) {
+      const input = document.querySelector(`[data-bucket-input="${bucket}"]`);
+      const uploadButton = document.querySelector(`[data-bucket-upload="${bucket}"]`);
+      const file = input?.files?.[0];
+      if (!file) {
+        setStatus(bucket, "Choose a file first.", true);
+        return;
+      }
+
+      uploadButton.disabled = true;
+      setStatus(bucket, "Uploading...");
+
+      try {
+        const client = await window.siteAuth.getClient();
+        const filename = sanitizeFilename(file.name) || `upload-${Date.now()}.jpg`;
+        const { error } = await client.storage.from(bucket).upload(filename, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+        if (error) throw error;
+
+        input.value = "";
+        setStatus(bucket, "Upload complete.");
+        await renderBucket(bucket);
+      } catch (error) {
+        setStatus(bucket, error.message || "Unable to upload file.", true);
+      } finally {
+        uploadButton.disabled = false;
+      }
+    }
+
+    async function init() {
+      const session = await window.siteAuth.getSession().catch(() => null);
+      activeSession = session;
+      if (!session) {
+        window.location.replace(loginUrl);
+        return;
+      }
+
+      const response = await fetch("/api/member-content", {
+        headers: { Authorization: "Bearer " + session.access_token },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        window.location.replace("/account/");
+        return;
+      }
+
+      if (!payload.admin && !payload.canManageMedia) {
+        window.location.replace("/account/");
+        return;
+      }
+
+      BUCKETS.forEach(({ id }) => {
+        const uploadButton = document.querySelector(`[data-bucket-upload="${id}"]`);
+        const refreshButton = document.querySelector(`[data-bucket-refresh="${id}"]`);
+        uploadButton?.addEventListener("click", () => uploadToBucket(id));
+        refreshButton?.addEventListener("click", () => renderBucket(id));
+      });
+
+      for (const bucket of BUCKETS) {
+        await renderBucket(bucket.id);
+      }
+    }
+
+    init().catch(() => {
+      window.location.replace("/account/");
+    });
+  </script>
+</body>
+</html>
