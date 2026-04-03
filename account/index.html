@@ -286,6 +286,7 @@
 
   <script src="/assets/auth.js"></script>
   <script>
+    const authLinks = document.querySelectorAll("a.account-link");
     const titleEl = document.getElementById("title");
     const introEl = document.getElementById("intro");
     const badgesEl = document.getElementById("badges");
@@ -323,6 +324,10 @@
     async function loadAccount() {
       try {
         const session = await window.siteAuth.getSession();
+        authLinks.forEach((link) => {
+          link.textContent = session ? "Account" : "Login";
+          link.href = session ? "/account/" : "/login/";
+        });
         if (!session) {
           window.location.replace(loginUrl);
           return;

@@ -550,6 +550,7 @@
     <a href="/recreation/">Recreation</a>
   </div>
 
+  <script src="/assets/auth.js"></script>
   <script>
     (() => {
       const header = document.querySelector("header");
@@ -558,9 +559,18 @@
       const toggle = mobileNav.querySelector(".mobile-menu-toggle");
       const panel = document.querySelector(".mobile-menu-panel");
       if (!toggle || !panel) return;
+      const authLinks = document.querySelectorAll("a.account-link, a.mobile-login");
 
       const syncMobileHeaderHeight = () => {
         document.documentElement.style.setProperty("--mobile-header-height", `${header.offsetHeight}px`);
+      };
+
+      const syncAuthNav = async () => {
+        const session = await window.siteAuth.getSession().catch(() => null);
+        authLinks.forEach((link) => {
+          link.textContent = session ? "Account" : "Login";
+          link.href = session ? "/account/" : "/login/";
+        });
       };
 
       const closeMenu = () => {
@@ -572,6 +582,7 @@
 
       syncMobileHeaderHeight();
       window.addEventListener("resize", syncMobileHeaderHeight);
+      syncAuthNav();
 
       toggle.addEventListener("click", () => {
         syncMobileHeaderHeight();
