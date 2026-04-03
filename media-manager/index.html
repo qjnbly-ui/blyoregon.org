@@ -207,12 +207,33 @@
       display: grid;
       gap: 1rem;
     }
+    .bucket-card[hidden] {
+      display: none !important;
+    }
     .bucket-header {
       display: flex;
       justify-content: space-between;
       align-items: start;
       gap: 1rem;
       flex-wrap: wrap;
+    }
+    .bucket-toggle {
+      appearance: none;
+      border: 1px solid rgba(20, 50, 39, 0.16);
+      border-radius: 999px;
+      padding: 0.7rem 1rem;
+      background: transparent;
+      color: var(--forest);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .bucket-toggle:hover {
+      background: rgba(20, 50, 39, 0.06);
+    }
+    .bucket-panel[hidden] {
+      display: none !important;
     }
     .bucket-card h2 {
       margin: 0;
@@ -427,7 +448,7 @@
     <section class="hero">
       <div class="eyebrow">Media Manager</div>
       <h1>Manage current photo libraries.</h1>
-      <p>Upload or remove files from the current historical image buckets. Access is limited to your admin account and anyone you explicitly grant media access.</p>
+      <p>Upload or remove files from the current historical image buckets. Access is limited to your admin account and anyone you explicitly grant bucket access.</p>
     </section>
 
     <section class="bucket-card" data-bucket-card="churchfirephotos">
@@ -436,14 +457,17 @@
           <h2>Church Fire Photos</h2>
           <p class="meta">Current public bucket: <code>churchfirephotos</code></p>
         </div>
+        <button class="bucket-toggle" data-bucket-toggle="churchfirephotos" type="button" aria-expanded="false">Open folder</button>
       </div>
-      <div class="upload-row">
-        <input type="file" data-bucket-input="churchfirephotos" accept="image/png,image/jpeg,image/webp,image/gif" />
-        <button class="button" data-bucket-upload="churchfirephotos" type="button">Upload</button>
-        <button class="button secondary" data-bucket-refresh="churchfirephotos" type="button">Refresh</button>
+      <div class="bucket-panel" data-bucket-panel="churchfirephotos" hidden>
+        <div class="upload-row">
+          <input type="file" data-bucket-input="churchfirephotos" accept="image/png,image/jpeg,image/webp,image/gif" />
+          <button class="button" data-bucket-upload="churchfirephotos" type="button">Upload</button>
+          <button class="button secondary" data-bucket-refresh="churchfirephotos" type="button">Refresh</button>
+        </div>
+        <p class="status" data-bucket-status="churchfirephotos"></p>
+        <div class="media-grid" data-bucket-grid="churchfirephotos"></div>
       </div>
-      <p class="status" data-bucket-status="churchfirephotos"></p>
-      <div class="media-grid" data-bucket-grid="churchfirephotos"></div>
     </section>
 
     <section class="bucket-card" data-bucket-card="standingstonechurchconstructionphotos">
@@ -452,14 +476,17 @@
           <h2>Standing Stone Construction Photos</h2>
           <p class="meta">Current public bucket: <code>standingstonechurchconstructionphotos</code></p>
         </div>
+        <button class="bucket-toggle" data-bucket-toggle="standingstonechurchconstructionphotos" type="button" aria-expanded="false">Open folder</button>
       </div>
-      <div class="upload-row">
-        <input type="file" data-bucket-input="standingstonechurchconstructionphotos" accept="image/png,image/jpeg,image/webp,image/gif" />
-        <button class="button" data-bucket-upload="standingstonechurchconstructionphotos" type="button">Upload</button>
-        <button class="button secondary" data-bucket-refresh="standingstonechurchconstructionphotos" type="button">Refresh</button>
+      <div class="bucket-panel" data-bucket-panel="standingstonechurchconstructionphotos" hidden>
+        <div class="upload-row">
+          <input type="file" data-bucket-input="standingstonechurchconstructionphotos" accept="image/png,image/jpeg,image/webp,image/gif" />
+          <button class="button" data-bucket-upload="standingstonechurchconstructionphotos" type="button">Upload</button>
+          <button class="button secondary" data-bucket-refresh="standingstonechurchconstructionphotos" type="button">Refresh</button>
+        </div>
+        <p class="status" data-bucket-status="standingstonechurchconstructionphotos"></p>
+        <div class="media-grid" data-bucket-grid="standingstonechurchconstructionphotos"></div>
       </div>
-      <p class="status" data-bucket-status="standingstonechurchconstructionphotos"></p>
-      <div class="media-grid" data-bucket-grid="standingstonechurchconstructionphotos"></div>
     </section>
   </main>
 
@@ -520,6 +547,15 @@
 
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     let activeSession = null;
+
+    function setBucketOpen(bucket, isOpen) {
+      const panel = document.querySelector(`[data-bucket-panel="${bucket}"]`);
+      const toggle = document.querySelector(`[data-bucket-toggle="${bucket}"]`);
+      if (!panel || !toggle) return;
+      panel.hidden = !isOpen;
+      toggle.setAttribute("aria-expanded", String(isOpen));
+      toggle.textContent = isOpen ? "Close folder" : "Open folder";
+    }
 
     function setStatus(bucket, message, error = false) {
       const element = document.querySelector(`[data-bucket-status="${bucket}"]`);
@@ -642,21 +678,37 @@
         return;
       }
 
-      if (!payload.admin && !payload.canManageMedia) {
+      const allowedBuckets = Array.isArray(payload.profile?.mediaBuckets) ? payload.profile.mediaBuckets : [];
+      if (!payload.admin && !allowedBuckets.length) {
         window.location.replace("/account/");
         return;
       }
 
+      const visibleBuckets = payload.admin
+        ? BUCKETS
+        : BUCKETS.filter(({ id }) => allowedBuckets.includes(id));
+
       BUCKETS.forEach(({ id }) => {
+        const card = document.querySelector(`[data-bucket-card="${id}"]`);
         const uploadButton = document.querySelector(`[data-bucket-upload="${id}"]`);
         const refreshButton = document.querySelector(`[data-bucket-refresh="${id}"]`);
+        const toggleButton = document.querySelector(`[data-bucket-toggle="${id}"]`);
+        if (card) {
+          card.hidden = !visibleBuckets.some((bucket) => bucket.id === id);
+        }
+        setBucketOpen(id, false);
+        toggleButton?.addEventListener("click", async () => {
+          const panel = document.querySelector(`[data-bucket-panel="${id}"]`);
+          const opening = panel?.hidden;
+          visibleBuckets.forEach(({ id: bucketId }) => setBucketOpen(bucketId, false));
+          if (opening) {
+            setBucketOpen(id, true);
+            await renderBucket(id);
+          }
+        });
         uploadButton?.addEventListener("click", () => uploadToBucket(id));
         refreshButton?.addEventListener("click", () => renderBucket(id));
       });
-
-      for (const bucket of BUCKETS) {
-        await renderBucket(bucket.id);
-      }
     }
 
     init().catch(() => {

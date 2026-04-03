@@ -414,6 +414,12 @@
       gap: 0.85rem;
       margin-top: 1rem;
     }
+    .permission-panel {
+      margin-top: 1rem;
+    }
+    .permission-panel[hidden] {
+      display: none !important;
+    }
     .permission-row {
       display: flex;
       justify-content: space-between;
@@ -434,22 +440,22 @@
       color: #5c6d63;
       font-size: 0.92rem;
     }
-    .permission-toggle {
-      appearance: none;
-      border: 1px solid rgba(20, 50, 39, 0.16);
-      border-radius: 999px;
-      padding: 0.5rem 0.8rem;
-      background: transparent;
-      color: var(--forest);
-      font: inherit;
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      min-width: 7.5rem;
-      text-align: center;
+    .bucket-checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: flex-end;
     }
-    .permission-toggle[data-enabled="true"] {
-      background: rgba(20, 50, 39, 0.1);
+    .bucket-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--forest);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .bucket-option input {
+      width: auto;
     }
     footer {
       background: #162f25;
@@ -657,10 +663,17 @@
     </section>
 
     <section class="card" id="media-access-card" hidden>
-      <h2>Media access</h2>
-      <p class="meta">Grant upload and delete access for the current historical photo buckets without making someone a full admin.</p>
-      <div class="permission-list" id="media-access-list"></div>
-      <p class="form-status" id="media-access-status" aria-live="polite"></p>
+      <div class="card-header">
+        <div>
+          <h2>Media access</h2>
+          <p class="meta">Grant upload and delete access for current historical photo buckets without making someone a full admin.</p>
+        </div>
+        <button class="edit-toggle" id="media-access-toggle" type="button" aria-expanded="false">Manage access</button>
+      </div>
+      <div class="permission-panel" id="media-access-panel" hidden>
+        <div class="permission-list" id="media-access-list"></div>
+        <p class="form-status" id="media-access-status" aria-live="polite"></p>
+      </div>
     </section>
   </div>
 
@@ -759,6 +772,8 @@
     const mediaAccessEl = document.getElementById("media-access");
     const mediaManagerActionsEl = document.getElementById("media-manager-actions");
     const mediaAccessCardEl = document.getElementById("media-access-card");
+    const mediaAccessToggleEl = document.getElementById("media-access-toggle");
+    const mediaAccessPanelEl = document.getElementById("media-access-panel");
     const mediaAccessListEl = document.getElementById("media-access-list");
     const mediaAccessStatusEl = document.getElementById("media-access-status");
     const profileEditToggle = document.getElementById("profile-edit-toggle");
@@ -771,12 +786,23 @@
     const profileSaveButton = document.getElementById("profile-save");
     const profileStatusEl = document.getElementById("profile-status");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
+    const MEDIA_BUCKET_LABELS = {
+      churchfirephotos: "Church Fire Photos",
+      standingstonechurchconstructionphotos: "Standing Stone Construction Photos",
+    };
     let activeSession = null;
     let currentAvatarPath = "";
+    let availableMediaBuckets = [];
 
     function setMediaAccessStatus(message, error = false) {
       mediaAccessStatusEl.style.color = error ? "#9d2d28" : "#526158";
       mediaAccessStatusEl.textContent = message || "";
+    }
+
+    function setMediaAccessPanelOpen(isOpen) {
+      mediaAccessPanelEl.hidden = !isOpen;
+      mediaAccessToggleEl.setAttribute("aria-expanded", String(isOpen));
+      mediaAccessToggleEl.textContent = isOpen ? "Hide access" : "Manage access";
     }
 
     function setEditPanelOpen(isOpen) {
@@ -790,6 +816,12 @@
       badge.className = "badge";
       badge.textContent = text;
       badgesEl.appendChild(badge);
+    }
+
+    function formatMediaBuckets(bucketIds) {
+      return Array.isArray(bucketIds) && bucketIds.length
+        ? bucketIds.map((bucketId) => MEDIA_BUCKET_LABELS[bucketId] || bucketId).join(", ")
+        : "";
     }
 
     async function resolveAvatarUrl(profile) {
@@ -865,43 +897,57 @@
         email.textContent = profile.email || "";
         copy.append(name, email);
 
-        const button = document.createElement("button");
-        button.className = "permission-toggle";
-        button.type = "button";
-        button.dataset.enabled = profile.canManageMedia ? "true" : "false";
-        button.textContent = profile.canManageMedia ? "Media access on" : "Grant access";
+        const controls = document.createElement("div");
+        controls.className = "bucket-checkboxes";
         if (profile.role === "admin") {
-          button.disabled = true;
-          button.textContent = "Admin access";
-          button.dataset.enabled = "true";
+          const label = document.createElement("div");
+          label.className = "permission-email";
+          label.textContent = "Admin access";
+          controls.appendChild(label);
         } else {
-          button.addEventListener("click", async () => {
-            button.disabled = true;
-            setMediaAccessStatus("Saving...");
-            try {
-              const response = await fetch("/api/media-access", {
-                method: "PATCH",
-                headers: {
-                  Authorization: "Bearer " + activeSession.access_token,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  userId: profile.id,
-                  canManageMedia: !profile.canManageMedia,
-                }),
-              });
-              const payload = await response.json().catch(() => ({}));
-              if (!response.ok) throw new Error(payload.error || "Unable to update access.");
-              await loadMediaAccessProfiles();
-              setMediaAccessStatus("Media access updated.");
-            } catch (error) {
-              setMediaAccessStatus(error.message || "Unable to update access.", true);
-              button.disabled = false;
-            }
+          availableMediaBuckets.forEach((bucket) => {
+            const option = document.createElement("label");
+            option.className = "bucket-option";
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.checked = Array.isArray(profile.mediaBuckets) && profile.mediaBuckets.includes(bucket.id);
+            const text = document.createElement("span");
+            text.textContent = bucket.label;
+            input.addEventListener("change", async () => {
+              const nextBuckets = new Set(Array.isArray(profile.mediaBuckets) ? profile.mediaBuckets : []);
+              if (input.checked) nextBuckets.add(bucket.id);
+              else nextBuckets.delete(bucket.id);
+              const mediaBuckets = [...nextBuckets];
+              input.disabled = true;
+              setMediaAccessStatus("Saving...");
+              try {
+                const response = await fetch("/api/media-access", {
+                  method: "PATCH",
+                  headers: {
+                    Authorization: "Bearer " + activeSession.access_token,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    userId: profile.id,
+                    mediaBuckets,
+                  }),
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(payload.error || "Unable to update access.");
+                await loadMediaAccessProfiles();
+                setMediaAccessStatus("Media access updated.");
+              } catch (error) {
+                input.checked = !input.checked;
+                setMediaAccessStatus(error.message || "Unable to update access.", true);
+                input.disabled = false;
+              }
+            });
+            option.append(input, text);
+            controls.appendChild(option);
           });
         }
 
-        row.append(copy, button);
+        row.append(copy, controls);
         mediaAccessListEl.appendChild(row);
       });
     }
@@ -917,6 +963,7 @@
       if (!response.ok) {
         throw new Error(payload.error || "Unable to load media access list.");
       }
+      availableMediaBuckets = Array.isArray(payload.availableBuckets) ? payload.availableBuckets : [];
       renderMediaAccessProfiles(Array.isArray(payload.profiles) ? payload.profiles : []);
     }
 
@@ -953,7 +1000,11 @@
         introEl.textContent = payload.intro || "Signed in.";
         await applyProfile(payload.profile || {}, payload.email || "");
         uploadsEl.textContent = payload.canUploadPhotos ? "Enabled" : "Not enabled";
-        mediaAccessEl.textContent = payload.canManageMedia ? "Enabled" : "Not enabled";
+        mediaAccessEl.textContent = payload.canManageMedia
+          ? (Array.isArray(payload.profile?.mediaBuckets) && payload.profile.mediaBuckets.length
+              ? formatMediaBuckets(payload.profile.mediaBuckets)
+              : "Enabled")
+          : "Not enabled";
         mediaManagerActionsEl.hidden = !payload.canManageMedia;
         mediaAccessCardEl.hidden = !payload.admin;
 
@@ -1048,12 +1099,17 @@
       }
     });
 
+    mediaAccessToggleEl?.addEventListener("click", () => {
+      setMediaAccessPanelOpen(mediaAccessPanelEl.hidden);
+    });
+
     document.getElementById("logout").addEventListener("click", async () => {
       await window.siteAuth.logout();
       window.location.href = "/login/";
     });
 
     setEditPanelOpen(false);
+    setMediaAccessPanelOpen(false);
     loadAccount();
   </script>
 </body>

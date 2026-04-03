@@ -17,6 +17,11 @@ function sendJson(res, statusCode, payload) {
   res.end(JSON.stringify(payload));
 }
 
+const AVAILABLE_BUCKETS = [
+  { id: "churchfirephotos", label: "Church Fire Photos" },
+  { id: "standingstonechurchconstructionphotos", label: "Standing Stone Construction Photos" },
+];
+
 function parseJsonBody(req) {
   return new Promise((resolve, reject) => {
     let body = "";
@@ -58,7 +63,7 @@ async function authenticateRequest(req) {
 
 async function fetchOwnProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,role,can_manage_media&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,role,can_manage_media,media_buckets&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -74,7 +79,7 @@ async function fetchOwnProfile(session, token) {
 
 async function listProfiles(token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,role,can_manage_media&order=display_name.asc.nullslast,email.asc`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,role,can_manage_media,media_buckets&order=display_name.asc.nullslast,email.asc`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -87,7 +92,14 @@ async function listProfiles(token) {
   return response.json();
 }
 
-async function updateMediaAccess(token, userId, canManageMedia) {
+function sanitizeBuckets(input) {
+  const allowed = new Set(AVAILABLE_BUCKETS.map((bucket) => bucket.id));
+  return Array.isArray(input)
+    ? [...new Set(input.map((bucket) => String(bucket || "").trim()).filter((bucket) => allowed.has(bucket)))]
+    : [];
+}
+
+async function updateMediaAccess(token, userId, mediaBuckets) {
   const response = await fetch(
     `${getSupabaseUrl()}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}`,
     {
@@ -98,7 +110,10 @@ async function updateMediaAccess(token, userId, canManageMedia) {
         "Content-Type": "application/json",
         Prefer: "return=representation",
       },
-      body: JSON.stringify({ can_manage_media: canManageMedia }),
+      body: JSON.stringify({
+        can_manage_media: mediaBuckets.length > 0,
+        media_buckets: mediaBuckets,
+      }),
     }
   );
 
@@ -125,6 +140,7 @@ module.exports = async (req, res) => {
     if (req.method === "GET") {
       const profiles = await listProfiles(token);
       sendJson(res, 200, {
+        availableBuckets: AVAILABLE_BUCKETS,
         profiles: Array.isArray(profiles)
           ? profiles.map((profile) => ({
               id: profile.id,
@@ -132,6 +148,7 @@ module.exports = async (req, res) => {
               displayName: profile.display_name || "",
               role: String(profile.role || "member").toLowerCase(),
               canManageMedia: Boolean(profile.can_manage_media || String(profile.role || "").toLowerCase() === "admin"),
+              mediaBuckets: Array.isArray(profile.media_buckets) ? profile.media_buckets : [],
             }))
           : [],
       });
@@ -141,14 +158,14 @@ module.exports = async (req, res) => {
     if (req.method === "PATCH") {
       const body = await parseJsonBody(req);
       const userId = String(body?.userId || "").trim();
-      const canManageMedia = Boolean(body?.canManageMedia);
+      const mediaBuckets = sanitizeBuckets(body?.mediaBuckets);
 
       if (!userId) {
         sendJson(res, 400, { error: "Missing userId" });
         return;
       }
 
-      const updated = await updateMediaAccess(token, userId, canManageMedia);
+      const updated = await updateMediaAccess(token, userId, mediaBuckets);
       sendJson(res, 200, {
         ok: true,
         profile: {
@@ -157,6 +174,7 @@ module.exports = async (req, res) => {
           displayName: updated?.display_name || "",
           role: String(updated?.role || "member").toLowerCase(),
           canManageMedia: Boolean(updated?.can_manage_media || String(updated?.role || "").toLowerCase() === "admin"),
+          mediaBuckets: Array.isArray(updated?.media_buckets) ? updated.media_buckets : mediaBuckets,
         },
       });
       return;

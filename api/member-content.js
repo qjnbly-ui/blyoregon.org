@@ -38,7 +38,7 @@ async function authenticateRequest(req) {
 
 async function fetchProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,can_upload_photos,created_at&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,created_at&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -79,7 +79,10 @@ module.exports = async (req, res) => {
     );
     const role = String(profile?.role || "member").toLowerCase();
     const admin = role === "admin";
-    const canManageMedia = Boolean(profile?.can_manage_media || admin);
+    const mediaBuckets = Array.isArray(profile?.media_buckets)
+      ? profile.media_buckets.filter((bucket) => typeof bucket === "string" && bucket.trim())
+      : [];
+    const canManageMedia = Boolean(admin || (profile?.can_manage_media && mediaBuckets.length));
     const canUploadPhotos = Boolean(profile?.can_upload_photos || admin);
 
     res.statusCode = 200;
@@ -99,6 +102,7 @@ module.exports = async (req, res) => {
           canManageMedia,
           createdAt: profile?.created_at || null,
           displayName,
+          mediaBuckets,
           role,
         },
       })

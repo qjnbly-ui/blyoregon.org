@@ -11,6 +11,7 @@ create table if not exists public.profiles (
   bio text,
   role text not null default 'member' check (role in ('member', 'moderator', 'admin')),
   can_manage_media boolean not null default false,
+  media_buckets text[] not null default '{}',
   can_upload_photos boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -18,6 +19,7 @@ create table if not exists public.profiles (
 
 alter table public.profiles add column if not exists avatar_path text;
 alter table public.profiles add column if not exists can_manage_media boolean not null default false;
+alter table public.profiles add column if not exists media_buckets text[] not null default '{}';
 
 create or replace function public.is_admin()
 returns boolean
@@ -32,7 +34,7 @@ as $$
   );
 $$;
 
-create or replace function public.can_manage_media()
+create or replace function public.can_manage_bucket(bucket_name text)
 returns boolean
 language sql
 stable
@@ -41,7 +43,13 @@ as $$
     select 1
     from public.profiles
     where id = auth.uid()
-      and (role = 'admin' or can_manage_media = true)
+      and (
+        role = 'admin'
+        or (
+          can_manage_media = true
+          and bucket_name = any(coalesce(media_buckets, '{}'))
+        )
+      )
   );
 $$;
 
@@ -176,7 +184,7 @@ for insert
 to authenticated
 with check (
   bucket_id in ('churchfirephotos', 'standingstonechurchconstructionphotos')
-  and public.can_manage_media()
+  and public.can_manage_bucket(bucket_id)
 );
 
 drop policy if exists "media manager update selected buckets" on storage.objects;
@@ -186,11 +194,11 @@ for update
 to authenticated
 using (
   bucket_id in ('churchfirephotos', 'standingstonechurchconstructionphotos')
-  and public.can_manage_media()
+  and public.can_manage_bucket(bucket_id)
 )
 with check (
   bucket_id in ('churchfirephotos', 'standingstonechurchconstructionphotos')
-  and public.can_manage_media()
+  and public.can_manage_bucket(bucket_id)
 );
 
 drop policy if exists "media manager delete selected buckets" on storage.objects;
@@ -200,7 +208,7 @@ for delete
 to authenticated
 using (
   bucket_id in ('churchfirephotos', 'standingstonechurchconstructionphotos')
-  and public.can_manage_media()
+  and public.can_manage_bucket(bucket_id)
 );
 
 drop policy if exists "profiles view own or admin" on public.profiles;
@@ -300,4 +308,9 @@ using ((author_id = auth.uid() and status in ('draft', 'pending_review')) or pub
 with check ((author_id = auth.uid() and status in ('draft', 'pending_review')) or public.is_admin());
 
 -- After creating your user account, promote it once:
--- update public.profiles set role = 'admin', can_upload_photos = true, can_manage_media = true where email = 'quentin@quentin.nichols.com';
+-- update public.profiles
+-- set role = 'admin',
+--     can_upload_photos = true,
+--     can_manage_media = true,
+--     media_buckets = array['churchfirephotos', 'standingstonechurchconstructionphotos']
+-- where email = 'quentin@quentin.nichols.com';
