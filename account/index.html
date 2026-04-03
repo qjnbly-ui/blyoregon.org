@@ -363,6 +363,71 @@
       font-size: 0.88rem;
       line-height: 1.5;
     }
+    .photo-editor {
+      display: grid;
+      gap: 1rem;
+    }
+    .photo-editor[hidden] {
+      display: none !important;
+    }
+    .photo-editor-stage {
+      display: grid;
+      gap: 0.9rem;
+      justify-items: start;
+    }
+    .photo-editor-preview {
+      width: min(100%, 280px);
+      aspect-ratio: 1 / 1;
+      border-radius: 24px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      background: linear-gradient(180deg, rgba(245, 239, 229, 0.95), rgba(235, 228, 216, 0.95));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+    }
+    .photo-editor-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+    }
+    .photo-editor-grid {
+      display: grid;
+      gap: 0.85rem;
+    }
+    .photo-editor-control {
+      display: grid;
+      gap: 0.35rem;
+    }
+    .photo-editor-control label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.88rem;
+    }
+    .photo-editor-control output {
+      color: #5c6d63;
+      font-weight: 600;
+      font-size: 0.84rem;
+    }
+    .photo-editor-control input[type="range"] {
+      padding: 0;
+    }
+    .danger-button {
+      appearance: none;
+      border: 1px solid rgba(157, 45, 40, 0.2);
+      border-radius: 999px;
+      padding: 0.8rem 1rem;
+      background: rgba(157, 45, 40, 0.08);
+      color: #8f2a26;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      width: fit-content;
+    }
+    .danger-button[disabled],
+    .edit-toggle[disabled] {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
     .stack {
       display: grid;
       gap: 1rem;
@@ -687,7 +752,30 @@
         <div class="field">
           <label for="profile-avatar-input">Profile photo</label>
           <input id="profile-avatar-input" name="avatar" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
-          <p class="photo-help">Square or portrait images work best. The image will be stored with your account in Supabase.</p>
+          <p class="photo-help">Upload a new image, adjust the crop, or remove your current photo. The saved version is stored with your account in Supabase.</p>
+        </div>
+        <div id="photo-editor" class="photo-editor" hidden>
+          <div class="photo-editor-stage">
+            <canvas id="photo-crop-preview" class="photo-editor-preview" width="560" height="560"></canvas>
+            <div class="photo-editor-actions">
+              <button class="edit-toggle" id="photo-crop-reset" type="button">Reset crop</button>
+              <button class="danger-button" id="photo-delete" type="button">Delete photo</button>
+            </div>
+          </div>
+          <div class="photo-editor-grid">
+            <div class="photo-editor-control">
+              <label for="photo-crop-zoom">Zoom <output id="photo-crop-zoom-value" for="photo-crop-zoom">100%</output></label>
+              <input id="photo-crop-zoom" type="range" min="1" max="3" step="0.01" value="1" />
+            </div>
+            <div class="photo-editor-control">
+              <label for="photo-crop-x">Left / right <output id="photo-crop-x-value" for="photo-crop-x">0%</output></label>
+              <input id="photo-crop-x" type="range" min="-100" max="100" step="1" value="0" />
+            </div>
+            <div class="photo-editor-control">
+              <label for="photo-crop-y">Up / down <output id="photo-crop-y-value" for="photo-crop-y">0%</output></label>
+              <input id="photo-crop-y" type="range" min="-100" max="100" step="1" value="0" />
+            </div>
+          </div>
         </div>
         <div class="field">
           <label for="profile-display-name">Public name</label>
@@ -781,6 +869,16 @@
     const profileEditClose = document.getElementById("profile-edit-close");
     const profileForm = document.getElementById("profile-form");
     const profileAvatarInput = document.getElementById("profile-avatar-input");
+    const photoEditorEl = document.getElementById("photo-editor");
+    const photoCropPreviewEl = document.getElementById("photo-crop-preview");
+    const photoCropResetButton = document.getElementById("photo-crop-reset");
+    const photoDeleteButton = document.getElementById("photo-delete");
+    const photoCropZoomInput = document.getElementById("photo-crop-zoom");
+    const photoCropXInput = document.getElementById("photo-crop-x");
+    const photoCropYInput = document.getElementById("photo-crop-y");
+    const photoCropZoomValueEl = document.getElementById("photo-crop-zoom-value");
+    const photoCropXValueEl = document.getElementById("photo-crop-x-value");
+    const photoCropYValueEl = document.getElementById("photo-crop-y-value");
     const profileDisplayNameInput = document.getElementById("profile-display-name");
     const profileBioInput = document.getElementById("profile-bio");
     const profileSaveButton = document.getElementById("profile-save");
@@ -793,6 +891,17 @@
     let activeSession = null;
     let currentAvatarPath = "";
     let availableMediaBuckets = [];
+    const photoEditorState = {
+      image: null,
+      objectUrl: "",
+      sourceName: "",
+      sourceType: "existing",
+      zoom: 1,
+      offsetX: 0,
+      offsetY: 0,
+      dirty: false,
+      deleteRequested: false,
+    };
 
     function setMediaAccessStatus(message, error = false) {
       mediaAccessStatusEl.style.color = error ? "#9d2d28" : "#526158";
@@ -809,6 +918,15 @@
       profileEditPanel.hidden = !isOpen;
       profileEditToggle.setAttribute("aria-expanded", String(isOpen));
       document.body.style.overflow = isOpen ? "hidden" : "";
+      if (isOpen) {
+        initializePhotoEditor().catch((error) => {
+          profileStatusEl.style.color = "#9d2d28";
+          profileStatusEl.textContent = error.message || "Unable to load profile photo.";
+        });
+      } else {
+        profileAvatarInput.value = "";
+        clearEditorObjectUrl();
+      }
     }
 
     function addBadge(text) {
@@ -858,6 +976,152 @@
       }
     }
 
+    function clearEditorObjectUrl() {
+      if (photoEditorState.objectUrl) {
+        URL.revokeObjectURL(photoEditorState.objectUrl);
+        photoEditorState.objectUrl = "";
+      }
+    }
+
+    function updatePhotoControlLabels() {
+      photoCropZoomValueEl.textContent = `${Math.round(photoEditorState.zoom * 100)}%`;
+      photoCropXValueEl.textContent = `${photoEditorState.offsetX > 0 ? "+" : ""}${photoEditorState.offsetX}%`;
+      photoCropYValueEl.textContent = `${photoEditorState.offsetY > 0 ? "+" : ""}${photoEditorState.offsetY}%`;
+    }
+
+    function drawPhotoEditorPreview() {
+      const context = photoCropPreviewEl.getContext("2d");
+      if (!context) return;
+
+      const width = photoCropPreviewEl.width;
+      const height = photoCropPreviewEl.height;
+      context.clearRect(0, 0, width, height);
+
+      const gradient = context.createLinearGradient(0, 0, 0, height);
+      gradient.addColorStop(0, "rgba(245, 239, 229, 0.95)");
+      gradient.addColorStop(1, "rgba(235, 228, 216, 0.95)");
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, width, height);
+
+      if (!photoEditorState.image || photoEditorState.deleteRequested) return;
+
+      const image = photoEditorState.image;
+      const baseScale = Math.max(width / image.width, height / image.height);
+      const scale = baseScale * photoEditorState.zoom;
+      const drawWidth = image.width * scale;
+      const drawHeight = image.height * scale;
+      const maxOffsetX = Math.max(0, (drawWidth - width) / 2);
+      const maxOffsetY = Math.max(0, (drawHeight - height) / 2);
+      const translateX = width / 2 - drawWidth / 2 + (photoEditorState.offsetX / 100) * maxOffsetX;
+      const translateY = height / 2 - drawHeight / 2 + (photoEditorState.offsetY / 100) * maxOffsetY;
+
+      context.drawImage(image, translateX, translateY, drawWidth, drawHeight);
+    }
+
+    function syncPhotoEditorUI() {
+      photoEditorEl.hidden = !photoEditorState.image;
+      photoDeleteButton.disabled = !photoEditorState.image;
+      photoCropResetButton.disabled = !photoEditorState.image;
+      photoCropZoomInput.disabled = !photoEditorState.image || photoEditorState.deleteRequested;
+      photoCropXInput.disabled = !photoEditorState.image || photoEditorState.deleteRequested;
+      photoCropYInput.disabled = !photoEditorState.image || photoEditorState.deleteRequested;
+      updatePhotoControlLabels();
+      drawPhotoEditorPreview();
+    }
+
+    function resetPhotoEditorCrop(markDirty = false) {
+      photoEditorState.zoom = 1;
+      photoEditorState.offsetX = 0;
+      photoEditorState.offsetY = 0;
+      if (markDirty) {
+        photoEditorState.dirty = true;
+        photoEditorState.deleteRequested = false;
+      }
+      photoCropZoomInput.value = String(photoEditorState.zoom);
+      photoCropXInput.value = String(photoEditorState.offsetX);
+      photoCropYInput.value = String(photoEditorState.offsetY);
+      syncPhotoEditorUI();
+    }
+
+    async function loadPhotoIntoEditor(src, sourceType = "existing", sourceName = "avatar.jpg") {
+      if (!src) {
+        clearEditorObjectUrl();
+        photoEditorState.image = null;
+        photoEditorState.sourceName = "";
+        photoEditorState.sourceType = "existing";
+        photoEditorState.deleteRequested = false;
+        photoEditorState.dirty = false;
+        syncPhotoEditorUI();
+        return;
+      }
+
+      const image = new Image();
+      image.decoding = "async";
+      image.crossOrigin = "anonymous";
+
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = () => reject(new Error("Unable to load the selected photo."));
+        image.src = src;
+      });
+
+      photoEditorState.image = image;
+      photoEditorState.sourceType = sourceType;
+      photoEditorState.sourceName = sourceName;
+      photoEditorState.deleteRequested = false;
+      photoEditorState.dirty = sourceType === "new";
+      resetPhotoEditorCrop(false);
+    }
+
+    async function initializePhotoEditor() {
+      const avatarUrl = avatarEl.hidden ? "" : avatarEl.currentSrc || avatarEl.src || "";
+      if (!avatarUrl) {
+        await loadPhotoIntoEditor("");
+        return;
+      }
+      await loadPhotoIntoEditor(avatarUrl, "existing", currentAvatarPath.split("/").pop() || "avatar.jpg");
+    }
+
+    function getCroppedPhotoBlob() {
+      return new Promise((resolve, reject) => {
+        if (!photoEditorState.image || photoEditorState.deleteRequested) {
+          resolve(null);
+          return;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = 512;
+        canvas.height = 512;
+        const context = canvas.getContext("2d");
+        if (!context) {
+          reject(new Error("Unable to prepare profile photo."));
+          return;
+        }
+
+        const image = photoEditorState.image;
+        const baseScale = Math.max(canvas.width / image.width, canvas.height / image.height);
+        const scale = baseScale * photoEditorState.zoom;
+        const drawWidth = image.width * scale;
+        const drawHeight = image.height * scale;
+        const maxOffsetX = Math.max(0, (drawWidth - canvas.width) / 2);
+        const maxOffsetY = Math.max(0, (drawHeight - canvas.height) / 2);
+        const translateX = canvas.width / 2 - drawWidth / 2 + (photoEditorState.offsetX / 100) * maxOffsetX;
+        const translateY = canvas.height / 2 - drawHeight / 2 + (photoEditorState.offsetY / 100) * maxOffsetY;
+
+        context.fillStyle = "#f3efe9";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, translateX, translateY, drawWidth, drawHeight);
+
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error("Unable to prepare profile photo."));
+            return;
+          }
+          resolve(blob);
+        }, "image/jpeg", 0.92);
+      });
+    }
+
     async function uploadProfilePhoto(file) {
       if (!activeSession?.user?.id) {
         throw new Error("You must be signed in to upload a profile photo.");
@@ -880,6 +1144,15 @@
       }
 
       return path;
+    }
+
+    async function deleteProfilePhoto(path) {
+      if (!path) return;
+      const client = await window.siteAuth.getClient();
+      const { error } = await client.storage.from("profile-photos").remove([path]);
+      if (error) {
+        throw new Error(error.message || "Unable to delete profile photo.");
+      }
     }
 
     function renderMediaAccessProfiles(profiles) {
@@ -1035,13 +1308,32 @@
       profileStatusEl.style.color = "#526158";
       profileStatusEl.textContent = "";
       profileSaveButton.disabled = true;
+      let uploadedAvatarPath = "";
 
       try {
+        const previousAvatarPath = currentAvatarPath;
         let avatarPath = currentAvatarPath;
-        const file = profileAvatarInput.files?.[0];
-        if (file) {
-          profileStatusEl.textContent = "Uploading photo...";
-          avatarPath = await uploadProfilePhoto(file);
+
+        if (photoEditorState.deleteRequested) {
+          avatarPath = null;
+        } else {
+          const selectedFile = profileAvatarInput.files?.[0];
+          const shouldUploadEditedPhoto = Boolean(selectedFile || (photoEditorState.image && photoEditorState.dirty));
+          if (shouldUploadEditedPhoto) {
+            profileStatusEl.textContent = "Preparing photo...";
+            const croppedBlob = await getCroppedPhotoBlob();
+            if (!croppedBlob) {
+              throw new Error("Unable to prepare profile photo.");
+            }
+            const uploadNameBase = (photoEditorState.sourceName || selectedFile?.name || "avatar")
+              .replace(/\.[^.]+$/, "")
+              .replace(/[^a-z0-9_-]+/gi, "-")
+              .replace(/^-+|-+$/g, "") || "avatar";
+            const uploadFile = new File([croppedBlob], `${uploadNameBase}.jpg`, { type: "image/jpeg" });
+            profileStatusEl.textContent = "Uploading photo...";
+            uploadedAvatarPath = await uploadProfilePhoto(uploadFile);
+            avatarPath = uploadedAvatarPath;
+          }
         }
 
         const response = await fetch("/api/profile", {
@@ -1062,9 +1354,19 @@
           throw new Error(payload.error || "Unable to save profile.");
         }
 
+        const shouldDeletePrevious = previousAvatarPath && previousAvatarPath !== avatarPath &&
+          (photoEditorState.deleteRequested || avatarPath);
+        if (shouldDeletePrevious) {
+          try {
+            await deleteProfilePhoto(previousAvatarPath);
+          } catch (error) {
+            console.warn(error);
+          }
+        }
+
         await applyProfile(
           {
-            avatarPath: payload.profile?.avatarPath || avatarPath,
+            avatarPath: payload.profile?.avatarPath ?? avatarPath ?? "",
             avatarUrl: payload.profile?.avatarUrl || (avatarPath ? `/media/profile-photos/${avatarPath}` : ""),
             displayName: payload.profile?.displayName || profileDisplayNameInput.value.trim(),
             bio: payload.profile?.bio || profileBioInput.value.trim(),
@@ -1076,8 +1378,16 @@
         profileStatusEl.style.color = "#2f5a46";
         profileStatusEl.textContent = "Profile saved.";
         profileAvatarInput.value = "";
+        await initializePhotoEditor();
         setEditPanelOpen(false);
       } catch (error) {
+        if (typeof uploadedAvatarPath !== "undefined" && uploadedAvatarPath) {
+          try {
+            await deleteProfilePhoto(uploadedAvatarPath);
+          } catch (cleanupError) {
+            console.warn(cleanupError);
+          }
+        }
         profileStatusEl.style.color = "#9d2d28";
         profileStatusEl.textContent = error.message || "Unable to save profile.";
       } finally {
@@ -1099,6 +1409,58 @@
       }
     });
 
+    profileAvatarInput.addEventListener("change", async () => {
+      const file = profileAvatarInput.files?.[0];
+      if (!file) {
+        return;
+      }
+
+      if (!file.type.startsWith("image/")) {
+        profileStatusEl.style.color = "#9d2d28";
+        profileStatusEl.textContent = "Please choose an image file.";
+        profileAvatarInput.value = "";
+        return;
+      }
+
+      profileStatusEl.style.color = "#526158";
+      profileStatusEl.textContent = "Adjust the crop, then save your profile.";
+      clearEditorObjectUrl();
+      photoEditorState.objectUrl = URL.createObjectURL(file);
+      try {
+        await loadPhotoIntoEditor(photoEditorState.objectUrl, "new", file.name || "avatar.jpg");
+      } catch (error) {
+        profileStatusEl.style.color = "#9d2d28";
+        profileStatusEl.textContent = error.message || "Unable to load the selected photo.";
+      }
+    });
+
+    [photoCropZoomInput, photoCropXInput, photoCropYInput].forEach((input) => {
+      input.addEventListener("input", () => {
+        photoEditorState.zoom = Number(photoCropZoomInput.value || 1);
+        photoEditorState.offsetX = Number(photoCropXInput.value || 0);
+        photoEditorState.offsetY = Number(photoCropYInput.value || 0);
+        photoEditorState.deleteRequested = false;
+        photoEditorState.dirty = true;
+        syncPhotoEditorUI();
+      });
+    });
+
+    photoCropResetButton.addEventListener("click", () => {
+      resetPhotoEditorCrop(photoEditorState.sourceType === "existing");
+      profileStatusEl.style.color = "#526158";
+      profileStatusEl.textContent = "Crop reset.";
+    });
+
+    photoDeleteButton.addEventListener("click", () => {
+      if (!photoEditorState.image) return;
+      photoEditorState.deleteRequested = true;
+      photoEditorState.dirty = true;
+      profileAvatarInput.value = "";
+      syncPhotoEditorUI();
+      profileStatusEl.style.color = "#526158";
+      profileStatusEl.textContent = "Photo will be removed when you save your profile.";
+    });
+
     mediaAccessToggleEl?.addEventListener("click", () => {
       setMediaAccessPanelOpen(mediaAccessPanelEl.hidden);
     });
@@ -1110,6 +1472,7 @@
 
     setEditPanelOpen(false);
     setMediaAccessPanelOpen(false);
+    syncPhotoEditorUI();
     loadAccount();
   </script>
 </body>
