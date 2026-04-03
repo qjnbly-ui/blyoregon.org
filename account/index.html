@@ -178,6 +178,13 @@
       color: #47564e;
       line-height: 1.6;
     }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
     .profile-photo {
       width: 104px;
       height: 104px;
@@ -241,6 +248,18 @@
       cursor: pointer;
       width: fit-content;
     }
+    .edit-toggle {
+      appearance: none;
+      border: 1px solid rgba(20, 50, 39, 0.16);
+      border-radius: 999px;
+      padding: 0.5rem 0.8rem;
+      background: transparent;
+      color: var(--forest);
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
     .save-button:disabled {
       opacity: 0.7;
       cursor: wait;
@@ -265,6 +284,47 @@
       display: grid;
       gap: 1rem;
       margin-top: 1rem;
+    }
+    .modal[hidden] {
+      display: none !important;
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
+      background: rgba(11, 26, 21, 0.48);
+      z-index: 60;
+    }
+    .modal-card {
+      width: min(100%, 560px);
+      max-height: min(88vh, 760px);
+      overflow: auto;
+      background: var(--card);
+      border-radius: 22px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.4rem;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+      margin-bottom: 0.8rem;
+    }
+    .modal-close {
+      appearance: none;
+      border: 1px solid rgba(20, 50, 39, 0.16);
+      border-radius: 999px;
+      padding: 0.45rem 0.8rem;
+      background: transparent;
+      color: var(--forest);
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
     }
     .admin-only {
       border: 1px solid rgba(244, 179, 91, 0.35);
@@ -324,7 +384,10 @@
 
     <section class="grid">
       <article class="card">
-        <h2>Profile</h2>
+        <div class="card-header">
+          <h2>Profile</h2>
+          <button class="edit-toggle" id="profile-edit-toggle" type="button" aria-expanded="false">Edit profile</button>
+        </div>
         <div class="stack">
           <div>
             <h3>Profile photo</h3>
@@ -353,28 +416,6 @@
       </article>
 
       <article class="card">
-        <h2>Edit profile</h2>
-        <p class="meta">Update the public name and short bio that will be used with your account and future submissions.</p>
-        <form id="profile-form">
-          <div class="field">
-            <label for="profile-avatar-input">Profile photo</label>
-            <input id="profile-avatar-input" name="avatar" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
-            <p class="photo-help">Square or portrait images work best. The image will be stored with your account in Supabase.</p>
-          </div>
-          <div class="field">
-            <label for="profile-display-name">Public name</label>
-            <input id="profile-display-name" name="display_name" maxlength="80" required />
-          </div>
-          <div class="field">
-            <label for="profile-bio">Bio</label>
-            <textarea id="profile-bio" name="bio" maxlength="500" placeholder="Tell people a little about yourself."></textarea>
-          </div>
-          <button class="save-button" id="profile-save" type="submit">Save profile</button>
-          <p class="form-status" id="profile-status" aria-live="polite"></p>
-        </form>
-      </article>
-
-      <article class="card">
         <h2>Access</h2>
         <div class="stack">
           <div>
@@ -390,6 +431,32 @@
     </section>
 
     <section class="stack" id="dynamic-sections"></section>
+  </div>
+
+  <div class="modal" id="profile-edit-panel" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Edit profile</h2>
+        <button class="modal-close" id="profile-edit-close" type="button">Close</button>
+      </div>
+      <form id="profile-form">
+        <div class="field">
+          <label for="profile-avatar-input">Profile photo</label>
+          <input id="profile-avatar-input" name="avatar" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+          <p class="photo-help">Square or portrait images work best. The image will be stored with your account in Supabase.</p>
+        </div>
+        <div class="field">
+          <label for="profile-display-name">Public name</label>
+          <input id="profile-display-name" name="display_name" maxlength="80" required />
+        </div>
+        <div class="field">
+          <label for="profile-bio">Bio</label>
+          <textarea id="profile-bio" name="bio" maxlength="500" placeholder="Tell people a little about yourself."></textarea>
+        </div>
+        <button class="save-button" id="profile-save" type="submit">Save profile</button>
+        <p class="form-status" id="profile-status" aria-live="polite"></p>
+      </form>
+    </div>
   </div>
 
   <footer>
@@ -411,6 +478,9 @@
     const avatarPlaceholderEl = document.getElementById("profile-avatar-placeholder");
     const uploadsEl = document.getElementById("uploads");
     const sectionsEl = document.getElementById("dynamic-sections");
+    const profileEditToggle = document.getElementById("profile-edit-toggle");
+    const profileEditPanel = document.getElementById("profile-edit-panel");
+    const profileEditClose = document.getElementById("profile-edit-close");
     const profileForm = document.getElementById("profile-form");
     const profileAvatarInput = document.getElementById("profile-avatar-input");
     const profileDisplayNameInput = document.getElementById("profile-display-name");
@@ -420,6 +490,12 @@
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     let activeSession = null;
     let currentAvatarPath = "";
+
+    function setEditPanelOpen(isOpen) {
+      profileEditPanel.hidden = !isOpen;
+      profileEditToggle.setAttribute("aria-expanded", String(isOpen));
+      document.body.style.overflow = isOpen ? "hidden" : "";
+    }
 
     function addBadge(text) {
       const badge = document.createElement("span");
@@ -443,10 +519,22 @@
       });
     }
 
-    function applyProfile(profile, email) {
+    async function resolveAvatarUrl(profile) {
+      if (profile?.avatarPath) {
+        try {
+          const client = await window.siteAuth.getClient();
+          const { data } = client.storage.from("profile-photos").getPublicUrl(profile.avatarPath);
+          if (data?.publicUrl) return data.publicUrl;
+        } catch (error) {
+        }
+      }
+      return profile?.avatarUrl || "";
+    }
+
+    async function applyProfile(profile, email) {
       const displayName = profile?.displayName || "-";
       const bio = profile?.bio || "";
-      const avatarUrl = profile?.avatarUrl || "";
+      const avatarUrl = await resolveAvatarUrl(profile);
       currentAvatarPath = profile?.avatarPath || "";
       displayNameEl.textContent = displayName;
       emailEl.textContent = email || "-";
@@ -521,7 +609,7 @@
         titleEl.textContent = payload.title || "My Account";
         introEl.textContent = payload.intro || "Signed in.";
         stateEl.textContent = "Your account is active and ready.";
-        applyProfile(payload.profile || {}, payload.email || "");
+        await applyProfile(payload.profile || {}, payload.email || "");
         uploadsEl.textContent = payload.canUploadPhotos ? "Enabled" : "Not enabled";
 
         badgesEl.innerHTML = "";
@@ -575,7 +663,7 @@
           throw new Error(payload.error || "Unable to save profile.");
         }
 
-        applyProfile(
+        await applyProfile(
           {
             avatarPath: payload.profile?.avatarPath || avatarPath,
             avatarUrl: payload.profile?.avatarUrl || (avatarPath ? `/media/profile-photos/${avatarPath}` : ""),
@@ -589,6 +677,7 @@
         profileStatusEl.style.color = "#2f5a46";
         profileStatusEl.textContent = "Profile saved.";
         profileAvatarInput.value = "";
+        setEditPanelOpen(false);
       } catch (error) {
         profileStatusEl.style.color = "#9d2d28";
         profileStatusEl.textContent = error.message || "Unable to save profile.";
@@ -597,11 +686,26 @@
       }
     });
 
+    profileEditToggle.addEventListener("click", () => {
+      setEditPanelOpen(true);
+    });
+
+    profileEditClose.addEventListener("click", () => {
+      setEditPanelOpen(false);
+    });
+
+    profileEditPanel.addEventListener("click", (event) => {
+      if (event.target === profileEditPanel) {
+        setEditPanelOpen(false);
+      }
+    });
+
     document.getElementById("logout").addEventListener("click", async () => {
       await window.siteAuth.logout();
       window.location.href = "/login/";
     });
 
+    setEditPanelOpen(false);
     loadAccount();
   </script>
 </body>
