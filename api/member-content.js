@@ -81,38 +81,6 @@ module.exports = async (req, res) => {
     const admin = role === "admin";
     const canUploadPhotos = Boolean(profile?.can_upload_photos || admin);
 
-    const sections = [
-      {
-        heading: "Profile",
-        body: profile?.bio
-          ? profile.bio
-          : "Your public profile is set up. You can add a short bio and other details later.",
-      },
-      {
-        heading: "Access",
-        body: canUploadPhotos
-          ? "This account has permission to send in photo submissions."
-          : "Photo submissions are not enabled for this account right now.",
-      },
-      {
-        heading: "Next features",
-        body: "This account will be used for submissions, profile details, and other site participation features.",
-      },
-    ];
-
-    if (admin) {
-      sections.push(
-        {
-          heading: "Admin section",
-          body: "Your account has administrative access for site management, review, and publishing tools.",
-        },
-        {
-          heading: "Admin scope",
-          body: "Administrative tools can include reviewing submissions, updating site content, and managing elevated permissions.",
-        }
-      );
-    }
-
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(
@@ -130,7 +98,6 @@ module.exports = async (req, res) => {
           displayName,
           role,
         },
-        sections,
       })
     );
   } catch (error) {

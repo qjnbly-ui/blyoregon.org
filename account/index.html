@@ -19,6 +19,7 @@
       --card: #fffdf9;
       --white: #fff;
       --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+      --mobile-header-height: 6.2rem;
     }
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
@@ -52,6 +53,13 @@
       gap: 0.75rem;
       flex-wrap: wrap;
       justify-content: flex-end;
+      align-items: center;
+    }
+    .nav-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
     nav a {
       color: var(--white);
@@ -70,18 +78,86 @@
       border-color: rgba(255, 255, 255, 0.5);
       background: rgba(255, 255, 255, 0.08);
     }
+    .mobile-nav {
+      display: none;
+      align-items: center;
+      gap: 1.1rem;
+      margin-left: auto;
+    }
+    .mobile-login {
+      color: var(--white);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-size: 0.9rem;
+    }
+    .mobile-menu-toggle {
+      list-style: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.9rem;
+      cursor: pointer;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.9rem;
+      padding: 0.9rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(7, 10, 16, 0.38);
+      appearance: none;
+    }
+    .mobile-menu-toggle::before {
+      content: "";
+      width: 1.4rem;
+      height: 2px;
+      border-radius: 999px;
+      background: currentColor;
+      box-shadow: 0 -0.42rem 0 currentColor, 0 0.42rem 0 currentColor;
+    }
+    .mobile-menu-panel {
+      display: none;
+      position: fixed;
+      inset: 0 0 0;
+      min-width: 0;
+      padding: 0 1.5rem 2rem;
+      border-radius: 0;
+      border: 0;
+      background: linear-gradient(180deg, rgba(247, 242, 234, 0.99), rgba(243, 239, 233, 0.99));
+      box-shadow: none;
+      align-content: start;
+      z-index: 31;
+      overflow-y: auto;
+    }
+    .mobile-menu-panel[hidden] {
+      display: none !important;
+    }
+    body.mobile-menu-open .mobile-menu-panel {
+      display: grid;
+      gap: 0;
+    }
+    body.mobile-menu-open {
+      overflow: hidden;
+    }
+    .mobile-menu-panel a {
+      display: block;
+      padding: 1.7rem 0;
+      border-radius: 0;
+      border: 0;
+      border-bottom: 1px solid rgba(20, 50, 39, 0.18);
+      background: none;
+      color: var(--forest);
+      text-decoration: none;
+      text-align: center;
+      text-transform: none;
+      letter-spacing: 0.02em;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
     .shell {
       max-width: 1080px;
       margin: 0 auto;
       padding: 2.5rem 1.5rem 3.5rem;
-    }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-bottom: 2rem;
     }
     .brand {
       display: flex;
@@ -327,11 +403,6 @@
       font-weight: 600;
       cursor: pointer;
     }
-    .admin-only {
-      border: 1px solid rgba(244, 179, 91, 0.35);
-      background: linear-gradient(180deg, rgba(244, 179, 91, 0.12), rgba(255, 255, 255, 0.95));
-    }
-
     footer {
       background: #162f25;
       color: rgba(255, 255, 255, 0.7);
@@ -349,6 +420,96 @@
         justify-content: center;
       }
     }
+    @media (max-width: 600px) {
+      body {
+        padding-top: var(--mobile-header-height);
+      }
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 30;
+        border-bottom: 0;
+      }
+      .header-inner {
+        justify-content: space-between;
+        flex-wrap: nowrap;
+      }
+      .brand {
+        flex: 1 1 auto;
+        text-align: center;
+        align-items: center;
+        position: relative;
+        z-index: 32;
+      }
+      .brand-title,
+      .brand-subtitle,
+      .mobile-login {
+        color: var(--white);
+      }
+      .nav-links,
+      nav a.account-link {
+        display: none;
+      }
+      .mobile-nav {
+        display: flex;
+        gap: 0.8rem;
+        position: relative;
+        z-index: 32;
+      }
+      .mobile-login {
+        font-size: 0.82rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .mobile-menu-toggle {
+        width: 4rem;
+        height: 4rem;
+        justify-content: center;
+        gap: 0;
+        padding: 0;
+        border-radius: 999px;
+        font-size: 0;
+        color: var(--white);
+        background: rgba(7, 10, 16, 0.38);
+        position: relative;
+        z-index: 32;
+      }
+      .mobile-nav.is-open .mobile-menu-toggle {
+        color: var(--forest);
+        background: rgba(245, 239, 229, 0.96);
+      }
+      .mobile-menu-toggle::before {
+        width: 1.15rem;
+        box-shadow: 0 -0.35rem 0 currentColor, 0 0.35rem 0 currentColor;
+      }
+      .mobile-nav.is-open .mobile-menu-toggle::before {
+        content: "";
+        position: absolute;
+        width: 1.45rem;
+        height: 0;
+        background: none;
+        box-shadow: none;
+        border-radius: 0;
+        border-top: 3px solid currentColor;
+        transform: rotate(45deg);
+      }
+      .mobile-nav.is-open .mobile-menu-toggle::after {
+        content: "";
+        position: absolute;
+        width: 1.45rem;
+        height: 0;
+        background: none;
+        border-radius: 0;
+        border-top: 3px solid currentColor;
+        transform: rotate(-45deg);
+      }
+      .mobile-menu-panel {
+        top: var(--mobile-header-height);
+        background: linear-gradient(180deg, #f7f2ea 0%, #f3efe9 100%);
+      }
+    }
   </style>
 </head>
 <body>
@@ -359,28 +520,41 @@
         <div class="brand-subtitle">A Community in Klamath County</div>
       </div>
       <nav>
-        <a href="/">Home</a>
-        <a href="/about/">About</a>
-        <a href="/community/">Community</a>
-        <a href="/businesses/">Businesses</a>
-        <a href="/history/">History</a>
-        <a href="/recreation/">Recreation</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/about/">About</a>
+          <a href="/community/">Community</a>
+          <a href="/businesses/">Businesses</a>
+          <a href="/history/">History</a>
+          <a href="/recreation/">Recreation</a>
+        </div>
         <a class="account-link" href="/account/">Account</a>
+        <div class="mobile-nav">
+          <a class="mobile-login" href="/account/">Account</a>
+          <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-label="Toggle menu"></button>
+        </div>
       </nav>
     </div>
   </header>
 
-  <div class="shell">
-    <div class="topbar">
-      <div></div>
-      <button class="logout" id="logout" type="button">Log out</button>
-    </div>
+  <div class="mobile-menu-panel" hidden>
+    <a href="/">Home</a>
+    <a href="/about/">About</a>
+    <a href="/community/">Community</a>
+    <a href="/businesses/">Businesses</a>
+    <a href="/history/">History</a>
+    <a href="/recreation/">Recreation</a>
+  </div>
 
+  <div class="shell">
     <section class="hero">
       <div class="eyebrow">My Account</div>
       <h1 id="title">Loading account...</h1>
       <p id="intro">Loading your account details.</p>
       <div class="badges" id="badges"></div>
+      <div>
+        <button class="logout" id="logout" type="button">Log out</button>
+      </div>
     </section>
 
     <section class="grid">
@@ -417,21 +591,15 @@
       </article>
 
       <article class="card">
-        <h2>Access</h2>
+        <h2>Permissions</h2>
         <div class="stack">
           <div>
             <h3>Photo uploads</h3>
             <p id="uploads" class="meta">Checking access...</p>
           </div>
-          <div>
-            <h3>Status</h3>
-            <p id="state" class="meta">Loading account.</p>
-          </div>
         </div>
       </article>
     </section>
-
-    <section class="stack" id="dynamic-sections"></section>
   </div>
 
   <div class="modal" id="profile-edit-panel" hidden>
@@ -466,11 +634,59 @@
 
   <script src="/assets/auth.js"></script>
   <script>
-    const authLinks = document.querySelectorAll("a.account-link");
+    (() => {
+      const header = document.querySelector("header");
+      const mobileNav = document.querySelector(".mobile-nav");
+      if (!header || !mobileNav) return;
+      const toggle = mobileNav.querySelector(".mobile-menu-toggle");
+      const panel = document.querySelector(".mobile-menu-panel");
+      if (!toggle || !panel) return;
+      const authLinks = document.querySelectorAll("a.account-link, a.mobile-login");
+
+      const syncMobileHeaderHeight = () => {
+        document.documentElement.style.setProperty("--mobile-header-height", `${header.offsetHeight}px`);
+      };
+
+      const syncAuthNav = async () => {
+        const session = await window.siteAuth.getSession().catch(() => null);
+        authLinks.forEach((link) => {
+          link.textContent = session ? "Account" : "Login";
+          link.href = session ? "/account/" : "/login/";
+        });
+      };
+
+      const closeMenu = () => {
+        mobileNav.classList.remove("is-open");
+        document.body.classList.remove("mobile-menu-open");
+        toggle.setAttribute("aria-expanded", "false");
+        panel.setAttribute("hidden", "");
+      };
+
+      syncMobileHeaderHeight();
+      window.addEventListener("resize", syncMobileHeaderHeight);
+      syncAuthNav();
+
+      toggle.addEventListener("click", () => {
+        syncMobileHeaderHeight();
+        const isOpen = mobileNav.classList.toggle("is-open");
+        document.body.classList.toggle("mobile-menu-open", isOpen);
+        toggle.setAttribute("aria-expanded", String(isOpen));
+        if (isOpen) {
+          panel.removeAttribute("hidden");
+        } else {
+          panel.setAttribute("hidden", "");
+        }
+      });
+
+      panel.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", closeMenu);
+      });
+    })();
+
+    const authLinks = document.querySelectorAll("a.account-link, a.mobile-login");
     const titleEl = document.getElementById("title");
     const introEl = document.getElementById("intro");
     const badgesEl = document.getElementById("badges");
-    const stateEl = document.getElementById("state");
     const displayNameEl = document.getElementById("display-name");
     const emailEl = document.getElementById("email");
     const roleEl = document.getElementById("role");
@@ -478,7 +694,6 @@
     const avatarEl = document.getElementById("profile-avatar");
     const avatarPlaceholderEl = document.getElementById("profile-avatar-placeholder");
     const uploadsEl = document.getElementById("uploads");
-    const sectionsEl = document.getElementById("dynamic-sections");
     const profileEditToggle = document.getElementById("profile-edit-toggle");
     const profileEditPanel = document.getElementById("profile-edit-panel");
     const profileEditClose = document.getElementById("profile-edit-close");
@@ -503,21 +718,6 @@
       badge.className = "badge";
       badge.textContent = text;
       badgesEl.appendChild(badge);
-    }
-
-    function renderSections(sections, admin) {
-      sectionsEl.innerHTML = "";
-      sections.forEach((section) => {
-        const article = document.createElement("article");
-        article.className = "card" + ((admin && /admin/i.test(section.heading)) ? " admin-only" : "");
-        const heading = document.createElement("h2");
-        heading.textContent = section.heading;
-        const body = document.createElement("p");
-        body.textContent = section.body;
-        article.appendChild(heading);
-        article.appendChild(body);
-        sectionsEl.appendChild(article);
-      });
     }
 
     async function resolveAvatarUrl(profile) {
@@ -609,7 +809,6 @@
         const payload = await response.json();
         titleEl.textContent = payload.title || "My Account";
         introEl.textContent = payload.intro || "Signed in.";
-        stateEl.textContent = "Your account is active and ready.";
         await applyProfile(payload.profile || {}, payload.email || "");
         uploadsEl.textContent = payload.canUploadPhotos ? "Enabled" : "Not enabled";
 
@@ -617,13 +816,10 @@
         addBadge("Signed In");
         addBadge(payload.admin ? "Admin" : "Member");
         if (payload.canUploadPhotos) addBadge("Uploads Enabled");
-        if (payload.email) addBadge(payload.email);
-
-        renderSections(Array.isArray(payload.sections) ? payload.sections : [], payload.admin);
       } catch (error) {
         titleEl.textContent = "Account error";
         introEl.textContent = "The account page could not be loaded.";
-        stateEl.textContent = error.message || "Unable to load account.";
+        uploadsEl.textContent = error.message || "Unable to load account.";
       }
     }
 
