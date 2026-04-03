@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account | Bly, Oregon</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --moss: #2f5a46;
+      --sand: #f5efe5;
+      --ink: #1e1f1c;
+      --card: #fffdf9;
+      --shadow: 0 18px 40px rgba(12, 26, 20, 0.14);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(244, 179, 91, 0.16), transparent 25%),
+        linear-gradient(180deg, #f4efe7 0%, #faf7f1 100%);
+    }
+    .shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 1.2rem 1.25rem 3rem;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .brand {
+      text-decoration: none;
+      color: var(--forest);
+      display: grid;
+      gap: 0.1rem;
+    }
+    .brand strong {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.4rem;
+    }
+    .brand span {
+      font-size: 0.88rem;
+      color: #567061;
+    }
+    .logout {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.8rem 1.1rem;
+      background: var(--forest);
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .hero {
+      background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88));
+      color: white;
+      border-radius: 28px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.4rem;
+      display: grid;
+      gap: 0.9rem;
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.76rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 700;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      line-height: 1;
+      font-family: "Fraunces", "Times New Roman", serif;
+    }
+    .hero p {
+      margin: 0;
+      max-width: 42rem;
+      color: rgba(255, 255, 255, 0.82);
+      line-height: 1.6;
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .card {
+      background: var(--card);
+      border-radius: 22px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.4rem;
+    }
+    .card h2, .card h3 {
+      margin: 0 0 0.45rem;
+      color: var(--forest);
+    }
+    .card h2 { font-size: 1.3rem; }
+    .card h3 { font-size: 1.06rem; }
+    .card p, .meta {
+      margin: 0;
+      color: #47564e;
+      line-height: 1.6;
+    }
+    .stack {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .admin-only {
+      border: 1px solid rgba(244, 179, 91, 0.35);
+      background: linear-gradient(180deg, rgba(244, 179, 91, 0.12), rgba(255, 255, 255, 0.95));
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="brand" href="/">
+        <strong>Bly, Oregon</strong>
+        <span>Community Hub</span>
+      </a>
+      <button class="logout" id="logout" type="button">Log out</button>
+    </div>
+
+    <section class="hero">
+      <div class="eyebrow">My Account</div>
+      <h1 id="title">Loading account...</h1>
+      <p id="intro">Checking your Supabase session and loading your profile.</p>
+      <div class="badges" id="badges"></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Profile</h2>
+        <div class="stack">
+          <div>
+            <h3>Public name</h3>
+            <p id="display-name" class="meta">Loading...</p>
+          </div>
+          <div>
+            <h3>Email</h3>
+            <p id="email" class="meta">Loading...</p>
+          </div>
+          <div>
+            <h3>Role</h3>
+            <p id="role" class="meta">Loading...</p>
+          </div>
+          <div>
+            <h3>Bio</h3>
+            <p id="bio" class="meta">No bio added yet.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Access</h2>
+        <div class="stack">
+          <div>
+            <h3>Photo uploads</h3>
+            <p id="uploads" class="meta">Checking access...</p>
+          </div>
+          <div>
+            <h3>Status</h3>
+            <p id="state" class="meta">Loading account.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="stack" id="dynamic-sections"></section>
+  </div>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const titleEl = document.getElementById("title");
+    const introEl = document.getElementById("intro");
+    const badgesEl = document.getElementById("badges");
+    const stateEl = document.getElementById("state");
+    const displayNameEl = document.getElementById("display-name");
+    const emailEl = document.getElementById("email");
+    const roleEl = document.getElementById("role");
+    const bioEl = document.getElementById("bio");
+    const uploadsEl = document.getElementById("uploads");
+    const sectionsEl = document.getElementById("dynamic-sections");
+    const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
+
+    function addBadge(text) {
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = text;
+      badgesEl.appendChild(badge);
+    }
+
+    function renderSections(sections, admin) {
+      sectionsEl.innerHTML = "";
+      sections.forEach((section) => {
+        const article = document.createElement("article");
+        article.className = "card" + ((admin && /admin/i.test(section.heading)) ? " admin-only" : "");
+        const heading = document.createElement("h2");
+        heading.textContent = section.heading;
+        const body = document.createElement("p");
+        body.textContent = section.body;
+        article.appendChild(heading);
+        article.appendChild(body);
+        sectionsEl.appendChild(article);
+      });
+    }
+
+    async function loadAccount() {
+      try {
+        const session = await window.siteAuth.getSession();
+        if (!session) {
+          window.location.replace(loginUrl);
+          return;
+        }
+
+        const response = await fetch("/api/member-content", {
+          headers: {
+            Authorization: "Bearer " + session.access_token,
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            await window.siteAuth.logout();
+            window.location.replace(loginUrl + "&auth_error=expired");
+            return;
+          }
+          throw new Error("Unable to load account.");
+        }
+
+        const payload = await response.json();
+        titleEl.textContent = payload.title || "My Account";
+        introEl.textContent = payload.intro || "Signed in.";
+        stateEl.textContent = "Authenticated with Supabase and loaded from your profile.";
+        displayNameEl.textContent = payload.profile?.displayName || "-";
+        emailEl.textContent = payload.email || "-";
+        roleEl.textContent = payload.profile?.role || "member";
+        bioEl.textContent = payload.profile?.bio || "No bio added yet.";
+        uploadsEl.textContent = payload.canUploadPhotos ? "Enabled" : "Not enabled";
+
+        badgesEl.innerHTML = "";
+        addBadge("Signed In");
+        addBadge(payload.admin ? "Admin" : "Member");
+        if (payload.canUploadPhotos) addBadge("Uploads Enabled");
+        if (payload.email) addBadge(payload.email);
+
+        renderSections(Array.isArray(payload.sections) ? payload.sections : [], payload.admin);
+      } catch (error) {
+        titleEl.textContent = "Account error";
+        introEl.textContent = "The account page could not be loaded.";
+        stateEl.textContent = error.message || "Unable to load account.";
+      }
+    }
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      await window.siteAuth.logout();
+      window.location.href = "/login/";
+    });
+
+    loadAccount();
+  </script>
+</body>
+</html>

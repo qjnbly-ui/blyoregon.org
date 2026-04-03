@@ -6,13 +6,6 @@ function getAnonKey() {
   return String(process.env.SUPABASE_ANON_KEY || "").trim();
 }
 
-function getAdminEmails() {
-  return String(process.env.ADMIN_EMAILS || "")
-    .split(",")
-    .map((value) => value.trim().toLowerCase())
-    .filter(Boolean);
-}
-
 function getHeaderValue(req, name) {
   const value = req.headers?.[name];
   return Array.isArray(value) ? value[0] : value;
@@ -21,7 +14,8 @@ function getHeaderValue(req, name) {
 async function authenticateRequest(req) {
   const authHeader = getHeaderValue(req, "authorization");
   const token = String(authHeader || "").match(/^Bearer\s+(.+)$/i)?.[1];
-  if (!token) return null;
+  if (!token) return { session: null, token: null };
+
   const anonKey = getAnonKey();
   if (!anonKey) {
     throw new Error("Missing SUPABASE_ANON_KEY");
@@ -34,18 +28,31 @@ async function authenticateRequest(req) {
     },
   });
 
-  if (response.status === 401) return null;
+  if (response.status === 401) return { session: null, token };
   if (!response.ok) {
     throw new Error("Unable to validate Supabase session");
   }
 
-  return response.json();
+  return { session: await response.json(), token };
 }
 
-function isAdmin(session) {
-  const email = String(session?.email || "").toLowerCase();
-  const role = String(session?.app_metadata?.role || session?.user_metadata?.role || "").toLowerCase();
-  return role === "admin" || getAdminEmails().includes(email);
+async function fetchProfile(session, token) {
+  const response = await fetch(
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,bio,role,can_upload_photos,created_at&id=eq.${encodeURIComponent(session.id)}`,
+    {
+      headers: {
+        apikey: getAnonKey(),
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Unable to load account profile");
+  }
+
+  const rows = await response.json();
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
 module.exports = async (req, res) => {
@@ -57,36 +64,50 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const session = await authenticateRequest(req);
-    if (!session) {
+    const { session, token } = await authenticateRequest(req);
+    if (!session || !token) {
       res.statusCode = 401;
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ error: "Unauthorized" }));
       return;
     }
 
-    const email = String(session.email || "");
-    const displayName = String(session.user_metadata?.full_name || email || session.sub);
-    const admin = isAdmin(session);
+    const profile = await fetchProfile(session, token);
+    const email = String(profile?.email || session.email || "");
+    const displayName = String(
+      profile?.display_name || session.user_metadata?.full_name || email || session.id
+    );
+    const role = String(profile?.role || "member").toLowerCase();
+    const admin = role === "admin";
+    const canUploadPhotos = Boolean(profile?.can_upload_photos || admin);
+
     const sections = [
       {
-        heading: "Protected API content",
-        body: "This payload is returned only after the API verifies the Supabase access token signature server-side.",
+        heading: "Profile",
+        body: profile?.bio
+          ? profile.bio
+          : "Your public profile is set up. You can add a bio and contribution details next.",
       },
       {
-        heading: "Member roadmap",
-        body: "Use Supabase tables and storage for photos, recommendations, articles, and user-submitted content. Let RLS decide who can read, create, edit, approve, or publish each item.",
+        heading: "Access",
+        body: canUploadPhotos
+          ? "This account can upload photos once the upload tools are added."
+          : "Photo uploads are not enabled for this account yet.",
+      },
+      {
+        heading: "Next features",
+        body: "Next up: profile editing, photo submissions, article and recommendation forms, and moderation tools.",
       },
     ];
 
     if (admin) {
       sections.push(
         {
-          heading: "Admin tools",
-          body: "Your account is marked as admin. This is where moderation, publishing, storage management, and broader photo-library access should live.",
+          heading: "Admin section",
+          body: "Your account is marked as admin in the profiles table. This section should become the home for moderation, publishing, storage management, and broader site controls.",
         },
         {
-          heading: "Recommended admin scope",
+          heading: "Admin scope",
           body: "Admins should be able to approve submissions, edit or unpublish content, manage featured photos, review recommendations, and grant or revoke elevated roles.",
         }
       );
@@ -99,7 +120,14 @@ module.exports = async (req, res) => {
         title: "My Account",
         intro: `Signed in as ${displayName}.`,
         admin,
+        canUploadPhotos,
         email,
+        profile: {
+          bio: profile?.bio || "",
+          createdAt: profile?.created_at || null,
+          displayName,
+          role,
+        },
         sections,
       })
     );

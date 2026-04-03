@@ -62,11 +62,13 @@
 
   async function signUp(email, password, metadata = {}) {
     const client = await getClient();
+    const config = await getConfig();
     const { data, error } = await client.auth.signUp({
       email,
       password,
       options: {
         data: metadata,
+        emailRedirectTo: `${config.siteUrl}/login/`,
       },
     });
     if (error) throw error;

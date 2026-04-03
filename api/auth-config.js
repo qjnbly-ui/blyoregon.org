@@ -2,6 +2,15 @@ function getSupabaseUrl() {
   return String(process.env.SUPABASE_URL || "https://mgxdiolwevcgwgzhzttd.supabase.co").replace(/\/+$/, "");
 }
 
+function getSiteUrl(req) {
+  const explicit = String(process.env.PUBLIC_SITE_URL || "").trim();
+  if (explicit) return explicit.replace(/\/+$/, "");
+
+  const host = req.headers?.host || "blyoregon.org";
+  const protocol = host.includes("localhost") || host.startsWith("127.0.0.1") ? "http" : "https";
+  return `${protocol}://${host}`.replace(/\/+$/, "");
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "GET") {
     res.statusCode = 405;
@@ -23,6 +32,7 @@ module.exports = async (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.end(
     JSON.stringify({
+      siteUrl: getSiteUrl(req),
       supabaseUrl: getSupabaseUrl(),
       supabaseAnonKey: anonKey,
     })
