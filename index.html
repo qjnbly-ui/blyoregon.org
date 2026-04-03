@@ -40,6 +40,10 @@
 
     * { box-sizing: border-box; }
 
+    :root {
+      --mobile-header-height: 6.2rem;
+    }
+
     body {
       margin: 0;
       font-family: "Manrope", "Trebuchet MS", sans-serif;
@@ -185,6 +189,10 @@
     body.mobile-menu-open .mobile-menu-panel {
       display: grid;
       gap: 0;
+    }
+
+    body.mobile-menu-open {
+      overflow: hidden;
     }
 
     .mobile-menu-panel a {
@@ -824,9 +832,17 @@
     }
 
     @media (max-width: 760px) {
+      body {
+        padding-top: var(--mobile-header-height);
+      }
+
       header {
-        position: relative;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
         z-index: 30;
+        border-bottom: 0;
       }
 
       .header-inner {
@@ -914,7 +930,8 @@
       }
 
       .mobile-menu-panel {
-        top: 6.2rem;
+        top: var(--mobile-header-height);
+        background: linear-gradient(180deg, #f7f2ea 0%, #f3efe9 100%);
       }
     }
 
@@ -956,11 +973,16 @@
 
   <script>
     (() => {
+      const header = document.querySelector("header");
       const mobileNav = document.querySelector(".mobile-nav");
-      if (!mobileNav) return;
+      if (!header || !mobileNav) return;
       const toggle = mobileNav.querySelector(".mobile-menu-toggle");
       const panel = document.querySelector(".mobile-menu-panel");
       if (!toggle || !panel) return;
+
+      const syncMobileHeaderHeight = () => {
+        document.documentElement.style.setProperty("--mobile-header-height", `${header.offsetHeight}px`);
+      };
 
       const closeMenu = () => {
         mobileNav.classList.remove("is-open");
@@ -969,7 +991,11 @@
         panel.setAttribute("hidden", "");
       };
 
+      syncMobileHeaderHeight();
+      window.addEventListener("resize", syncMobileHeaderHeight);
+
       toggle.addEventListener("click", () => {
+        syncMobileHeaderHeight();
         const isOpen = mobileNav.classList.toggle("is-open");
         document.body.classList.toggle("mobile-menu-open", isOpen);
         toggle.setAttribute("aria-expanded", String(isOpen));
