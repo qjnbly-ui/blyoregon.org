@@ -158,6 +158,8 @@
       max-width: 1080px;
       margin: 0 auto;
       padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1rem;
     }
     .brand {
       display: flex;
@@ -192,7 +194,6 @@
       border-radius: 28px;
       padding: 2rem;
       box-shadow: var(--shadow);
-      margin-bottom: 1.4rem;
       display: grid;
       gap: 0.9rem;
     }
@@ -552,13 +553,16 @@
         border-bottom: 0;
       }
       .header-inner {
+        padding: 0.7rem 0.9rem;
         justify-content: space-between;
         flex-wrap: nowrap;
+        gap: 0.7rem;
       }
       .brand {
         flex: 1 1 auto;
-        text-align: center;
-        align-items: center;
+        min-width: 0;
+        text-align: left;
+        align-items: flex-start;
         position: relative;
         z-index: 32;
       }
@@ -573,18 +577,28 @@
       }
       .mobile-nav {
         display: flex;
-        gap: 0.8rem;
+        gap: 0.55rem;
         position: relative;
         z-index: 32;
+        align-items: center;
+      }
+      .brand-title {
+        font-size: 0.98rem;
+        line-height: 1.02;
+      }
+      .brand-subtitle {
+        font-size: 0.68rem;
+        line-height: 1.2;
       }
       .mobile-login {
-        font-size: 0.82rem;
-        letter-spacing: 0.16em;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
+        white-space: nowrap;
       }
       .mobile-menu-toggle {
-        width: 4rem;
-        height: 4rem;
+        width: 3.25rem;
+        height: 3.25rem;
         justify-content: center;
         gap: 0;
         padding: 0;
@@ -594,6 +608,51 @@
         background: rgba(7, 10, 16, 0.38);
         position: relative;
         z-index: 32;
+      }
+      .shell {
+        padding: 1rem 0.75rem 2rem;
+      }
+      .hero {
+        padding: 1.35rem 1.15rem;
+        border-radius: 22px;
+      }
+      .grid {
+        gap: 1rem;
+      }
+      .stack {
+        gap: 0.8rem;
+      }
+      .card,
+      .modal-card {
+        padding: 1.1rem 1rem;
+        border-radius: 20px;
+      }
+      .card h2 {
+        font-size: 1.05rem;
+      }
+      .card h3 {
+        font-size: 0.98rem;
+      }
+      .card p,
+      .meta {
+        line-height: 1.5;
+      }
+      .card-actions {
+        margin-top: 0.8rem;
+      }
+      .edit-toggle,
+      .save-button,
+      .danger-button,
+      .modal-close {
+        padding: 0.72rem 0.95rem;
+      }
+      .permission-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .bucket-checkboxes {
+        width: 100%;
+        justify-content: flex-start;
       }
       .mobile-nav.is-open .mobile-menu-toggle {
         color: var(--forest);
