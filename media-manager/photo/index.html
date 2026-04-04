@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Photo Details | Bly, Oregon</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --ink: #1e1f1c;
+      --card: #fffdf9;
+      --white: #fff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand-title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    nav {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    nav a.account-link {
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .shell {
+      flex: 1 0 auto;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .hero,
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.4rem;
+    }
+    .hero {
+      background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88));
+      color: var(--white);
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.76rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 700;
+    }
+    .hero h1 {
+      margin: 0.3rem 0 0;
+      color: var(--white);
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 6vw, 3rem);
+      line-height: 1.02;
+    }
+    .hero p, .meta, .status-copy {
+      margin: 0.65rem 0 0;
+      line-height: 1.6;
+    }
+    .hero p { color: rgba(255, 255, 255, 0.82); }
+    .meta, .status-copy { color: #4c5d54; }
+    .hero-actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .pill-link, .button {
+      appearance: none;
+      border-radius: 999px;
+      padding: 0.8rem 1rem;
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      width: fit-content;
+    }
+    .pill-link {
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      background: transparent;
+      color: var(--white);
+    }
+    .button {
+      border: 0;
+      background: var(--forest);
+      color: var(--white);
+      cursor: pointer;
+    }
+    .button.secondary {
+      border: 1px solid rgba(20, 50, 39, 0.16);
+      background: transparent;
+      color: var(--forest);
+    }
+    .button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+    .editor-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+    }
+    .preview-card {
+      display: grid;
+      gap: 0.85rem;
+      align-content: start;
+    }
+    .preview-card img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 18px;
+      background: rgba(245, 239, 229, 0.7);
+      border: 1px solid rgba(20, 50, 39, 0.12);
+    }
+    form {
+      display: grid;
+      gap: 1rem;
+    }
+    .field {
+      display: grid;
+      gap: 0.45rem;
+    }
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    label {
+      color: var(--forest);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.85rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid rgba(33, 68, 55, 0.18);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--ink);
+      font: inherit;
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    input[type="checkbox"] {
+      width: auto;
+      padding: 0;
+    }
+    .checkbox-row {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      color: var(--forest);
+      font-weight: 600;
+    }
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 800px) {
+      .editor-grid, .field-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 600px) {
+      .shell { padding: 1rem 0.75rem 2rem; }
+      .hero, .card { padding: 1.1rem 1rem; border-radius: 20px; }
+      .header-inner { padding: 0.75rem 0.9rem; }
+      .brand-title { font-size: 1rem; }
+      .brand-subtitle { font-size: 0.72rem; }
+      nav { width: 100%; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">A Community in Klamath County</div>
+      </div>
+      <nav>
+        <a href="/account/" class="account-link">Account</a>
+        <a href="/media-manager/">Media library</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Archive Editor</div>
+      <h1 id="page-title">Edit photo details</h1>
+      <p id="page-intro">Loading archive metadata for this photo.</p>
+      <div class="hero-actions">
+        <a id="back-link" class="pill-link" href="/media-manager/">Back to media library</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="editor-grid">
+        <aside class="preview-card">
+          <img id="photo-preview" alt="Historical photo preview" />
+          <p id="photo-path" class="meta"></p>
+        </aside>
+
+        <form id="photo-form">
+          <div class="field">
+            <label for="photo-title">Title</label>
+            <input id="photo-title" maxlength="160" />
+          </div>
+          <div class="field">
+            <label for="photo-caption">Caption</label>
+            <textarea id="photo-caption" maxlength="500" placeholder="Short public caption shown in the gallery card."></textarea>
+          </div>
+          <div class="field">
+            <label for="photo-story">Story</label>
+            <textarea id="photo-story" maxlength="5000" placeholder="Longer story or historical context shown in the lightbox."></textarea>
+          </div>
+          <div class="field">
+            <label for="photo-tagged-people">Tagged people</label>
+            <input id="photo-tagged-people" maxlength="500" placeholder="Comma separated names, for example Ruth Obenchain, Frank Obenchain" />
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="photo-source">Source</label>
+              <input id="photo-source" maxlength="255" />
+            </div>
+            <div class="field">
+              <label for="photo-photographer">Photographer / contributor</label>
+              <input id="photo-photographer" maxlength="255" />
+            </div>
+            <div class="field">
+              <label for="photo-location">Location</label>
+              <input id="photo-location" maxlength="255" />
+            </div>
+            <div class="field">
+              <label for="photo-taken-on">Date taken</label>
+              <input id="photo-taken-on" type="date" />
+            </div>
+            <div class="field">
+              <label for="photo-sort-order">Sort order</label>
+              <input id="photo-sort-order" type="number" step="1" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="photo-notes">Internal notes</label>
+            <textarea id="photo-notes" maxlength="3000" placeholder="Private archive notes for editors."></textarea>
+          </div>
+          <label class="checkbox-row">
+            <input id="photo-published" type="checkbox" />
+            Published publicly
+          </label>
+          <div class="actions">
+            <button id="photo-save" class="button" type="submit">Save details</button>
+            <p id="photo-status" class="status-copy" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const bucket = String(params.get("bucket") || "").trim();
+    const name = String(params.get("name") || "").trim();
+    const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname + window.location.search);
+
+    const titleEl = document.getElementById("page-title");
+    const introEl = document.getElementById("page-intro");
+    const backLinkEl = document.getElementById("back-link");
+    const previewEl = document.getElementById("photo-preview");
+    const pathEl = document.getElementById("photo-path");
+    const formEl = document.getElementById("photo-form");
+    const saveButtonEl = document.getElementById("photo-save");
+    const statusEl = document.getElementById("photo-status");
+    const titleInput = document.getElementById("photo-title");
+    const captionInput = document.getElementById("photo-caption");
+    const storyInput = document.getElementById("photo-story");
+    const taggedPeopleInput = document.getElementById("photo-tagged-people");
+    const sourceInput = document.getElementById("photo-source");
+    const photographerInput = document.getElementById("photo-photographer");
+    const locationInput = document.getElementById("photo-location");
+    const takenOnInput = document.getElementById("photo-taken-on");
+    const sortOrderInput = document.getElementById("photo-sort-order");
+    const notesInput = document.getElementById("photo-notes");
+    const publishedInput = document.getElementById("photo-published");
+
+    async function loadPage() {
+      if (!bucket || !name) {
+        titleEl.textContent = "Missing photo";
+        introEl.textContent = "This editor needs both a bucket and file name.";
+        formEl.hidden = true;
+        return;
+      }
+
+      const session = await window.siteAuth.getSession().catch(() => null);
+      if (!session) {
+        window.location.replace(loginUrl);
+        return;
+      }
+
+      const response = await fetch(`/api/historical-photos?bucket=${encodeURIComponent(bucket)}&name=${encodeURIComponent(name)}`, {
+        headers: {
+          Authorization: "Bearer " + session.access_token,
+        },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        if (response.status === 401) {
+          await window.siteAuth.logout();
+          window.location.replace(loginUrl + "&auth_error=expired");
+          return;
+        }
+        titleEl.textContent = "Photo access error";
+        introEl.textContent = payload.error || "Unable to load photo details.";
+        formEl.hidden = true;
+        return;
+      }
+
+      const photo = payload.photo || {};
+      titleEl.textContent = photo.title || name;
+      introEl.textContent = "Edit the public archive details for this historical photo.";
+      backLinkEl.href = `/media-manager/#${encodeURIComponent(bucket)}`;
+      previewEl.src = photo.imageUrl || `/media/${bucket}/${encodeURIComponent(name)}`;
+      previewEl.alt = photo.title || name;
+      pathEl.textContent = photo.storagePath || `${bucket}/${name}`;
+
+      titleInput.value = photo.title || "";
+      captionInput.value = photo.caption || "";
+      storyInput.value = photo.story || "";
+      taggedPeopleInput.value = Array.isArray(photo.taggedPeople) ? photo.taggedPeople.join(", ") : "";
+      sourceInput.value = photo.source || "";
+      photographerInput.value = photo.photographer || "";
+      locationInput.value = photo.location || "";
+      takenOnInput.value = photo.takenOn || "";
+      sortOrderInput.value = Number.isFinite(Number(photo.sortOrder)) ? String(photo.sortOrder) : "0";
+      notesInput.value = photo.notes || "";
+      publishedInput.checked = photo.published !== false;
+    }
+
+    formEl.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const session = await window.siteAuth.getSession().catch(() => null);
+      if (!session) {
+        window.location.replace(loginUrl);
+        return;
+      }
+
+      saveButtonEl.disabled = true;
+      statusEl.classList.remove("warning");
+      statusEl.textContent = "Saving...";
+
+      try {
+        const response = await fetch(`/api/historical-photos?bucket=${encodeURIComponent(bucket)}&name=${encodeURIComponent(name)}`, {
+          method: "PATCH",
+          headers: {
+            Authorization: "Bearer " + session.access_token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: titleInput.value.trim(),
+            caption: captionInput.value.trim(),
+            story: storyInput.value.trim(),
+            taggedPeople: taggedPeopleInput.value.split(",").map((value) => value.trim()).filter(Boolean),
+            source: sourceInput.value.trim(),
+            photographer: photographerInput.value.trim(),
+            location: locationInput.value.trim(),
+            takenOn: takenOnInput.value,
+            sortOrder: Number(sortOrderInput.value || 0),
+            notes: notesInput.value.trim(),
+            published: publishedInput.checked,
+          }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || "Unable to save photo details.");
+        }
+
+        statusEl.textContent = "Saved.";
+        titleEl.textContent = payload.photo?.title || titleInput.value.trim() || name;
+      } catch (error) {
+        statusEl.classList.add("warning");
+        statusEl.textContent = error.message || "Unable to save photo details.";
+      } finally {
+        saveButtonEl.disabled = false;
+      }
+    });
+
+    loadPage();
+  </script>
+</body>
+</html>

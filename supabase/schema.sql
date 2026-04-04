@@ -169,6 +169,43 @@ create table if not exists public.photos (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.historical_photos (
+  id uuid primary key default gen_random_uuid(),
+  bucket_id text not null,
+  storage_path text not null unique,
+  title text,
+  caption text,
+  story text not null default '',
+  notes text not null default '',
+  source text,
+  photographer text,
+  location text,
+  taken_on date,
+  sort_order integer not null default 0,
+  published boolean not null default true,
+  created_by uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.historical_people (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  name text not null,
+  bio text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.historical_photo_people (
+  photo_id uuid not null references public.historical_photos(id) on delete cascade,
+  person_id uuid not null references public.historical_people(id) on delete cascade,
+  label text,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  primary key (photo_id, person_id)
+);
+
 create table if not exists public.recommendations (
   id uuid primary key default gen_random_uuid(),
   author_id uuid references public.profiles(id) on delete set null,
@@ -196,6 +233,9 @@ create table if not exists public.articles (
 alter table public.profiles enable row level security;
 alter table public.photo_albums enable row level security;
 alter table public.photos enable row level security;
+alter table public.historical_photos enable row level security;
+alter table public.historical_people enable row level security;
+alter table public.historical_photo_people enable row level security;
 alter table public.recommendations enable row level security;
 alter table public.articles enable row level security;
 
@@ -334,6 +374,45 @@ on public.photos
 for update
 using ((owner_id = auth.uid() and status = 'pending') or public.is_admin())
 with check ((owner_id = auth.uid() and status = 'pending') or public.is_admin());
+
+drop policy if exists "historical photos public read" on public.historical_photos;
+create policy "historical photos public read"
+on public.historical_photos
+for select
+using (published = true or public.is_admin());
+
+drop policy if exists "historical photos admin manage" on public.historical_photos;
+create policy "historical photos admin manage"
+on public.historical_photos
+for all
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "historical people public read" on public.historical_people;
+create policy "historical people public read"
+on public.historical_people
+for select
+using (true);
+
+drop policy if exists "historical people admin manage" on public.historical_people;
+create policy "historical people admin manage"
+on public.historical_people
+for all
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "historical photo people public read" on public.historical_photo_people;
+create policy "historical photo people public read"
+on public.historical_photo_people
+for select
+using (true);
+
+drop policy if exists "historical photo people admin manage" on public.historical_photo_people;
+create policy "historical photo people admin manage"
+on public.historical_photo_people
+for all
+using (public.is_admin())
+with check (public.is_admin());
 
 drop policy if exists "recommendations readable" on public.recommendations;
 create policy "recommendations readable"

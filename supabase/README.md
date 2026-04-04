@@ -14,6 +14,10 @@ Recommended admin model:
 - admins approve, reject, edit, publish, and manage visibility
 - your account should be promoted by updating `public.profiles.role = 'admin'`
 
+System integration map:
+- See [docs/system-map.md](/Users/quentinnichols/Documents/Websites/blyoregon.org/docs/system-map.md) for how profiles, permissions pages, APIs, storage buckets, media manager, and public history galleries connect.
+- Keep `schema.sql`, this README, and `docs/system-map.md` updated together when you add new data models or permissions.
+
 Recommended next implementation steps in this site:
 1. Build a profile bootstrap call on first login.
 2. Add member submission forms for recommendations and articles.

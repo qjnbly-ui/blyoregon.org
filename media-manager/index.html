@@ -298,6 +298,11 @@
       display: grid;
       gap: 0.7rem;
     }
+    .media-item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
     .media-item img {
       width: 100%;
       aspect-ratio: 1 / 1;
@@ -552,6 +557,7 @@
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     let activeSession = null;
     let mediaPermissions = {
+      canEditMediaDetails: false,
       canDeleteMedia: false,
       canUploadPhotos: false,
     };
@@ -612,6 +618,17 @@
         label.className = "media-item-name";
         label.textContent = name;
 
+        const actions = document.createElement("div");
+        actions.className = "media-item-actions";
+
+        if (mediaPermissions.canEditMediaDetails) {
+          const editLink = document.createElement("a");
+          editLink.className = "button secondary";
+          editLink.href = `/media-manager/photo/?bucket=${encodeURIComponent(bucket)}&name=${encodeURIComponent(name)}`;
+          editLink.textContent = "Edit details";
+          actions.appendChild(editLink);
+        }
+
         const removeButton = document.createElement("button");
         removeButton.className = "button secondary";
         removeButton.type = "button";
@@ -632,7 +649,14 @@
           }
         });
 
-        article.append(image, label, removeButton);
+        if (!removeButton.hidden) {
+          actions.appendChild(removeButton);
+        }
+
+        article.append(image, label);
+        if (actions.childElementCount) {
+          article.appendChild(actions);
+        }
         grid.appendChild(article);
       });
 
@@ -689,6 +713,7 @@
 
       const allowedBuckets = Array.isArray(payload.profile?.mediaBuckets) ? payload.profile.mediaBuckets : [];
       mediaPermissions = {
+        canEditMediaDetails: Boolean(payload.canEditMediaDetails || payload.profile?.mediaPermissions?.canEditMediaDetails || payload.admin),
         canDeleteMedia: Boolean(payload.canDeleteMedia || payload.profile?.mediaPermissions?.canDeleteMedia || payload.admin),
         canUploadPhotos: Boolean(payload.canUploadPhotos || payload.profile?.mediaPermissions?.canUploadPhotos || payload.admin),
       };
