@@ -298,6 +298,33 @@
               <button id="toggle-manager" class="toggle" type="button" role="switch" aria-checked="false"></button>
             </div>
           </div>
+          <div class="toggle-card">
+            <div class="toggle-row">
+              <div class="toggle-copy">
+                <strong>Edit photo details</strong>
+                <span>Reserved for titles, captions, descriptions, and other photo metadata tools.</span>
+              </div>
+              <button id="toggle-edit-details" class="toggle" type="button" role="switch" aria-checked="false"></button>
+            </div>
+          </div>
+          <div class="toggle-card">
+            <div class="toggle-row">
+              <div class="toggle-copy">
+                <strong>Rename media</strong>
+                <span>Reserved for future rename tools in the media manager.</span>
+              </div>
+              <button id="toggle-rename" class="toggle" type="button" role="switch" aria-checked="false"></button>
+            </div>
+          </div>
+          <div class="toggle-card">
+            <div class="toggle-row">
+              <div class="toggle-copy">
+                <strong>Delete media</strong>
+                <span>Controls whether this member can remove files from managed buckets.</span>
+              </div>
+              <button id="toggle-delete" class="toggle" type="button" role="switch" aria-checked="false"></button>
+            </div>
+          </div>
           <div class="bucket-card">
             <h3>Media buckets</h3>
             <div id="bucket-options" class="bucket-options"></div>
@@ -320,6 +347,9 @@
     const controlsEl = document.getElementById("controls");
     const toggleUploadEl = document.getElementById("toggle-upload");
     const toggleManagerEl = document.getElementById("toggle-manager");
+    const toggleEditDetailsEl = document.getElementById("toggle-edit-details");
+    const toggleRenameEl = document.getElementById("toggle-rename");
+    const toggleDeleteEl = document.getElementById("toggle-delete");
     const bucketOptionsEl = document.getElementById("bucket-options");
     const memberStatusEl = document.getElementById("member-status");
     const pageStatusEl = document.getElementById("page-status");
@@ -348,6 +378,9 @@
       if (!activeProfile) return;
       toggleUploadEl.setAttribute("aria-checked", String(Boolean(activeProfile.canUploadPhotos)));
       toggleManagerEl.setAttribute("aria-checked", String(Boolean(activeProfile.canManageMedia)));
+      toggleEditDetailsEl.setAttribute("aria-checked", String(Boolean(activeProfile.canEditMediaDetails)));
+      toggleRenameEl.setAttribute("aria-checked", String(Boolean(activeProfile.canRenameMedia)));
+      toggleDeleteEl.setAttribute("aria-checked", String(Boolean(activeProfile.canDeleteMedia)));
       bucketOptionsEl.querySelectorAll("input[type=\"checkbox\"]").forEach((input) => {
         input.checked = Array.isArray(activeProfile.mediaBuckets) && activeProfile.mediaBuckets.includes(input.value);
         input.disabled = !activeProfile.canManageMedia;
@@ -367,6 +400,9 @@
             userId: activeProfile.id,
             canUploadPhotos: nextState.canUploadPhotos,
             canManageMedia: nextState.canManageMedia,
+            canEditMediaDetails: nextState.canEditMediaDetails,
+            canRenameMedia: nextState.canRenameMedia,
+            canDeleteMedia: nextState.canDeleteMedia,
             mediaBuckets: nextState.mediaBuckets,
           }),
         });
@@ -480,6 +516,30 @@
         ...activeProfile,
         canManageMedia: !activeProfile.canManageMedia,
         mediaBuckets: activeProfile.canManageMedia ? [] : activeProfile.mediaBuckets,
+      });
+    });
+
+    toggleEditDetailsEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        canEditMediaDetails: !activeProfile.canEditMediaDetails,
+      });
+    });
+
+    toggleRenameEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        canRenameMedia: !activeProfile.canRenameMedia,
+      });
+    });
+
+    toggleDeleteEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        canDeleteMedia: !activeProfile.canDeleteMedia,
       });
     });
 

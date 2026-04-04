@@ -13,6 +13,9 @@ create table if not exists public.profiles (
   can_manage_media boolean not null default false,
   media_buckets text[] not null default '{}',
   can_upload_photos boolean not null default false,
+  can_edit_media_details boolean not null default false,
+  can_rename_media boolean not null default false,
+  can_delete_media boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -20,6 +23,9 @@ create table if not exists public.profiles (
 alter table public.profiles add column if not exists avatar_path text;
 alter table public.profiles add column if not exists can_manage_media boolean not null default false;
 alter table public.profiles add column if not exists media_buckets text[] not null default '{}';
+alter table public.profiles add column if not exists can_edit_media_details boolean not null default false;
+alter table public.profiles add column if not exists can_rename_media boolean not null default false;
+alter table public.profiles add column if not exists can_delete_media boolean not null default false;
 
 create or replace function public.is_admin()
 returns boolean
@@ -47,6 +53,66 @@ as $$
         role = 'admin'
         or (
           can_manage_media = true
+          and bucket_name = any(coalesce(media_buckets, '{}'))
+        )
+      )
+  );
+$$;
+
+create or replace function public.can_upload_to_bucket(bucket_name text)
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and (
+        role = 'admin'
+        or (
+          can_manage_media = true
+          and can_upload_photos = true
+          and bucket_name = any(coalesce(media_buckets, '{}'))
+        )
+      )
+  );
+$$;
+
+create or replace function public.can_update_bucket(bucket_name text)
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and (
+        role = 'admin'
+        or (
+          can_manage_media = true
+          and (can_edit_media_details = true or can_rename_media = true)
+          and bucket_name = any(coalesce(media_buckets, '{}'))
+        )
+      )
+  );
+$$;
+
+create or replace function public.can_delete_from_bucket(bucket_name text)
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and (
+        role = 'admin'
+        or (
+          can_manage_media = true
+          and can_delete_media = true
           and bucket_name = any(coalesce(media_buckets, '{}'))
         )
       )
@@ -184,7 +250,7 @@ for insert
 to authenticated
 with check (
   bucket_id in ('churchfirephotos', 'standingstonechurchconstructionphotos')
-  and public.can_manage_bucket(bucket_id)
+  and public.can_upload_to_bucket(bucket_id)
 );
 
 drop policy if exists "media manager update selected buckets" on storage.objects;
@@ -194,11 +260,11 @@ for update
 to authenticated
 using (
   bucket_id in ('churchfirephotos', 'standingstonechurchconstructionphotos')
-  and public.can_manage_bucket(bucket_id)
+  and public.can_update_bucket(bucket_id)
 )
 with check (
   bucket_id in ('churchfirephotos', 'standingstonechurchconstructionphotos')
-  and public.can_manage_bucket(bucket_id)
+  and public.can_update_bucket(bucket_id)
 );
 
 drop policy if exists "media manager delete selected buckets" on storage.objects;
@@ -208,7 +274,7 @@ for delete
 to authenticated
 using (
   bucket_id in ('churchfirephotos', 'standingstonechurchconstructionphotos')
-  and public.can_manage_bucket(bucket_id)
+  and public.can_delete_from_bucket(bucket_id)
 );
 
 drop policy if exists "profiles view own or admin" on public.profiles;
@@ -312,5 +378,8 @@ with check ((author_id = auth.uid() and status in ('draft', 'pending_review')) o
 -- set role = 'admin',
 --     can_upload_photos = true,
 --     can_manage_media = true,
+--     can_edit_media_details = true,
+--     can_rename_media = true,
+--     can_delete_media = true,
 --     media_buckets = array['churchfirephotos', 'standingstonechurchconstructionphotos']
 -- where email = 'quentin@quentin.nichols.com';

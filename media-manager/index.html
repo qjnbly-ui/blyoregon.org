@@ -551,6 +551,10 @@
 
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     let activeSession = null;
+    let mediaPermissions = {
+      canDeleteMedia: false,
+      canUploadPhotos: false,
+    };
 
     function setBucketOpen(bucket, isOpen) {
       const panel = document.querySelector(`[data-bucket-panel="${bucket}"]`);
@@ -612,6 +616,7 @@
         removeButton.className = "button secondary";
         removeButton.type = "button";
         removeButton.textContent = "Delete";
+        removeButton.hidden = !mediaPermissions.canDeleteMedia;
         removeButton.addEventListener("click", async () => {
           if (!window.confirm(`Delete ${name}?`)) return;
           removeButton.disabled = true;
@@ -683,6 +688,10 @@
       }
 
       const allowedBuckets = Array.isArray(payload.profile?.mediaBuckets) ? payload.profile.mediaBuckets : [];
+      mediaPermissions = {
+        canDeleteMedia: Boolean(payload.canDeleteMedia || payload.profile?.mediaPermissions?.canDeleteMedia || payload.admin),
+        canUploadPhotos: Boolean(payload.canUploadPhotos || payload.profile?.mediaPermissions?.canUploadPhotos || payload.admin),
+      };
       if (!payload.admin && !allowedBuckets.length) {
         window.location.replace("/account/");
         return;
@@ -694,12 +703,15 @@
 
       BUCKETS.forEach(({ id }) => {
         const card = document.querySelector(`[data-bucket-card="${id}"]`);
+        const input = document.querySelector(`[data-bucket-input="${id}"]`);
         const uploadButton = document.querySelector(`[data-bucket-upload="${id}"]`);
         const refreshButton = document.querySelector(`[data-bucket-refresh="${id}"]`);
         const toggleButton = document.querySelector(`[data-bucket-toggle="${id}"]`);
         if (card) {
           card.hidden = !visibleBuckets.some((bucket) => bucket.id === id);
         }
+        if (input) input.disabled = !mediaPermissions.canUploadPhotos;
+        if (uploadButton) uploadButton.hidden = !mediaPermissions.canUploadPhotos;
         setBucketOpen(id, false);
         toggleButton?.addEventListener("click", async () => {
           const panel = document.querySelector(`[data-bucket-panel="${id}"]`);

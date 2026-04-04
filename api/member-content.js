@@ -38,7 +38,7 @@ async function authenticateRequest(req) {
 
 async function fetchProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,created_at&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,can_edit_media_details,can_rename_media,can_delete_media,created_at&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -84,6 +84,9 @@ module.exports = async (req, res) => {
       : [];
     const canManageMedia = Boolean(admin || (profile?.can_manage_media && mediaBuckets.length));
     const canUploadPhotos = Boolean(profile?.can_upload_photos || admin);
+    const canEditMediaDetails = Boolean(profile?.can_edit_media_details || admin);
+    const canRenameMedia = Boolean(profile?.can_rename_media || admin);
+    const canDeleteMedia = Boolean(profile?.can_delete_media || admin);
 
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
@@ -94,6 +97,9 @@ module.exports = async (req, res) => {
         admin,
         canManageMedia,
         canUploadPhotos,
+        canEditMediaDetails,
+        canRenameMedia,
+        canDeleteMedia,
         email,
         profile: {
           avatarPath: profile?.avatar_path || "",
@@ -103,6 +109,12 @@ module.exports = async (req, res) => {
           createdAt: profile?.created_at || null,
           displayName,
           mediaBuckets,
+          mediaPermissions: {
+            canDeleteMedia,
+            canEditMediaDetails,
+            canRenameMedia,
+            canUploadPhotos,
+          },
           role,
         },
       })

@@ -63,7 +63,7 @@ async function authenticateRequest(req) {
 
 async function fetchOwnProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,role,can_upload_photos,can_manage_media,media_buckets&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,role,can_upload_photos,can_manage_media,media_buckets,can_edit_media_details,can_rename_media,can_delete_media&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -79,7 +79,7 @@ async function fetchOwnProfile(session, token) {
 
 async function listProfiles(token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,role,can_upload_photos,can_manage_media,media_buckets&order=display_name.asc.nullslast,email.asc`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,role,can_upload_photos,can_manage_media,media_buckets,can_edit_media_details,can_rename_media,can_delete_media&order=display_name.asc.nullslast,email.asc`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -103,6 +103,9 @@ async function updateMediaAccess(token, userId, options) {
   const mediaBuckets = sanitizeBuckets(options?.mediaBuckets);
   const canUploadPhotos = Boolean(options?.canUploadPhotos);
   const canManageMedia = Boolean(options?.canManageMedia || mediaBuckets.length > 0);
+  const canEditMediaDetails = Boolean(options?.canEditMediaDetails);
+  const canRenameMedia = Boolean(options?.canRenameMedia);
+  const canDeleteMedia = Boolean(options?.canDeleteMedia);
   const response = await fetch(
     `${getSupabaseUrl()}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}`,
     {
@@ -116,6 +119,9 @@ async function updateMediaAccess(token, userId, options) {
       body: JSON.stringify({
         can_upload_photos: canUploadPhotos,
         can_manage_media: canManageMedia,
+        can_edit_media_details: canEditMediaDetails,
+        can_rename_media: canRenameMedia,
+        can_delete_media: canDeleteMedia,
         media_buckets: mediaBuckets,
       }),
     }
@@ -153,6 +159,9 @@ module.exports = async (req, res) => {
               role: String(profile.role || "member").toLowerCase(),
               canUploadPhotos: Boolean(profile.can_upload_photos || String(profile.role || "").toLowerCase() === "admin"),
               canManageMedia: Boolean(profile.can_manage_media || String(profile.role || "").toLowerCase() === "admin"),
+              canEditMediaDetails: Boolean(profile.can_edit_media_details || String(profile.role || "").toLowerCase() === "admin"),
+              canRenameMedia: Boolean(profile.can_rename_media || String(profile.role || "").toLowerCase() === "admin"),
+              canDeleteMedia: Boolean(profile.can_delete_media || String(profile.role || "").toLowerCase() === "admin"),
               mediaBuckets: Array.isArray(profile.media_buckets) ? profile.media_buckets : [],
             }))
           : [],
@@ -166,6 +175,9 @@ module.exports = async (req, res) => {
       const mediaBuckets = sanitizeBuckets(body?.mediaBuckets);
       const canUploadPhotos = Boolean(body?.canUploadPhotos);
       const canManageMedia = Boolean(body?.canManageMedia || mediaBuckets.length > 0);
+      const canEditMediaDetails = Boolean(body?.canEditMediaDetails);
+      const canRenameMedia = Boolean(body?.canRenameMedia);
+      const canDeleteMedia = Boolean(body?.canDeleteMedia);
 
       if (!userId) {
         sendJson(res, 400, { error: "Missing userId" });
@@ -176,6 +188,9 @@ module.exports = async (req, res) => {
         mediaBuckets,
         canUploadPhotos,
         canManageMedia,
+        canEditMediaDetails,
+        canRenameMedia,
+        canDeleteMedia,
       });
       sendJson(res, 200, {
         ok: true,
@@ -186,6 +201,9 @@ module.exports = async (req, res) => {
           role: String(updated?.role || "member").toLowerCase(),
           canUploadPhotos: Boolean(updated?.can_upload_photos || String(updated?.role || "").toLowerCase() === "admin"),
           canManageMedia: Boolean(updated?.can_manage_media || String(updated?.role || "").toLowerCase() === "admin"),
+          canEditMediaDetails: Boolean(updated?.can_edit_media_details || String(updated?.role || "").toLowerCase() === "admin"),
+          canRenameMedia: Boolean(updated?.can_rename_media || String(updated?.role || "").toLowerCase() === "admin"),
+          canDeleteMedia: Boolean(updated?.can_delete_media || String(updated?.role || "").toLowerCase() === "admin"),
           mediaBuckets: Array.isArray(updated?.media_buckets) ? updated.media_buckets : mediaBuckets,
         },
       });
