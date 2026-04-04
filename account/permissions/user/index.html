@@ -147,11 +147,36 @@
       display: grid;
       gap: 1rem;
     }
+    .permission-groups {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .permission-group {
+      border-radius: 20px;
+      border: 1px solid rgba(20, 50, 39, 0.12);
+      background: rgba(255, 255, 255, 0.62);
+      padding: 1rem;
+      display: grid;
+      gap: 0.85rem;
+    }
+    .permission-group-header {
+      display: grid;
+      gap: 0.25rem;
+    }
+    .permission-group-header h3 {
+      font-size: 1.02rem;
+    }
+    .permission-group-header p {
+      margin: 0;
+      color: #5c6d63;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
     .control-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 0.85rem;
-      margin-top: 1rem;
     }
     .toggle-card,
     .bucket-card {
@@ -277,85 +302,109 @@
 
     <section class="card">
       <h2>Access settings</h2>
-      <p class="meta">Use this page to manage media and article permissions for one member.</p>
+      <p class="meta">Use categories below to manage media tools, article workflow, and bucket-specific access for one member.</p>
       <div id="controls" hidden>
-        <div class="control-grid">
-          <div class="toggle-card">
-            <div class="toggle-row">
-              <div class="toggle-copy">
-                <strong>Photo uploads</strong>
-                <span>Allows this member to submit photos from the site tools.</span>
-              </div>
-              <button id="toggle-upload" class="toggle" type="button" role="switch" aria-checked="false"></button>
+        <div class="permission-groups">
+          <section class="permission-group">
+            <div class="permission-group-header">
+              <h3>Media permissions</h3>
+              <p>Controls uploads, the media manager, and photo-level actions inside managed buckets.</p>
             </div>
-          </div>
-          <div class="toggle-card">
-            <div class="toggle-row">
-              <div class="toggle-copy">
-                <strong>Media manager</strong>
-                <span>Gives access to the media manager and unlocks the bucket permissions below.</span>
+            <div class="control-grid">
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Photo uploads</strong>
+                    <span>Allows this member to submit photos from the site tools.</span>
+                  </div>
+                  <button id="toggle-upload" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
               </div>
-              <button id="toggle-manager" class="toggle" type="button" role="switch" aria-checked="false"></button>
-            </div>
-          </div>
-          <div class="toggle-card">
-            <div class="toggle-row">
-              <div class="toggle-copy">
-                <strong>Edit photo details</strong>
-                <span>Allows editing titles, captions, stories, tagged people, and other archive metadata.</span>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Media manager</strong>
+                    <span>Gives access to the media manager and unlocks the bucket permissions below.</span>
+                  </div>
+                  <button id="toggle-manager" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
               </div>
-              <button id="toggle-edit-details" class="toggle" type="button" role="switch" aria-checked="false"></button>
-            </div>
-          </div>
-          <div class="toggle-card">
-            <div class="toggle-row">
-              <div class="toggle-copy">
-                <strong>Rename media</strong>
-                <span>Reserved for future rename tools in the media manager.</span>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Edit photo details</strong>
+                    <span>Allows editing titles, captions, stories, tagged people, and other archive metadata.</span>
+                  </div>
+                  <button id="toggle-edit-details" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
               </div>
-              <button id="toggle-rename" class="toggle" type="button" role="switch" aria-checked="false"></button>
-            </div>
-          </div>
-          <div class="toggle-card">
-            <div class="toggle-row">
-              <div class="toggle-copy">
-                <strong>Delete media</strong>
-                <span>Controls whether this member can remove files from managed buckets.</span>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Rename media</strong>
+                    <span>Reserved for future rename tools in the media manager.</span>
+                  </div>
+                  <button id="toggle-rename" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
               </div>
-              <button id="toggle-delete" class="toggle" type="button" role="switch" aria-checked="false"></button>
-            </div>
-          </div>
-          <div class="toggle-card">
-            <div class="toggle-row">
-              <div class="toggle-copy">
-                <strong>Submit articles</strong>
-                <span>Lets this member create drafts and submit user articles for review.</span>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Delete media</strong>
+                    <span>Controls whether this member can remove files from managed buckets.</span>
+                  </div>
+                  <button id="toggle-delete" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
               </div>
-              <button id="toggle-submit-articles" class="toggle" type="button" role="switch" aria-checked="false"></button>
             </div>
-          </div>
-          <div class="toggle-card">
-            <div class="toggle-row">
-              <div class="toggle-copy">
-                <strong>Review articles</strong>
-                <span>Lets this member review submitted articles and request changes.</span>
+          </section>
+
+          <section class="permission-group">
+            <div class="permission-group-header">
+              <h3>Article permissions</h3>
+              <p>Controls writing, review, and publishing for the dynamic user-submitted article workflow.</p>
+            </div>
+            <div class="control-grid">
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Submit articles</strong>
+                    <span>Lets this member create drafts and submit user articles for review.</span>
+                  </div>
+                  <button id="toggle-submit-articles" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
               </div>
-              <button id="toggle-review-articles" class="toggle" type="button" role="switch" aria-checked="false"></button>
-            </div>
-          </div>
-          <div class="toggle-card">
-            <div class="toggle-row">
-              <div class="toggle-copy">
-                <strong>Publish articles</strong>
-                <span>Lets this member approve and publish user-submitted articles.</span>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Review articles</strong>
+                    <span>Lets this member review submitted articles and request changes.</span>
+                  </div>
+                  <button id="toggle-review-articles" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
               </div>
-              <button id="toggle-publish-articles" class="toggle" type="button" role="switch" aria-checked="false"></button>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Publish articles</strong>
+                    <span>Lets this member approve and publish user-submitted articles.</span>
+                  </div>
+                  <button id="toggle-publish-articles" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="bucket-card">
-            <h3>Media buckets</h3>
-            <div id="bucket-options" class="bucket-options"></div>
-          </div>
+          </section>
+
+          <section class="permission-group">
+            <div class="permission-group-header">
+              <h3>Bucket access</h3>
+              <p>Choose which historical photo buckets this member can work in when media manager access is enabled.</p>
+            </div>
+            <div class="bucket-card">
+              <h3>Media buckets</h3>
+              <div id="bucket-options" class="bucket-options"></div>
+            </div>
+          </section>
         </div>
       </div>
       <p id="member-status" class="member-status" aria-live="polite"></p>
