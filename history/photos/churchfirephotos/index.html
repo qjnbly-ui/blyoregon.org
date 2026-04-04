@@ -127,12 +127,10 @@
       border-radius: 12px;
       overflow: hidden;
       box-shadow: var(--shadow);
+      cursor: pointer;
     }
 
-    .card img { width: 100%; height: 200px; object-fit: cover; display: block; cursor: pointer; }
-    .card-copy { padding: 0.8rem 0.9rem 0.95rem; display: grid; gap: 0.35rem; }
-    .card-title { color: var(--forest); font-weight: 700; font-size: 0.98rem; }
-    .card-caption { color: #526158; font-size: 0.9rem; line-height: 1.45; }
+    .card img { width: 100%; height: 240px; object-fit: cover; display: block; }
 
     .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 50; }
     .lightbox.open { display: flex; }
@@ -141,7 +139,12 @@
     .lightbox-controls { display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 0.95em; }
     .lightbox-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.4); color: #fff; padding: 0.4em 0.8em; border-radius: 999px; cursor: pointer; }
     .lightbox-close { position: absolute; top: 16px; right: 16px; }
-    .lightbox-meta { color: rgba(255,255,255,0.86); line-height: 1.55; max-width: 70ch; }
+    .lightbox-meta { color: rgba(255,255,255,0.86); line-height: 1.55; max-width: 70ch; display: grid; gap: 0.75rem; }
+    .lightbox-meta[hidden] { display: none; }
+    .lightbox-meta-title { margin: 0; color: #fff; font-family: "Fraunces", "Times New Roman", serif; font-size: clamp(1.25rem, 2vw, 1.7rem); line-height: 1.15; }
+    .lightbox-meta-copy { margin: 0; }
+    .lightbox-meta-facts { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .lightbox-meta-fact { border: 1px solid rgba(255,255,255,0.24); border-radius: 999px; padding: 0.35rem 0.7rem; font-size: 0.92rem; color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.08); }
 
     footer {
       background: #162f25;
@@ -225,13 +228,59 @@
         return;
       }
 
+      function renderLightboxMeta(photo) {
+        lightboxMeta.innerHTML = '';
+
+        const title = String(photo.displayTitle || '').trim();
+        const copy = String(photo.story || photo.caption || '').trim();
+        const facts = [
+          photo.takenOn ? `Date: ${photo.takenOn}` : '',
+          photo.location ? `Location: ${photo.location}` : '',
+          photo.photographer ? `Photographer: ${photo.photographer}` : '',
+          photo.source ? `Source: ${photo.source}` : '',
+        ].filter(Boolean);
+
+        if (!title && !copy && !facts.length) {
+          lightboxMeta.hidden = true;
+          return;
+        }
+
+        lightboxMeta.hidden = false;
+
+        if (title) {
+          const titleEl = document.createElement('h3');
+          titleEl.className = 'lightbox-meta-title';
+          titleEl.textContent = title;
+          lightboxMeta.appendChild(titleEl);
+        }
+
+        if (copy) {
+          const copyEl = document.createElement('p');
+          copyEl.className = 'lightbox-meta-copy';
+          copyEl.textContent = copy;
+          lightboxMeta.appendChild(copyEl);
+        }
+
+        if (facts.length) {
+          const factsEl = document.createElement('div');
+          factsEl.className = 'lightbox-meta-facts';
+          facts.forEach((fact) => {
+            const factEl = document.createElement('div');
+            factEl.className = 'lightbox-meta-fact';
+            factEl.textContent = fact;
+            factsEl.appendChild(factEl);
+          });
+          lightboxMeta.appendChild(factsEl);
+        }
+      }
+
       function openLightbox(index) {
         currentIndex = (index + photos.length) % photos.length;
         const photo = photos[currentIndex];
         lightboxImage.src = photo.imageUrl;
-        lightboxImage.alt = photo.title || 'Standing Stone Church fire photo';
+        lightboxImage.alt = photo.displayTitle || 'Standing Stone Church fire photo';
         lightboxCounter.textContent = `${currentIndex + 1} of ${photos.length}`;
-        lightboxMeta.textContent = photo.story || photo.caption || photo.title || '';
+        renderLightboxMeta(photo);
         lightbox.classList.add('open');
         lightbox.setAttribute('aria-hidden', 'false');
       }
@@ -240,7 +289,8 @@
         lightbox.classList.remove('open');
         lightbox.setAttribute('aria-hidden', 'true');
         lightboxImage.src = '';
-        lightboxMeta.textContent = '';
+        lightboxMeta.innerHTML = '';
+        lightboxMeta.hidden = true;
       }
 
       function showNext(delta) {
@@ -256,26 +306,10 @@
 
         const img = document.createElement('img');
         img.src = photo.imageUrl;
-        img.alt = photo.title || 'Standing Stone Church fire photo';
+        img.alt = photo.displayTitle || 'Standing Stone Church fire photo';
         img.loading = 'lazy';
-        img.addEventListener('click', () => openLightbox(index));
-
-        const copy = document.createElement('div');
-        copy.className = 'card-copy';
-
-        const title = document.createElement('div');
-        title.className = 'card-title';
-        title.textContent = photo.title || 'Historical photo';
-
-        copy.appendChild(title);
-        if (photo.caption) {
-          const caption = document.createElement('div');
-          caption.className = 'card-caption';
-          caption.textContent = photo.caption;
-          copy.appendChild(caption);
-        }
-
-        card.append(img, copy);
+        card.addEventListener('click', () => openLightbox(index));
+        card.append(img);
         grid.appendChild(card);
       });
 

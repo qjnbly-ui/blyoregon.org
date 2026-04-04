@@ -326,6 +326,13 @@ async function upsertPhotoRecord(storagePath, input, token, userId) {
 }
 
 function buildPublicPhoto(bucket, name, metadata, index) {
+  const displayTitle = String(metadata?.title || "").trim();
+  const caption = String(metadata?.caption || "").trim();
+  const story = String(metadata?.story || "").trim();
+  const source = String(metadata?.source || "").trim();
+  const photographer = String(metadata?.photographer || "").trim();
+  const location = String(metadata?.location || "").trim();
+  const takenOn = metadata?.taken_on || null;
   return {
     id: metadata?.id || `${bucket}/${name}`,
     bucket,
@@ -333,13 +340,15 @@ function buildPublicPhoto(bucket, name, metadata, index) {
     storagePath: `${bucket}/${name}`,
     imageUrl: `/media/${bucket}/${encodeURIComponent(name)}`,
     title: String(metadata?.title || deriveTitle(name) || "Historical photo"),
-    caption: String(metadata?.caption || "").trim(),
-    story: String(metadata?.story || "").trim(),
+    displayTitle,
+    caption,
+    story,
     notes: String(metadata?.notes || "").trim(),
-    source: String(metadata?.source || "").trim(),
-    photographer: String(metadata?.photographer || "").trim(),
-    location: String(metadata?.location || "").trim(),
-    takenOn: metadata?.taken_on || null,
+    source,
+    photographer,
+    location,
+    takenOn,
+    hasDisplayMetadata: Boolean(displayTitle || caption || story || source || photographer || location || takenOn),
     sortOrder: Number.isFinite(Number(metadata?.sort_order)) ? Number(metadata.sort_order) : 100000 + index,
   };
 }
