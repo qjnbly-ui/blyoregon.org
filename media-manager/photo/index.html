@@ -112,6 +112,10 @@
     }
     .hero p { color: rgba(255, 255, 255, 0.82); }
     .meta, .status-copy { color: #4c5d54; }
+    .meta {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
     .hero-actions {
       margin-top: 1rem;
       display: flex;
@@ -151,6 +155,9 @@
       display: grid;
       gap: 1rem;
       grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+    }
+    .editor-grid > * {
+      min-width: 0;
     }
     .preview-card {
       display: grid;
