@@ -23,7 +23,10 @@
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
     body {
+      min-height: 100vh;
       margin: 0;
+      display: flex;
+      flex-direction: column;
       font-family: "Manrope", "Trebuchet MS", sans-serif;
       color: var(--ink);
       background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
@@ -164,6 +167,7 @@
       font-weight: 600;
     }
     .shell {
+      flex: 1 0 auto;
       max-width: 1100px;
       margin: 0 auto;
       padding: 2.5rem 1.5rem 3.5rem;
