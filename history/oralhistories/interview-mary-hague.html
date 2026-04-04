@@ -26,13 +26,20 @@
     * { box-sizing: border-box; }
 
     body {
+      min-height: 100vh;
       margin: 0;
+      display: flex;
+      flex-direction: column;
       font-family: "Manrope", "Trebuchet MS", sans-serif;
       color: var(--ink);
       line-height: 1.7;
       background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
         radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
         linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+
+    main, .container {
+      flex: 1 0 auto;
     }
 
     header {
