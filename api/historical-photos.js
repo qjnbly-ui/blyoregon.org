@@ -170,7 +170,7 @@ async function fetchPhotoMetadata(bucket) {
   });
 
   if (!response.ok) {
-    throw new Error("Unable to load historical photo metadata");
+    return null;
   }
 
   const rows = await response.json();
@@ -354,7 +354,9 @@ module.exports = async (req, res) => {
       ]);
 
       const metadataByPath = new Map(
-        metadataRows.map((row) => [String(row.storage_path || "").trim(), row])
+        Array.isArray(metadataRows)
+          ? metadataRows.map((row) => [String(row.storage_path || "").trim(), row])
+          : []
       );
 
       const photos = files
