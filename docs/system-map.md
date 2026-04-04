@@ -50,6 +50,7 @@ Current meaning:
 - `can_delete_media`: controls file deletion in the media manager
 - `media_buckets`: which managed buckets the user may work in
 - `can_submit_articles`: can create drafts and submit dynamic user articles
+  this now defaults to `true` for standard member accounts
 - `can_review_articles`: can review submitted user articles and request changes
 - `can_publish_articles`: can publish reviewed user articles into the public site
 

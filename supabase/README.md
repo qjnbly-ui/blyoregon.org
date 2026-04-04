@@ -12,6 +12,7 @@ Use [schema.sql](/Users/quentinnichols/Documents/Websites/blyoregon.org/supabase
 
 Recommended admin model:
 - regular users can sign up and submit content
+- article submission is a standard member capability by default
 - user articles can move through `draft`, `submitted`, `changes_requested`, `published`, and `archived`
 - admins or delegated reviewers can request changes or publish approved submissions
 - your account should be promoted by updating `public.profiles.role = 'admin'`

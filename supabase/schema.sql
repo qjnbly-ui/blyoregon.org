@@ -16,7 +16,7 @@ create table if not exists public.profiles (
   can_edit_media_details boolean not null default false,
   can_rename_media boolean not null default false,
   can_delete_media boolean not null default false,
-  can_submit_articles boolean not null default false,
+  can_submit_articles boolean not null default true,
   can_review_articles boolean not null default false,
   can_publish_articles boolean not null default false,
   created_at timestamptz not null default now(),
@@ -29,9 +29,15 @@ alter table public.profiles add column if not exists media_buckets text[] not nu
 alter table public.profiles add column if not exists can_edit_media_details boolean not null default false;
 alter table public.profiles add column if not exists can_rename_media boolean not null default false;
 alter table public.profiles add column if not exists can_delete_media boolean not null default false;
-alter table public.profiles add column if not exists can_submit_articles boolean not null default false;
+alter table public.profiles add column if not exists can_submit_articles boolean not null default true;
 alter table public.profiles add column if not exists can_review_articles boolean not null default false;
 alter table public.profiles add column if not exists can_publish_articles boolean not null default false;
+alter table public.profiles alter column can_submit_articles set default true;
+
+update public.profiles
+set can_submit_articles = true
+where can_submit_articles = false
+  and role in ('member', 'moderator', 'admin');
 
 create or replace function public.is_admin()
 returns boolean
