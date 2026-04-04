@@ -37,6 +37,16 @@ function buildHeaders(token) {
   return headers;
 }
 
+function buildServiceHeaders() {
+  const serviceKey = getServiceRoleKey();
+  if (!serviceKey) return null;
+  return {
+    "Content-Type": "application/json",
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+  };
+}
+
 function sendJson(res, statusCode, payload) {
   res.statusCode = statusCode;
   res.setHeader("Content-Type", "application/json");
@@ -254,12 +264,14 @@ async function ensureUniqueSlug(candidate, articleId, token) {
 async function createDraft(profile, token) {
   const baseSlug = `draft-${Date.now()}`;
   const slug = await ensureUniqueSlug(baseSlug, "", token);
+  const headers = buildServiceHeaders() || {
+    ...buildHeaders(token),
+    Prefer: "return=representation",
+  };
+  headers.Prefer = "return=representation";
   const response = await fetch(`${getSupabaseUrl()}/rest/v1/articles`, {
     method: "POST",
-    headers: {
-      ...buildHeaders(token),
-      Prefer: "return=representation",
-    },
+    headers,
     body: JSON.stringify({
       author_id: profile.id,
       author_name: profile.display_name || profile.email || "Member",
@@ -270,7 +282,10 @@ async function createDraft(profile, token) {
       status: "draft",
     }),
   });
-  if (!response.ok) throw new Error("Unable to create article draft");
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(payload.message || payload.error || "Unable to create article draft");
+  }
   const rows = await response.json();
   return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
