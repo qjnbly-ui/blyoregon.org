@@ -16,6 +16,10 @@ function getPublicApiKey() {
   return getServiceRoleKey() || getAnonKey();
 }
 
+function getEnv(name, fallback = "") {
+  return String(process.env[name] || fallback).trim();
+}
+
 function getHeaderValue(req, name) {
   const value = req.headers?.[name];
   return Array.isArray(value) ? value[0] : value;
@@ -51,6 +55,51 @@ function sendJson(res, statusCode, payload) {
   res.statusCode = statusCode;
   res.setHeader("Content-Type", "application/json");
   res.end(JSON.stringify(payload));
+}
+
+function getSiteUrl(req) {
+  const explicit = getEnv("PUBLIC_SITE_URL");
+  if (explicit) return explicit.replace(/\/+$/, "");
+
+  const host = req.headers?.host || "blyoregon.org";
+  const protocol = host.includes("localhost") || host.startsWith("127.0.0.1") ? "http" : "https";
+  return `${protocol}://${host}`.replace(/\/+$/, "");
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function articlePublicUrl(siteUrl, article) {
+  const slug = String(article?.slug || "").trim();
+  if (!siteUrl || !slug) return "";
+  return `${siteUrl}/history/articles/post/?slug=${encodeURIComponent(slug)}`;
+}
+
+function articleEditUrl(siteUrl, article) {
+  const id = String(article?.id || "").trim();
+  if (!siteUrl || !id) return "";
+  return `${siteUrl}/account/articles/edit/?id=${encodeURIComponent(id)}`;
+}
+
+function reviewQueueUrl(siteUrl) {
+  return siteUrl ? `${siteUrl}/account/articles/review/` : "";
 }
 
 function articleImageUrl(path) {
@@ -153,6 +202,23 @@ async function fetchProfile(session, token) {
   return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
+async function fetchProfileById(userId) {
+  const headers = buildServiceHeaders();
+  if (!headers || !userId) return null;
+
+  const query = new URLSearchParams({
+    select: "id,email,display_name,role,can_submit_articles,can_review_articles,can_publish_articles",
+    id: `eq.${userId}`,
+    limit: "1",
+  });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/profiles?${query.toString()}`, {
+    headers,
+  });
+  if (!response.ok) return null;
+  const rows = await response.json().catch(() => []);
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
+}
+
 function getArticlePermissions(profile) {
   const role = String(profile?.role || "").toLowerCase();
   const admin = role === "admin";
@@ -221,6 +287,280 @@ async function fetchArticleImages(articleIds, token) {
     imageMap.set(key, list);
   });
   return imageMap;
+}
+
+async function fetchArticleModerators() {
+  const headers = buildServiceHeaders();
+  if (!headers) return [];
+
+  const query = new URLSearchParams({
+    select: "id,email,display_name,role,can_review_articles,can_publish_articles",
+    or: "(role.eq.admin,can_review_articles.eq.true,can_publish_articles.eq.true)",
+  });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/profiles?${query.toString()}`, {
+    headers,
+  });
+  if (!response.ok) return [];
+  const rows = await response.json().catch(() => []);
+  return Array.isArray(rows) ? rows : [];
+}
+
+function getModeratorEmails(rows) {
+  const envEmails = getEnv("ADMIN_EMAILS")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const rowEmails = (Array.isArray(rows) ? rows : [])
+    .map((row) => String(row?.email || "").trim())
+    .filter(Boolean);
+  return Array.from(new Set([...envEmails, ...rowEmails]));
+}
+
+async function sendEmail(payload) {
+  const resendKey = getEnv("RESEND_API_KEY");
+  if (!resendKey) return false;
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    throw new Error(result?.message || result?.error || "Unable to send email");
+  }
+  return true;
+}
+
+function renderEmailShell({ eyebrow, title, intro, bodyHtml, actionLabel, actionUrl }) {
+  const actionBlock = actionLabel && actionUrl
+    ? `<p style="margin:24px 0 0"><a href="${escapeHtml(actionUrl)}" style="display:inline-block;background:#143227;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px">${escapeHtml(actionLabel)}</a></p>`
+    : "";
+
+  return (
+    `<div style="margin:0;padding:24px;background:#f7f2ea;font-family:Georgia,'Times New Roman',serif;color:#1e1f1c">` +
+      `<div style="max-width:640px;margin:0 auto;background:#fffdf9;border:1px solid rgba(31,64,48,0.12);border-radius:24px;overflow:hidden">` +
+        `<div style="padding:28px 28px 22px;background:linear-gradient(140deg, rgba(20,50,39,0.96), rgba(33,68,55,0.88));color:#ffffff">` +
+          `<div style="text-transform:uppercase;letter-spacing:0.18em;font-size:12px;font-weight:700;color:rgba(255,255,255,0.72)">${escapeHtml(eyebrow)}</div>` +
+          `<h1 style="margin:10px 0 0;font-size:32px;line-height:1.08;font-weight:700">Bly, Oregon</h1>` +
+          `<p style="margin:10px 0 0;font-family:Arial,sans-serif;font-size:16px;line-height:1.6;color:rgba(255,255,255,0.86)">${escapeHtml(intro)}</p>` +
+        `</div>` +
+        `<div style="padding:28px">` +
+          `<h2 style="margin:0 0 14px;font-size:28px;line-height:1.2;color:#143227">${escapeHtml(title)}</h2>` +
+          `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7;color:#33443b">${bodyHtml}</div>` +
+          `${actionBlock}` +
+        `</div>` +
+      `</div>` +
+    `</div>`
+  );
+}
+
+async function sendArticleNotifications({ req, article, actorProfile, action, reviewNotes = "" }) {
+  const resendKey = getEnv("RESEND_API_KEY");
+  if (!resendKey || !article) return;
+
+  const siteUrl = getSiteUrl(req);
+  const actorName = String(actorProfile?.display_name || actorProfile?.email || "A Bly member").trim();
+  const authorProfile = actorProfile?.id === article.authorId
+    ? actorProfile
+    : await fetchProfileById(article.authorId);
+  const authorEmail = String(authorProfile?.email || "").trim();
+  const moderators = await fetchArticleModerators();
+  const adminEmails = getModeratorEmails(moderators).filter((email) => email && email !== authorEmail);
+  const safeTitle = escapeHtml(article.title || "Untitled article");
+  const publicUrl = articlePublicUrl(siteUrl, article);
+  const editUrl = articleEditUrl(siteUrl, article);
+  const reviewUrl = reviewQueueUrl(siteUrl);
+  const safeNotes = escapeHtml(reviewNotes).replace(/\n/g, "<br>");
+  const publishedDate = formatDate(article.publishedAt);
+
+  const authorPayloads = [];
+  const adminPayloads = [];
+
+  if (action === "submit") {
+    if (authorEmail) {
+      authorPayloads.push({
+        to: [authorEmail],
+        subject: `[Bly, Oregon] Article submitted: ${article.title || "Untitled article"}`,
+        html: renderEmailShell({
+          eyebrow: "Article submission",
+          title: "Your article is in review",
+          intro: "A dynamic article was submitted from your account.",
+          bodyHtml:
+            `<p><strong>${safeTitle}</strong> was submitted for approval.</p>` +
+            `<p>You can keep track of it from your account while an admin reviews it.</p>`,
+          actionLabel: "Open article",
+          actionUrl: editUrl,
+        }),
+        text:
+          `Your article "${article.title || "Untitled article"}" was submitted for approval.\n\nOpen article: ${editUrl}`,
+      });
+    }
+
+    if (adminEmails.length) {
+      adminPayloads.push({
+        to: adminEmails,
+        reply_to: authorEmail || undefined,
+        subject: `[Bly, Oregon] Article awaiting review: ${article.title || "Untitled article"}`,
+        html: renderEmailShell({
+          eyebrow: "Review queue",
+          title: "A member submitted an article",
+          intro: `${escapeHtml(actorName)} submitted an article for review.`,
+          bodyHtml:
+            `<p><strong>${safeTitle}</strong> is waiting in the review queue.</p>` +
+            `<p>Author: ${escapeHtml(article.authorName || actorName)}</p>`,
+          actionLabel: "Open review queue",
+          actionUrl: reviewUrl,
+        }),
+        text:
+          `${actorName} submitted "${article.title || "Untitled article"}" for review.\n\nReview queue: ${reviewUrl}`,
+      });
+    }
+  }
+
+  if (action === "request_changes" && authorEmail) {
+    authorPayloads.push({
+      to: [authorEmail],
+      subject: `[Bly, Oregon] Changes requested: ${article.title || "Untitled article"}`,
+      html: renderEmailShell({
+        eyebrow: "Article review",
+        title: "Changes were requested",
+        intro: `${escapeHtml(actorName)} reviewed your article.`,
+        bodyHtml:
+          `<p><strong>${safeTitle}</strong> was sent back for revision.</p>` +
+          `${safeNotes ? `<p><strong>Review notes:</strong><br>${safeNotes}</p>` : ""}`,
+        actionLabel: "Edit article",
+        actionUrl: editUrl,
+      }),
+      text:
+        `Changes were requested for "${article.title || "Untitled article"}".` +
+        `${reviewNotes ? `\n\nReview notes:\n${reviewNotes}` : ""}` +
+        `\n\nEdit article: ${editUrl}`,
+    });
+  }
+
+  if (action === "publish") {
+    if (authorEmail) {
+      authorPayloads.push({
+        to: [authorEmail],
+        subject: `[Bly, Oregon] Article published: ${article.title || "Untitled article"}`,
+        html: renderEmailShell({
+          eyebrow: "Article published",
+          title: "Your article is live",
+          intro: `${escapeHtml(actorName)} published your article.`,
+          bodyHtml:
+            `<p><strong>${safeTitle}</strong> is now live on the site${publishedDate ? ` as of ${escapeHtml(publishedDate)}` : ""}.</p>`,
+          actionLabel: "View public article",
+          actionUrl: publicUrl || editUrl,
+        }),
+        text:
+          `"${article.title || "Untitled article"}" is now live.\n\nPublic article: ${publicUrl || editUrl}`,
+      });
+    }
+
+    if (adminEmails.length) {
+      adminPayloads.push({
+        to: adminEmails,
+        subject: `[Bly, Oregon] Article published: ${article.title || "Untitled article"}`,
+        html: renderEmailShell({
+          eyebrow: "Publishing update",
+          title: "An article was published",
+          intro: `${escapeHtml(actorName)} published an article.`,
+          bodyHtml:
+            `<p><strong>${safeTitle}</strong> is now public.</p>` +
+            `<p>Author: ${escapeHtml(article.authorName || "")}</p>`,
+          actionLabel: publicUrl ? "View article" : "Open review queue",
+          actionUrl: publicUrl || reviewUrl,
+        }),
+        text:
+          `${actorName} published "${article.title || "Untitled article"}".\n\n${publicUrl || reviewUrl}`,
+      });
+    }
+  }
+
+  if (action === "unpublish") {
+    if (authorEmail) {
+      authorPayloads.push({
+        to: [authorEmail],
+        subject: `[Bly, Oregon] Article unpublished: ${article.title || "Untitled article"}`,
+        html: renderEmailShell({
+          eyebrow: "Article update",
+          title: "Your article was moved back to draft",
+          intro: "The public version is no longer visible on the site.",
+          bodyHtml:
+            `<p><strong>${safeTitle}</strong> is now back in draft status.</p>`,
+          actionLabel: "Open article",
+          actionUrl: editUrl,
+        }),
+        text:
+          `"${article.title || "Untitled article"}" was moved back to draft.\n\nEdit article: ${editUrl}`,
+      });
+    }
+
+    if (adminEmails.length) {
+      adminPayloads.push({
+        to: adminEmails,
+        subject: `[Bly, Oregon] Article unpublished: ${article.title || "Untitled article"}`,
+        html: renderEmailShell({
+          eyebrow: "Publishing update",
+          title: "An article was unpublished",
+          intro: `${escapeHtml(actorName)} moved an article back to draft.`,
+          bodyHtml:
+            `<p><strong>${safeTitle}</strong> is no longer public.</p>`,
+          actionLabel: "Open article",
+          actionUrl: editUrl,
+        }),
+        text:
+          `${actorName} unpublished "${article.title || "Untitled article"}".\n\nEdit article: ${editUrl}`,
+      });
+    }
+  }
+
+  if (action === "delete") {
+    if (authorEmail) {
+      authorPayloads.push({
+        to: [authorEmail],
+        subject: `[Bly, Oregon] Article deleted: ${article.title || "Untitled article"}`,
+        html: renderEmailShell({
+          eyebrow: "Article deleted",
+          title: "Your article was deleted",
+          intro: `${escapeHtml(actorName)} deleted the article record.`,
+          bodyHtml:
+            `<p><strong>${safeTitle}</strong> and its uploaded article images were removed from the dynamic article system.</p>`,
+        }),
+        text:
+          `"${article.title || "Untitled article"}" was deleted from the dynamic article system.`,
+      });
+    }
+
+    if (adminEmails.length) {
+      adminPayloads.push({
+        to: adminEmails,
+        subject: `[Bly, Oregon] Article deleted: ${article.title || "Untitled article"}`,
+        html: renderEmailShell({
+          eyebrow: "Article deleted",
+          title: "An article was deleted",
+          intro: `${escapeHtml(actorName)} deleted an article.`,
+          bodyHtml:
+            `<p><strong>${safeTitle}</strong> was removed from the dynamic article workflow.</p>`,
+        }),
+        text:
+          `${actorName} deleted "${article.title || "Untitled article"}".`,
+      });
+    }
+  }
+
+  const from = getEnv("RESEND_FROM_EMAIL", "noreply@blyoregon.org");
+  const jobs = [...authorPayloads, ...adminPayloads].map((payload) =>
+    sendEmail({
+      from: `Bly, Oregon <${from}>`,
+      ...payload,
+    })
+  );
+  await Promise.all(jobs);
 }
 
 function serializeArticle(article, imageMap) {
@@ -595,9 +935,23 @@ module.exports = async (req, res) => {
       const updated = await updateArticle(existing.id, payload, token);
       await replaceArticleImages(existing.id, images, token, session.id);
       const imageMap = await fetchArticleImages([existing.id], token);
+      const serializedArticle = updated ? serializeArticle(updated, imageMap) : null;
+      if (serializedArticle && ["submit", "request_changes", "publish", "unpublish"].includes(action)) {
+        try {
+          await sendArticleNotifications({
+            req,
+            article: serializedArticle,
+            actorProfile: profile,
+            action,
+            reviewNotes,
+          });
+        } catch (error) {
+          console.error(`Article email failed for ${existing.id} (${action}):`, error);
+        }
+      }
       sendJson(res, 200, {
         ok: true,
-        article: updated ? serializeArticle(updated, imageMap) : null,
+        article: serializedArticle,
         permissions: perms,
       });
       return;
@@ -632,7 +986,18 @@ module.exports = async (req, res) => {
         console.error(`Article image cleanup failed for ${existing.id}:`, error);
       }
 
+      const deletedArticle = serializeArticle(existing, imageMap);
       await deleteArticle(existing.id, token);
+      try {
+        await sendArticleNotifications({
+          req,
+          article: deletedArticle,
+          actorProfile: profile,
+          action: "delete",
+        });
+      } catch (error) {
+        console.error(`Article email failed for ${existing.id} (delete):`, error);
+      }
       sendJson(res, 200, { ok: true });
       return;
     }

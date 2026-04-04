@@ -69,6 +69,7 @@ Current behavior:
 - static archive articles in `history/articles/*.html` stay in place
 - dynamic user submissions live in `public.articles`
 - submitted article images live in `public.article_images` plus the `article-images` storage bucket
+- article workflow emails are sent from [api/articles.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/articles.js) through Resend when configured
 - `/api/articles` serves:
   - public published article list
   - public article detail by slug
@@ -80,6 +81,13 @@ Current behavior:
 - approved user articles render at `/history/articles/post/?slug=...`
 - authors can now unpublish their own published article back to `draft`
 - authors can now delete their own dynamic article and its uploaded article images
+- workflow emails now cover submission, changes requested, publishing, unpublishing, and deletion
+
+Current email environment:
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL`
+- `ADMIN_EMAILS`
+- optional `PUBLIC_SITE_URL`
 
 Current article statuses:
 - `draft`
