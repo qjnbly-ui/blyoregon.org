@@ -339,11 +339,15 @@ async function updateArticle(articleId, payload, token) {
 }
 
 async function deleteArticle(articleId, token) {
+  const headers = buildServiceHeaders() || buildHeaders(token);
   const response = await fetch(`${getSupabaseUrl()}/rest/v1/articles?id=eq.${articleId}`, {
     method: "DELETE",
-    headers: buildHeaders(token),
+    headers,
   });
-  if (!response.ok) throw new Error("Unable to delete article");
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(payload.message || payload.error || "Unable to delete article");
+  }
 }
 
 async function deleteArticleImagesFromStorage(paths) {
