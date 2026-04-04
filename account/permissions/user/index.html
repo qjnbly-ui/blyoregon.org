@@ -277,7 +277,7 @@
 
     <section class="card">
       <h2>Access settings</h2>
-      <p class="meta">Use this page to manage upload rights, media manager access, and bucket-specific permissions for one member.</p>
+      <p class="meta">Use this page to manage media and article permissions for one member.</p>
       <div id="controls" hidden>
         <div class="control-grid">
           <div class="toggle-card">
@@ -325,6 +325,33 @@
               <button id="toggle-delete" class="toggle" type="button" role="switch" aria-checked="false"></button>
             </div>
           </div>
+          <div class="toggle-card">
+            <div class="toggle-row">
+              <div class="toggle-copy">
+                <strong>Submit articles</strong>
+                <span>Lets this member create drafts and submit user articles for review.</span>
+              </div>
+              <button id="toggle-submit-articles" class="toggle" type="button" role="switch" aria-checked="false"></button>
+            </div>
+          </div>
+          <div class="toggle-card">
+            <div class="toggle-row">
+              <div class="toggle-copy">
+                <strong>Review articles</strong>
+                <span>Lets this member review submitted articles and request changes.</span>
+              </div>
+              <button id="toggle-review-articles" class="toggle" type="button" role="switch" aria-checked="false"></button>
+            </div>
+          </div>
+          <div class="toggle-card">
+            <div class="toggle-row">
+              <div class="toggle-copy">
+                <strong>Publish articles</strong>
+                <span>Lets this member approve and publish user-submitted articles.</span>
+              </div>
+              <button id="toggle-publish-articles" class="toggle" type="button" role="switch" aria-checked="false"></button>
+            </div>
+          </div>
           <div class="bucket-card">
             <h3>Media buckets</h3>
             <div id="bucket-options" class="bucket-options"></div>
@@ -350,6 +377,9 @@
     const toggleEditDetailsEl = document.getElementById("toggle-edit-details");
     const toggleRenameEl = document.getElementById("toggle-rename");
     const toggleDeleteEl = document.getElementById("toggle-delete");
+    const toggleSubmitArticlesEl = document.getElementById("toggle-submit-articles");
+    const toggleReviewArticlesEl = document.getElementById("toggle-review-articles");
+    const togglePublishArticlesEl = document.getElementById("toggle-publish-articles");
     const bucketOptionsEl = document.getElementById("bucket-options");
     const memberStatusEl = document.getElementById("member-status");
     const pageStatusEl = document.getElementById("page-status");
@@ -381,6 +411,9 @@
       toggleEditDetailsEl.setAttribute("aria-checked", String(Boolean(activeProfile.canEditMediaDetails)));
       toggleRenameEl.setAttribute("aria-checked", String(Boolean(activeProfile.canRenameMedia)));
       toggleDeleteEl.setAttribute("aria-checked", String(Boolean(activeProfile.canDeleteMedia)));
+      toggleSubmitArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canSubmitArticles)));
+      toggleReviewArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canReviewArticles)));
+      togglePublishArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canPublishArticles)));
       bucketOptionsEl.querySelectorAll("input[type=\"checkbox\"]").forEach((input) => {
         input.checked = Array.isArray(activeProfile.mediaBuckets) && activeProfile.mediaBuckets.includes(input.value);
         input.disabled = !activeProfile.canManageMedia;
@@ -403,6 +436,9 @@
             canEditMediaDetails: nextState.canEditMediaDetails,
             canRenameMedia: nextState.canRenameMedia,
             canDeleteMedia: nextState.canDeleteMedia,
+            canSubmitArticles: nextState.canSubmitArticles,
+            canReviewArticles: nextState.canReviewArticles,
+            canPublishArticles: nextState.canPublishArticles,
             mediaBuckets: nextState.mediaBuckets,
           }),
         });
@@ -540,6 +576,30 @@
       await saveProfile({
         ...activeProfile,
         canDeleteMedia: !activeProfile.canDeleteMedia,
+      });
+    });
+
+    toggleSubmitArticlesEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        canSubmitArticles: !activeProfile.canSubmitArticles,
+      });
+    });
+
+    toggleReviewArticlesEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        canReviewArticles: !activeProfile.canReviewArticles,
+      });
+    });
+
+    togglePublishArticlesEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        canPublishArticles: !activeProfile.canPublishArticles,
       });
     });
 

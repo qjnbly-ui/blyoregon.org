@@ -1,6 +1,6 @@
 # Bly System Map
 
-This document is the plain-English integration map for the current account, permissions, media, and archive systems.
+This document is the plain-English integration map for the current account, permissions, media, archive, and dynamic article systems.
 
 Use it alongside [supabase/schema.sql](/Users/quentinnichols/Documents/Websites/blyoregon.org/supabase/schema.sql).
 
@@ -38,6 +38,9 @@ Current permission fields in `public.profiles`:
 - `can_rename_media`
 - `can_delete_media`
 - `media_buckets`
+- `can_submit_articles`
+- `can_review_articles`
+- `can_publish_articles`
 
 Current meaning:
 - `can_upload_photos`: upload files in media flows that check this flag
@@ -46,8 +49,41 @@ Current meaning:
 - `can_rename_media`: reserved for future rename UI
 - `can_delete_media`: controls file deletion in the media manager
 - `media_buckets`: which managed buckets the user may work in
+- `can_submit_articles`: can create drafts and submit dynamic user articles
+- `can_review_articles`: can review submitted user articles and request changes
+- `can_publish_articles`: can publish reviewed user articles into the public site
 
 Admins bypass these checks.
+
+### Dynamic article publishing
+
+- Member article list: [account/articles/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/account/articles/index.html)
+- Shared author/reviewer editor: [account/articles/edit/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/account/articles/edit/index.html)
+- Review queue: [account/articles/review/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/account/articles/review/index.html)
+- API: [api/articles.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/articles.js)
+- Public list host page: [history/articles/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/history/articles/index.html)
+- Public dynamic article page: [history/articles/post/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/history/articles/post/index.html)
+
+Current behavior:
+- static archive articles in `history/articles/*.html` stay in place
+- dynamic user submissions live in `public.articles`
+- submitted article images live in `public.article_images` plus the `article-images` storage bucket
+- `/api/articles` serves:
+  - public published article list
+  - public article detail by slug
+  - author article list
+  - review queue
+  - draft creation
+  - save / submit / request changes / publish updates
+- `/history/articles/` now adds a `User Submitted Articles` section beneath the existing static archive sections
+- approved user articles render at `/history/articles/post/?slug=...`
+
+Current article statuses:
+- `draft`
+- `submitted`
+- `changes_requested`
+- `published`
+- `archived`
 
 ### Media manager
 
@@ -103,6 +139,10 @@ Historical archive tables now include:
 - `historical_people`
 - `historical_photo_people`
 
+Dynamic article tables now include:
+- `articles`
+- `article_images`
+
 ### Current storage policy functions
 
 In `supabase/schema.sql`:
@@ -110,29 +150,41 @@ In `supabase/schema.sql`:
 - `public.can_upload_to_bucket(bucket_name text)`
 - `public.can_update_bucket(bucket_name text)`
 - `public.can_delete_from_bucket(bucket_name text)`
+- `public.can_submit_articles()`
+- `public.can_review_articles()`
+- `public.can_publish_articles()`
+- `public.can_manage_article(article_uuid uuid)`
+- `public.can_view_article(article_uuid uuid)`
 
 These functions are used by storage policies to decide whether a signed-in user may upload, update, or delete within the managed media buckets.
+They are also used by article storage and article row policies to decide whether a signed-in user may draft, review, publish, upload article images, or view unpublished article content.
 
 ## Current Gaps
 
-### Metadata-driven archives are not built yet
+### Metadata-driven archives and dynamic articles are now in first-pass state
 
-The archive metadata foundation now exists, but the admin editing tools for that metadata are not built yet.
+The first-pass admin editing UI now exists for:
+- historical photo metadata
+- tagged people
+- dynamic article drafts
+- article review and publishing
 
-Right now there is no admin editing UI yet for:
-- source notes
-- locations
-- historical dates
-- rename actions in the media manager
+Remaining gaps:
+- rename actions in the media manager are still not built
+- dynamic article body rendering is still intentionally simple
+- article images are stored in a public bucket for the first pass, which may need tightening later
+- there is no revision history for article drafts yet
 
 ### Action-level permissions are only partially consumed
 
 These exist in the profile model now:
 - `can_edit_media_details`
 - `can_rename_media`
+- `can_submit_articles`
+- `can_review_articles`
+- `can_publish_articles`
 
 But the current UI does not yet implement:
-- metadata editing
 - rename actions
 
 ## Recommended Next Archive Model

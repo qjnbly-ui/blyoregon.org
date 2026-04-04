@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Articles | Bly, Oregon</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --ink: #1e1f1c;
+      --card: #fffdf9;
+      --white: #fff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand-title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.72);
+    }
+    nav {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    nav a.account-link {
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.12);
+    }
+    .shell {
+      flex: 1 0 auto;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .hero,
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid rgba(31,64,48,0.12);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.4rem;
+    }
+    .hero {
+      background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88));
+      color: var(--white);
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.76rem;
+      color: rgba(255,255,255,0.72);
+      font-weight: 700;
+    }
+    .hero h1 {
+      margin: 0.3rem 0 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 6vw, 3rem);
+      line-height: 1.02;
+    }
+    .hero p,
+    .meta,
+    .status-copy {
+      margin: 0.65rem 0 0;
+      line-height: 1.6;
+    }
+    .hero p { color: rgba(255,255,255,0.82); }
+    .meta,
+    .status-copy { color: #4c5d54; }
+    .hero-actions,
+    .card-actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .button,
+    .pill-link {
+      appearance: none;
+      border-radius: 999px;
+      padding: 0.8rem 1rem;
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      width: fit-content;
+      cursor: pointer;
+    }
+    .pill-link {
+      border: 1px solid rgba(255,255,255,0.32);
+      background: transparent;
+      color: var(--white);
+    }
+    .button {
+      border: 0;
+      background: var(--forest);
+      color: var(--white);
+    }
+    .button.secondary {
+      border: 1px solid rgba(20,50,39,0.16);
+      background: transparent;
+      color: var(--forest);
+    }
+    .button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+    h2, h3 {
+      margin: 0;
+      color: var(--forest);
+    }
+    .list {
+      display: grid;
+      gap: 0.9rem;
+      margin-top: 1rem;
+    }
+    .article-item {
+      border-top: 1px solid rgba(20,50,39,0.12);
+      padding-top: 1rem;
+      display: grid;
+      gap: 0.65rem;
+    }
+    .article-item:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+    .article-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .article-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--forest);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(20,50,39,0.08);
+      color: var(--forest);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .empty {
+      color: #5c6d63;
+      line-height: 1.6;
+    }
+    .warning { color: #8b322d; }
+    footer {
+      background: #162f25;
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 600px) {
+      .shell { padding: 1rem 0.75rem 2rem; }
+      .hero, .card { padding: 1.1rem 1rem; border-radius: 20px; }
+      .header-inner { padding: 0.75rem 0.9rem; }
+      .brand-title { font-size: 1rem; }
+      .brand-subtitle { font-size: 0.72rem; }
+      nav { width: 100%; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">A Community in Klamath County</div>
+      </div>
+      <nav>
+        <a href="/account/" class="account-link">Account</a>
+        <a href="/history/articles/">Articles</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Member Writing</div>
+      <h1>My articles</h1>
+      <p>Draft, submit, and revise user-submitted articles without touching the static archive files.</p>
+      <div class="hero-actions">
+        <button id="new-article-button" class="button" type="button">New draft</button>
+        <a href="/account/" class="pill-link">Back to account</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Your drafts and submissions</h2>
+      <p class="meta">Published user articles appear under the new user-submitted section on the public articles page.</p>
+      <div id="article-list" class="list"></div>
+      <p id="page-status" class="status-copy" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const listEl = document.getElementById("article-list");
+    const statusEl = document.getElementById("page-status");
+    const newButtonEl = document.getElementById("new-article-button");
+    const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
+    let activeSession = null;
+
+    function setStatus(message, isError = false) {
+      statusEl.classList.toggle("warning", isError);
+      statusEl.textContent = message || "";
+    }
+
+    function formatStatus(status) {
+      return String(status || "draft").replace(/_/g, " ");
+    }
+
+    function renderArticles(articles, permissions) {
+      listEl.innerHTML = "";
+
+      if (!permissions?.canSubmitArticles && !permissions?.admin) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = "This account does not have article submission access yet.";
+        listEl.appendChild(empty);
+        newButtonEl.disabled = true;
+        return;
+      }
+
+      if (!articles.length) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = "No article drafts yet. Start one and you can come back to it later.";
+        listEl.appendChild(empty);
+        return;
+      }
+
+      articles.forEach((article) => {
+        const row = document.createElement("article");
+        row.className = "article-item";
+
+        const header = document.createElement("div");
+        header.className = "article-item-header";
+
+        const copy = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "article-title";
+        title.textContent = article.title || "Untitled article";
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = article.summary || article.reviewNotes || "No summary yet.";
+        copy.append(title, meta);
+
+        const badge = document.createElement("span");
+        badge.className = "status-badge";
+        badge.textContent = formatStatus(article.status);
+        header.append(copy, badge);
+
+        const actions = document.createElement("div");
+        actions.className = "card-actions";
+        const editLink = document.createElement("a");
+        editLink.className = "button secondary";
+        editLink.href = `/account/articles/edit/?id=${encodeURIComponent(article.id)}`;
+        editLink.textContent = article.status === "published" ? "View or update" : "Continue editing";
+        actions.appendChild(editLink);
+
+        if (article.status === "published" && article.slug) {
+          const publicLink = document.createElement("a");
+          publicLink.className = "button secondary";
+          publicLink.href = `/history/articles/post/?slug=${encodeURIComponent(article.slug)}`;
+          publicLink.textContent = "Open public article";
+          actions.appendChild(publicLink);
+        }
+
+        row.append(header, actions);
+        listEl.appendChild(row);
+      });
+    }
+
+    async function loadPage() {
+      try {
+        activeSession = await window.siteAuth.getSession();
+        if (!activeSession) {
+          window.location.replace(loginUrl);
+          return;
+        }
+
+        const response = await fetch("/api/articles?scope=mine", {
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+          },
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          if (response.status === 401) {
+            await window.siteAuth.logout();
+            window.location.replace(loginUrl + "&auth_error=expired");
+            return;
+          }
+          throw new Error(payload.error || "Unable to load articles.");
+        }
+
+        renderArticles(Array.isArray(payload.articles) ? payload.articles : [], payload.permissions || {});
+        setStatus("");
+      } catch (error) {
+        setStatus(error.message || "Unable to load articles.", true);
+      }
+    }
+
+    newButtonEl.addEventListener("click", async () => {
+      if (!activeSession?.access_token) {
+        window.location.replace(loginUrl);
+        return;
+      }
+
+      newButtonEl.disabled = true;
+      setStatus("Creating draft...");
+      try {
+        const response = await fetch("/api/articles", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+          },
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.article?.id) {
+          throw new Error(payload.error || "Unable to create draft.");
+        }
+        window.location.href = `/account/articles/edit/?id=${encodeURIComponent(payload.article.id)}`;
+      } catch (error) {
+        newButtonEl.disabled = false;
+        setStatus(error.message || "Unable to create draft.", true);
+      }
+    });
+
+    loadPage();
+  </script>
+</body>
+</html>

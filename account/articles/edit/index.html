@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Article | Bly, Oregon</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --ink: #1e1f1c;
+      --card: #fffdf9;
+      --white: #fff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand-title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.72);
+    }
+    nav {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    nav a.account-link {
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.12);
+    }
+    .shell {
+      flex: 1 0 auto;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .hero,
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid rgba(31,64,48,0.12);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.4rem;
+    }
+    .hero {
+      background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88));
+      color: var(--white);
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.76rem;
+      color: rgba(255,255,255,0.72);
+      font-weight: 700;
+    }
+    .hero h1 {
+      margin: 0.3rem 0 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 6vw, 3rem);
+      line-height: 1.02;
+    }
+    .hero p, .meta, .status-copy {
+      margin: 0.65rem 0 0;
+      line-height: 1.6;
+    }
+    .hero p { color: rgba(255,255,255,0.82); }
+    .meta, .status-copy { color: #4c5d54; }
+    .hero-actions,
+    .card-actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .button,
+    .pill-link {
+      appearance: none;
+      border-radius: 999px;
+      padding: 0.8rem 1rem;
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      width: fit-content;
+      cursor: pointer;
+    }
+    .pill-link {
+      border: 1px solid rgba(255,255,255,0.32);
+      background: transparent;
+      color: var(--white);
+    }
+    .button {
+      border: 0;
+      background: var(--forest);
+      color: var(--white);
+    }
+    .button.secondary {
+      border: 1px solid rgba(20,50,39,0.16);
+      background: transparent;
+      color: var(--forest);
+    }
+    .button.danger {
+      background: #8f2a26;
+    }
+    .button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+    h2, h3 {
+      margin: 0;
+      color: var(--forest);
+    }
+    form {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .field,
+    .stack {
+      display: grid;
+      gap: 0.45rem;
+    }
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    label {
+      color: var(--forest);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.85rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid rgba(33,68,55,0.18);
+      background: rgba(255,255,255,0.96);
+      color: var(--ink);
+      font: inherit;
+    }
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    .images-list {
+      display: grid;
+      gap: 0.85rem;
+      margin-top: 1rem;
+    }
+    .image-item {
+      display: grid;
+      gap: 0.75rem;
+      padding: 0.9rem 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20,50,39,0.12);
+      background: rgba(255,255,255,0.72);
+    }
+    .image-item-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .image-item-copy {
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+      min-width: 0;
+    }
+    .image-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 14px;
+      object-fit: cover;
+      background: rgba(20,50,39,0.1);
+      border: 1px solid rgba(20,50,39,0.12);
+      flex: 0 0 auto;
+    }
+    .image-path {
+      color: #5c6d63;
+      font-size: 0.88rem;
+      overflow-wrap: anywhere;
+    }
+    .radio-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      color: var(--forest);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .warning { color: #8b322d; }
+    footer {
+      background: #162f25;
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 800px) {
+      .field-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .shell { padding: 1rem 0.75rem 2rem; }
+      .hero, .card { padding: 1.1rem 1rem; border-radius: 20px; }
+      .header-inner { padding: 0.75rem 0.9rem; }
+      .brand-title { font-size: 1rem; }
+      .brand-subtitle { font-size: 0.72rem; }
+      nav { width: 100%; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">A Community in Klamath County</div>
+      </div>
+      <nav>
+        <a href="/account/" class="account-link">Account</a>
+        <a href="/account/articles/">My articles</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Dynamic Article Editor</div>
+      <h1 id="page-title">Edit article</h1>
+      <p id="page-intro">Loading article draft.</p>
+      <div class="hero-actions">
+        <a href="/account/articles/" class="pill-link">Back to my articles</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Article details</h2>
+      <p class="meta">Write here first. If the dynamic version works well, you can keep publishing this way. If not, you can still refine the content into a hand-built static article later.</p>
+      <form id="article-form">
+        <div class="field">
+          <label for="article-title">Title</label>
+          <input id="article-title" maxlength="160" />
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="article-slug">Slug</label>
+            <input id="article-slug" maxlength="100" />
+          </div>
+          <div class="field">
+            <label for="article-status">Status</label>
+            <input id="article-status" readonly />
+          </div>
+        </div>
+        <div class="field">
+          <label for="article-summary">Summary</label>
+          <textarea id="article-summary" maxlength="500" placeholder="Short summary shown on the public article list."></textarea>
+        </div>
+        <div class="field">
+          <label for="article-body">Body</label>
+          <textarea id="article-body" maxlength="40000" placeholder="Write the article here. Plain paragraphs work fine."></textarea>
+        </div>
+        <div class="field">
+          <label for="article-review-notes">Review notes</label>
+          <textarea id="article-review-notes" maxlength="3000" placeholder="Admin-only notes or requested changes."></textarea>
+        </div>
+
+        <div class="stack">
+          <div>
+            <h3>Photos</h3>
+            <p class="meta">Upload article photos directly to the draft. Pick one cover image and add optional captions.</p>
+          </div>
+          <div class="card-actions">
+            <input id="article-images-input" type="file" accept="image/*" multiple />
+          </div>
+          <div id="article-images-list" class="images-list"></div>
+        </div>
+
+        <div class="card-actions">
+          <button id="save-button" class="button" type="submit">Save draft</button>
+          <button id="submit-button" class="button secondary" type="button">Submit for approval</button>
+          <button id="request-changes-button" class="button secondary" type="button" hidden>Request changes</button>
+          <button id="publish-button" class="button" type="button" hidden>Publish article</button>
+          <a id="public-link" class="button secondary" href="#" hidden>Open public article</a>
+        </div>
+        <p id="page-status" class="status-copy" aria-live="polite"></p>
+      </form>
+    </section>
+  </div>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const articleId = String(params.get("id") || "").trim();
+    const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname + window.location.search);
+
+    const titleEl = document.getElementById("page-title");
+    const introEl = document.getElementById("page-intro");
+    const formEl = document.getElementById("article-form");
+    const titleInput = document.getElementById("article-title");
+    const slugInput = document.getElementById("article-slug");
+    const statusInput = document.getElementById("article-status");
+    const summaryInput = document.getElementById("article-summary");
+    const bodyInput = document.getElementById("article-body");
+    const reviewNotesInput = document.getElementById("article-review-notes");
+    const imagesInput = document.getElementById("article-images-input");
+    const imagesListEl = document.getElementById("article-images-list");
+    const saveButtonEl = document.getElementById("save-button");
+    const submitButtonEl = document.getElementById("submit-button");
+    const requestChangesButtonEl = document.getElementById("request-changes-button");
+    const publishButtonEl = document.getElementById("publish-button");
+    const publicLinkEl = document.getElementById("public-link");
+    const statusEl = document.getElementById("page-status");
+
+    let activeSession = null;
+    let activeArticle = null;
+    let activePermissions = null;
+    let imageState = [];
+
+    function setStatus(message, isError = false) {
+      statusEl.classList.toggle("warning", isError);
+      statusEl.textContent = message || "";
+    }
+
+    function formatStatus(status) {
+      return String(status || "draft").replace(/_/g, " ");
+    }
+
+    function sanitizeFilename(name) {
+      return String(name || "image")
+        .replace(/[^a-z0-9._-]+/gi, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
+    function syncActionButtons() {
+      const status = String(activeArticle?.status || "draft");
+      const canAuthorSubmit = Boolean(activePermissions?.canSubmitArticles && ["draft", "changes_requested"].includes(status));
+      const canReview = Boolean(activePermissions?.canReviewArticles);
+      const canPublish = Boolean(activePermissions?.canPublishArticles);
+      const canEdit = Boolean(canReview || canPublish || canAuthorSubmit);
+
+      saveButtonEl.hidden = !canEdit;
+      saveButtonEl.disabled = !canEdit;
+      submitButtonEl.hidden = !canAuthorSubmit;
+      requestChangesButtonEl.hidden = !(canReview && status === "submitted");
+      publishButtonEl.hidden = !(canPublish && ["submitted", "changes_requested"].includes(status));
+      reviewNotesInput.disabled = !(canReview || canPublish);
+      titleInput.disabled = !canEdit;
+      slugInput.disabled = !canEdit;
+      summaryInput.disabled = !canEdit;
+      bodyInput.disabled = !canEdit;
+      imagesInput.disabled = !canEdit;
+      publicLinkEl.hidden = !(activeArticle?.status === "published" && activeArticle?.slug);
+      if (!publicLinkEl.hidden) {
+        publicLinkEl.href = `/history/articles/post/?slug=${encodeURIComponent(activeArticle.slug)}`;
+      }
+    }
+
+    function renderImages() {
+      const status = String(activeArticle?.status || "draft");
+      const canEdit = Boolean(activePermissions?.canReviewArticles || activePermissions?.canPublishArticles || (activePermissions?.canSubmitArticles && ["draft", "changes_requested"].includes(status)));
+      imagesListEl.innerHTML = "";
+      if (!imageState.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "No article photos yet.";
+        imagesListEl.appendChild(empty);
+        return;
+      }
+
+      imageState.forEach((image, index) => {
+        const row = document.createElement("div");
+        row.className = "image-item";
+
+        const header = document.createElement("div");
+        header.className = "image-item-header";
+
+        const copy = document.createElement("div");
+        copy.className = "image-item-copy";
+        const thumb = document.createElement("img");
+        thumb.className = "image-thumb";
+        thumb.src = image.imageUrl;
+        thumb.alt = image.altText || image.caption || `Article image ${index + 1}`;
+        const meta = document.createElement("div");
+        const path = document.createElement("div");
+        path.className = "image-path";
+        path.textContent = image.storagePath;
+        meta.appendChild(path);
+        copy.append(thumb, meta);
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "button secondary";
+        removeButton.type = "button";
+        removeButton.textContent = "Remove";
+        removeButton.disabled = !canEdit;
+        removeButton.addEventListener("click", async () => {
+          if (!canEdit) return;
+          const client = await window.siteAuth.getClient();
+          const { error } = await client.storage.from("article-images").remove([image.storagePath]);
+          if (error) {
+            setStatus(error.message || "Unable to remove image.", true);
+            return;
+          }
+          imageState = imageState.filter((entry) => entry.storagePath !== image.storagePath);
+          if (activeArticle?.coverImagePath === image.storagePath) {
+            activeArticle.coverImagePath = imageState[0]?.storagePath || "";
+          }
+          renderImages();
+        });
+        header.append(copy, removeButton);
+
+        const coverLabel = document.createElement("label");
+        coverLabel.className = "radio-row";
+        const coverInput = document.createElement("input");
+        coverInput.type = "radio";
+        coverInput.name = "cover-image";
+        coverInput.checked = activeArticle?.coverImagePath === image.storagePath || (!activeArticle?.coverImagePath && index === 0);
+        coverInput.disabled = !canEdit;
+        coverInput.addEventListener("change", () => {
+          activeArticle.coverImagePath = image.storagePath;
+        });
+        coverLabel.append(coverInput, document.createTextNode("Use as cover image"));
+
+        const fields = document.createElement("div");
+        fields.className = "field-grid";
+
+        const captionField = document.createElement("div");
+        captionField.className = "field";
+        const captionLabel = document.createElement("label");
+        captionLabel.textContent = "Caption";
+        const captionInput = document.createElement("input");
+        captionInput.value = image.caption || "";
+        captionInput.disabled = !canEdit;
+        captionInput.addEventListener("input", () => {
+          image.caption = captionInput.value;
+        });
+        captionField.append(captionLabel, captionInput);
+
+        const altField = document.createElement("div");
+        altField.className = "field";
+        const altLabel = document.createElement("label");
+        altLabel.textContent = "Alt text";
+        const altInput = document.createElement("input");
+        altInput.value = image.altText || "";
+        altInput.disabled = !canEdit;
+        altInput.addEventListener("input", () => {
+          image.altText = altInput.value;
+        });
+        altField.append(altLabel, altInput);
+
+        fields.append(captionField, altField);
+        row.append(header, coverLabel, fields);
+        imagesListEl.appendChild(row);
+      });
+    }
+
+    async function saveArticle(action) {
+      if (!activeSession?.access_token || !activeArticle?.id) {
+        return;
+      }
+
+      const coverImagePath = activeArticle.coverImagePath || imageState[0]?.storagePath || "";
+      const payload = {
+        id: activeArticle.id,
+        action,
+        title: titleInput.value.trim(),
+        slug: slugInput.value.trim(),
+        summary: summaryInput.value.trim(),
+        bodyMarkdown: bodyInput.value.trim(),
+        reviewNotes: reviewNotesInput.value.trim(),
+        coverImagePath,
+        images: imageState.map((image, index) => ({
+          storagePath: image.storagePath,
+          caption: image.caption || "",
+          altText: image.altText || "",
+          sortOrder: index,
+        })),
+      };
+
+      setStatus(action === "save" ? "Saving..." : "Updating...");
+      saveButtonEl.disabled = true;
+      submitButtonEl.disabled = true;
+      requestChangesButtonEl.disabled = true;
+      publishButtonEl.disabled = true;
+
+      try {
+        const response = await fetch("/api/articles", {
+          method: "PATCH",
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.article) {
+          throw new Error(data.error || "Unable to save article.");
+        }
+        activeArticle = data.article;
+        activePermissions = data.permissions || activePermissions;
+        titleEl.textContent = activeArticle.title || "Edit article";
+        introEl.textContent = `Status: ${formatStatus(activeArticle.status)}.`;
+        statusInput.value = formatStatus(activeArticle.status);
+        slugInput.value = activeArticle.slug || "";
+        reviewNotesInput.value = activeArticle.reviewNotes || "";
+        imageState = Array.isArray(activeArticle.images) ? activeArticle.images.slice() : imageState;
+        renderImages();
+        syncActionButtons();
+        setStatus(action === "save" ? "Draft saved." : action === "submit" ? "Submitted for approval." : action === "request_changes" ? "Changes requested." : "Article published.");
+      } catch (error) {
+        setStatus(error.message || "Unable to save article.", true);
+      } finally {
+        saveButtonEl.disabled = false;
+        submitButtonEl.disabled = false;
+        requestChangesButtonEl.disabled = false;
+        publishButtonEl.disabled = false;
+      }
+    }
+
+    async function uploadImages(files) {
+      if (!files.length || !activeArticle?.id) return;
+      const client = await window.siteAuth.getClient();
+
+      for (const file of files) {
+        const extension = (file.name.split(".").pop() || "jpg").toLowerCase();
+        const path = `${activeArticle.id}/${Date.now()}-${sanitizeFilename(file.name.replace(/\.[^.]+$/, ""))}.${extension}`;
+        setStatus(`Uploading ${file.name}...`);
+        const { error } = await client.storage.from("article-images").upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+        if (error) {
+          throw new Error(error.message || `Unable to upload ${file.name}.`);
+        }
+        imageState.push({
+          storagePath: path,
+          imageUrl: `/media/article-images/${path.split("/").map((part) => encodeURIComponent(part)).join("/")}`,
+          caption: "",
+          altText: "",
+          sortOrder: imageState.length,
+        });
+      }
+
+      if (!activeArticle.coverImagePath && imageState[0]) {
+        activeArticle.coverImagePath = imageState[0].storagePath;
+      }
+      renderImages();
+      setStatus("Images uploaded. Save the article to keep the image list in sync.");
+    }
+
+    async function loadPage() {
+      if (!articleId) {
+        titleEl.textContent = "Missing article";
+        introEl.textContent = "This editor needs an article id.";
+        formEl.hidden = true;
+        return;
+      }
+
+      try {
+        activeSession = await window.siteAuth.getSession();
+        if (!activeSession) {
+          window.location.replace(loginUrl);
+          return;
+        }
+
+        const response = await fetch(`/api/articles?id=${encodeURIComponent(articleId)}`, {
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+          },
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.article) {
+          if (response.status === 401) {
+            await window.siteAuth.logout();
+            window.location.replace(loginUrl + "&auth_error=expired");
+            return;
+          }
+          throw new Error(payload.error || "Unable to load article.");
+        }
+
+        activeArticle = payload.article;
+        activePermissions = payload.permissions || {};
+        imageState = Array.isArray(activeArticle.images) ? activeArticle.images.slice() : [];
+
+        titleEl.textContent = activeArticle.title || "Edit article";
+        introEl.textContent = `Status: ${formatStatus(activeArticle.status)}.`;
+        titleInput.value = activeArticle.title || "";
+        slugInput.value = activeArticle.slug || "";
+        statusInput.value = formatStatus(activeArticle.status);
+        summaryInput.value = activeArticle.summary || "";
+        bodyInput.value = activeArticle.bodyMarkdown || "";
+        reviewNotesInput.value = activeArticle.reviewNotes || "";
+        renderImages();
+        syncActionButtons();
+        setStatus("");
+      } catch (error) {
+        formEl.hidden = true;
+        setStatus(error.message || "Unable to load article.", true);
+      }
+    }
+
+    formEl.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await saveArticle("save");
+    });
+
+    submitButtonEl.addEventListener("click", async () => {
+      await saveArticle("submit");
+    });
+
+    requestChangesButtonEl.addEventListener("click", async () => {
+      await saveArticle("request_changes");
+    });
+
+    publishButtonEl.addEventListener("click", async () => {
+      await saveArticle("publish");
+    });
+
+    imagesInput.addEventListener("change", async () => {
+      try {
+        const files = Array.from(imagesInput.files || []).filter((file) => file.type.startsWith("image/"));
+        await uploadImages(files);
+      } catch (error) {
+        setStatus(error.message || "Unable to upload images.", true);
+      } finally {
+        imagesInput.value = "";
+      }
+    });
+
+    loadPage();
+  </script>
+</body>
+</html>

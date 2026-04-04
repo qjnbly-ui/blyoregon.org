@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Article | Bly, Oregon</title>
+  <meta name="description" content="User-submitted article from the Bly, Oregon archive site." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --white: #fff;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(12,26,20,0.18);
+      --ink: #1e1f1c;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+    header {
+      background: rgba(20,50,39,0.96);
+      color: var(--white);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .header-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1.2rem 1.5rem 1.4rem;
+      text-align: center;
+      display: grid;
+      gap: 0.45rem;
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.72);
+      font-weight: 700;
+    }
+    h1 {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.05;
+    }
+    .header-meta {
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+    }
+    .subnav {
+      max-width: 1000px;
+      margin: 1.2rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .subnav a {
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31,64,48,0.2);
+      background: rgba(255,255,255,0.8);
+    }
+    main {
+      flex: 1 0 auto;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1.2rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(31,64,48,0.12);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 1.4rem 1.5rem;
+    }
+    .summary { color: #45554c; line-height: 1.7; font-size: 1.02rem; }
+    .cover {
+      width: 100%;
+      max-height: 540px;
+      object-fit: cover;
+      border-radius: 18px;
+      display: block;
+      background: rgba(20,50,39,0.08);
+    }
+    .body {
+      display: grid;
+      gap: 1rem;
+      line-height: 1.8;
+      color: #2f3934;
+    }
+    .body h2 {
+      margin: 0.4rem 0 0;
+      color: var(--forest);
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.5rem;
+    }
+    .body p { margin: 0; }
+    .gallery {
+      display: grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 1rem;
+    }
+    .gallery-item {
+      display: grid;
+      gap: 0.55rem;
+    }
+    .gallery-item img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 16px;
+      background: rgba(20,50,39,0.08);
+    }
+    .gallery-item p {
+      margin: 0;
+      color: #56655d;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    .warning { color: #8b322d; }
+    footer {
+      background: #162f25;
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 700px) {
+      .gallery { grid-template-columns: 1fr; }
+      main { padding: 1rem 0.75rem 2rem; }
+      .card { padding: 1.1rem 1rem; border-radius: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="eyebrow">User Submitted Article</div>
+      <h1 id="article-title">Loading article</h1>
+      <p id="article-meta" class="header-meta"></p>
+    </div>
+  </header>
+
+  <div class="subnav" aria-label="History articles navigation">
+    <a href="/history/articles/">Back to articles</a>
+  </div>
+
+  <main>
+    <section id="summary-card" class="card" hidden>
+      <p id="article-summary" class="summary"></p>
+    </section>
+
+    <section id="cover-card" class="card" hidden>
+      <img id="article-cover" class="cover" alt="">
+    </section>
+
+    <section class="card">
+      <div id="article-body" class="body"></div>
+      <div id="article-gallery" class="gallery" hidden></div>
+      <p id="page-status" class="warning" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const slug = String(params.get("slug") || "").trim();
+    const titleEl = document.getElementById("article-title");
+    const metaEl = document.getElementById("article-meta");
+    const summaryCardEl = document.getElementById("summary-card");
+    const summaryEl = document.getElementById("article-summary");
+    const coverCardEl = document.getElementById("cover-card");
+    const coverEl = document.getElementById("article-cover");
+    const bodyEl = document.getElementById("article-body");
+    const galleryEl = document.getElementById("article-gallery");
+    const statusEl = document.getElementById("page-status");
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function renderBody(markdown) {
+      const source = String(markdown || "").trim();
+      if (!source) {
+        bodyEl.innerHTML = "<p>This article does not have body content yet.</p>";
+        return;
+      }
+
+      const blocks = source.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
+      bodyEl.innerHTML = blocks.map((block) => {
+        if (block.startsWith("## ")) return `<h2>${escapeHtml(block.slice(3))}</h2>`;
+        if (block.startsWith("# ")) return `<h2>${escapeHtml(block.slice(2))}</h2>`;
+        return `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`;
+      }).join("");
+    }
+
+    function renderGallery(images, coverImagePath) {
+      galleryEl.innerHTML = "";
+      const galleryImages = images.filter((image) => image.storagePath !== coverImagePath);
+      if (!galleryImages.length) {
+        galleryEl.hidden = true;
+        return;
+      }
+      galleryEl.hidden = false;
+      galleryImages.forEach((image) => {
+        const item = document.createElement("div");
+        item.className = "gallery-item";
+        const img = document.createElement("img");
+        img.src = image.imageUrl;
+        img.alt = image.altText || image.caption || "Article image";
+        item.appendChild(img);
+        if (image.caption) {
+          const caption = document.createElement("p");
+          caption.textContent = image.caption;
+          item.appendChild(caption);
+        }
+        galleryEl.appendChild(item);
+      });
+    }
+
+    async function loadArticle() {
+      if (!slug) {
+        titleEl.textContent = "Missing article";
+        statusEl.textContent = "This page needs an article slug.";
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/articles?slug=${encodeURIComponent(slug)}`, { cache: "no-store" });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.article) {
+          throw new Error(payload.error || "Unable to load article.");
+        }
+
+        const article = payload.article;
+        document.title = `${article.title || "User Article"} | Bly, Oregon`;
+        titleEl.textContent = article.title || "Untitled article";
+        metaEl.textContent = `${article.authorName || "Member contribution"}${article.publishedAt ? " · Published " + new Date(article.publishedAt).toLocaleDateString() : ""}`;
+
+        if (article.summary) {
+          summaryCardEl.hidden = false;
+          summaryEl.textContent = article.summary;
+        }
+
+        if (article.coverImageUrl) {
+          coverCardEl.hidden = false;
+          coverEl.src = article.coverImageUrl;
+          coverEl.alt = article.title || "Article cover image";
+        }
+
+        renderBody(article.bodyMarkdown || "");
+        renderGallery(Array.isArray(article.images) ? article.images : [], article.coverImagePath || "");
+        statusEl.textContent = "";
+      } catch (error) {
+        titleEl.textContent = "Article unavailable";
+        statusEl.textContent = error.message || "Unable to load article.";
+      }
+    }
+
+    loadArticle();
+  </script>
+</body>
+</html>

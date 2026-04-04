@@ -4,22 +4,24 @@ Use [schema.sql](/Users/quentinnichols/Documents/Websites/blyoregon.org/supabase
 - `profiles` for member identity and role
 - `photo_albums` and `photos`
 - `recommendations`
-- `articles`
+- `articles` and `article_images` for dynamic user-submitted article publishing
+- `historical_photos`, `historical_people`, and `historical_photo_people` for archive metadata
 - a trigger to create a profile row when a new auth user signs up
 - RLS policies for members, authors, and admins
+- storage bucket policies for `profile-photos`, managed archive buckets, and `article-images`
 
 Recommended admin model:
 - regular users can sign up and submit content
-- submissions default to `pending`
-- admins approve, reject, edit, publish, and manage visibility
+- user articles can move through `draft`, `submitted`, `changes_requested`, `published`, and `archived`
+- admins or delegated reviewers can request changes or publish approved submissions
 - your account should be promoted by updating `public.profiles.role = 'admin'`
 
 System integration map:
-- See [docs/system-map.md](/Users/quentinnichols/Documents/Websites/blyoregon.org/docs/system-map.md) for how profiles, permissions pages, APIs, storage buckets, media manager, and public history galleries connect.
+- See [docs/system-map.md](/Users/quentinnichols/Documents/Websites/blyoregon.org/docs/system-map.md) for how profiles, permissions pages, APIs, storage buckets, media manager, public history galleries, and dynamic article publishing connect.
 - Keep `schema.sql`, this README, and `docs/system-map.md` updated together when you add new data models or permissions.
 
 Recommended next implementation steps in this site:
-1. Build a profile bootstrap call on first login.
-2. Add member submission forms for recommendations and articles.
-3. Add signed photo upload to a Supabase Storage bucket.
-4. Add an admin dashboard for moderation and publishing.
+1. Apply the latest schema changes in Supabase before testing dynamic article submission.
+2. Promote your own account with article permissions if needed.
+3. Test the member draft -> submit -> review -> publish flow with one article and one uploaded image.
+4. Refine the public article presentation or fall back to static HTML refinement if the dynamic flow is not sufficient.

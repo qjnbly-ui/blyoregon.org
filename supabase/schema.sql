@@ -16,6 +16,9 @@ create table if not exists public.profiles (
   can_edit_media_details boolean not null default false,
   can_rename_media boolean not null default false,
   can_delete_media boolean not null default false,
+  can_submit_articles boolean not null default false,
+  can_review_articles boolean not null default false,
+  can_publish_articles boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -26,6 +29,9 @@ alter table public.profiles add column if not exists media_buckets text[] not nu
 alter table public.profiles add column if not exists can_edit_media_details boolean not null default false;
 alter table public.profiles add column if not exists can_rename_media boolean not null default false;
 alter table public.profiles add column if not exists can_delete_media boolean not null default false;
+alter table public.profiles add column if not exists can_submit_articles boolean not null default false;
+alter table public.profiles add column if not exists can_review_articles boolean not null default false;
+alter table public.profiles add column if not exists can_publish_articles boolean not null default false;
 
 create or replace function public.is_admin()
 returns boolean
@@ -37,6 +43,55 @@ as $$
     from public.profiles
     where id = auth.uid()
       and role = 'admin'
+  );
+$$;
+
+create or replace function public.can_submit_articles()
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and (
+        role = 'admin'
+        or can_submit_articles = true
+      )
+  );
+$$;
+
+create or replace function public.can_review_articles()
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and (
+        role = 'admin'
+        or can_review_articles = true
+        or can_publish_articles = true
+      )
+  );
+$$;
+
+create or replace function public.can_publish_articles()
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and (
+        role = 'admin'
+        or can_publish_articles = true
+      )
   );
 $$;
 
@@ -220,12 +275,47 @@ create table if not exists public.recommendations (
 create table if not exists public.articles (
   id uuid primary key default gen_random_uuid(),
   author_id uuid references public.profiles(id) on delete set null,
+  author_name text not null default '',
   slug text not null unique,
   title text not null,
   summary text,
   body_markdown text not null default '',
-  status text not null default 'draft' check (status in ('draft', 'pending_review', 'published', 'archived')),
+  cover_image_path text,
+  submitted_at timestamptz,
+  reviewed_at timestamptz,
+  reviewed_by uuid references public.profiles(id) on delete set null,
+  review_notes text,
+  status text not null default 'draft' check (status in ('draft', 'submitted', 'changes_requested', 'published', 'archived')),
   published_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.articles add column if not exists cover_image_path text;
+alter table public.articles add column if not exists author_name text not null default '';
+alter table public.articles add column if not exists submitted_at timestamptz;
+alter table public.articles add column if not exists reviewed_at timestamptz;
+alter table public.articles add column if not exists reviewed_by uuid references public.profiles(id) on delete set null;
+alter table public.articles add column if not exists review_notes text;
+
+do $$
+begin
+  alter table public.articles
+    drop constraint if exists articles_status_check;
+  alter table public.articles
+    add constraint articles_status_check
+    check (status in ('draft', 'submitted', 'changes_requested', 'published', 'archived'));
+exception when duplicate_object then null;
+end $$;
+
+create table if not exists public.article_images (
+  id uuid primary key default gen_random_uuid(),
+  article_id uuid not null references public.articles(id) on delete cascade,
+  storage_path text not null unique,
+  caption text,
+  alt_text text,
+  sort_order integer not null default 0,
+  created_by uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -238,10 +328,55 @@ alter table public.historical_people enable row level security;
 alter table public.historical_photo_people enable row level security;
 alter table public.recommendations enable row level security;
 alter table public.articles enable row level security;
+alter table public.article_images enable row level security;
 
 insert into storage.buckets (id, name, public)
 values ('profile-photos', 'profile-photos', true)
 on conflict (id) do nothing;
+
+insert into storage.buckets (id, name, public)
+values ('article-images', 'article-images', true)
+on conflict (id) do nothing;
+
+create or replace function public.can_manage_article(article_uuid uuid)
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.articles
+    where id = article_uuid
+      and (
+        public.is_admin()
+        or public.can_review_articles()
+        or public.can_publish_articles()
+        or (
+          author_id = auth.uid()
+          and status in ('draft', 'changes_requested')
+        )
+      )
+  );
+$$;
+
+create or replace function public.can_view_article(article_uuid uuid)
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.articles
+    where id = article_uuid
+      and (
+        status = 'published'
+        or author_id = auth.uid()
+        or public.can_review_articles()
+        or public.can_publish_articles()
+        or public.is_admin()
+      )
+  );
+$$;
 
 drop policy if exists "profile photos public read" on storage.objects;
 create policy "profile photos public read"
@@ -315,6 +450,49 @@ to authenticated
 using (
   bucket_id in ('churchfirephotos', 'standingstonechurchconstructionphotos')
   and public.can_delete_from_bucket(bucket_id)
+);
+
+drop policy if exists "article images readable" on storage.objects;
+create policy "article images readable"
+on storage.objects
+for select
+using (
+  bucket_id = 'article-images'
+  and public.can_view_article(((storage.foldername(name))[1])::uuid)
+);
+
+drop policy if exists "article images insert" on storage.objects;
+create policy "article images insert"
+on storage.objects
+for insert
+to authenticated
+with check (
+  bucket_id = 'article-images'
+  and public.can_manage_article(((storage.foldername(name))[1])::uuid)
+);
+
+drop policy if exists "article images update" on storage.objects;
+create policy "article images update"
+on storage.objects
+for update
+to authenticated
+using (
+  bucket_id = 'article-images'
+  and public.can_manage_article(((storage.foldername(name))[1])::uuid)
+)
+with check (
+  bucket_id = 'article-images'
+  and public.can_manage_article(((storage.foldername(name))[1])::uuid)
+);
+
+drop policy if exists "article images delete" on storage.objects;
+create policy "article images delete"
+on storage.objects
+for delete
+to authenticated
+using (
+  bucket_id = 'article-images'
+  and public.can_manage_article(((storage.foldername(name))[1])::uuid)
 );
 
 drop policy if exists "profiles view own or admin" on public.profiles;
@@ -437,20 +615,52 @@ drop policy if exists "articles published read" on public.articles;
 create policy "articles published read"
 on public.articles
 for select
-using (status = 'published' or author_id = auth.uid() or public.is_admin());
+using (
+  status = 'published'
+  or author_id = auth.uid()
+  or public.can_review_articles()
+  or public.can_publish_articles()
+  or public.is_admin()
+);
 
 drop policy if exists "articles author insert" on public.articles;
 create policy "articles author insert"
 on public.articles
 for insert
-with check (author_id = auth.uid());
+with check (
+  author_id = auth.uid()
+  and public.can_submit_articles()
+);
 
 drop policy if exists "articles author draft edit or admin" on public.articles;
 create policy "articles author draft edit or admin"
 on public.articles
 for update
-using ((author_id = auth.uid() and status in ('draft', 'pending_review')) or public.is_admin())
-with check ((author_id = auth.uid() and status in ('draft', 'pending_review')) or public.is_admin());
+using (
+  (author_id = auth.uid() and status in ('draft', 'changes_requested'))
+  or public.can_review_articles()
+  or public.can_publish_articles()
+  or public.is_admin()
+)
+with check (
+  (author_id = auth.uid() and status in ('draft', 'changes_requested', 'submitted'))
+  or public.can_review_articles()
+  or public.can_publish_articles()
+  or public.is_admin()
+);
+
+drop policy if exists "article images readable by article visibility" on public.article_images;
+create policy "article images readable by article visibility"
+on public.article_images
+for select
+using (public.can_view_article(article_id));
+
+drop policy if exists "article images managed by author or admin" on public.article_images;
+create policy "article images managed by author or admin"
+on public.article_images
+for all
+using (public.can_manage_article(article_id))
+with check (public.can_manage_article(article_id));
 
 -- After creating your user account, promote it once:
 -- update public.profiles
@@ -460,5 +670,8 @@ with check ((author_id = auth.uid() and status in ('draft', 'pending_review')) o
 --     can_edit_media_details = true,
 --     can_rename_media = true,
 --     can_delete_media = true,
+--     can_submit_articles = true,
+--     can_review_articles = true,
+--     can_publish_articles = true,
 --     media_buckets = array['churchfirephotos', 'standingstonechurchconstructionphotos']
 -- where email = 'quentin@quentin.nichols.com';
