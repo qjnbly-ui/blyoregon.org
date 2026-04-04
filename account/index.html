@@ -233,11 +233,6 @@
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
-    .grid {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    }
     .card {
       background: var(--card);
       border-radius: 22px;
@@ -735,56 +730,54 @@
       </div>
     </section>
 
-    <section class="grid">
-      <article class="card">
-        <div class="card-header">
-          <h2>Profile</h2>
-          <button class="edit-toggle" id="profile-edit-toggle" type="button" aria-expanded="false">Edit profile</button>
-        </div>
-        <div class="stack">
-          <div>
-            <h3>Profile photo</h3>
-            <div class="photo-row">
-              <img id="profile-avatar" class="profile-photo" alt="Profile photo" hidden />
-              <div id="profile-avatar-placeholder" class="profile-photo profile-photo-placeholder">No photo</div>
-            </div>
-          </div>
-          <div>
-            <h3>Public name</h3>
-            <p id="display-name" class="meta">Loading...</p>
-          </div>
-          <div>
-            <h3>Email</h3>
-            <p id="email" class="meta">Loading...</p>
-          </div>
-          <div>
-            <h3>Role</h3>
-            <p id="role" class="meta">Loading...</p>
-          </div>
-          <div>
-            <h3>Bio</h3>
-            <p id="bio" class="meta">No bio added yet.</p>
+    <article class="card">
+      <div class="card-header">
+        <h2>Profile</h2>
+        <button class="edit-toggle" id="profile-edit-toggle" type="button" aria-expanded="false">Edit profile</button>
+      </div>
+      <div class="stack">
+        <div>
+          <h3>Profile photo</h3>
+          <div class="photo-row">
+            <img id="profile-avatar" class="profile-photo" alt="Profile photo" hidden />
+            <div id="profile-avatar-placeholder" class="profile-photo profile-photo-placeholder">No photo</div>
           </div>
         </div>
-      </article>
+        <div>
+          <h3>Public name</h3>
+          <p id="display-name" class="meta">Loading...</p>
+        </div>
+        <div>
+          <h3>Email</h3>
+          <p id="email" class="meta">Loading...</p>
+        </div>
+        <div>
+          <h3>Role</h3>
+          <p id="role" class="meta">Loading...</p>
+        </div>
+        <div>
+          <h3>Bio</h3>
+          <p id="bio" class="meta">No bio added yet.</p>
+        </div>
+      </div>
+    </article>
 
-      <article class="card">
-        <h2>Permissions</h2>
-        <div class="stack">
-          <div>
-            <h3>Photo uploads</h3>
-            <p id="uploads" class="meta">Checking access...</p>
-          </div>
-          <div>
-            <h3>Media library</h3>
-            <p id="media-access" class="meta">Checking access...</p>
-          </div>
+    <article class="card">
+      <h2>Permissions</h2>
+      <div class="stack">
+        <div>
+          <h3>Photo uploads</h3>
+          <p id="uploads" class="meta">Checking access...</p>
         </div>
-        <div class="card-actions" id="media-manager-actions" hidden>
-          <a class="edit-toggle" href="/media-manager/">Open media library</a>
+        <div>
+          <h3>Media library</h3>
+          <p id="media-access" class="meta">Checking access...</p>
         </div>
-      </article>
-    </section>
+      </div>
+      <div class="card-actions" id="media-manager-actions" hidden>
+        <a class="edit-toggle" href="/media-manager/">Open media library</a>
+      </div>
+    </article>
 
     <section class="card" id="media-access-card" hidden>
       <div class="card-header">
