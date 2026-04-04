@@ -10,22 +10,30 @@ function getSupabaseUrl() {
   return String(process.env.SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/+$/, "");
 }
 
+function getServiceRoleKey() {
+  return String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+}
+
 function getAnonKey() {
   return String(process.env.SUPABASE_ANON_KEY || "").trim();
 }
 
+function getPublicApiKey() {
+  return getServiceRoleKey() || getAnonKey();
+}
+
 function buildHeaders(token) {
-  const anonKey = getAnonKey();
+  const apiKey = token ? (getAnonKey() || getPublicApiKey()) : getPublicApiKey();
   const headers = {
     "Content-Type": "application/json",
   };
-  if (anonKey) {
-    headers.apikey = anonKey;
+  if (apiKey) {
+    headers.apikey = apiKey;
   }
   if (token) {
     headers.Authorization = `Bearer ${token}`;
-  } else if (anonKey) {
-    headers.Authorization = `Bearer ${anonKey}`;
+  } else if (apiKey) {
+    headers.Authorization = `Bearer ${apiKey}`;
   }
   return headers;
 }
@@ -93,12 +101,12 @@ async function authenticateRequest(req) {
   const token = String(authHeader || "").match(/^Bearer\s+(.+)$/i)?.[1];
   if (!token) return { session: null, token: null };
 
-  const anonKey = getAnonKey();
-  if (!anonKey) throw new Error("Missing SUPABASE_ANON_KEY");
+  const apiKey = getAnonKey() || getPublicApiKey();
+  if (!apiKey) throw new Error("Missing Supabase API key");
 
   const response = await fetch(`${getSupabaseUrl()}/auth/v1/user`, {
     headers: {
-      apikey: anonKey,
+      apikey: apiKey,
       Authorization: `Bearer ${token}`,
     },
   });
