@@ -762,34 +762,23 @@
       </div>
     </article>
 
-    <article class="card">
-      <h2>Permissions</h2>
-      <div class="stack">
-        <div>
-          <h3>Photo uploads</h3>
-          <p id="uploads" class="meta">Checking access...</p>
-        </div>
-        <div>
-          <h3>Media library</h3>
-          <p id="media-access" class="meta">Checking access...</p>
-        </div>
-      </div>
-      <div class="card-actions" id="media-manager-actions" hidden>
-        <a class="edit-toggle" href="/media-manager/">Open media library</a>
-      </div>
-    </article>
-
-    <section class="card" id="media-access-card" hidden>
+    <section class="card" id="user-permissions-card" hidden>
       <div class="card-header">
         <div>
-          <h2>Media access</h2>
-          <p class="meta">Grant upload and delete access for current historical photo buckets without making someone a full admin.</p>
+          <h2>User permissions</h2>
+          <p class="meta">Manage member upload rights, media tools, and bucket access from one admin screen.</p>
         </div>
-        <button class="edit-toggle" id="media-access-toggle" type="button" aria-expanded="false">Manage access</button>
+        <a class="edit-toggle" href="/account/permissions/">Open permissions</a>
       </div>
-      <div class="permission-panel" id="media-access-panel" hidden>
-        <div class="permission-list" id="media-access-list"></div>
-        <p class="form-status" id="media-access-status" aria-live="polite"></p>
+    </section>
+
+    <section class="card" id="media-library-card" hidden>
+      <div class="card-header">
+        <div>
+          <h2>Media library</h2>
+          <p class="meta">Open the uploader and file manager for the historical photo buckets you can manage.</p>
+        </div>
+        <a class="edit-toggle" href="/media-manager/">Open media library</a>
       </div>
     </section>
   </div>
@@ -908,14 +897,8 @@
     const bioEl = document.getElementById("bio");
     const avatarEl = document.getElementById("profile-avatar");
     const avatarPlaceholderEl = document.getElementById("profile-avatar-placeholder");
-    const uploadsEl = document.getElementById("uploads");
-    const mediaAccessEl = document.getElementById("media-access");
-    const mediaManagerActionsEl = document.getElementById("media-manager-actions");
-    const mediaAccessCardEl = document.getElementById("media-access-card");
-    const mediaAccessToggleEl = document.getElementById("media-access-toggle");
-    const mediaAccessPanelEl = document.getElementById("media-access-panel");
-    const mediaAccessListEl = document.getElementById("media-access-list");
-    const mediaAccessStatusEl = document.getElementById("media-access-status");
+    const userPermissionsCardEl = document.getElementById("user-permissions-card");
+    const mediaLibraryCardEl = document.getElementById("media-library-card");
     const profileEditToggle = document.getElementById("profile-edit-toggle");
     const profileEditPanel = document.getElementById("profile-edit-panel");
     const profileEditClose = document.getElementById("profile-edit-close");
@@ -936,13 +919,8 @@
     const profileSaveButton = document.getElementById("profile-save");
     const profileStatusEl = document.getElementById("profile-status");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
-    const MEDIA_BUCKET_LABELS = {
-      churchfirephotos: "Church Fire Photos",
-      standingstonechurchconstructionphotos: "Standing Stone Construction Photos",
-    };
     let activeSession = null;
     let currentAvatarPath = "";
-    let availableMediaBuckets = [];
     const photoEditorState = {
       image: null,
       objectUrl: "",
@@ -954,17 +932,6 @@
       dirty: false,
       deleteRequested: false,
     };
-
-    function setMediaAccessStatus(message, error = false) {
-      mediaAccessStatusEl.style.color = error ? "#9d2d28" : "#526158";
-      mediaAccessStatusEl.textContent = message || "";
-    }
-
-    function setMediaAccessPanelOpen(isOpen) {
-      mediaAccessPanelEl.hidden = !isOpen;
-      mediaAccessToggleEl.setAttribute("aria-expanded", String(isOpen));
-      mediaAccessToggleEl.textContent = isOpen ? "Hide access" : "Manage access";
-    }
 
     function setEditPanelOpen(isOpen) {
       profileEditPanel.hidden = !isOpen;
@@ -986,12 +953,6 @@
       badge.className = "badge";
       badge.textContent = text;
       badgesEl.appendChild(badge);
-    }
-
-    function formatMediaBuckets(bucketIds) {
-      return Array.isArray(bucketIds) && bucketIds.length
-        ? bucketIds.map((bucketId) => MEDIA_BUCKET_LABELS[bucketId] || bucketId).join(", ")
-        : "";
     }
 
     async function resolveAvatarUrl(profile) {
@@ -1207,91 +1168,6 @@
       }
     }
 
-    function renderMediaAccessProfiles(profiles) {
-      mediaAccessListEl.innerHTML = "";
-      profiles.forEach((profile) => {
-        const row = document.createElement("div");
-        row.className = "permission-row";
-
-        const copy = document.createElement("div");
-        const name = document.createElement("div");
-        name.className = "permission-name";
-        name.textContent = profile.displayName || profile.email || "Unnamed user";
-        const email = document.createElement("div");
-        email.className = "permission-email";
-        email.textContent = profile.email || "";
-        copy.append(name, email);
-
-        const controls = document.createElement("div");
-        controls.className = "bucket-checkboxes";
-        if (profile.role === "admin") {
-          const label = document.createElement("div");
-          label.className = "permission-email";
-          label.textContent = "Admin access";
-          controls.appendChild(label);
-        } else {
-          availableMediaBuckets.forEach((bucket) => {
-            const option = document.createElement("label");
-            option.className = "bucket-option";
-            const input = document.createElement("input");
-            input.type = "checkbox";
-            input.checked = Array.isArray(profile.mediaBuckets) && profile.mediaBuckets.includes(bucket.id);
-            const text = document.createElement("span");
-            text.textContent = bucket.label;
-            input.addEventListener("change", async () => {
-              const nextBuckets = new Set(Array.isArray(profile.mediaBuckets) ? profile.mediaBuckets : []);
-              if (input.checked) nextBuckets.add(bucket.id);
-              else nextBuckets.delete(bucket.id);
-              const mediaBuckets = [...nextBuckets];
-              input.disabled = true;
-              setMediaAccessStatus("Saving...");
-              try {
-                const response = await fetch("/api/media-access", {
-                  method: "PATCH",
-                  headers: {
-                    Authorization: "Bearer " + activeSession.access_token,
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    userId: profile.id,
-                    mediaBuckets,
-                  }),
-                });
-                const payload = await response.json().catch(() => ({}));
-                if (!response.ok) throw new Error(payload.error || "Unable to update access.");
-                await loadMediaAccessProfiles();
-                setMediaAccessStatus("Media access updated.");
-              } catch (error) {
-                input.checked = !input.checked;
-                setMediaAccessStatus(error.message || "Unable to update access.", true);
-                input.disabled = false;
-              }
-            });
-            option.append(input, text);
-            controls.appendChild(option);
-          });
-        }
-
-        row.append(copy, controls);
-        mediaAccessListEl.appendChild(row);
-      });
-    }
-
-    async function loadMediaAccessProfiles() {
-      if (!activeSession?.access_token) return;
-      const response = await fetch("/api/media-access", {
-        headers: {
-          Authorization: "Bearer " + activeSession.access_token,
-        },
-      });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(payload.error || "Unable to load media access list.");
-      }
-      availableMediaBuckets = Array.isArray(payload.availableBuckets) ? payload.availableBuckets : [];
-      renderMediaAccessProfiles(Array.isArray(payload.profiles) ? payload.profiles : []);
-    }
-
     async function loadAccount() {
       try {
         const session = await window.siteAuth.getSession();
@@ -1324,29 +1200,17 @@
         titleEl.textContent = payload.title || "My Account";
         introEl.textContent = payload.intro || "Signed in.";
         await applyProfile(payload.profile || {}, payload.email || "");
-        uploadsEl.textContent = payload.canUploadPhotos ? "Enabled" : "Not enabled";
-        mediaAccessEl.textContent = payload.canManageMedia
-          ? (Array.isArray(payload.profile?.mediaBuckets) && payload.profile.mediaBuckets.length
-              ? formatMediaBuckets(payload.profile.mediaBuckets)
-              : "Enabled")
-          : "Not enabled";
-        mediaManagerActionsEl.hidden = !payload.canManageMedia;
-        mediaAccessCardEl.hidden = !payload.admin;
+        userPermissionsCardEl.hidden = !payload.admin;
+        mediaLibraryCardEl.hidden = !payload.canManageMedia;
 
         badgesEl.innerHTML = "";
         addBadge("Signed In");
         addBadge(payload.admin ? "Admin" : "Member");
         if (payload.canUploadPhotos) addBadge("Uploads Enabled");
         if (payload.canManageMedia) addBadge("Media Manager");
-
-        if (payload.admin) {
-          await loadMediaAccessProfiles();
-        }
       } catch (error) {
         titleEl.textContent = "Account error";
         introEl.textContent = "The account page could not be loaded.";
-        uploadsEl.textContent = error.message || "Unable to load account.";
-        mediaAccessEl.textContent = error.message || "Unable to load account.";
       }
     }
 
@@ -1513,17 +1377,12 @@
       profileStatusEl.textContent = "Photo will be removed when you save your profile.";
     });
 
-    mediaAccessToggleEl?.addEventListener("click", () => {
-      setMediaAccessPanelOpen(mediaAccessPanelEl.hidden);
-    });
-
     document.getElementById("logout").addEventListener("click", async () => {
       await window.siteAuth.logout();
       window.location.href = "/login/";
     });
 
     setEditPanelOpen(false);
-    setMediaAccessPanelOpen(false);
     syncPhotoEditorUI();
     loadAccount();
   </script>

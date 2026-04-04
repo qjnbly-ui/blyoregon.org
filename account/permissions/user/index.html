@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Member Permissions | Bly, Oregon</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --ink: #1e1f1c;
+      --card: #fffdf9;
+      --white: #fff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .brand-title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    nav {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    nav a.account-link {
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .hero,
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.4rem;
+    }
+    .hero {
+      background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88));
+      color: var(--white);
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.76rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 700;
+    }
+    .hero h1 {
+      margin: 0.3rem 0 0;
+      color: var(--white);
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 6vw, 3rem);
+      line-height: 1.02;
+    }
+    .hero p,
+    .meta,
+    .status-copy {
+      margin: 0.65rem 0 0;
+      line-height: 1.6;
+    }
+    .hero p { color: rgba(255, 255, 255, 0.82); }
+    .meta,
+    .status-copy { color: #4c5d54; }
+    h2, h3 {
+      margin: 0;
+      color: var(--forest);
+    }
+    .hero-actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .pill-link {
+      appearance: none;
+      border: 1px solid rgba(20, 50, 39, 0.16);
+      border-radius: 999px;
+      padding: 0.8rem 1rem;
+      background: transparent;
+      color: var(--forest);
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      width: fit-content;
+    }
+    .stack {
+      display: grid;
+      gap: 1rem;
+    }
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.85rem;
+      margin-top: 1rem;
+    }
+    .toggle-card,
+    .bucket-card {
+      border-radius: 18px;
+      border: 1px solid rgba(20, 50, 39, 0.12);
+      background: rgba(255, 255, 255, 0.7);
+      padding: 0.9rem 1rem;
+    }
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .toggle-copy strong {
+      display: block;
+      color: var(--forest);
+      margin-bottom: 0.15rem;
+    }
+    .toggle-copy span {
+      color: #5c6d63;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+    .toggle {
+      width: 3.2rem;
+      height: 1.95rem;
+      border-radius: 999px;
+      border: 0;
+      background: #cfd8d2;
+      position: relative;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 0.22rem;
+      left: 0.22rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 0 2px 7px rgba(0, 0, 0, 0.18);
+      transition: transform 0.18s ease;
+    }
+    .toggle[aria-checked="true"] {
+      background: var(--pine);
+    }
+    .toggle[aria-checked="true"]::after {
+      transform: translateX(1.23rem);
+    }
+    .bucket-card h3 {
+      margin-bottom: 0.65rem;
+      font-size: 0.98rem;
+    }
+    .bucket-options {
+      display: grid;
+      gap: 0.65rem;
+    }
+    .bucket-option {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      color: var(--forest);
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+    .bucket-option input {
+      width: auto;
+      margin: 0;
+    }
+    .member-status {
+      min-height: 1.3rem;
+      color: #526158;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+    .warning {
+      color: #8b322d;
+    }
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 600px) {
+      .shell { padding: 1rem 0.75rem 2rem; }
+      .hero, .card { padding: 1.1rem 1rem; border-radius: 20px; }
+      .header-inner { padding: 0.75rem 0.9rem; }
+      .brand-title { font-size: 1rem; }
+      .brand-subtitle { font-size: 0.72rem; }
+      nav { width: 100%; justify-content: space-between; }
+      .toggle-row { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">A Community in Klamath County</div>
+      </div>
+      <nav>
+        <a href="/account/" class="account-link">Account</a>
+        <a href="/account/permissions/">Users</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Admin Tools</div>
+      <h1 id="page-title">Member permissions</h1>
+      <p id="page-intro">Loading member access controls.</p>
+      <div class="hero-actions">
+        <a class="pill-link" href="/account/permissions/">Back to users</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Access settings</h2>
+      <p class="meta">Use this page to manage upload rights, media manager access, and bucket-specific permissions for one member.</p>
+      <div id="controls" hidden>
+        <div class="control-grid">
+          <div class="toggle-card">
+            <div class="toggle-row">
+              <div class="toggle-copy">
+                <strong>Photo uploads</strong>
+                <span>Allows this member to submit photos from the site tools.</span>
+              </div>
+              <button id="toggle-upload" class="toggle" type="button" role="switch" aria-checked="false"></button>
+            </div>
+          </div>
+          <div class="toggle-card">
+            <div class="toggle-row">
+              <div class="toggle-copy">
+                <strong>Media manager</strong>
+                <span>Gives access to the media manager and unlocks the bucket permissions below.</span>
+              </div>
+              <button id="toggle-manager" class="toggle" type="button" role="switch" aria-checked="false"></button>
+            </div>
+          </div>
+          <div class="bucket-card">
+            <h3>Media buckets</h3>
+            <div id="bucket-options" class="bucket-options"></div>
+          </div>
+        </div>
+      </div>
+      <p id="member-status" class="member-status" aria-live="polite"></p>
+      <p id="page-status" class="status-copy" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const titleEl = document.getElementById("page-title");
+    const introEl = document.getElementById("page-intro");
+    const controlsEl = document.getElementById("controls");
+    const toggleUploadEl = document.getElementById("toggle-upload");
+    const toggleManagerEl = document.getElementById("toggle-manager");
+    const bucketOptionsEl = document.getElementById("bucket-options");
+    const memberStatusEl = document.getElementById("member-status");
+    const pageStatusEl = document.getElementById("page-status");
+    const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname + window.location.search);
+    const params = new URLSearchParams(window.location.search);
+    const targetUserId = params.get("id") || "";
+    const BUCKET_LABELS = {
+      churchfirephotos: "Church Fire Photos",
+      standingstonechurchconstructionphotos: "Standing Stone Construction Photos",
+    };
+    let activeSession = null;
+    let activeProfile = null;
+    let availableBuckets = [];
+
+    function setPageStatus(message, isError = false) {
+      pageStatusEl.classList.toggle("warning", isError);
+      pageStatusEl.textContent = message || "";
+    }
+
+    function setMemberStatus(message, isError = false) {
+      memberStatusEl.classList.toggle("warning", isError);
+      memberStatusEl.textContent = message || "";
+    }
+
+    function syncControls() {
+      if (!activeProfile) return;
+      toggleUploadEl.setAttribute("aria-checked", String(Boolean(activeProfile.canUploadPhotos)));
+      toggleManagerEl.setAttribute("aria-checked", String(Boolean(activeProfile.canManageMedia)));
+      bucketOptionsEl.querySelectorAll("input[type=\"checkbox\"]").forEach((input) => {
+        input.checked = Array.isArray(activeProfile.mediaBuckets) && activeProfile.mediaBuckets.includes(input.value);
+        input.disabled = !activeProfile.canManageMedia;
+      });
+    }
+
+    async function saveProfile(nextState) {
+      setMemberStatus("Saving...");
+      try {
+        const response = await fetch("/api/media-access", {
+          method: "PATCH",
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: activeProfile.id,
+            canUploadPhotos: nextState.canUploadPhotos,
+            canManageMedia: nextState.canManageMedia,
+            mediaBuckets: nextState.mediaBuckets,
+          }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || "Unable to update access.");
+        activeProfile = {
+          ...activeProfile,
+          ...payload.profile,
+        };
+        syncControls();
+        setMemberStatus("Saved.");
+      } catch (error) {
+        syncControls();
+        setMemberStatus(error.message || "Unable to update access.", true);
+      }
+    }
+
+    function renderBucketOptions() {
+      bucketOptionsEl.innerHTML = "";
+      availableBuckets.forEach((bucket) => {
+        const option = document.createElement("label");
+        option.className = "bucket-option";
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.value = bucket.id;
+        const text = document.createElement("span");
+        text.textContent = BUCKET_LABELS[bucket.id] || bucket.label || bucket.id;
+        input.addEventListener("change", async () => {
+          const nextBuckets = new Set(Array.isArray(activeProfile.mediaBuckets) ? activeProfile.mediaBuckets : []);
+          if (input.checked) nextBuckets.add(bucket.id);
+          else nextBuckets.delete(bucket.id);
+          await saveProfile({
+            ...activeProfile,
+            canManageMedia: true,
+            mediaBuckets: [...nextBuckets],
+          });
+        });
+        option.append(input, text);
+        bucketOptionsEl.appendChild(option);
+      });
+    }
+
+    async function loadPage() {
+      if (!targetUserId) {
+        setPageStatus("Missing user id.", true);
+        return;
+      }
+
+      try {
+        const session = await window.siteAuth.getSession();
+        activeSession = session;
+        if (!session) {
+          window.location.replace(loginUrl);
+          return;
+        }
+
+        const response = await fetch("/api/media-access", {
+          headers: {
+            Authorization: "Bearer " + session.access_token,
+          },
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          if (response.status === 401) {
+            await window.siteAuth.logout();
+            window.location.replace(loginUrl + "&auth_error=expired");
+            return;
+          }
+          throw new Error(payload.error || "Unable to load permissions.");
+        }
+
+        availableBuckets = Array.isArray(payload.availableBuckets) ? payload.availableBuckets : [];
+        activeProfile = (Array.isArray(payload.profiles) ? payload.profiles : []).find((profile) => profile.id === targetUserId) || null;
+
+        if (!activeProfile) {
+          throw new Error("That member could not be found.");
+        }
+
+        titleEl.textContent = activeProfile.displayName || activeProfile.email || "Member permissions";
+        introEl.textContent = activeProfile.email || "Manage this member's access settings.";
+
+        if (activeProfile.role === "admin") {
+          controlsEl.hidden = true;
+          setMemberStatus("Admins already have full access.", false);
+          setPageStatus("");
+          return;
+        }
+
+        controlsEl.hidden = false;
+        renderBucketOptions();
+        syncControls();
+        setMemberStatus("");
+        setPageStatus("");
+      } catch (error) {
+        controlsEl.hidden = true;
+        setPageStatus(error.message || "Unable to load permissions.", true);
+      }
+    }
+
+    toggleUploadEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        canUploadPhotos: !activeProfile.canUploadPhotos,
+      });
+    });
+
+    toggleManagerEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        canManageMedia: !activeProfile.canManageMedia,
+        mediaBuckets: activeProfile.canManageMedia ? [] : activeProfile.mediaBuckets,
+      });
+    });
+
+    loadPage();
+  </script>
+</body>
+</html>

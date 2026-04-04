@@ -63,7 +63,7 @@ async function authenticateRequest(req) {
 
 async function fetchOwnProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,role,can_manage_media,media_buckets&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,role,can_upload_photos,can_manage_media,media_buckets&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -79,7 +79,7 @@ async function fetchOwnProfile(session, token) {
 
 async function listProfiles(token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,role,can_manage_media,media_buckets&order=display_name.asc.nullslast,email.asc`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,role,can_upload_photos,can_manage_media,media_buckets&order=display_name.asc.nullslast,email.asc`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -99,7 +99,10 @@ function sanitizeBuckets(input) {
     : [];
 }
 
-async function updateMediaAccess(token, userId, mediaBuckets) {
+async function updateMediaAccess(token, userId, options) {
+  const mediaBuckets = sanitizeBuckets(options?.mediaBuckets);
+  const canUploadPhotos = Boolean(options?.canUploadPhotos);
+  const canManageMedia = Boolean(options?.canManageMedia || mediaBuckets.length > 0);
   const response = await fetch(
     `${getSupabaseUrl()}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}`,
     {
@@ -111,7 +114,8 @@ async function updateMediaAccess(token, userId, mediaBuckets) {
         Prefer: "return=representation",
       },
       body: JSON.stringify({
-        can_manage_media: mediaBuckets.length > 0,
+        can_upload_photos: canUploadPhotos,
+        can_manage_media: canManageMedia,
         media_buckets: mediaBuckets,
       }),
     }
@@ -147,6 +151,7 @@ module.exports = async (req, res) => {
               email: profile.email || "",
               displayName: profile.display_name || "",
               role: String(profile.role || "member").toLowerCase(),
+              canUploadPhotos: Boolean(profile.can_upload_photos || String(profile.role || "").toLowerCase() === "admin"),
               canManageMedia: Boolean(profile.can_manage_media || String(profile.role || "").toLowerCase() === "admin"),
               mediaBuckets: Array.isArray(profile.media_buckets) ? profile.media_buckets : [],
             }))
@@ -159,13 +164,19 @@ module.exports = async (req, res) => {
       const body = await parseJsonBody(req);
       const userId = String(body?.userId || "").trim();
       const mediaBuckets = sanitizeBuckets(body?.mediaBuckets);
+      const canUploadPhotos = Boolean(body?.canUploadPhotos);
+      const canManageMedia = Boolean(body?.canManageMedia || mediaBuckets.length > 0);
 
       if (!userId) {
         sendJson(res, 400, { error: "Missing userId" });
         return;
       }
 
-      const updated = await updateMediaAccess(token, userId, mediaBuckets);
+      const updated = await updateMediaAccess(token, userId, {
+        mediaBuckets,
+        canUploadPhotos,
+        canManageMedia,
+      });
       sendJson(res, 200, {
         ok: true,
         profile: {
@@ -173,6 +184,7 @@ module.exports = async (req, res) => {
           email: updated?.email || "",
           displayName: updated?.display_name || "",
           role: String(updated?.role || "member").toLowerCase(),
+          canUploadPhotos: Boolean(updated?.can_upload_photos || String(updated?.role || "").toLowerCase() === "admin"),
           canManageMedia: Boolean(updated?.can_manage_media || String(updated?.role || "").toLowerCase() === "admin"),
           mediaBuckets: Array.isArray(updated?.media_buckets) ? updated.media_buckets : mediaBuckets,
         },
