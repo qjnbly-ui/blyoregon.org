@@ -351,10 +351,7 @@ as $$
         public.is_admin()
         or public.can_review_articles()
         or public.can_publish_articles()
-        or (
-          author_id = auth.uid()
-          and status in ('draft', 'changes_requested')
-        )
+        or author_id = auth.uid()
       )
   );
 $$;
@@ -637,13 +634,24 @@ create policy "articles author draft edit or admin"
 on public.articles
 for update
 using (
-  (author_id = auth.uid() and status in ('draft', 'changes_requested'))
+  (author_id = auth.uid())
   or public.can_review_articles()
   or public.can_publish_articles()
   or public.is_admin()
 )
 with check (
-  (author_id = auth.uid() and status in ('draft', 'changes_requested', 'submitted'))
+  (author_id = auth.uid())
+  or public.can_review_articles()
+  or public.can_publish_articles()
+  or public.is_admin()
+);
+
+drop policy if exists "articles author delete or admin" on public.articles;
+create policy "articles author delete or admin"
+on public.articles
+for delete
+using (
+  author_id = auth.uid()
   or public.can_review_articles()
   or public.can_publish_articles()
   or public.is_admin()

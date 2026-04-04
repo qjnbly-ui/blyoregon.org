@@ -323,6 +323,14 @@ async function updateArticle(articleId, payload, token) {
   return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
+async function deleteArticle(articleId, token) {
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/articles?id=eq.${articleId}`, {
+    method: "DELETE",
+    headers: buildHeaders(token),
+  });
+  if (!response.ok) throw new Error("Unable to delete article");
+}
+
 module.exports = async (req, res) => {
   const requestUrl = new URL(req.url, `https://${getHeaderValue(req, "host") || "blyoregon.org"}`);
   const articleId = String(requestUrl.searchParams.get("id") || "").trim();
@@ -462,11 +470,13 @@ module.exports = async (req, res) => {
       const isOwner = existing.author_id === session.id;
       const action = String(body?.action || "save").trim().toLowerCase();
 
-      const canAuthorEdit = isOwner && perms.canSubmitArticles && ["draft", "changes_requested"].includes(String(existing.status || ""));
+      const status = String(existing.status || "");
+      const canAuthorEdit = isOwner && perms.canSubmitArticles && ["draft", "changes_requested"].includes(status);
+      const canAuthorManage = isOwner && perms.canSubmitArticles;
       const canReview = perms.canReviewArticles || perms.canPublishArticles || perms.admin;
       const canPublish = perms.canPublishArticles || perms.admin;
 
-      if (!canAuthorEdit && !canReview) {
+      if (!canAuthorManage && !canReview) {
         sendJson(res, 403, { error: "Forbidden" });
         return;
       }
@@ -521,6 +531,13 @@ module.exports = async (req, res) => {
           return;
         }
         payload.status = "archived";
+      } else if (action === "unpublish") {
+        if (!(canAuthorManage || canPublish)) {
+          sendJson(res, 403, { error: "Forbidden" });
+          return;
+        }
+        payload.status = "draft";
+        payload.published_at = null;
       } else if (action !== "save") {
         sendJson(res, 400, { error: "Invalid action" });
         return;
@@ -534,6 +551,32 @@ module.exports = async (req, res) => {
         article: updated ? serializeArticle(updated, imageMap) : null,
         permissions: perms,
       });
+      return;
+    }
+
+    if (req.method === "DELETE") {
+      const targetArticleId = String(articleId || "").trim();
+      if (!targetArticleId) {
+        sendJson(res, 400, { error: "Missing article id" });
+        return;
+      }
+
+      const existing = await fetchArticleById(targetArticleId, token);
+      if (!existing) {
+        sendJson(res, 404, { error: "Article not found" });
+        return;
+      }
+
+      const isOwner = existing.author_id === session.id;
+      const canAuthorManage = isOwner && perms.canSubmitArticles;
+      const canModerate = perms.canReviewArticles || perms.canPublishArticles || perms.admin;
+      if (!(canAuthorManage || canModerate)) {
+        sendJson(res, 403, { error: "Forbidden" });
+        return;
+      }
+
+      await deleteArticle(existing.id, token);
+      sendJson(res, 200, { ok: true });
       return;
     }
 

@@ -77,6 +77,8 @@ Current behavior:
   - save / submit / request changes / publish updates
 - `/history/articles/` now adds a `User Submitted Articles` section beneath the existing static archive sections
 - approved user articles render at `/history/articles/post/?slug=...`
+- authors can now unpublish their own published article back to `draft`
+- authors can now delete their own dynamic article and its uploaded article images
 
 Current article statuses:
 - `draft`

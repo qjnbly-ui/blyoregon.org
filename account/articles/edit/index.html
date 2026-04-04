@@ -330,6 +330,8 @@
           <button id="submit-button" class="button secondary" type="button">Submit for approval</button>
           <button id="request-changes-button" class="button secondary" type="button" hidden>Request changes</button>
           <button id="publish-button" class="button" type="button" hidden>Publish article</button>
+          <button id="unpublish-button" class="button secondary" type="button" hidden>Unpublish</button>
+          <button id="delete-button" class="button danger" type="button" hidden>Delete article</button>
           <a id="public-link" class="button secondary" href="#" hidden>Open public article</a>
         </div>
         <p id="page-status" class="status-copy" aria-live="polite"></p>
@@ -362,6 +364,8 @@
     const submitButtonEl = document.getElementById("submit-button");
     const requestChangesButtonEl = document.getElementById("request-changes-button");
     const publishButtonEl = document.getElementById("publish-button");
+    const unpublishButtonEl = document.getElementById("unpublish-button");
+    const deleteButtonEl = document.getElementById("delete-button");
     const publicLinkEl = document.getElementById("public-link");
     const statusEl = document.getElementById("page-status");
 
@@ -389,15 +393,19 @@
     function syncActionButtons() {
       const status = String(activeArticle?.status || "draft");
       const canAuthorSubmit = Boolean(activePermissions?.canSubmitArticles && ["draft", "changes_requested"].includes(status));
+      const canAuthorManage = Boolean(activePermissions?.canSubmitArticles);
       const canReview = Boolean(activePermissions?.canReviewArticles);
       const canPublish = Boolean(activePermissions?.canPublishArticles);
       const canEdit = Boolean(canReview || canPublish || canAuthorSubmit);
+      const canDelete = Boolean(canAuthorManage || canReview || canPublish);
 
       saveButtonEl.hidden = !canEdit;
       saveButtonEl.disabled = !canEdit;
       submitButtonEl.hidden = !canAuthorSubmit;
       requestChangesButtonEl.hidden = !(canReview && status === "submitted");
       publishButtonEl.hidden = !(canPublish && ["submitted", "changes_requested"].includes(status));
+      unpublishButtonEl.hidden = !((canAuthorManage || canPublish) && status === "published");
+      deleteButtonEl.hidden = !canDelete;
       reviewNotesInput.disabled = !(canReview || canPublish);
       titleInput.disabled = !canEdit;
       slugInput.disabled = !canEdit;
@@ -536,6 +544,8 @@
       submitButtonEl.disabled = true;
       requestChangesButtonEl.disabled = true;
       publishButtonEl.disabled = true;
+      unpublishButtonEl.disabled = true;
+      deleteButtonEl.disabled = true;
 
       try {
         const response = await fetch("/api/articles", {
@@ -560,7 +570,17 @@
         imageState = Array.isArray(activeArticle.images) ? activeArticle.images.slice() : imageState;
         renderImages();
         syncActionButtons();
-        setStatus(action === "save" ? "Draft saved." : action === "submit" ? "Submitted for approval." : action === "request_changes" ? "Changes requested." : "Article published.");
+        setStatus(
+          action === "save"
+            ? "Draft saved."
+            : action === "submit"
+              ? "Submitted for approval."
+              : action === "request_changes"
+                ? "Changes requested."
+                : action === "unpublish"
+                  ? "Article unpublished."
+                  : "Article published."
+        );
       } catch (error) {
         setStatus(error.message || "Unable to save article.", true);
       } finally {
@@ -568,6 +588,56 @@
         submitButtonEl.disabled = false;
         requestChangesButtonEl.disabled = false;
         publishButtonEl.disabled = false;
+        unpublishButtonEl.disabled = false;
+        deleteButtonEl.disabled = false;
+      }
+    }
+
+    async function deleteArticle() {
+      if (!activeSession?.access_token || !activeArticle?.id) return;
+      if (!window.confirm("Delete this article and its uploaded article photos? This cannot be undone.")) {
+        return;
+      }
+
+      setStatus("Deleting article...");
+      saveButtonEl.disabled = true;
+      submitButtonEl.disabled = true;
+      requestChangesButtonEl.disabled = true;
+      publishButtonEl.disabled = true;
+      unpublishButtonEl.disabled = true;
+      deleteButtonEl.disabled = true;
+
+      try {
+        if (imageState.length) {
+          const client = await window.siteAuth.getClient();
+          const { error: removeError } = await client.storage.from("article-images").remove(
+            imageState.map((image) => image.storagePath)
+          );
+          if (removeError) {
+            throw new Error(removeError.message || "Unable to remove article images.");
+          }
+        }
+
+        const response = await fetch(`/api/articles?id=${encodeURIComponent(activeArticle.id)}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+          },
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || "Unable to delete article.");
+        }
+
+        window.location.href = "/account/articles/";
+      } catch (error) {
+        setStatus(error.message || "Unable to delete article.", true);
+        saveButtonEl.disabled = false;
+        submitButtonEl.disabled = false;
+        requestChangesButtonEl.disabled = false;
+        publishButtonEl.disabled = false;
+        unpublishButtonEl.disabled = false;
+        deleteButtonEl.disabled = false;
       }
     }
 
@@ -668,6 +738,14 @@
 
     publishButtonEl.addEventListener("click", async () => {
       await saveArticle("publish");
+    });
+
+    unpublishButtonEl.addEventListener("click", async () => {
+      await saveArticle("unpublish");
+    });
+
+    deleteButtonEl.addEventListener("click", async () => {
+      await deleteArticle();
     });
 
     imagesInput.addEventListener("change", async () => {
