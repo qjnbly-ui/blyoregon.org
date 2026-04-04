@@ -331,6 +331,36 @@ async function deleteArticle(articleId, token) {
   if (!response.ok) throw new Error("Unable to delete article");
 }
 
+async function deleteArticleImagesFromStorage(paths) {
+  const uniquePaths = Array.from(
+    new Set(
+      (Array.isArray(paths) ? paths : [])
+        .map((path) => String(path || "").trim().replace(/^\/+/, ""))
+        .filter(Boolean)
+    )
+  );
+  if (!uniquePaths.length) return;
+
+  const apiKey = getServiceRoleKey() || getPublicApiKey();
+  if (!apiKey) return;
+
+  const response = await fetch(`${getSupabaseUrl()}/storage/v1/object/article-images`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: apiKey,
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      prefixes: uniquePaths,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to remove article images from storage");
+  }
+}
+
 module.exports = async (req, res) => {
   const requestUrl = new URL(req.url, `https://${getHeaderValue(req, "host") || "blyoregon.org"}`);
   const articleId = String(requestUrl.searchParams.get("id") || "").trim();
@@ -573,6 +603,14 @@ module.exports = async (req, res) => {
       if (!(canAuthorManage || canModerate)) {
         sendJson(res, 403, { error: "Forbidden" });
         return;
+      }
+
+      const imageMap = await fetchArticleImages([existing.id], token);
+      const imagePaths = (imageMap.get(existing.id) || []).map((image) => image.storagePath);
+      try {
+        await deleteArticleImagesFromStorage(imagePaths);
+      } catch (error) {
+        console.error(`Article image cleanup failed for ${existing.id}:`, error);
       }
 
       await deleteArticle(existing.id, token);

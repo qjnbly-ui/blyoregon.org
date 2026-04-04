@@ -608,16 +608,6 @@
       deleteButtonEl.disabled = true;
 
       try {
-        if (imageState.length) {
-          const client = await window.siteAuth.getClient();
-          const { error: removeError } = await client.storage.from("article-images").remove(
-            imageState.map((image) => image.storagePath)
-          );
-          if (removeError) {
-            throw new Error(removeError.message || "Unable to remove article images.");
-          }
-        }
-
         const response = await fetch(`/api/articles?id=${encodeURIComponent(activeArticle.id)}`, {
           method: "DELETE",
           headers: {
