@@ -168,7 +168,7 @@ async function listBucketFiles(bucket) {
 
 async function fetchPhotoMetadata(bucket) {
   const query = new URLSearchParams({
-    select: "id,bucket_id,storage_path,title,caption,story,notes,source,photographer,location,taken_on,sort_order,published",
+    select: "id,bucket_id,storage_path,title,caption,story,notes,source,photographer,location,taken_on,sort_order,published,historical_photo_people(sort_order,person:historical_people(name))",
     bucket_id: `eq.${bucket}`,
     order: "sort_order.asc",
   });
@@ -333,6 +333,16 @@ function buildPublicPhoto(bucket, name, metadata, index) {
   const photographer = String(metadata?.photographer || "").trim();
   const location = String(metadata?.location || "").trim();
   const takenOn = metadata?.taken_on || null;
+  const taggedPeople = Array.isArray(metadata?.historical_photo_people)
+    ? metadata.historical_photo_people
+        .map((row) => ({
+          sortOrder: Number.isFinite(Number(row?.sort_order)) ? Number(row.sort_order) : 0,
+          name: String(row?.person?.name || "").trim(),
+        }))
+        .filter((person) => person.name)
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map((person) => person.name)
+    : [];
   return {
     id: metadata?.id || `${bucket}/${name}`,
     bucket,
@@ -348,7 +358,8 @@ function buildPublicPhoto(bucket, name, metadata, index) {
     photographer,
     location,
     takenOn,
-    hasDisplayMetadata: Boolean(displayTitle || caption || story || source || photographer || location || takenOn),
+    taggedPeople,
+    hasDisplayMetadata: Boolean(displayTitle || caption || story || source || photographer || location || takenOn || taggedPeople.length),
     sortOrder: Number.isFinite(Number(metadata?.sort_order)) ? Number(metadata.sort_order) : 100000 + index,
   };
 }

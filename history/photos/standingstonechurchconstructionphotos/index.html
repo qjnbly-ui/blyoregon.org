@@ -151,6 +151,7 @@
     .lightbox-meta[hidden] { display: none; }
     .lightbox-meta-title { margin: 0; color: #fff; font-family: "Fraunces", "Times New Roman", serif; font-size: clamp(1.25rem, 2vw, 1.7rem); line-height: 1.15; }
     .lightbox-meta-copy { margin: 0; }
+    .lightbox-meta-label { font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.62); font-weight: 700; }
     .lightbox-meta-facts { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
     .lightbox-meta-fact { border: 1px solid rgba(255,255,255,0.24); border-radius: 999px; padding: 0.35rem 0.7rem; font-size: 0.92rem; color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.08); }
 
@@ -248,6 +249,7 @@
 
         const title = String(photo.displayTitle || '').trim();
         const copy = String(photo.story || photo.caption || '').trim();
+        const taggedPeople = Array.isArray(photo.taggedPeople) ? photo.taggedPeople.filter(Boolean) : [];
         const facts = [
           photo.takenOn ? `Date: ${photo.takenOn}` : '',
           photo.location ? `Location: ${photo.location}` : '',
@@ -255,7 +257,7 @@
           photo.source ? `Source: ${photo.source}` : '',
         ].filter(Boolean);
 
-        if (!title && !copy && !facts.length) {
+        if (!title && !copy && !taggedPeople.length && !facts.length) {
           lightboxMeta.hidden = true;
           return;
         }
@@ -274,6 +276,23 @@
           copyEl.className = 'lightbox-meta-copy';
           copyEl.textContent = copy;
           lightboxMeta.appendChild(copyEl);
+        }
+
+        if (taggedPeople.length) {
+          const labelEl = document.createElement('div');
+          labelEl.className = 'lightbox-meta-label';
+          labelEl.textContent = 'Tagged people';
+          lightboxMeta.appendChild(labelEl);
+
+          const peopleEl = document.createElement('div');
+          peopleEl.className = 'lightbox-meta-facts';
+          taggedPeople.forEach((person) => {
+            const personEl = document.createElement('div');
+            personEl.className = 'lightbox-meta-fact';
+            personEl.textContent = person;
+            peopleEl.appendChild(personEl);
+          });
+          lightboxMeta.appendChild(peopleEl);
         }
 
         if (facts.length) {
