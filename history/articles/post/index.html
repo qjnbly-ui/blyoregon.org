@@ -163,6 +163,7 @@
 
   <div class="subnav" aria-label="History articles navigation">
     <a href="/history/articles/">Back to articles</a>
+    <a id="edit-link" href="#" hidden>Edit article</a>
   </div>
 
   <main>
@@ -185,6 +186,7 @@
     <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
   </footer>
 
+  <script src="/assets/auth.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
     const slug = String(params.get("slug") || "").trim();
@@ -197,6 +199,7 @@
     const bodyEl = document.getElementById("article-body");
     const galleryEl = document.getElementById("article-gallery");
     const statusEl = document.getElementById("page-status");
+    const editLinkEl = document.getElementById("edit-link");
 
     function escapeHtml(value) {
       return String(value || "")
@@ -254,7 +257,14 @@
       }
 
       try {
-        const response = await fetch(`/api/articles?slug=${encodeURIComponent(slug)}`, { cache: "no-store" });
+        const session = await window.siteAuth.getSession().catch(() => null);
+        const headers = session?.access_token
+          ? { Authorization: "Bearer " + session.access_token }
+          : undefined;
+        const response = await fetch(`/api/articles?slug=${encodeURIComponent(slug)}`, {
+          cache: "no-store",
+          headers,
+        });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok || !payload.article) {
           throw new Error(payload.error || "Unable to load article.");
@@ -264,6 +274,10 @@
         document.title = `${article.title || "User Article"} | Bly, Oregon`;
         titleEl.textContent = article.title || "Untitled article";
         metaEl.textContent = `${article.authorName || "Member contribution"}${article.publishedAt ? " · Published " + new Date(article.publishedAt).toLocaleDateString() : ""}`;
+        editLinkEl.hidden = !(session?.user?.id && article.authorId === session.user.id);
+        if (!editLinkEl.hidden) {
+          editLinkEl.href = `/account/articles/edit/?id=${encodeURIComponent(article.id)}`;
+        }
 
         if (article.summary) {
           summaryCardEl.hidden = false;
