@@ -392,7 +392,7 @@ module.exports = async (req, res) => {
         });
 
       res.statusCode = 200;
-      res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=3600");
+      res.setHeader("Cache-Control", "no-store");
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify(photos));
       return;
