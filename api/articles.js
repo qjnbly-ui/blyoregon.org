@@ -276,7 +276,7 @@ async function createDraft(profile, token) {
       author_id: profile.id,
       author_name: profile.display_name || profile.email || "Member",
       slug,
-      title: "Untitled article",
+      title: "",
       summary: "",
       body_markdown: "",
       status: "draft",
