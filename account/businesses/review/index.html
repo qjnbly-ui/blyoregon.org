@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Review Queue | Bly, Oregon</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --card: #fffdf9;
+      --ink: #1e1f1c;
+      --white: #fff;
+      --shadow: 0 20px 45px rgba(12,26,20,0.18);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+    header { background: rgba(20,50,39,0.96); color: var(--white); }
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand-title { font-family: "Fraunces", "Times New Roman", serif; font-size: 1.4rem; font-weight: 700; }
+    .brand-subtitle { font-size: 0.85rem; color: rgba(255,255,255,0.72); }
+    nav { display: flex; gap: 0.75rem; align-items: center; }
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 600;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    nav a.account-link { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); }
+    .shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .hero, .card {
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid rgba(31,64,48,0.12);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.4rem;
+    }
+    .hero {
+      background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88));
+      color: var(--white);
+    }
+    .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.76rem; color: rgba(255,255,255,0.72); font-weight: 700; }
+    .hero h1 { margin: 0.35rem 0 0; font-family: "Fraunces", "Times New Roman", serif; font-size: clamp(2rem, 6vw, 3rem); }
+    .hero p, .meta, .status-copy { margin: 0.65rem 0 0; line-height: 1.6; }
+    .hero p { color: rgba(255,255,255,0.82); }
+    .meta, .status-copy { color: #4c5d54; }
+    .warning { color: #8b322d; }
+    .list { display: grid; gap: 1rem; margin-top: 1rem; }
+    .item {
+      border-top: 1px solid rgba(20,50,39,0.12);
+      padding-top: 1rem;
+      display: grid;
+      gap: 0.95rem;
+    }
+    .item:first-child { border-top: 0; padding-top: 0; }
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: start;
+    }
+    .item-title { font-weight: 700; font-size: 1.08rem; color: var(--forest); }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(20,50,39,0.08);
+      color: var(--forest);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .editor {
+      display: grid;
+      gap: 0.8rem;
+    }
+    .grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .field {
+      display: grid;
+      gap: 0.35rem;
+    }
+    .field.full { grid-column: 1 / -1; }
+    label { font-size: 0.9rem; font-weight: 700; color: var(--forest); }
+    input, select, textarea {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(20,50,39,0.14);
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 0.8rem 0.9rem;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .actions {
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .button {
+      appearance: none;
+      border-radius: 999px;
+      padding: 0.78rem 1rem;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid rgba(20,50,39,0.14);
+      background: transparent;
+      color: var(--forest);
+    }
+    .button.primary {
+      border-color: #143227;
+      background: #143227;
+      color: #fff;
+    }
+    .button.warn {
+      border-color: rgba(139, 50, 45, 0.2);
+      color: #8b322d;
+    }
+    .inline-status {
+      min-height: 1.2rem;
+      font-size: 0.95rem;
+      color: #4c5d54;
+    }
+    footer { background: #162f25; color: rgba(255,255,255,0.7); text-align: center; padding: 1.5rem; font-size: 0.9rem; }
+    @media (max-width: 700px) {
+      .shell { padding: 1rem 0.75rem 2rem; }
+      .hero, .card { padding: 1.1rem 1rem; border-radius: 20px; }
+      .grid { grid-template-columns: 1fr; }
+      .header-inner { padding: 0.75rem 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">A Community in Klamath County</div>
+      </div>
+      <nav>
+        <a href="/account/" class="account-link">Account</a>
+        <a href="/businesses/">Businesses</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Admin Tools</div>
+      <h1>Business review queue</h1>
+      <p>Review new business directory submissions, edit the listing details, and publish them to the live businesses page.</p>
+    </section>
+
+    <section class="card">
+      <h2>Submitted and published listings</h2>
+      <div id="review-list" class="list"></div>
+      <p id="page-status" class="status-copy" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const CATEGORY_OPTIONS = [
+      "Community & Government",
+      "Food & Drink",
+      "Shopping",
+      "Services & Trades",
+      "Health & Wellness",
+      "Lodging",
+      "Education",
+      "Faith & Churches",
+      "Utilities",
+      "Recreation & Community Space",
+      "Other",
+    ];
+
+    const listEl = document.getElementById("review-list");
+    const statusEl = document.getElementById("page-status");
+    const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
+
+    function setStatus(message, isError = false) {
+      statusEl.classList.toggle("warning", isError);
+      statusEl.textContent = message || "";
+    }
+
+    function formatStatus(status) {
+      return String(status || "submitted").replace(/_/g, " ");
+    }
+
+    function buildField(label, name, value, options = {}) {
+      const wrap = document.createElement("label");
+      wrap.className = "field" + (options.full ? " full" : "");
+      const title = document.createElement("span");
+      title.textContent = label;
+      wrap.appendChild(title);
+
+      let control;
+      if (options.type === "textarea") {
+        control = document.createElement("textarea");
+      } else if (options.type === "select") {
+        control = document.createElement("select");
+        CATEGORY_OPTIONS.forEach((optionValue) => {
+          const option = document.createElement("option");
+          option.value = optionValue;
+          option.textContent = optionValue;
+          option.selected = optionValue === value;
+          control.appendChild(option);
+        });
+      } else {
+        control = document.createElement("input");
+        control.type = options.type || "text";
+      }
+
+      control.name = name;
+      if (options.type !== "select") control.value = value || "";
+      wrap.appendChild(control);
+      return wrap;
+    }
+
+    function createActionButton(label, action, className = "") {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `button ${className}`.trim();
+      button.dataset.action = action;
+      button.textContent = label;
+      return button;
+    }
+
+    function renderBusinesses(businesses) {
+      listEl.innerHTML = "";
+
+      if (!businesses.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "Nothing is waiting in the business queue.";
+        listEl.appendChild(empty);
+        return;
+      }
+
+      businesses.forEach((business) => {
+        const row = document.createElement("article");
+        row.className = "item";
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+
+        const copy = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = business.businessName || "Untitled business";
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = `${business.businessCategory || "Other"}${business.submitterEmail ? " • Submitted by " + business.submitterName + " <" + business.submitterEmail + ">" : ""}${business.claimedByEmail ? " • Claimed by " + (business.claimedByName || business.claimedByEmail) : ""}`;
+        copy.append(title, meta);
+
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = formatStatus(business.status);
+        header.append(copy, badge);
+
+        const form = document.createElement("div");
+        form.className = "editor";
+        const grid = document.createElement("div");
+        grid.className = "grid";
+        grid.append(
+          buildField("Business name", "businessName", business.businessName),
+          buildField("Category", "businessCategory", business.businessCategory, { type: "select" }),
+          buildField("Claimed account email", "claimedAccountEmail", business.claimedByEmail || ""),
+          buildField("Description", "description", business.description, { type: "textarea", full: true }),
+          buildField("Contact person", "contactName", business.contactName),
+          buildField("Phone", "phone", business.phone),
+          buildField("Business email", "businessEmail", business.businessEmail, { type: "email" }),
+          buildField("Address", "address", business.address),
+          buildField("Website", "websiteUrl", business.websiteUrl, { type: "url" }),
+          buildField("Hours", "hours", business.hours),
+          buildField("Sort order", "sortOrder", String(business.sortOrder || 0), { type: "number" }),
+          buildField("Notes", "notes", business.notes, { type: "textarea", full: true }),
+          buildField("Review notes", "reviewNotes", business.reviewNotes, { type: "textarea", full: true })
+        );
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        actions.append(
+          createActionButton("Save", "save"),
+          createActionButton("Request changes", "request_changes"),
+          createActionButton(business.status === "published" ? "Update live listing" : "Publish", "publish", "primary"),
+          createActionButton("Unpublish", "unpublish"),
+          createActionButton("Archive", "archive", "warn")
+        );
+
+        const inlineStatus = document.createElement("div");
+        inlineStatus.className = "inline-status";
+        inlineStatus.setAttribute("aria-live", "polite");
+
+        actions.querySelectorAll("button").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const session = await window.siteAuth.getSession().catch(() => null);
+            if (!session) {
+              window.location.replace(loginUrl);
+              return;
+            }
+
+            const payload = {
+              id: business.id,
+              action: button.dataset.action,
+              businessName: form.querySelector('[name="businessName"]').value.trim(),
+              businessCategory: form.querySelector('[name="businessCategory"]').value,
+              claimedAccountEmail: form.querySelector('[name="claimedAccountEmail"]').value.trim(),
+              description: form.querySelector('[name="description"]').value.trim(),
+              contactName: form.querySelector('[name="contactName"]').value.trim(),
+              phone: form.querySelector('[name="phone"]').value.trim(),
+              businessEmail: form.querySelector('[name="businessEmail"]').value.trim(),
+              address: form.querySelector('[name="address"]').value.trim(),
+              websiteUrl: form.querySelector('[name="websiteUrl"]').value.trim(),
+              hours: form.querySelector('[name="hours"]').value.trim(),
+              sortOrder: Number(form.querySelector('[name="sortOrder"]').value || 0),
+              notes: form.querySelector('[name="notes"]').value.trim(),
+              reviewNotes: form.querySelector('[name="reviewNotes"]').value.trim(),
+            };
+
+            inlineStatus.textContent = "Saving...";
+            try {
+              const response = await fetch("/api/businesses", {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + session.access_token,
+                },
+                body: JSON.stringify(payload),
+              });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok) {
+                throw new Error(result.error || "Unable to update listing.");
+              }
+              inlineStatus.textContent = "Saved.";
+              loadPage();
+            } catch (error) {
+              inlineStatus.textContent = error.message || "Unable to update listing.";
+            }
+          });
+        });
+
+        form.append(grid, actions, inlineStatus);
+        row.append(header, form);
+        listEl.appendChild(row);
+      });
+    }
+
+    async function loadPage() {
+      try {
+        const session = await window.siteAuth.getSession();
+        if (!session) {
+          window.location.replace(loginUrl);
+          return;
+        }
+
+        const response = await fetch("/api/businesses?scope=review", {
+          headers: {
+            Authorization: "Bearer " + session.access_token,
+          },
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          if (response.status === 401) {
+            await window.siteAuth.logout();
+            window.location.replace(loginUrl + "&auth_error=expired");
+            return;
+          }
+          throw new Error(payload.error || "Unable to load the business queue.");
+        }
+
+        renderBusinesses(Array.isArray(payload.businesses) ? payload.businesses : []);
+        setStatus("");
+      } catch (error) {
+        setStatus(error.message || "Unable to load the business queue.", true);
+      }
+    }
+
+    loadPage();
+  </script>
+</body>
+</html>

@@ -658,6 +658,8 @@
       <p>
         A place where all local businesses and services can equally advertise.
       </p>
+      <div id="business-directory" hidden></div>
+      <div id="legacy-business-directory">
 
       <!-- COMMUNITY + GOVERNMENT -->
       <div class="category" id="community-government">
@@ -1269,6 +1271,7 @@
 
         </div>
       </div>
+      </div>
 
       <div class="cta">
         <p>
@@ -1291,6 +1294,15 @@
             </div>
             <div class="cta-grid">
               <div class="cta-field">
+                <label for="biz-self-claim">Is this your business, or will you monitor and update it?</label>
+                <select id="biz-self-claim" name="self_claim" required>
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+              </div>
+            </div>
+            <div class="cta-grid">
+              <div class="cta-field">
                 <label for="biz-name">Business name</label>
                 <input id="biz-name" name="business_name" placeholder="Business name" required>
               </div>
@@ -1299,11 +1311,12 @@
                 <select id="biz-category" name="business_category" required>
                   <option value="Community & Government">Community & Government</option>
                   <option value="Food & Drink">Food & Drink</option>
-                  <option value="Retail">Retail</option>
+                  <option value="Shopping">Shopping</option>
                   <option value="Lodging">Lodging</option>
-                  <option value="Services">Services</option>
+                  <option value="Services & Trades">Services & Trades</option>
                   <option value="Health & Wellness">Health & Wellness</option>
                   <option value="Education">Education</option>
+                  <option value="Faith & Churches">Faith & Churches</option>
                   <option value="Utilities">Utilities</option>
                   <option value="Recreation & Community Space">Recreation & Community Space</option>
                   <option value="Other">Other</option>
@@ -1352,7 +1365,7 @@
               <button class="cta-submit" id="business-submit" type="submit">Send business listing</button>
               <div class="cta-status" id="business-status" aria-live="polite"></div>
             </div>
-            <div class="cta-note">This sends the listing details to the Bly site inbox for review before anything is published.</div>
+            <div class="cta-note">This sends the listing details to the Bly site review queue before anything is published. If you are signed in and select “Yes,” the listing is automatically tied to your account for future updates.</div>
           </form>
         </div>
       </div>
@@ -1361,11 +1374,156 @@
 
   <script>
     (function () {
+      const CATEGORY_ORDER = [
+        "Community & Government",
+        "Food & Drink",
+        "Shopping",
+        "Services & Trades",
+        "Health & Wellness",
+        "Lodging",
+        "Education",
+        "Faith & Churches",
+        "Utilities",
+        "Recreation & Community Space",
+        "Other",
+      ];
+
       const form = document.getElementById("business-form");
       const statusEl = document.getElementById("business-status");
       const submitButton = document.getElementById("business-submit");
       const toggleButton = document.getElementById("business-toggle");
       const panel = document.getElementById("business-panel");
+      const dynamicDirectory = document.getElementById("business-directory");
+      const legacyDirectory = document.getElementById("legacy-business-directory");
+
+      function buildMetaItem(label, value) {
+        if (!value) return null;
+        const item = document.createElement("li");
+        const strong = document.createElement("strong");
+        strong.textContent = `${label}:`;
+        item.append(strong, ` ${value}`);
+        return item;
+      }
+
+      function buildLinkedMetaItem(label, href) {
+        const url = String(href || "").trim();
+        if (!url) return null;
+        const item = document.createElement("li");
+        const strong = document.createElement("strong");
+        strong.textContent = `${label}:`;
+        const link = document.createElement("a");
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = url.replace(/^https?:\/\//i, "");
+        item.append(strong, " ", link);
+        return item;
+      }
+
+      function createBusinessCard(business) {
+        const article = document.createElement("article");
+        article.className = "biz-card";
+
+        const image = document.createElement("img");
+        image.alt = business.businessName || "Business listing";
+        image.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Business listing</text></svg>";
+
+        const content = document.createElement("div");
+        content.className = "biz-content";
+
+        const title = document.createElement("h3");
+        title.textContent = business.businessName || "Untitled business";
+        content.appendChild(title);
+
+        if (business.description) {
+          const description = document.createElement("p");
+          description.textContent = business.description;
+          content.appendChild(description);
+        }
+
+        const meta = document.createElement("ul");
+        meta.className = "biz-meta";
+        [
+          buildMetaItem("Contact", business.contactName),
+          buildMetaItem("Address", business.address),
+          buildMetaItem("Phone", business.phone),
+          buildMetaItem("Email", business.businessEmail),
+          buildMetaItem("Hours", business.hours),
+          buildLinkedMetaItem("Website", business.websiteUrl),
+        ].filter(Boolean).forEach((item) => meta.appendChild(item));
+        if (meta.children.length) content.appendChild(meta);
+
+        if (business.websiteUrl) {
+          const link = document.createElement("a");
+          link.className = "biz-link";
+          link.href = business.websiteUrl;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "Visit Website";
+          content.appendChild(link);
+        }
+
+        if (business.notes) {
+          const notes = document.createElement("p");
+          notes.className = "note";
+          notes.textContent = business.notes;
+          content.appendChild(notes);
+        }
+
+        article.append(image, content);
+        return article;
+      }
+
+      function renderDirectory(businesses) {
+        dynamicDirectory.innerHTML = "";
+
+        if (!Array.isArray(businesses) || !businesses.length) {
+          dynamicDirectory.setAttribute("hidden", "");
+          legacyDirectory.removeAttribute("hidden");
+          return;
+        }
+
+        const seen = new Set();
+        const categories = CATEGORY_ORDER.filter((category) => {
+          const has = businesses.some((business) => business.businessCategory === category);
+          if (has) seen.add(category);
+          return has;
+        });
+        businesses
+          .map((business) => business.businessCategory || "Other")
+          .filter((category) => category && !seen.has(category))
+          .sort((a, b) => a.localeCompare(b))
+          .forEach((category) => categories.push(category));
+
+        categories.forEach((category) => {
+          const entries = businesses.filter((business) => (business.businessCategory || "Other") === category);
+          if (!entries.length) return;
+
+          const section = document.createElement("div");
+          section.className = "category";
+          const heading = document.createElement("h2");
+          heading.textContent = category;
+          const grid = document.createElement("div");
+          grid.className = "biz-grid";
+          entries.forEach((business) => grid.appendChild(createBusinessCard(business)));
+          section.append(heading, grid);
+          dynamicDirectory.appendChild(section);
+        });
+
+        legacyDirectory.setAttribute("hidden", "");
+        dynamicDirectory.removeAttribute("hidden");
+      }
+
+      async function loadDirectory() {
+        try {
+          const response = await fetch("/api/businesses");
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) return;
+          renderDirectory(Array.isArray(payload.businesses) ? payload.businesses : []);
+        } catch (error) {
+          legacyDirectory.removeAttribute("hidden");
+        }
+      }
 
       toggleButton.addEventListener("click", () => {
         const isHidden = panel.hasAttribute("hidden");
@@ -1388,33 +1546,32 @@
         statusEl.textContent = "Sending...";
 
         try {
-          const details = [
-            `Business name: ${form.business_name.value.trim()}`,
-            `Category: ${form.business_category.value}`,
-            `Description: ${form.description.value.trim()}`,
-            `Contact person: ${form.contact.value.trim() || "-"}`,
-            `Phone: ${form.phone.value.trim() || "-"}`,
-            `Business email: ${form.business_email.value.trim() || "-"}`,
-            `Address: ${form.address.value.trim() || "-"}`,
-            `Website or social: ${form.website.value.trim() || "-"}`,
-            `Hours: ${form.hours.value.trim() || "-"}`,
-            `Extra notes: ${form.notes.value.trim() || "-"}`,
-            "",
-            `Submitted by: ${form.submitter_name.value.trim()} <${form.submitter_email.value.trim()}>`,
-          ].join("\n");
-
+          const session = await window.siteAuth?.getSession?.().catch(() => null);
           const payload = {
-            name: form.submitter_name.value.trim(),
-            email: form.submitter_email.value.trim(),
-            category: "Business directory submission",
-            details,
+            submitter_name: form.submitter_name.value.trim(),
+            submitter_email: form.submitter_email.value.trim(),
+            self_claim: form.self_claim.value,
+            business_name: form.business_name.value.trim(),
+            business_category: form.business_category.value,
+            description: form.description.value.trim(),
+            contact: form.contact.value.trim(),
+            phone: form.phone.value.trim(),
+            business_email: form.business_email.value.trim(),
+            address: form.address.value.trim(),
+            website: form.website.value.trim(),
+            hours: form.hours.value.trim(),
+            notes: form.notes.value.trim(),
           };
+          const headers = {
+            "Content-Type": "application/json",
+          };
+          if (session?.access_token) {
+            headers.Authorization = `Bearer ${session.access_token}`;
+          }
 
-          const response = await fetch("/api/archive-submit", {
+          const response = await fetch("/api/businesses", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers,
             body: JSON.stringify(payload),
           });
 
@@ -1424,7 +1581,7 @@
           }
 
           form.reset();
-          statusEl.textContent = "Thanks. Your business information was sent.";
+          statusEl.textContent = "Thanks. Your business information is now in the review queue.";
           panel.setAttribute("hidden", "");
           toggleButton.setAttribute("aria-expanded", "false");
           toggleButton.textContent = "Submit business information";
@@ -1434,6 +1591,8 @@
           submitButton.disabled = false;
         }
       });
+
+      loadDirectory();
     })();
   </script>
 

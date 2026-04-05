@@ -401,12 +401,70 @@ create table if not exists public.articles (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.businesses (
+  id uuid primary key default gen_random_uuid(),
+  author_id uuid references public.profiles(id) on delete set null,
+  claimed_by uuid references public.profiles(id) on delete set null,
+  submitter_name text not null default '',
+  submitter_email text not null default '',
+  business_name text not null,
+  business_category text not null default 'Other',
+  description text not null default '',
+  contact_name text,
+  phone text,
+  business_email text,
+  address text,
+  website_url text,
+  hours text,
+  notes text,
+  submitted_at timestamptz,
+  reviewed_at timestamptz,
+  reviewed_by uuid references public.profiles(id) on delete set null,
+  review_notes text,
+  status text not null default 'submitted' check (status in ('submitted', 'changes_requested', 'published', 'archived')),
+  published_at timestamptz,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 alter table public.articles add column if not exists cover_image_path text;
 alter table public.articles add column if not exists author_name text not null default '';
 alter table public.articles add column if not exists submitted_at timestamptz;
 alter table public.articles add column if not exists reviewed_at timestamptz;
 alter table public.articles add column if not exists reviewed_by uuid references public.profiles(id) on delete set null;
 alter table public.articles add column if not exists review_notes text;
+
+alter table public.businesses add column if not exists author_id uuid references public.profiles(id) on delete set null;
+alter table public.businesses add column if not exists claimed_by uuid references public.profiles(id) on delete set null;
+alter table public.businesses add column if not exists submitter_name text not null default '';
+alter table public.businesses add column if not exists submitter_email text not null default '';
+alter table public.businesses add column if not exists business_name text not null default '';
+alter table public.businesses add column if not exists business_category text not null default 'Other';
+alter table public.businesses add column if not exists description text not null default '';
+alter table public.businesses add column if not exists contact_name text;
+alter table public.businesses add column if not exists phone text;
+alter table public.businesses add column if not exists business_email text;
+alter table public.businesses add column if not exists address text;
+alter table public.businesses add column if not exists website_url text;
+alter table public.businesses add column if not exists hours text;
+alter table public.businesses add column if not exists notes text;
+alter table public.businesses add column if not exists submitted_at timestamptz;
+alter table public.businesses add column if not exists reviewed_at timestamptz;
+alter table public.businesses add column if not exists reviewed_by uuid references public.profiles(id) on delete set null;
+alter table public.businesses add column if not exists review_notes text;
+alter table public.businesses add column if not exists published_at timestamptz;
+alter table public.businesses add column if not exists sort_order integer not null default 0;
+
+do $$
+begin
+  alter table public.businesses
+    drop constraint if exists businesses_status_check;
+  alter table public.businesses
+    add constraint businesses_status_check
+    check (status in ('submitted', 'changes_requested', 'published', 'archived'));
+exception when duplicate_object then null;
+end $$;
 
 do $$
 begin
@@ -466,6 +524,34 @@ create table if not exists public.direct_messages (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.community_posts (
+  id uuid primary key default gen_random_uuid(),
+  author_id uuid not null references public.profiles(id) on delete cascade,
+  author_name text not null default '',
+  body text not null,
+  image_path text,
+  image_alt text not null default '',
+  status text not null default 'published' check (status in ('published', 'hidden')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.community_comments (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references public.community_posts(id) on delete cascade,
+  author_id uuid not null references public.profiles(id) on delete cascade,
+  author_name text not null default '',
+  body text not null,
+  status text not null default 'published' check (status in ('published', 'hidden')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists community_posts_created_at_idx on public.community_posts (created_at desc);
+create index if not exists community_posts_author_id_idx on public.community_posts (author_id);
+create index if not exists community_comments_post_id_created_at_idx on public.community_comments (post_id, created_at asc);
+create index if not exists community_comments_author_id_idx on public.community_comments (author_id);
+
 alter table public.profiles enable row level security;
 alter table public.photo_albums enable row level security;
 alter table public.photos enable row level security;
@@ -474,10 +560,13 @@ alter table public.historical_people enable row level security;
 alter table public.historical_photo_people enable row level security;
 alter table public.recommendations enable row level security;
 alter table public.articles enable row level security;
+alter table public.businesses enable row level security;
 alter table public.article_images enable row level security;
 alter table public.notifications enable row level security;
 alter table public.direct_threads enable row level security;
 alter table public.direct_messages enable row level security;
+alter table public.community_posts enable row level security;
+alter table public.community_comments enable row level security;
 
 insert into storage.buckets (id, name, public)
 values ('profile-photos', 'profile-photos', true)
@@ -485,6 +574,10 @@ on conflict (id) do nothing;
 
 insert into storage.buckets (id, name, public)
 values ('article-images', 'article-images', true)
+on conflict (id) do nothing;
+
+insert into storage.buckets (id, name, public)
+values ('community-feed', 'community-feed', true)
 on conflict (id) do nothing;
 
 create or replace function public.can_manage_article(article_uuid uuid)
@@ -538,6 +631,19 @@ as $$
         or user_two_id = auth.uid()
         or public.is_admin()
       )
+  );
+$$;
+
+create or replace function public.can_comment_on_community_post(post_uuid uuid)
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.community_posts
+    where id = post_uuid
+      and status = 'published'
   );
 $$;
 
@@ -656,6 +762,46 @@ to authenticated
 using (
   bucket_id = 'article-images'
   and public.can_manage_article(((storage.foldername(name))[1])::uuid)
+);
+
+drop policy if exists "community feed images read" on storage.objects;
+create policy "community feed images read"
+on storage.objects
+for select
+using (bucket_id = 'community-feed');
+
+drop policy if exists "community feed images insert own" on storage.objects;
+create policy "community feed images insert own"
+on storage.objects
+for insert
+to authenticated
+with check (
+  bucket_id = 'community-feed'
+  and auth.uid()::text = (storage.foldername(name))[1]
+);
+
+drop policy if exists "community feed images update own" on storage.objects;
+create policy "community feed images update own"
+on storage.objects
+for update
+to authenticated
+using (
+  bucket_id = 'community-feed'
+  and auth.uid()::text = (storage.foldername(name))[1]
+)
+with check (
+  bucket_id = 'community-feed'
+  and auth.uid()::text = (storage.foldername(name))[1]
+);
+
+drop policy if exists "community feed images delete own" on storage.objects;
+create policy "community feed images delete own"
+on storage.objects
+for delete
+to authenticated
+using (
+  bucket_id = 'community-feed'
+  and auth.uid()::text = (storage.foldername(name))[1]
 );
 
 drop policy if exists "profiles view own or admin" on public.profiles;
@@ -823,6 +969,43 @@ using (
   or public.is_admin()
 );
 
+drop policy if exists "businesses published read" on public.businesses;
+create policy "businesses published read"
+on public.businesses
+for select
+using (
+  status = 'published'
+  or claimed_by = auth.uid()
+  or public.can_review_articles()
+  or public.can_publish_articles()
+  or public.is_admin()
+);
+
+drop policy if exists "businesses reviewers manage" on public.businesses;
+create policy "businesses reviewers manage"
+on public.businesses
+for all
+using (
+  claimed_by = auth.uid()
+  or
+  public.can_review_articles()
+  or public.can_publish_articles()
+  or public.is_admin()
+)
+with check (
+  claimed_by = auth.uid()
+  or
+  public.can_review_articles()
+  or public.can_publish_articles()
+  or public.is_admin()
+);
+
+drop policy if exists "businesses submit public" on public.businesses;
+create policy "businesses submit public"
+on public.businesses
+for insert
+with check (true);
+
 drop policy if exists "article images readable by article visibility" on public.article_images;
 create policy "article images readable by article visibility"
 on public.article_images
@@ -926,6 +1109,95 @@ using (
 )
 with check (
   recipient_id = auth.uid()
+  or public.is_admin()
+);
+
+drop policy if exists "community posts public read" on public.community_posts;
+create policy "community posts public read"
+on public.community_posts
+for select
+using (
+  status = 'published'
+  or author_id = auth.uid()
+  or public.is_admin()
+);
+
+drop policy if exists "community posts create own" on public.community_posts;
+create policy "community posts create own"
+on public.community_posts
+for insert
+to authenticated
+with check (
+  author_id = auth.uid()
+  and status = 'published'
+);
+
+drop policy if exists "community posts edit own or admin" on public.community_posts;
+create policy "community posts edit own or admin"
+on public.community_posts
+for update
+to authenticated
+using (
+  author_id = auth.uid()
+  or public.is_admin()
+)
+with check (
+  author_id = auth.uid()
+  or public.is_admin()
+);
+
+drop policy if exists "community posts delete own or admin" on public.community_posts;
+create policy "community posts delete own or admin"
+on public.community_posts
+for delete
+to authenticated
+using (
+  author_id = auth.uid()
+  or public.is_admin()
+);
+
+drop policy if exists "community comments public read" on public.community_comments;
+create policy "community comments public read"
+on public.community_comments
+for select
+using (
+  status = 'published'
+  or author_id = auth.uid()
+  or public.is_admin()
+);
+
+drop policy if exists "community comments create own" on public.community_comments;
+create policy "community comments create own"
+on public.community_comments
+for insert
+to authenticated
+with check (
+  author_id = auth.uid()
+  and status = 'published'
+  and public.can_comment_on_community_post(post_id)
+);
+
+drop policy if exists "community comments edit own or admin" on public.community_comments;
+create policy "community comments edit own or admin"
+on public.community_comments
+for update
+to authenticated
+using (
+  author_id = auth.uid()
+  or public.is_admin()
+)
+with check (
+  author_id = auth.uid()
+  or public.is_admin()
+);
+
+drop policy if exists "community comments delete own or admin" on public.community_comments;
+create policy "community comments delete own or admin"
+on public.community_comments
+for delete
+to authenticated
+using (
+  author_id = auth.uid()
   or public.is_admin()
 );
 

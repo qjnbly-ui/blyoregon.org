@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Community | Bly, Oregon</title>
-  <meta name="description" content="Bly community updates, events, and volunteer opportunities are coming soon." />
+  <title>Community Feed | Bly, Oregon</title>
+  <meta name="description" content="Public community feed for Bly, Oregon with local posts, comments, and photos." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --forest: #143227;
@@ -19,26 +19,24 @@
       --sun: #f4b35b;
       --ink: #1e1f1c;
       --white: #fff;
-      --card: #ffffff;
-      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+      --card: rgba(255, 255, 255, 0.94);
+      --line: rgba(20, 50, 39, 0.12);
+      --shadow: 0 24px 48px rgba(12, 26, 20, 0.14);
+      --mobile-header-height: 6.2rem;
     }
 
     * { box-sizing: border-box; }
-
-    :root {
-      --mobile-header-height: 6.2rem;
-    }
+    [hidden] { display: none !important; }
 
     body {
       margin: 0;
       font-family: "Manrope", "Trebuchet MS", sans-serif;
       color: var(--ink);
-      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
-        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+      background:
+        radial-gradient(circle at top left, rgba(244, 179, 91, 0.2), transparent 28%),
+        radial-gradient(circle at top right, rgba(159, 179, 159, 0.2), transparent 24%),
         linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
     }
 
     header {
@@ -50,7 +48,7 @@
     }
 
     .header-inner {
-      max-width: 1100px;
+      max-width: 1120px;
       margin: 0 auto;
       padding: 0.9rem 1.5rem;
       display: flex;
@@ -170,10 +168,6 @@
       overflow-y: auto;
     }
 
-    .mobile-menu-panel[hidden] {
-      display: none !important;
-    }
-
     body.mobile-menu-open .mobile-menu-panel {
       display: grid;
       gap: 0;
@@ -186,261 +180,369 @@
     .mobile-menu-panel a {
       display: block;
       padding: 1.7rem 0;
-      border-radius: 0;
       border: 0;
       border-bottom: 1px solid rgba(20, 50, 39, 0.18);
-      background: none;
       color: var(--forest);
       text-decoration: none;
       text-align: center;
-      text-transform: none;
-      letter-spacing: 0.02em;
       font-weight: 600;
       font-size: 0.95rem;
     }
 
     main {
-      flex: 1;
-      max-width: 1100px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 2.5rem 1.5rem 3.5rem;
+      padding: 2.3rem 1.5rem 3.5rem;
       display: grid;
-      gap: 2.5rem;
+      gap: 1.6rem;
     }
 
     .hero {
       display: grid;
-      gap: 1rem;
+      grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
+      gap: 1.3rem;
+      align-items: stretch;
+    }
+
+    .hero-panel,
+    .composer-card,
+    .feed-card,
+    .empty-state,
+    .signin-note {
+      background: var(--card);
+      border-radius: 26px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-panel {
+      padding: 2rem;
+      background:
+        linear-gradient(140deg, rgba(20, 50, 39, 0.97), rgba(33, 68, 55, 0.9)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent);
+      color: var(--white);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      right: -90px;
+      top: -70px;
+      background: radial-gradient(circle, rgba(244, 179, 91, 0.3), transparent 68%);
+      pointer-events: none;
     }
 
     .eyebrow {
       text-transform: uppercase;
       letter-spacing: 0.18em;
-      font-size: 0.78rem;
-      color: var(--moss);
-      font-weight: 600;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
     }
 
     h1 {
-      font-family: "Fraunces", "Times New Roman", serif;
-      font-size: clamp(2.3rem, 4vw, 3.2rem);
-      margin: 0;
-      color: var(--forest);
+      font-size: clamp(2.2rem, 4.8vw, 3.35rem);
+      line-height: 0.98;
+      margin-top: 0.55rem;
     }
 
-    .hero p {
-      max-width: 640px;
+    .hero-panel p {
+      margin: 0.95rem 0 0;
+      max-width: 38rem;
       line-height: 1.7;
-      color: #44554d;
-      margin: 0;
+      color: rgba(255, 255, 255, 0.84);
     }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.35rem 0.8rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #72532e;
-      background: rgba(244, 179, 91, 0.25);
-      font-weight: 700;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .card {
-      background: var(--card);
-      border-radius: 18px;
-      padding: 1.4rem;
-      border: 1px solid rgba(31, 64, 48, 0.12);
-      box-shadow: var(--shadow);
-      display: grid;
-      gap: 0.6rem;
-    }
-
-    .card h2 {
-      margin: 0;
-      font-size: 1.2rem;
-      color: var(--forest);
-    }
-
-    .card p {
-      margin: 0;
-      color: #43524a;
-      line-height: 1.6;
-    }
-
-    .card a {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.5rem 1rem;
-      border-radius: 999px;
-      border: 1px solid rgba(31, 64, 48, 0.25);
-      text-decoration: none;
-      font-weight: 600;
-      color: var(--forest);
-      background: rgba(255, 255, 255, 0.9);
-      width: fit-content;
-      align-self: center;
-    }
-
-    .callout {
-      background: #1d3b2f;
-      color: var(--white);
-      border-radius: 20px;
-      padding: 1.8rem;
-      display: grid;
-      gap: 0.7rem;
-      box-shadow: var(--shadow);
-      justify-items: center;
-      text-align: center;
-    }
-
-    .callout h2 {
-      margin: 0;
-      font-family: "Fraunces", "Times New Roman", serif;
-      font-size: 1.6rem;
-    }
-
-    .callout-toggle {
-      appearance: none;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      border-radius: 999px;
-      padding: 0.85rem 1.3rem;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--white);
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-      width: fit-content;
-    }
-
-    .callout-panel[hidden] {
-      display: none;
-    }
-
-    .callout-panel {
-      width: 100%;
-      max-width: 760px;
-      text-align: left;
-    }
-
-    .callout-form {
-      display: grid;
-      gap: 0.9rem;
-      margin-top: 0.6rem;
-    }
-
-    .callout-grid {
-      display: grid;
-      gap: 0.85rem;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .callout-field {
-      display: grid;
-      gap: 0.38rem;
-    }
-
-    .callout-field label {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.92);
-    }
-
-    .callout-field input,
-    .callout-field select,
-    .callout-field textarea {
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--white);
-      font: inherit;
-      padding: 0.85rem 0.95rem;
-    }
-
-    .callout-field input::placeholder,
-    .callout-field textarea::placeholder {
-      color: rgba(255, 255, 255, 0.55);
-    }
-
-    .callout-field textarea {
-      min-height: 140px;
-      resize: vertical;
-    }
-
-    .callout-actions {
+    .hero-pills {
       display: flex;
-      align-items: center;
-      gap: 0.9rem;
       flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 1.25rem;
     }
 
-    .callout-submit {
-      appearance: none;
-      border: 0;
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.45rem 0.78rem;
       border-radius: 999px;
-      padding: 0.85rem 1.35rem;
-      background: var(--sun);
-      color: #2b2114;
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .composer-card {
+      padding: 1.4rem;
+      display: grid;
+      gap: 1rem;
+      align-content: start;
+    }
+
+    .composer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+    }
+
+    .composer-top p,
+    .signin-note p,
+    .empty-state p,
+    .post-meta,
+    .comment-meta,
+    .form-note,
+    .status {
+      margin: 0;
+      line-height: 1.55;
+      color: #4f6057;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .primary-button,
+    .secondary-button,
+    .inline-button {
+      appearance: none;
+      border-radius: 999px;
       font: inherit;
       font-weight: 800;
       cursor: pointer;
+      text-decoration: none;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
     }
 
-    .callout-submit:disabled {
-      opacity: 0.7;
-      cursor: wait;
+    .primary-button {
+      border: 0;
+      padding: 0.88rem 1.2rem;
+      background: var(--forest);
+      color: var(--white);
+      box-shadow: 0 16px 30px rgba(20, 50, 39, 0.18);
     }
 
-    .callout-status {
-      min-height: 1.3rem;
-      color: rgba(255, 255, 255, 0.84);
-      font-size: 0.95rem;
+    .secondary-button {
+      border: 1px solid rgba(20, 50, 39, 0.18);
+      padding: 0.88rem 1.2rem;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--forest);
     }
 
-    .callout-note {
-      font-size: 0.84rem;
-      color: rgba(255, 255, 255, 0.68);
+    .inline-button {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: var(--forest);
     }
 
+    .primary-button:hover,
+    .secondary-button:hover,
+    .inline-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .signin-note {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, rgba(244, 179, 91, 0.16), rgba(255, 255, 255, 0.92));
+    }
+
+    .composer-form,
+    .comment-form {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--forest);
+    }
+
+    textarea,
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      border: 1px solid rgba(20, 50, 39, 0.16);
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+      font: inherit;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.97);
+    }
+
+    textarea {
+      min-height: 148px;
+      resize: vertical;
+    }
+
+    input[type="file"] {
+      padding: 0.78rem 0.9rem;
+    }
+
+    textarea:focus,
+    input:focus {
+      outline: 2px solid rgba(244, 179, 91, 0.42);
+      border-color: rgba(33, 68, 55, 0.3);
+    }
+
+    .form-note {
+      font-size: 0.86rem;
+    }
+
+    .status {
+      min-height: 1.35rem;
+      font-size: 0.92rem;
+    }
+
+    .feed-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+    }
+
+    .feed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .feed-header p {
+      margin: 0.3rem 0 0;
+      color: #506057;
+    }
+
+    .feed-card {
+      padding: 1.35rem 1.35rem 1.1rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .post-shell {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+    }
+
+    .post-author {
+      display: grid;
+      gap: 0.12rem;
+    }
+
+    .post-author strong,
+    .comment-author strong {
+      color: var(--forest);
+      font-size: 1rem;
+    }
+
+    .post-body,
+    .comment-body {
+      white-space: pre-wrap;
+      line-height: 1.72;
+      color: #26332d;
+      word-break: break-word;
+    }
+
+    .post-image {
+      width: 100%;
+      max-height: 460px;
+      object-fit: cover;
+      border-radius: 20px;
+      border: 1px solid rgba(20, 50, 39, 0.1);
+      background: linear-gradient(180deg, rgba(245, 239, 229, 0.95), rgba(235, 228, 216, 0.95));
+    }
+
+    .post-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding-top: 0.8rem;
+      border-top: 1px solid rgba(20, 50, 39, 0.1);
+    }
+
+    .comment-list {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .comment-card {
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      background: rgba(20, 50, 39, 0.05);
+      border: 1px solid rgba(20, 50, 39, 0.08);
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .comment-meta {
+      font-size: 0.88rem;
+    }
+
+    .comment-form textarea {
+      min-height: 94px;
+    }
+
+    .comment-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .empty-state {
+      padding: 1.8rem;
+      text-align: center;
+    }
+
+    .loading {
+      text-align: center;
+      color: #506057;
+      padding: 1.2rem 0;
+    }
 
     footer {
       background: #162f25;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.74);
       text-align: center;
       padding: 1.5rem;
       font-size: 0.9rem;
+      margin-top: 2rem;
     }
 
-    @media (max-width: 800px) {
-      .header-inner {
-        justify-content: center;
-      }
-
-      nav {
-        justify-content: center;
-      }
-    }
-
-    @media (max-width: 600px) {
-      header {
-        position: static;
-      }
-
-      .callout-grid {
+    @media (max-width: 920px) {
+      .hero {
         grid-template-columns: 1fr;
       }
     }
+
     @media (max-width: 760px) {
       body {
         padding-top: var(--mobile-header-height);
@@ -466,12 +568,6 @@
         align-items: center;
         position: relative;
         z-index: 32;
-      }
-
-      .brand-title,
-      .brand-subtitle,
-      .mobile-login {
-        color: var(--white);
       }
 
       .nav-links,
@@ -502,8 +598,6 @@
         font-size: 0;
         color: var(--white);
         background: rgba(7, 10, 16, 0.38);
-        position: relative;
-        z-index: 32;
       }
 
       .mobile-nav.is-open .mobile-menu-toggle {
@@ -533,19 +627,38 @@
         position: absolute;
         width: 1.45rem;
         height: 0;
-        background: none;
-        border-radius: 0;
         border-top: 3px solid currentColor;
         transform: rotate(-45deg);
       }
 
       .mobile-menu-panel {
         top: var(--mobile-header-height);
-        background: linear-gradient(180deg, #f7f2ea 0%, #f3efe9 100%);
+      }
+    }
+
+    @media (max-width: 600px) {
+      main {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .hero-panel,
+      .composer-card,
+      .feed-card,
+      .empty-state,
+      .signin-note {
+        border-radius: 22px;
+      }
+
+      .hero-panel,
+      .composer-card,
+      .feed-card {
+        padding-left: 1rem;
+        padding-right: 1rem;
       }
     }
   </style>
-  </head>
+</head>
 <body>
   <header>
     <div class="header-inner">
@@ -580,192 +693,383 @@
     <a href="/recreation/">Recreation</a>
   </div>
 
-  <script src="/assets/auth.js"></script>
-  <script>
-    (() => {
-      const header = document.querySelector("header");
-      const mobileNav = document.querySelector(".mobile-nav");
-      if (!header || !mobileNav) return;
-      const toggle = mobileNav.querySelector(".mobile-menu-toggle");
-      const panel = document.querySelector(".mobile-menu-panel");
-      if (!toggle || !panel) return;
-      const authLinks = document.querySelectorAll("a.account-link, a.mobile-login");
-
-      const syncMobileHeaderHeight = () => {
-        document.documentElement.style.setProperty("--mobile-header-height", `${header.offsetHeight}px`);
-      };
-
-      const syncAuthNav = async () => {
-        const session = await window.siteAuth.getSession().catch(() => null);
-        authLinks.forEach((link) => {
-          link.textContent = session ? "Account" : "Login";
-          link.href = session ? "/account/" : "/login/";
-        });
-      };
-
-      const closeMenu = () => {
-        mobileNav.classList.remove("is-open");
-        document.body.classList.remove("mobile-menu-open");
-        toggle.setAttribute("aria-expanded", "false");
-        panel.setAttribute("hidden", "");
-      };
-
-      syncMobileHeaderHeight();
-      window.addEventListener("resize", syncMobileHeaderHeight);
-      syncAuthNav();
-
-      toggle.addEventListener("click", () => {
-        syncMobileHeaderHeight();
-        const isOpen = mobileNav.classList.toggle("is-open");
-        document.body.classList.toggle("mobile-menu-open", isOpen);
-        toggle.setAttribute("aria-expanded", String(isOpen));
-        if (isOpen) {
-          panel.removeAttribute("hidden");
-        } else {
-          panel.setAttribute("hidden", "");
-        }
-      });
-
-      panel.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", closeMenu);
-      });
-    })();
-  </script>
-
   <main>
     <section class="hero">
-      <span class="badge">Under Construction</span>
-      <h1>Community updates are on the way.</h1>
-      <p>
-        This page will become the home for local events, volunteer opportunities, and the Bly
-        Community Action Team updates. We are gathering details now so the information stays current
-        and useful for residents and visitors.
-      </p>
-    </section>
+      <div class="hero-panel">
+        <div class="eyebrow">Public Feed</div>
+        <h1>Bly community posts, newest to oldest.</h1>
+        <p>
+          Anyone can read the feed. To add a post or leave a comment, sign in or create an account.
+          Photos are allowed on posts, and replies stay attached to the conversation.
+        </p>
+        <div class="hero-pills">
+          <span class="hero-pill">Public to view</span>
+          <span class="hero-pill">Account required to post</span>
+          <span class="hero-pill">Comments included</span>
+          <span class="hero-pill">Photos allowed</span>
+        </div>
+      </div>
 
-    <section class="grid">
-      <div class="card">
-        <h2>Events calendar</h2>
-        <p>Seasonal events, meetings, and community gatherings with dates and locations.</p>
-      </div>
-      <div class="card">
-        <h2>Volunteer opportunities</h2>
-        <p>Ways to help with cleanups, projects, and community-led initiatives.</p>
-      </div>
-      <div class="card">
-        <h2>Community Action Team</h2>
-        <p>Highlights of current projects, fundraising, and progress updates.</p>
-        <a href="/community/communityactionteam/">Open the Community Action Team page</a>
-      </div>
-    </section>
+      <aside class="composer-card">
+        <div class="composer-top">
+          <div>
+            <h2>Add New Post</h2>
+            <p id="composer-copy">Sign in or create an account to share an update with the community.</p>
+          </div>
+        </div>
 
-    <section class="callout">
-      <h2>Have something to add?</h2>
-      <p>Send events or updates so we can include them here when the page launches.</p>
-      <button class="callout-toggle" id="community-toggle" type="button" aria-expanded="false" aria-controls="community-panel">
-        Send an event or update
-      </button>
-      <div class="callout-panel" id="community-panel" hidden>
-        <form class="callout-form" id="community-form">
-          <div class="callout-grid">
-            <div class="callout-field">
-              <label for="community-name">Your name</label>
-              <input id="community-name" name="name" placeholder="Jane Doe" required>
-            </div>
-            <div class="callout-field">
-              <label for="community-email">Your email</label>
-              <input id="community-email" name="email" type="email" placeholder="you@example.com" required>
-            </div>
+        <div class="signin-note" id="signed-out-panel">
+          <p>
+            You can browse everything here without an account. To post or comment, use your account first.
+          </p>
+          <div class="button-row" style="margin-top: 0.9rem;">
+            <a class="primary-button" id="create-account-link" href="/login/?next=%2Fcommunity%2F">Create account</a>
+            <a class="secondary-button" id="login-link" href="/login/?next=%2Fcommunity%2F">Login</a>
           </div>
-          <div class="callout-field">
-            <label for="community-category">What are you sending?</label>
-            <select id="community-category" name="category" required>
-              <option value="Community event">Community event</option>
-              <option value="Community update">Community update</option>
-              <option value="Volunteer opportunity">Volunteer opportunity</option>
-              <option value="Community correction">Community correction</option>
-              <option value="Other community information">Other community information</option>
-            </select>
+        </div>
+
+        <form class="composer-form" id="post-form" hidden>
+          <div class="field">
+            <label for="post-body">Post</label>
+            <textarea id="post-body" name="body" maxlength="3000" placeholder="Share a local update, event, question, or photo caption."></textarea>
           </div>
-          <div class="callout-field">
-            <label for="community-details">Details</label>
-            <textarea id="community-details" name="details" placeholder="Share the event, update, or information that should be included." required></textarea>
+          <div class="field">
+            <label for="post-photo">Photo</label>
+            <input id="post-photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
           </div>
-          <div class="callout-actions">
-            <button class="callout-submit" id="community-submit" type="submit">Send update</button>
-            <div class="callout-status" id="community-status" aria-live="polite"></div>
+          <div class="field">
+            <label for="post-photo-alt">Photo description</label>
+            <input id="post-photo-alt" name="imageAlt" type="text" maxlength="160" placeholder="Describe the photo for accessibility.">
           </div>
-          <div class="callout-note">This sends your information directly to the Bly site inbox for review.</div>
+          <div class="form-note">Images upload with your account before the post is published. Max size: 6 MB.</div>
+          <div class="button-row">
+            <button class="primary-button" id="post-submit" type="submit">Publish Post</button>
+          </div>
+          <div class="status" id="post-status" aria-live="polite"></div>
         </form>
+      </aside>
+    </section>
+
+    <section class="feed-layout">
+      <div class="feed-header">
+        <div>
+          <h2>Community Feed</h2>
+          <p>Latest first, with comments beneath each post.</p>
+        </div>
+        <button class="secondary-button" id="refresh-feed" type="button">Refresh Feed</button>
+      </div>
+
+      <div class="loading" id="feed-loading">Loading posts...</div>
+      <div id="feed-list" hidden></div>
+      <div class="empty-state" id="feed-empty" hidden>
+        <h3>No posts yet</h3>
+        <p>The first community post will show up here.</p>
       </div>
     </section>
   </main>
 
-  <script>
-    (function () {
-      const form = document.getElementById("community-form");
-      const statusEl = document.getElementById("community-status");
-      const submitButton = document.getElementById("community-submit");
-      const toggleButton = document.getElementById("community-toggle");
-      const panel = document.getElementById("community-panel");
-
-      toggleButton.addEventListener("click", () => {
-        const isHidden = panel.hasAttribute("hidden");
-        if (isHidden) {
-          panel.removeAttribute("hidden");
-          toggleButton.setAttribute("aria-expanded", "true");
-          toggleButton.textContent = "Hide update form";
-          form.querySelector("input, select, textarea")?.focus();
-          return;
-        }
-
-        panel.setAttribute("hidden", "");
-        toggleButton.setAttribute("aria-expanded", "false");
-        toggleButton.textContent = "Send an event or update";
-      });
-
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        submitButton.disabled = true;
-        statusEl.textContent = "Sending...";
-
-        try {
-          const payload = {
-            name: form.name.value.trim(),
-            email: form.email.value.trim(),
-            category: form.category.value,
-            details: form.details.value.trim(),
-          };
-
-          const response = await fetch("/api/archive-submit", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
-
-          const result = await response.json().catch(() => ({}));
-          if (!response.ok) {
-            throw new Error(result.error || "Unable to send update.");
-          }
-
-          form.reset();
-          statusEl.textContent = "Thanks. Your update was sent.";
-          panel.setAttribute("hidden", "");
-          toggleButton.setAttribute("aria-expanded", "false");
-          toggleButton.textContent = "Send an event or update";
-        } catch (error) {
-          statusEl.textContent = error.message || "Unable to send update.";
-        } finally {
-          submitButton.disabled = false;
-        }
-      });
-    })();
-  </script>
-
   <footer>
     <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
   </footer>
-  </body>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    (() => {
+      const FEED_URL = "/api/community-feed";
+      const COMMUNITY_BUCKET = "community-feed";
+      const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+      const state = {
+        session: null,
+        posts: [],
+      };
+
+      const header = document.querySelector("header");
+      const mobileNav = document.querySelector(".mobile-nav");
+      const mobileToggle = mobileNav?.querySelector(".mobile-menu-toggle");
+      const mobilePanel = document.querySelector(".mobile-menu-panel");
+      const authLinks = document.querySelectorAll("a.account-link, a.mobile-login");
+      const signedOutPanel = document.getElementById("signed-out-panel");
+      const postForm = document.getElementById("post-form");
+      const postStatus = document.getElementById("post-status");
+      const postSubmit = document.getElementById("post-submit");
+      const postBody = document.getElementById("post-body");
+      const postPhoto = document.getElementById("post-photo");
+      const composerCopy = document.getElementById("composer-copy");
+      const feedList = document.getElementById("feed-list");
+      const feedEmpty = document.getElementById("feed-empty");
+      const feedLoading = document.getElementById("feed-loading");
+      const refreshButton = document.getElementById("refresh-feed");
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function formatDate(value) {
+        if (!value) return "";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "";
+        return date.toLocaleString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        });
+      }
+
+      async function authHeaders() {
+        const token = await window.siteAuth.getAccessToken().catch(() => null);
+        return token ? { Authorization: `Bearer ${token}` } : {};
+      }
+
+      function syncMobileHeaderHeight() {
+        if (!header) return;
+        document.documentElement.style.setProperty("--mobile-header-height", `${header.offsetHeight}px`);
+      }
+
+      function closeMenu() {
+        if (!mobileNav || !mobileToggle || !mobilePanel) return;
+        mobileNav.classList.remove("is-open");
+        document.body.classList.remove("mobile-menu-open");
+        mobileToggle.setAttribute("aria-expanded", "false");
+        mobilePanel.setAttribute("hidden", "");
+      }
+
+      async function syncAuthUi() {
+        state.session = await window.siteAuth.getSession().catch(() => null);
+        authLinks.forEach((link) => {
+          link.textContent = state.session ? "Account" : "Login";
+          link.href = state.session ? "/account/" : "/login/?next=%2Fcommunity%2F";
+        });
+
+        if (state.session) {
+          signedOutPanel.hidden = true;
+          postForm.hidden = false;
+          composerCopy.textContent = "Signed in members can publish posts and comment on conversations below.";
+        } else {
+          signedOutPanel.hidden = false;
+          postForm.hidden = true;
+          composerCopy.textContent = "Sign in or create an account to share an update with the community.";
+        }
+      }
+
+      async function uploadImage(file) {
+        if (!file) return "";
+        if (!state.session) throw new Error("You need to be signed in to upload a photo.");
+        if (!file.type.startsWith("image/")) throw new Error("Choose an image file.");
+        if (file.size > MAX_IMAGE_BYTES) throw new Error("Image must be 6 MB or smaller.");
+
+        const client = await window.siteAuth.getClient();
+        const extension = String(file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension || "jpg"}`;
+        const path = `${state.session.user.id}/${fileName}`;
+        const { error } = await client.storage.from(COMMUNITY_BUCKET).upload(path, file, {
+          upsert: false,
+          cacheControl: "3600",
+        });
+        if (error) throw error;
+        return path;
+      }
+
+      function createCommentMarkup(post) {
+        if (!post.comments.length) return "";
+        return `
+          <div class="comment-list">
+            ${post.comments.map((comment) => `
+              <article class="comment-card">
+                <div class="comment-author">
+                  <strong>${escapeHtml(comment.authorName)}</strong>
+                </div>
+                <div class="comment-meta">${escapeHtml(formatDate(comment.createdAt))}</div>
+                <div class="comment-body">${escapeHtml(comment.body)}</div>
+              </article>
+            `).join("")}
+          </div>
+        `;
+      }
+
+      function createCommentFormMarkup(postId) {
+        if (!state.session) {
+          return `
+            <div class="signin-note">
+              <p>
+                <a class="inline-button" href="/login/?next=%2Fcommunity%2F">Login or create an account</a>
+                to add a comment.
+              </p>
+            </div>
+          `;
+        }
+
+        return `
+          <form class="comment-form" data-post-id="${escapeHtml(postId)}">
+            <div class="field">
+              <label for="comment-${escapeHtml(postId)}">Comment</label>
+              <textarea id="comment-${escapeHtml(postId)}" name="body" maxlength="1200" placeholder="Add your comment."></textarea>
+            </div>
+            <div class="comment-actions">
+              <button class="secondary-button" type="submit">Post Comment</button>
+              <div class="status" data-comment-status></div>
+            </div>
+          </form>
+        `;
+      }
+
+      function renderFeed() {
+        feedLoading.hidden = true;
+        feedList.hidden = false;
+
+        if (!state.posts.length) {
+          feedList.hidden = true;
+          feedEmpty.hidden = false;
+          return;
+        }
+
+        feedEmpty.hidden = true;
+        feedList.innerHTML = state.posts.map((post) => `
+          <article class="feed-card">
+            <div class="post-shell">
+              <div class="post-header">
+                <div class="post-author">
+                  <strong>${escapeHtml(post.authorName)}</strong>
+                  <div class="post-meta">${escapeHtml(formatDate(post.createdAt))}</div>
+                </div>
+                <div class="post-meta">${post.comments.length} comment${post.comments.length === 1 ? "" : "s"}</div>
+              </div>
+              <div class="post-body">${escapeHtml(post.body)}</div>
+              ${post.imageUrl ? `<img class="post-image" src="${escapeHtml(post.imageUrl)}" alt="${escapeHtml(post.imageAlt || "Community post photo")}">` : ""}
+              <div class="post-footer">
+                <div class="post-meta">Newest posts appear first.</div>
+              </div>
+              ${createCommentMarkup(post)}
+              ${createCommentFormMarkup(post.id)}
+            </div>
+          </article>
+        `).join("");
+
+        wireCommentForms();
+      }
+
+      async function loadFeed() {
+        feedLoading.hidden = false;
+        feedList.hidden = true;
+        feedEmpty.hidden = true;
+
+        try {
+          const response = await fetch(FEED_URL, { headers: { "x-feed-limit": "40" } });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(result.error || "Unable to load feed.");
+          state.posts = Array.isArray(result.posts) ? result.posts : [];
+          renderFeed();
+        } catch (error) {
+          feedLoading.hidden = true;
+          feedList.hidden = false;
+          feedList.innerHTML = `<div class="empty-state"><h3>Feed unavailable</h3><p>${escapeHtml(error.message || "Unable to load the community feed.")}</p></div>`;
+        }
+      }
+
+      async function handlePostSubmit(event) {
+        event.preventDefault();
+        postSubmit.disabled = true;
+        postStatus.textContent = "Publishing post...";
+
+        try {
+          const imagePath = await uploadImage(postPhoto.files?.[0] || null);
+          const response = await fetch(FEED_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(await authHeaders()),
+            },
+            body: JSON.stringify({
+              action: "createPost",
+              body: postBody.value.trim(),
+              imagePath,
+              imageAlt: document.getElementById("post-photo-alt").value.trim(),
+            }),
+          });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(result.error || "Unable to publish post.");
+
+          event.target.reset();
+          postStatus.textContent = "Post published.";
+          await loadFeed();
+        } catch (error) {
+          postStatus.textContent = error.message || "Unable to publish post.";
+        } finally {
+          postSubmit.disabled = false;
+        }
+      }
+
+      function wireCommentForms() {
+        feedList.querySelectorAll(".comment-form").forEach((form) => {
+          form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const textarea = form.querySelector("textarea");
+            const statusEl = form.querySelector("[data-comment-status]");
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            statusEl.textContent = "Posting comment...";
+
+            try {
+              const response = await fetch(FEED_URL, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  ...(await authHeaders()),
+                },
+                body: JSON.stringify({
+                  action: "createComment",
+                  postId: form.dataset.postId,
+                  body: textarea.value.trim(),
+                }),
+              });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok) throw new Error(result.error || "Unable to publish comment.");
+              textarea.value = "";
+              statusEl.textContent = "Comment posted.";
+              await loadFeed();
+            } catch (error) {
+              statusEl.textContent = error.message || "Unable to publish comment.";
+            } finally {
+              submitButton.disabled = false;
+            }
+          });
+        });
+      }
+
+      if (mobileToggle && mobilePanel) {
+        mobileToggle.addEventListener("click", () => {
+          syncMobileHeaderHeight();
+          const isOpen = mobileNav.classList.toggle("is-open");
+          document.body.classList.toggle("mobile-menu-open", isOpen);
+          mobileToggle.setAttribute("aria-expanded", String(isOpen));
+          if (isOpen) mobilePanel.removeAttribute("hidden");
+          else mobilePanel.setAttribute("hidden", "");
+        });
+
+        mobilePanel.querySelectorAll("a").forEach((link) => {
+          link.addEventListener("click", closeMenu);
+        });
+      }
+
+      postForm.addEventListener("submit", handlePostSubmit);
+      refreshButton.addEventListener("click", loadFeed);
+      window.addEventListener("resize", syncMobileHeaderHeight);
+
+      window.siteAuth.onAuthStateChange(async () => {
+        await syncAuthUi();
+        renderFeed();
+      }).catch(() => {});
+
+      syncMobileHeaderHeight();
+      syncAuthUi();
+      loadFeed();
+    })();
+  </script>
+</body>
 </html>

@@ -149,6 +149,36 @@ async function fetchHasPublishedArticles(userId, token) {
   return Array.isArray(rows) && rows.length > 0;
 }
 
+async function fetchClaimedBusinessCount(userId, token) {
+  if (!userId) return 0;
+  const serviceKey = getServiceRoleKey();
+  const headers = serviceKey
+    ? {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        Prefer: "count=exact",
+        Range: "0-0",
+      }
+    : {
+        apikey: getAnonKey(),
+        Authorization: `Bearer ${token}`,
+        Prefer: "count=exact",
+        Range: "0-0",
+      };
+
+  const query = new URLSearchParams({
+    select: "id",
+    claimed_by: `eq.${userId}`,
+  });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/businesses?${query.toString()}`, {
+    headers,
+  });
+  if (!response.ok) return 0;
+  const contentRange = String(response.headers.get("content-range") || "");
+  const total = Number(contentRange.split("/")[1]);
+  return Number.isFinite(total) ? total : 0;
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "GET") {
     res.statusCode = 405;
@@ -166,11 +196,12 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const [profile, unreadNotificationCount, unreadMessageCount, hasPublishedArticles] = await Promise.all([
+    const [profile, unreadNotificationCount, unreadMessageCount, hasPublishedArticles, claimedBusinessCount] = await Promise.all([
       fetchProfile(session, token),
       fetchUnreadNotificationCount(session.id, token),
       fetchUnreadMessageCount(session.id, token),
       fetchHasPublishedArticles(session.id, token),
+      fetchClaimedBusinessCount(session.id, token),
     ]);
     const email = String(profile?.email || session.email || "");
     const displayName = String(
@@ -225,6 +256,7 @@ module.exports = async (req, res) => {
         canPublishArticles,
         unreadNotificationCount,
         unreadMessageCount,
+        claimedBusinessCount,
         email,
         profile: {
           avatarPath: profile?.avatar_path || "",
@@ -250,6 +282,7 @@ module.exports = async (req, res) => {
           notificationPreferences,
           onboardingComplete: profile?.onboarding_complete !== false,
           hasPublishedArticles,
+          claimedBusinessCount,
           showNameInMessages: hasPublishedArticles ? true : profile?.show_name_in_messages !== false,
           unreadMessageCount,
           unreadNotificationCount,

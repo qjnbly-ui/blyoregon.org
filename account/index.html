@@ -902,6 +902,16 @@
       </div>
     </section>
 
+    <section class="card" id="my-businesses-card" hidden>
+      <div class="card-header">
+        <div>
+          <h2>My businesses</h2>
+          <p class="meta">Manage the directory listings that have been claimed and assigned to your account.</p>
+        </div>
+        <a class="edit-toggle" href="/account/businesses/">Open businesses</a>
+      </div>
+    </section>
+
     <section class="card" id="article-review-card" hidden>
       <div class="card-header">
         <div>
@@ -909,6 +919,16 @@
           <p class="meta">Review submitted member articles and publish them into the user-submitted section under history articles.</p>
         </div>
         <a class="edit-toggle" href="/account/articles/review/">Open review queue</a>
+      </div>
+    </section>
+
+    <section class="card" id="business-review-card" hidden>
+      <div class="card-header">
+        <div>
+          <h2>Business review</h2>
+          <p class="meta">Review submitted directory listings, edit their details, and publish them to the live businesses page.</p>
+        </div>
+        <a class="edit-toggle" href="/account/businesses/review/">Open review queue</a>
       </div>
     </section>
   </div>
@@ -1103,7 +1123,9 @@
     const notificationsSummaryEl = document.getElementById("notifications-summary");
     const notificationsInlineCountEl = document.getElementById("notifications-inline-count");
     const myArticlesCardEl = document.getElementById("my-articles-card");
+    const myBusinessesCardEl = document.getElementById("my-businesses-card");
     const articleReviewCardEl = document.getElementById("article-review-card");
+    const businessReviewCardEl = document.getElementById("business-review-card");
     const profileEditToggle = document.getElementById("profile-edit-toggle");
     const profileEditPanel = document.getElementById("profile-edit-panel");
     const profileEditClose = document.getElementById("profile-edit-close");
@@ -1443,7 +1465,9 @@
         userPermissionsCardEl.hidden = !payload.admin;
         mediaLibraryCardEl.hidden = !payload.canManageMedia;
         myArticlesCardEl.hidden = !(payload.canSubmitArticles || payload.admin);
+        myBusinessesCardEl.hidden = Number(payload.claimedBusinessCount || payload.profile?.claimedBusinessCount || 0) < 1;
         articleReviewCardEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
+        businessReviewCardEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
         const unreadNotificationCount = Number(payload.unreadNotificationCount || payload.profile?.unreadNotificationCount || 0);
         const unreadMessageCount = Number(payload.unreadMessageCount || payload.profile?.unreadMessageCount || 0);
 
@@ -1453,7 +1477,9 @@
         if (payload.canUploadPhotos) addBadge("Uploads Enabled");
         if (payload.canManageMedia) addBadge("Media Manager");
         if (payload.canSubmitArticles) addBadge("Article Writer");
+        if (Number(payload.claimedBusinessCount || payload.profile?.claimedBusinessCount || 0) > 0) addBadge("Business Owner");
         if (payload.canReviewArticles || payload.canPublishArticles) addBadge("Article Review");
+        if (payload.canReviewArticles || payload.canPublishArticles) addBadge("Business Review");
         if (unreadMessageCount > 0) addBadge(`${unreadMessageCount} Message${unreadMessageCount === 1 ? "" : "s"}`);
         if (unreadNotificationCount > 0) addBadge(`${unreadNotificationCount} Unread`);
 
