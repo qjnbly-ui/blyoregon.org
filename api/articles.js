@@ -1165,8 +1165,6 @@ module.exports = async (req, res) => {
       const canAuthorManage = isOwner && perms.canSubmitArticles;
       const canReview = perms.canReviewArticles || perms.canPublishArticles || perms.admin;
       const canPublish = perms.canPublishArticles || perms.admin;
-      let notificationAction = action;
-
       if (!canAuthorManage && !canReview) {
         sendJson(res, 403, { error: "Forbidden" });
         return;
@@ -1229,14 +1227,7 @@ module.exports = async (req, res) => {
         }
         payload.status = "draft";
         payload.published_at = null;
-      } else if (action === "save") {
-        if (isOwner && status === "published" && !canReview && !canPublish) {
-          payload.status = "submitted";
-          payload.submitted_at = new Date().toISOString();
-          payload.published_at = null;
-          notificationAction = "submit";
-        }
-      } else {
+      } else if (action !== "save") {
         sendJson(res, 400, { error: "Invalid action" });
         return;
       }
@@ -1245,13 +1236,13 @@ module.exports = async (req, res) => {
       await replaceArticleImages(existing.id, images, token, session.id);
       const imageMap = await fetchArticleImages([existing.id], token);
       const serializedArticle = updated ? serializeArticle(updated, imageMap) : null;
-      if (serializedArticle && ["submit", "request_changes", "publish", "unpublish"].includes(notificationAction)) {
+      if (serializedArticle && ["submit", "request_changes", "publish", "unpublish"].includes(action)) {
         try {
           await sendArticleNotifications({
             req,
             article: serializedArticle,
             actorProfile: profile,
-            action: notificationAction,
+            action,
             reviewNotes,
           });
         } catch (error) {

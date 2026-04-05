@@ -461,7 +461,7 @@
 
       saveButtonEl.hidden = !canEdit;
       saveButtonEl.disabled = !canEdit;
-      saveButtonEl.textContent = canAuthorPublishedEdit && !canReview && !canPublish ? "Save edits for review" : "Save draft";
+      saveButtonEl.textContent = canAuthorPublishedEdit && !canReview && !canPublish ? "Save changes" : "Save draft";
       submitButtonEl.hidden = !(canAuthorSubmit && !canAuthorPublishedEdit);
       requestChangesButtonEl.hidden = !(canReview && status === "submitted");
       publishButtonEl.hidden = !(canPublish && ["submitted", "changes_requested"].includes(status));
@@ -670,7 +670,7 @@
         syncActionButtons();
         setStatus(
           action === "save"
-            ? (activeArticle.status === "submitted" ? "Edits submitted for review." : "Draft saved.")
+            ? (activeArticle.status === "published" ? "Changes saved." : "Draft saved.")
             : action === "submit"
               ? "Submitted for approval."
               : action === "request_changes"
