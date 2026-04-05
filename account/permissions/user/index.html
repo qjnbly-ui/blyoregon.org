@@ -748,7 +748,7 @@
         role: "member",
         canSubmitArticles: true,
         canSelfPublishArticles: false,
-        canSelfPublishArticleEdits: false,
+        canSelfPublishArticleEdits: true,
         canReviewArticles: false,
         canPublishArticles: false,
         notificationPreferences: {
@@ -789,7 +789,7 @@
         ? "Admin gives full access across the system. Individual permission toggles are not used while this account is an admin."
         : isModeratorRole
           ? "Moderator defaults to review, publish, and admin alerts. Trusted self-publishing stays off unless you grant it separately."
-          : "Member defaults to article submission only. Trusted publish and review powers are turned off, and moderator-only controls stay hidden.";
+          : "Member defaults to article submission plus publishing their own approved-article edits. Trusted new-article publishing and review powers stay off, and moderator-only controls stay hidden.";
       toggleShowNameInMessagesEl.disabled = Boolean(isAdminRole || activeProfile.hasPublishedArticles);
       const isOwnAccount = activeProfile.id === (activeSession?.user?.id || activeSession?.id || "");
       deleteUserButtonEl.disabled = Boolean(isOwnAccount || activeProfile.role === "admin");

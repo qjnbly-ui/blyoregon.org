@@ -173,7 +173,7 @@ function applyRolePreset(role, options = {}) {
     canDeleteMedia: Boolean(options?.canDeleteMedia),
     canSubmitArticles: true,
     canSelfPublishArticles: false,
-    canSelfPublishArticleEdits: false,
+    canSelfPublishArticleEdits: true,
     canReviewArticles: false,
     canPublishArticles: false,
     notifyAdminArticleQueueInternal: false,
