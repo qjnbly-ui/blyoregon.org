@@ -18,7 +18,7 @@ Use it alongside [supabase/schema.sql](/Users/quentinnichols/Documents/Websites/
 - Auth helper: [assets/auth.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/assets/auth.js)
 - Profile API: [api/profile.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/profile.js)
 - Account bootstrap API: [api/member-content.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/member-content.js)
-- Admin system settings API: [api/system-settings.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/system-settings.js)
+- Admin delivery status API: [api/system-settings.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/system-settings.js)
 
 `public.profiles` stores:
 - identity fields like `display_name`, `avatar_path`, `bio`

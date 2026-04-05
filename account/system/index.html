@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>System Settings | Bly, Oregon</title>
+  <title>Delivery Status | Bly, Oregon</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -144,8 +144,8 @@
   <div class="shell">
     <section class="hero">
       <div class="eyebrow">Admin Tools</div>
-      <h1>System settings</h1>
-      <p>Behind-the-scenes delivery and account notification settings that affect how the site workflow operates.</p>
+      <h1>Delivery status</h1>
+      <p>Admin-only delivery and environment status for email and internal notifications. Personal notification choices stay in profile settings.</p>
       <div class="hero-actions">
         <a href="/account/" class="pill-link">Back to account</a>
       </div>
@@ -196,7 +196,7 @@
     </section>
 
     <section class="card">
-      <h2>What admins can control</h2>
+      <h2>What this page covers</h2>
       <div class="list" id="profile-managed-list"></div>
       <div class="list" id="env-managed-list" style="margin-top:1rem"></div>
       <p id="page-status" class="status-copy" aria-live="polite"></p>
@@ -256,7 +256,7 @@
             window.location.replace(loginUrl + "&auth_error=expired");
             return;
           }
-          throw new Error(payload.error || "Unable to load system settings.");
+          throw new Error(payload.error || "Unable to load delivery status.");
         }
 
         const system = payload.system || {};
@@ -273,7 +273,7 @@
         renderList(envManagedListEl, "Environment-managed controls", articleWorkflow.envManagedControls || []);
         setStatus("");
       } catch (error) {
-        setStatus(error.message || "Unable to load system settings.", true);
+        setStatus(error.message || "Unable to load delivery status.", true);
       }
     }
 
