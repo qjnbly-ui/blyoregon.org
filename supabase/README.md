@@ -18,6 +18,7 @@ Recommended admin model:
 - admins or delegated reviewers can request changes or publish approved submissions
 - article workflow events can create both email notifications and stored internal notifications
 - users can now control article email/inbox delivery preferences from their account profile
+- users can now receive direct member-to-member messages through the account inbox
 - your account should be promoted by updating `public.profiles.role = 'admin'`
 
 System integration map:

@@ -75,6 +75,8 @@ async function updateProfile(session, token, input) {
     notify_article_publishing_email: input.notificationPreferences.articlePublishingEmail,
     notify_admin_article_queue_internal: input.notificationPreferences.adminArticleQueueInternal,
     notify_admin_article_queue_email: input.notificationPreferences.adminArticleQueueEmail,
+    notify_direct_messages_internal: input.notificationPreferences.directMessagesInternal,
+    notify_direct_messages_email: input.notificationPreferences.directMessagesEmail,
   };
 
   const response = await fetch(
@@ -125,6 +127,8 @@ module.exports = async (req, res) => {
       articlePublishingEmail: body?.notificationPreferences?.articlePublishingEmail !== false,
       adminArticleQueueInternal: body?.notificationPreferences?.adminArticleQueueInternal !== false,
       adminArticleQueueEmail: body?.notificationPreferences?.adminArticleQueueEmail !== false,
+      directMessagesInternal: body?.notificationPreferences?.directMessagesInternal !== false,
+      directMessagesEmail: body?.notificationPreferences?.directMessagesEmail !== false,
     };
 
     if (!displayName) {

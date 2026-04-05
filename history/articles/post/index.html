@@ -191,6 +191,7 @@
 
   <div class="subnav" aria-label="History articles navigation">
     <a href="/history/articles/">Back to articles</a>
+    <a id="author-link" href="#" hidden>View author</a>
     <a id="edit-link" href="#" hidden>Edit article</a>
   </div>
 
@@ -227,6 +228,7 @@
     const bodyEl = document.getElementById("article-body");
     const galleryEl = document.getElementById("article-gallery");
     const statusEl = document.getElementById("page-status");
+    const authorLinkEl = document.getElementById("author-link");
     const editLinkEl = document.getElementById("edit-link");
 
     function escapeHtml(value) {
@@ -366,7 +368,14 @@
         const article = payload.article;
         document.title = `${article.title || "User Article"} | Bly, Oregon`;
         titleEl.textContent = article.title || "Untitled article";
-        metaEl.textContent = `${article.authorName || "Member contribution"}${article.publishedAt ? " · Published " + new Date(article.publishedAt).toLocaleDateString() : ""}`;
+        const authorName = article.authorName || "Member contribution";
+        metaEl.innerHTML = article.authorId
+          ? `<a href="/members/profile/?id=${encodeURIComponent(article.authorId)}" style="color:inherit;text-decoration:underline;text-underline-offset:0.16em">${escapeHtml(authorName)}</a>${article.publishedAt ? " · Published " + new Date(article.publishedAt).toLocaleDateString() : ""}`
+          : `${escapeHtml(authorName)}${article.publishedAt ? " · Published " + new Date(article.publishedAt).toLocaleDateString() : ""}`;
+        authorLinkEl.hidden = !article.authorId;
+        if (!authorLinkEl.hidden) {
+          authorLinkEl.href = `/members/profile/?id=${encodeURIComponent(article.authorId)}`;
+        }
         editLinkEl.hidden = !(session?.user?.id && article.authorId === session.user.id);
         if (!editLinkEl.hidden) {
           editLinkEl.href = `/account/articles/edit/?id=${encodeURIComponent(article.id)}`;

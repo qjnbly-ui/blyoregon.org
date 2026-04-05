@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Member Profile | Bly, Oregon</title>
+  <meta name="description" content="Member profile on Bly, Oregon." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --ink: #1e1f1c;
+      --card: #fffdf9;
+      --white: #fff;
+      --shadow: 0 20px 45px rgba(12,26,20,0.18);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+    header { background: rgba(20,50,39,0.96); color: var(--white); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .header-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1.2rem 1.5rem 1.4rem;
+      text-align: center;
+      display: grid;
+      gap: 0.45rem;
+    }
+    .eyebrow { text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.78rem; color: rgba(255,255,255,0.72); font-weight: 700; }
+    h1 { margin: 0; font-family: "Fraunces", "Times New Roman", serif; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05; }
+    .header-meta { margin: 0; color: rgba(255,255,255,0.82); }
+    .subnav {
+      max-width: 1000px;
+      margin: 1.2rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .subnav a, .subnav button {
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31,64,48,0.2);
+      background: rgba(255,255,255,0.8);
+      font: inherit;
+      cursor: pointer;
+    }
+    main {
+      flex: 1 0 auto;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1.2rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(31,64,48,0.12);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 1.4rem 1.5rem;
+    }
+    .profile-layout {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+    .avatar {
+      width: 180px;
+      height: 180px;
+      border-radius: 28px;
+      object-fit: cover;
+      background: rgba(20,50,39,0.1);
+      border: 1px solid rgba(20,50,39,0.12);
+    }
+    .avatar-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 3rem;
+      color: var(--forest);
+    }
+    .meta, .status-copy { color: #4c5d54; line-height: 1.7; }
+    .stack { display: grid; gap: 0.9rem; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 0.8rem 1rem;
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      width: fit-content;
+      background: var(--forest);
+      color: var(--white);
+      border: 0;
+      cursor: pointer;
+    }
+    .warning { color: #8b322d; }
+    footer { background: #162f25; color: rgba(255,255,255,0.7); text-align: center; padding: 1.5rem; font-size: 0.9rem; }
+    @media (max-width: 700px) {
+      .profile-layout { grid-template-columns: 1fr; }
+      .avatar { width: 150px; height: 150px; }
+      main { padding: 1rem 0.75rem 2rem; }
+      .card { padding: 1.1rem 1rem; border-radius: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="eyebrow">Member Profile</div>
+      <h1 id="profile-title">Loading member</h1>
+      <p id="profile-meta" class="header-meta"></p>
+    </div>
+  </header>
+
+  <div class="subnav">
+    <a href="/history/articles/">Back to articles</a>
+    <button id="message-button" type="button" hidden>Message member</button>
+  </div>
+
+  <main>
+    <section class="card">
+      <div class="profile-layout">
+        <img id="profile-avatar" class="avatar" alt="" hidden />
+        <div id="profile-avatar-placeholder" class="avatar avatar-placeholder">?</div>
+        <div class="stack">
+          <div>
+            <h2>About</h2>
+            <p id="profile-bio" class="meta">Loading profile.</p>
+          </div>
+          <p id="page-status" class="status-copy" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const memberId = String(params.get("id") || "").trim();
+    const titleEl = document.getElementById("profile-title");
+    const metaEl = document.getElementById("profile-meta");
+    const avatarEl = document.getElementById("profile-avatar");
+    const avatarPlaceholderEl = document.getElementById("profile-avatar-placeholder");
+    const bioEl = document.getElementById("profile-bio");
+    const messageButtonEl = document.getElementById("message-button");
+    const statusEl = document.getElementById("page-status");
+
+    function setStatus(message, isError = false) {
+      statusEl.classList.toggle("warning", isError);
+      statusEl.textContent = message || "";
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return date.toLocaleDateString();
+    }
+
+    async function loadProfile() {
+      if (!memberId) {
+        titleEl.textContent = "Member unavailable";
+        setStatus("Missing member id.", true);
+        return;
+      }
+
+      try {
+        const session = await window.siteAuth.getSession().catch(() => null);
+        const headers = session?.access_token ? { Authorization: "Bearer " + session.access_token } : undefined;
+        const response = await fetch(`/api/member-profile?id=${encodeURIComponent(memberId)}`, {
+          cache: "no-store",
+          headers,
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.profile) {
+          throw new Error(payload.error || "Unable to load member profile.");
+        }
+
+        const profile = payload.profile;
+        titleEl.textContent = profile.displayName || "Bly member";
+        metaEl.textContent = profile.createdAt ? `Member profile · Joined ${formatDate(profile.createdAt)}` : "Member profile";
+        bioEl.textContent = profile.bio || "This member has not added a public bio yet.";
+
+        if (profile.avatarUrl) {
+          avatarEl.src = profile.avatarUrl;
+          avatarEl.alt = profile.displayName || "Member profile photo";
+          avatarEl.hidden = false;
+          avatarPlaceholderEl.hidden = true;
+        } else {
+          avatarEl.hidden = true;
+          avatarPlaceholderEl.hidden = false;
+          avatarPlaceholderEl.textContent = (profile.displayName || "?").trim().slice(0, 1).toUpperCase() || "?";
+        }
+
+        if (payload.viewer?.canMessage) {
+          messageButtonEl.hidden = false;
+          messageButtonEl.addEventListener("click", () => {
+            window.location.href = `/account/messages/?with=${encodeURIComponent(profile.id)}`;
+          });
+        }
+
+        setStatus("");
+      } catch (error) {
+        titleEl.textContent = "Member unavailable";
+        setStatus(error.message || "Unable to load member profile.", true);
+      }
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>

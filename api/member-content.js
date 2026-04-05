@@ -42,7 +42,7 @@ async function authenticateRequest(req) {
 
 async function fetchProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,created_at&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_direct_messages_internal,notify_direct_messages_email,created_at&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -93,6 +93,40 @@ async function fetchUnreadNotificationCount(userId, token) {
   return Number.isFinite(total) ? total : 0;
 }
 
+async function fetchUnreadMessageCount(userId, token) {
+  const serviceKey = getServiceRoleKey();
+  if (!userId) return 0;
+
+  const query = new URLSearchParams({
+    select: "id",
+    recipient_id: `eq.${userId}`,
+    read_at: "is.null",
+  });
+
+  const headers = serviceKey
+    ? {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        Prefer: "count=exact",
+        Range: "0-0",
+      }
+    : {
+        apikey: getAnonKey(),
+        Authorization: `Bearer ${token}`,
+        Prefer: "count=exact",
+        Range: "0-0",
+      };
+
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/direct_messages?${query.toString()}`, {
+    headers,
+  });
+
+  if (!response.ok) return 0;
+  const contentRange = String(response.headers.get("content-range") || "");
+  const total = Number(contentRange.split("/")[1]);
+  return Number.isFinite(total) ? total : 0;
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "GET") {
     res.statusCode = 405;
@@ -110,9 +144,10 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const [profile, unreadNotificationCount] = await Promise.all([
+    const [profile, unreadNotificationCount, unreadMessageCount] = await Promise.all([
       fetchProfile(session, token),
       fetchUnreadNotificationCount(session.id, token),
+      fetchUnreadMessageCount(session.id, token),
     ]);
     const email = String(profile?.email || session.email || "");
     const displayName = String(
@@ -142,6 +177,8 @@ module.exports = async (req, res) => {
       articlePublishingEmail: profile?.notify_article_publishing_email !== false,
       adminArticleQueueInternal: profile?.notify_admin_article_queue_internal !== false,
       adminArticleQueueEmail: profile?.notify_admin_article_queue_email !== false,
+      directMessagesInternal: profile?.notify_direct_messages_internal !== false,
+      directMessagesEmail: profile?.notify_direct_messages_email !== false,
     };
 
     res.statusCode = 200;
@@ -162,6 +199,7 @@ module.exports = async (req, res) => {
         canReviewArticles,
         canPublishArticles,
         unreadNotificationCount,
+        unreadMessageCount,
         email,
         profile: {
           avatarPath: profile?.avatar_path || "",
@@ -185,6 +223,7 @@ module.exports = async (req, res) => {
             canSubmitArticles,
           },
           notificationPreferences,
+          unreadMessageCount,
           unreadNotificationCount,
           role,
         },

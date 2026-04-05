@@ -658,6 +658,16 @@
                     <label><input type="checkbox" name="notify_article_publishing_email" checked /> Email</label>
                   </div>
                 </div>
+                <div class="checkbox-row">
+                  <div class="checkbox-copy">
+                    <strong>Direct messages</strong>
+                    <span>New messages from other members and authors on the site.</span>
+                  </div>
+                  <div class="checkbox-pair">
+                    <label><input type="checkbox" name="notify_direct_messages_internal" checked /> Inbox</label>
+                    <label><input type="checkbox" name="notify_direct_messages_email" checked /> Email</label>
+                  </div>
+                </div>
               </div>
             </section>
           </div>
@@ -801,6 +811,8 @@
             notify_article_review_email: form.notify_article_review_email.checked,
             notify_article_publishing_internal: form.notify_article_publishing_internal.checked,
             notify_article_publishing_email: form.notify_article_publishing_email.checked,
+            notify_direct_messages_internal: form.notify_direct_messages_internal.checked,
+            notify_direct_messages_email: form.notify_direct_messages_email.checked,
             notify_admin_article_queue_internal: true,
             notify_admin_article_queue_email: true,
           }

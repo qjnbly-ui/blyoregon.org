@@ -29,6 +29,8 @@ create table if not exists public.profiles (
   notify_article_publishing_email boolean not null default true,
   notify_admin_article_queue_internal boolean not null default true,
   notify_admin_article_queue_email boolean not null default true,
+  notify_direct_messages_internal boolean not null default true,
+  notify_direct_messages_email boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -52,6 +54,8 @@ alter table public.profiles add column if not exists notify_article_publishing_i
 alter table public.profiles add column if not exists notify_article_publishing_email boolean not null default true;
 alter table public.profiles add column if not exists notify_admin_article_queue_internal boolean not null default true;
 alter table public.profiles add column if not exists notify_admin_article_queue_email boolean not null default true;
+alter table public.profiles add column if not exists notify_direct_messages_internal boolean not null default true;
+alter table public.profiles add column if not exists notify_direct_messages_email boolean not null default true;
 alter table public.profiles alter column can_submit_articles set default true;
 
 update public.profiles
@@ -251,7 +255,9 @@ begin
     notify_article_publishing_internal,
     notify_article_publishing_email,
     notify_admin_article_queue_internal,
-    notify_admin_article_queue_email
+    notify_admin_article_queue_email,
+    notify_direct_messages_internal,
+    notify_direct_messages_email
   )
   values (
     new.id,
@@ -265,7 +271,9 @@ begin
     coalesce((new.raw_user_meta_data ->> 'notify_article_publishing_internal')::boolean, true),
     coalesce((new.raw_user_meta_data ->> 'notify_article_publishing_email')::boolean, true),
     coalesce((new.raw_user_meta_data ->> 'notify_admin_article_queue_internal')::boolean, true),
-    coalesce((new.raw_user_meta_data ->> 'notify_admin_article_queue_email')::boolean, true)
+    coalesce((new.raw_user_meta_data ->> 'notify_admin_article_queue_email')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_direct_messages_internal')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_direct_messages_email')::boolean, true)
   )
   on conflict (id) do update
     set email = excluded.email,
@@ -279,6 +287,8 @@ begin
         notify_article_publishing_email = excluded.notify_article_publishing_email,
         notify_admin_article_queue_internal = excluded.notify_admin_article_queue_internal,
         notify_admin_article_queue_email = excluded.notify_admin_article_queue_email,
+        notify_direct_messages_internal = excluded.notify_direct_messages_internal,
+        notify_direct_messages_email = excluded.notify_direct_messages_email,
         updated_at = now();
 
   return new;
@@ -424,6 +434,27 @@ create table if not exists public.notifications (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.direct_threads (
+  id uuid primary key default gen_random_uuid(),
+  user_one_id uuid not null references public.profiles(id) on delete cascade,
+  user_two_id uuid not null references public.profiles(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  last_message_at timestamptz not null default now(),
+  constraint direct_threads_unique_pair unique (user_one_id, user_two_id),
+  constraint direct_threads_distinct_users check (user_one_id <> user_two_id)
+);
+
+create table if not exists public.direct_messages (
+  id uuid primary key default gen_random_uuid(),
+  thread_id uuid not null references public.direct_threads(id) on delete cascade,
+  sender_id uuid not null references public.profiles(id) on delete cascade,
+  recipient_id uuid not null references public.profiles(id) on delete cascade,
+  body text not null,
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
 alter table public.profiles enable row level security;
 alter table public.photo_albums enable row level security;
 alter table public.photos enable row level security;
@@ -434,6 +465,8 @@ alter table public.recommendations enable row level security;
 alter table public.articles enable row level security;
 alter table public.article_images enable row level security;
 alter table public.notifications enable row level security;
+alter table public.direct_threads enable row level security;
+alter table public.direct_messages enable row level security;
 
 insert into storage.buckets (id, name, public)
 values ('profile-photos', 'profile-photos', true)
@@ -475,6 +508,23 @@ as $$
         or author_id = auth.uid()
         or public.can_review_articles()
         or public.can_publish_articles()
+        or public.is_admin()
+      )
+  );
+$$;
+
+create or replace function public.can_access_direct_thread(thread_uuid uuid)
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.direct_threads
+    where id = thread_uuid
+      and (
+        user_one_id = auth.uid()
+        or user_two_id = auth.uid()
         or public.is_admin()
       )
   );
@@ -799,6 +849,74 @@ create policy "notifications delete own or admin"
 on public.notifications
 for delete
 using (user_id = auth.uid() or public.is_admin());
+
+drop policy if exists "direct threads read participant or admin" on public.direct_threads;
+create policy "direct threads read participant or admin"
+on public.direct_threads
+for select
+using (
+  user_one_id = auth.uid()
+  or user_two_id = auth.uid()
+  or public.is_admin()
+);
+
+drop policy if exists "direct threads create participant or admin" on public.direct_threads;
+create policy "direct threads create participant or admin"
+on public.direct_threads
+for insert
+with check (
+  user_one_id <> user_two_id
+  and (
+    user_one_id = auth.uid()
+    or user_two_id = auth.uid()
+    or public.is_admin()
+  )
+);
+
+drop policy if exists "direct threads update participant or admin" on public.direct_threads;
+create policy "direct threads update participant or admin"
+on public.direct_threads
+for update
+using (
+  user_one_id = auth.uid()
+  or user_two_id = auth.uid()
+  or public.is_admin()
+)
+with check (
+  user_one_id = auth.uid()
+  or user_two_id = auth.uid()
+  or public.is_admin()
+);
+
+drop policy if exists "direct messages read participant or admin" on public.direct_messages;
+create policy "direct messages read participant or admin"
+on public.direct_messages
+for select
+using (
+  public.can_access_direct_thread(thread_id)
+);
+
+drop policy if exists "direct messages send participant or admin" on public.direct_messages;
+create policy "direct messages send participant or admin"
+on public.direct_messages
+for insert
+with check (
+  sender_id = auth.uid()
+  and public.can_access_direct_thread(thread_id)
+);
+
+drop policy if exists "direct messages mark read recipient or admin" on public.direct_messages;
+create policy "direct messages mark read recipient or admin"
+on public.direct_messages
+for update
+using (
+  recipient_id = auth.uid()
+  or public.is_admin()
+)
+with check (
+  recipient_id = auth.uid()
+  or public.is_admin()
+);
 
 -- After creating your user account, promote it once:
 -- update public.profiles

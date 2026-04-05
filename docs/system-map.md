@@ -14,15 +14,25 @@ Use it alongside [supabase/schema.sql](/Users/quentinnichols/Documents/Websites/
 ### Accounts and profiles
 
 - Page: [account/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/account/index.html)
+- Messages inbox: [account/messages/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/account/messages/index.html)
+- Public member profile: [members/profile/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/members/profile/index.html)
 - Auth helper: [assets/auth.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/assets/auth.js)
 - Profile API: [api/profile.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/profile.js)
 - Account bootstrap API: [api/member-content.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/member-content.js)
+- Public member profile API: [api/member-profile.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/member-profile.js)
+- Direct messages API: [api/messages.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/messages.js)
 
 `public.profiles` stores:
 - identity fields like `display_name`, `avatar_path`, `bio`
 - site role like `member` or `admin`
 - media permissions and bucket access
 - notification preference fields for article email and internal inbox delivery
+- notification preference fields for direct messages
+
+`public.direct_threads` and `public.direct_messages` store:
+- direct member-to-member conversations
+- unread/read state per message
+- sender/recipient relationships for inbox counts and messaging notifications
 
 `public.notifications` stores:
 - internal account notifications
@@ -93,6 +103,7 @@ Current behavior:
   - save / submit / request changes / publish updates
 - `/history/articles/` now adds a `User Submitted Articles` section beneath the existing static archive sections
 - approved user articles render at `/history/articles/post/?slug=...`
+- author names on dynamic article pages link to public member profiles at `/members/profile/?id=...`
 - authors can now unpublish their own published article back to `draft`
 - authors can now delete their own dynamic article and its uploaded article images
 - workflow emails now cover submission, changes requested, publishing, live published-article updates, unpublishing, and deletion
@@ -109,6 +120,7 @@ Current per-profile notification preference groups:
 - article review updates
 - article publishing updates
 - admin review queue alerts
+- direct messages
 
 Each group can be controlled separately for:
 - internal inbox notifications
@@ -116,9 +128,13 @@ Each group can be controlled separately for:
 
 Current internal notification behavior:
 - `/api/articles` creates `public.notifications` rows when article workflow events happen
+- `/api/messages` creates `public.notifications` rows when direct messages arrive
 - `/api/member-content` returns `unreadNotificationCount` for the account page
+- `/api/member-content` returns `unreadMessageCount` for the account page
 - `/api/notifications` lists notifications and marks them read
+- `/account/messages/` is the direct-message inbox and composer
 - `/account/` shows a notifications card with unread count
+- `/account/` shows a messages card with unread count
 - `/account/notifications/` is the full internal inbox
 
 Current article statuses:
@@ -186,6 +202,8 @@ Dynamic article tables now include:
 - `articles`
 - `article_images`
 - `notifications`
+- `direct_threads`
+- `direct_messages`
 
 ### Current storage policy functions
 

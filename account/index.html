@@ -860,6 +860,22 @@
       </div>
     </section>
 
+    <section class="card" id="messages-card">
+      <div class="card-header">
+        <div>
+          <h2>Messages</h2>
+          <p class="meta">Send direct internal messages to other members and authors you find on the site.</p>
+        </div>
+        <a class="edit-toggle" href="/account/messages/">
+          Open messages
+          <span class="inline-count" id="messages-inline-count" hidden>0</span>
+        </a>
+      </div>
+      <div class="stack">
+        <p class="meta" id="messages-summary">No unread messages.</p>
+      </div>
+    </section>
+
     <section class="card" id="notifications-card">
       <div class="card-header">
         <div>
@@ -973,6 +989,16 @@
                 <label><input id="notify-article-publishing-email" type="checkbox" /> Email</label>
               </div>
             </div>
+            <div class="preference-row">
+              <div class="preference-copy">
+                <strong>Direct messages</strong>
+                <span>New member-to-member messages and replies sent through the account inbox.</span>
+              </div>
+              <div class="checkbox-cluster">
+                <label><input id="notify-direct-messages-internal" type="checkbox" /> In app</label>
+                <label><input id="notify-direct-messages-email" type="checkbox" /> Email</label>
+              </div>
+            </div>
             <div class="preference-row" id="admin-queue-preference-row" hidden>
               <div class="preference-copy">
                 <strong>Admin review queue</strong>
@@ -1058,6 +1084,8 @@
     const avatarPlaceholderEl = document.getElementById("profile-avatar-placeholder");
     const userPermissionsCardEl = document.getElementById("user-permissions-card");
     const mediaLibraryCardEl = document.getElementById("media-library-card");
+    const messagesSummaryEl = document.getElementById("messages-summary");
+    const messagesInlineCountEl = document.getElementById("messages-inline-count");
     const notificationsSummaryEl = document.getElementById("notifications-summary");
     const notificationsInlineCountEl = document.getElementById("notifications-inline-count");
     const myArticlesCardEl = document.getElementById("my-articles-card");
@@ -1085,6 +1113,8 @@
     const notifyArticleReviewEmailInput = document.getElementById("notify-article-review-email");
     const notifyArticlePublishingInternalInput = document.getElementById("notify-article-publishing-internal");
     const notifyArticlePublishingEmailInput = document.getElementById("notify-article-publishing-email");
+    const notifyDirectMessagesInternalInput = document.getElementById("notify-direct-messages-internal");
+    const notifyDirectMessagesEmailInput = document.getElementById("notify-direct-messages-email");
     const adminQueuePreferenceRowEl = document.getElementById("admin-queue-preference-row");
     const notifyAdminQueueInternalInput = document.getElementById("notify-admin-queue-internal");
     const notifyAdminQueueEmailInput = document.getElementById("notify-admin-queue-email");
@@ -1157,6 +1187,8 @@
       notifyArticleReviewEmailInput.checked = notificationPreferences.articleReviewEmail !== false;
       notifyArticlePublishingInternalInput.checked = notificationPreferences.articlePublishingInternal !== false;
       notifyArticlePublishingEmailInput.checked = notificationPreferences.articlePublishingEmail !== false;
+      notifyDirectMessagesInternalInput.checked = notificationPreferences.directMessagesInternal !== false;
+      notifyDirectMessagesEmailInput.checked = notificationPreferences.directMessagesEmail !== false;
       notifyAdminQueueInternalInput.checked = notificationPreferences.adminArticleQueueInternal !== false;
       notifyAdminQueueEmailInput.checked = notificationPreferences.adminArticleQueueEmail !== false;
       const isAdminOperator = Boolean(profile?.role === "admin" || profile?.articlePermissions?.canReviewArticles || profile?.articlePermissions?.canPublishArticles);
@@ -1388,6 +1420,7 @@
         myArticlesCardEl.hidden = !(payload.canSubmitArticles || payload.admin);
         articleReviewCardEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
         const unreadNotificationCount = Number(payload.unreadNotificationCount || payload.profile?.unreadNotificationCount || 0);
+        const unreadMessageCount = Number(payload.unreadMessageCount || payload.profile?.unreadMessageCount || 0);
 
         badgesEl.innerHTML = "";
         addBadge("Signed In");
@@ -1396,8 +1429,14 @@
         if (payload.canManageMedia) addBadge("Media Manager");
         if (payload.canSubmitArticles) addBadge("Article Writer");
         if (payload.canReviewArticles || payload.canPublishArticles) addBadge("Article Review");
+        if (unreadMessageCount > 0) addBadge(`${unreadMessageCount} Message${unreadMessageCount === 1 ? "" : "s"}`);
         if (unreadNotificationCount > 0) addBadge(`${unreadNotificationCount} Unread`);
 
+        messagesInlineCountEl.hidden = unreadMessageCount < 1;
+        messagesInlineCountEl.textContent = String(unreadMessageCount);
+        messagesSummaryEl.innerHTML = unreadMessageCount > 0
+          ? `<span class="meta-strong">${unreadMessageCount}</span> unread message${unreadMessageCount === 1 ? "" : "s"} waiting in your inbox.`
+          : "No unread messages.";
         notificationsInlineCountEl.hidden = unreadNotificationCount < 1;
         notificationsInlineCountEl.textContent = String(unreadNotificationCount);
         notificationsSummaryEl.innerHTML = unreadNotificationCount > 0
@@ -1464,6 +1503,8 @@
               articleReviewEmail: notifyArticleReviewEmailInput.checked,
               articlePublishingInternal: notifyArticlePublishingInternalInput.checked,
               articlePublishingEmail: notifyArticlePublishingEmailInput.checked,
+              directMessagesInternal: notifyDirectMessagesInternalInput.checked,
+              directMessagesEmail: notifyDirectMessagesEmailInput.checked,
               adminArticleQueueInternal: notifyAdminQueueInternalInput.checked,
               adminArticleQueueEmail: notifyAdminQueueEmailInput.checked,
             },
@@ -1498,6 +1539,8 @@
               articleReviewEmail: notifyArticleReviewEmailInput.checked,
               articlePublishingInternal: notifyArticlePublishingInternalInput.checked,
               articlePublishingEmail: notifyArticlePublishingEmailInput.checked,
+              directMessagesInternal: notifyDirectMessagesInternalInput.checked,
+              directMessagesEmail: notifyDirectMessagesEmailInput.checked,
               adminArticleQueueInternal: notifyAdminQueueInternalInput.checked,
               adminArticleQueueEmail: notifyAdminQueueEmailInput.checked,
             },
