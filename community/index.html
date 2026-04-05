@@ -494,6 +494,14 @@
       color: var(--forest);
       font-size: 1rem;
     }
+    .post-author-link {
+      color: var(--forest);
+      text-decoration: none;
+      font-weight: 800;
+    }
+    .post-author-link:hover {
+      text-decoration: underline;
+    }
 
     .post-body,
     .comment-body {
@@ -557,6 +565,18 @@
       gap: 0.75rem;
       align-items: center;
       flex-wrap: wrap;
+    }
+    .text-button {
+      border: 0;
+      background: transparent;
+      color: var(--forest);
+      font: inherit;
+      font-weight: 700;
+      padding: 0;
+      cursor: pointer;
+    }
+    .text-button.warning {
+      color: #8b322d;
     }
 
     .empty-state {
@@ -878,6 +898,10 @@
       const state = {
         session: null,
         posts: [],
+        viewer: {
+          signedIn: false,
+          userId: "",
+        },
       };
 
       const header = document.querySelector("header");
@@ -944,6 +968,8 @@
         state.session = sessionOverride === undefined
           ? await window.siteAuth.getSession().catch(() => null)
           : (sessionOverride || null);
+        state.viewer.signedIn = Boolean(state.session?.user?.id || state.session?.id);
+        state.viewer.userId = String(state.session?.user?.id || state.session?.id || "");
         authLinks.forEach((link) => {
           link.textContent = state.session ? "Account" : "Login";
           link.href = state.session ? "/account/" : "/login/?next=%2Fcommunity%2F";
@@ -1021,9 +1047,17 @@
         `;
       }
 
+      function createPostOwnerActionsMarkup(post) {
+        if (!state.viewer.userId || state.viewer.userId !== post.authorId) return "";
+        return `
+          <button class="text-button" type="button" data-edit-post="${escapeHtml(post.id)}">Edit post</button>
+          <button class="text-button warning" type="button" data-delete-post="${escapeHtml(post.id)}">Delete post</button>
+        `;
+      }
+
       function createMessageActionMarkup(post) {
         if (!post.authorId) return "";
-        if (state.session?.user?.id && state.session.user.id === post.authorId) return "";
+        if (state.viewer.userId && state.viewer.userId === post.authorId) return "";
 
         return `
           <a
@@ -1051,7 +1085,7 @@
             <div class="post-shell">
               <div class="post-header">
                 <div class="post-author">
-                  <strong>${escapeHtml(post.authorName)}</strong>
+                  <a class="post-author-link" href="/members/profile/?id=${encodeURIComponent(post.authorId || "")}">${escapeHtml(post.authorName)}</a>
                   <div class="post-meta">${escapeHtml(formatDate(post.createdAt))}</div>
                 </div>
                 <div class="post-meta">${post.comments.length} comment${post.comments.length === 1 ? "" : "s"}</div>
@@ -1061,6 +1095,7 @@
               <div class="post-footer">
                 <div class="post-meta">Newest posts appear first.</div>
                 <div class="post-actions">
+                  ${createPostOwnerActionsMarkup(post)}
                   ${createMessageActionMarkup(post)}
                 </div>
               </div>
@@ -1072,6 +1107,7 @@
 
         wireCommentForms();
         wireMessageActions();
+        wirePostActions();
       }
 
       function wireMessageActions() {
@@ -1096,6 +1132,7 @@
           const result = await response.json().catch(() => ({}));
           if (!response.ok) throw new Error(result.error || "Unable to load feed.");
           state.posts = Array.isArray(result.posts) ? result.posts : [];
+          state.viewer = result.viewer || state.viewer;
           renderFeed();
         } catch (error) {
           feedLoading.hidden = true;
@@ -1169,6 +1206,80 @@
               statusEl.textContent = error.message || "Unable to publish comment.";
             } finally {
               submitButton.disabled = false;
+            }
+          });
+        });
+      }
+
+      function wirePostActions() {
+        feedList.querySelectorAll("[data-edit-post]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const postId = button.getAttribute("data-edit-post");
+            const post = state.posts.find((item) => item.id === postId);
+            if (!post) return;
+
+            const nextBody = window.prompt("Edit your post", post.body || "");
+            if (nextBody === null) return;
+
+            button.disabled = true;
+            try {
+              const response = await fetch(FEED_URL, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  ...(await authHeaders()),
+                },
+                body: JSON.stringify({
+                  action: "updatePost",
+                  postId,
+                  body: nextBody,
+                  imageAlt: post.imageAlt || "",
+                }),
+              });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok) throw new Error(result.error || "Unable to update post.");
+              await loadFeed();
+            } catch (error) {
+              window.alert(error.message || "Unable to update post.");
+            } finally {
+              button.disabled = false;
+            }
+          });
+        });
+
+        feedList.querySelectorAll("[data-delete-post]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const postId = button.getAttribute("data-delete-post");
+            const post = state.posts.find((item) => item.id === postId);
+            if (!post) return;
+            if (!window.confirm("Delete this post?")) return;
+
+            button.disabled = true;
+            try {
+              const response = await fetch(FEED_URL, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  ...(await authHeaders()),
+                },
+                body: JSON.stringify({
+                  action: "deletePost",
+                  postId,
+                }),
+              });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok) throw new Error(result.error || "Unable to delete post.");
+
+              if (post.imagePath) {
+                const client = await window.siteAuth.getClient().catch(() => null);
+                await client?.storage?.from(COMMUNITY_BUCKET).remove([post.imagePath]).catch(() => {});
+              }
+
+              await loadFeed();
+            } catch (error) {
+              window.alert(error.message || "Unable to delete post.");
+            } finally {
+              button.disabled = false;
             }
           });
         });

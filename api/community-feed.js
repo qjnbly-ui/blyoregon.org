@@ -150,6 +150,20 @@ function serializePost(post, comments) {
   };
 }
 
+async function fetchPostById(postId, token) {
+  const query = new URLSearchParams({
+    select: "id,author_id,author_name,body,image_path,image_alt,created_at,updated_at,status",
+    id: `eq.${postId}`,
+    limit: "1",
+  });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/community_posts?${query.toString()}`, {
+    headers: buildUserHeaders(token),
+  });
+  if (!response.ok) throw new Error("Unable to load post");
+  const rows = await response.json().catch(() => []);
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
+}
+
 async function fetchPosts(limit) {
   const query = new URLSearchParams({
     select: "id,author_id,author_name,body,image_path,image_alt,created_at,updated_at",
@@ -260,11 +274,71 @@ async function createComment(session, token, body) {
   return serializeComment(Array.isArray(rows) ? rows[0] : payload);
 }
 
+async function updatePost(session, token, body) {
+  const postId = String(body?.postId || "").trim();
+  const postBody = normalizeText(body?.body, MAX_POST_LENGTH);
+  const imageAlt = normalizeText(body?.imageAlt, 160);
+  if (!postId) throw new Error("Post not found.");
+  if (!postBody) throw new Error("Write something before saving.");
+
+  const existing = await fetchPostById(postId, token);
+  if (!existing) throw new Error("Post not found.");
+  if (String(existing.author_id || "") !== String(session.id || "")) {
+    throw new Error("You can only edit your own posts.");
+  }
+
+  const payload = {
+    body: postBody,
+    image_alt: imageAlt,
+    updated_at: new Date().toISOString(),
+  };
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/community_posts?id=eq.${encodeURIComponent(postId)}`, {
+    method: "PATCH",
+    headers: {
+      ...buildUserHeaders(token),
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify(payload),
+  });
+  const rows = await response.json().catch(() => []);
+  if (!response.ok) throw new Error(rows?.message || "Unable to update post");
+  const updated = Array.isArray(rows) && rows.length ? rows[0] : null;
+  return serializePost(updated || { ...existing, ...payload }, []);
+}
+
+async function deletePost(session, token, body) {
+  const postId = String(body?.postId || "").trim();
+  if (!postId) throw new Error("Post not found.");
+
+  const existing = await fetchPostById(postId, token);
+  if (!existing) throw new Error("Post not found.");
+  if (String(existing.author_id || "") !== String(session.id || "")) {
+    throw new Error("You can only delete your own posts.");
+  }
+
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/community_posts?id=eq.${encodeURIComponent(postId)}`, {
+    method: "DELETE",
+    headers: buildUserHeaders(token),
+  });
+  if (!response.ok) throw new Error("Unable to delete post");
+  return {
+    id: postId,
+    imagePath: String(existing.image_path || ""),
+  };
+}
+
 module.exports = async (req, res) => {
   try {
     if (req.method === "GET") {
       const feed = await listFeed(getHeaderValue(req, "x-feed-limit") || DEFAULT_LIMIT);
-      sendJson(res, 200, { posts: feed });
+      const { session } = await authenticateRequest(req).catch(() => ({ session: null }));
+      sendJson(res, 200, {
+        posts: feed,
+        viewer: {
+          signedIn: Boolean(session?.id),
+          userId: String(session?.id || ""),
+        },
+      });
       return;
     }
 
@@ -291,6 +365,18 @@ module.exports = async (req, res) => {
     if (action === "createComment") {
       const comment = await createComment(session, token, body);
       sendJson(res, 201, { comment });
+      return;
+    }
+
+    if (action === "updatePost") {
+      const post = await updatePost(session, token, body);
+      sendJson(res, 200, { post });
+      return;
+    }
+
+    if (action === "deletePost") {
+      const deleted = await deletePost(session, token, body);
+      sendJson(res, 200, { deleted });
       return;
     }
 

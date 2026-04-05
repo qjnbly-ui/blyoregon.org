@@ -88,6 +88,27 @@ async function fetchPublishedArticlesByAuthor(userId) {
   return Array.isArray(rows) ? rows : [];
 }
 
+async function fetchPublishedCommunityPostsByAuthor(userId) {
+  const apiKey = getPublicApiKey();
+  if (!apiKey || !userId) return [];
+
+  const query = new URLSearchParams({
+    select: "id,body,image_path,image_alt,created_at,updated_at",
+    author_id: `eq.${userId}`,
+    status: "eq.published",
+    order: "created_at.desc",
+  });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/community_posts?${query.toString()}`, {
+    headers: {
+      apikey: apiKey,
+      Authorization: `Bearer ${apiKey}`,
+    },
+  });
+  if (!response.ok) throw new Error("Unable to load member community posts");
+  const rows = await response.json().catch(() => []);
+  return Array.isArray(rows) ? rows : [];
+}
+
 function serializeProfile(profile) {
   return {
     id: profile?.id || "",
@@ -112,6 +133,19 @@ function serializeArticle(article) {
   };
 }
 
+function serializeCommunityPost(post) {
+  const imagePath = String(post?.image_path || "").trim();
+  return {
+    id: String(post?.id || ""),
+    body: String(post?.body || ""),
+    imagePath,
+    imageUrl: imagePath ? `${getSupabaseUrl()}/storage/v1/object/public/community-feed/${imagePath.split("/").map((part) => encodeURIComponent(part)).join("/")}` : "",
+    imageAlt: String(post?.image_alt || ""),
+    createdAt: post?.created_at || null,
+    updatedAt: post?.updated_at || null,
+  };
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "GET") {
     sendJson(res, 405, { error: "Method not allowed" });
@@ -127,9 +161,10 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const [profile, publishedArticles] = await Promise.all([
+    const [profile, publishedArticles, communityPosts] = await Promise.all([
       fetchProfileById(userId),
       fetchPublishedArticlesByAuthor(userId),
+      fetchPublishedCommunityPostsByAuthor(userId),
     ]);
     if (!profile) {
       sendJson(res, 404, { error: "Member not found" });
@@ -139,6 +174,7 @@ module.exports = async (req, res) => {
     sendJson(res, 200, {
       profile: serializeProfile(profile),
       articles: publishedArticles.map(serializeArticle),
+      communityPosts: communityPosts.map(serializeCommunityPost),
       viewer: {
         signedIn: Boolean(session?.id),
         isSelf: Boolean(session?.id && session.id === userId),

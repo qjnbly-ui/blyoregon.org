@@ -120,6 +120,11 @@
       gap: 0.9rem;
       margin-top: 1rem;
     }
+    .posts-list {
+      display: grid;
+      gap: 0.9rem;
+      margin-top: 1rem;
+    }
     .article-item {
       display: grid;
       grid-template-columns: 120px minmax(0, 1fr);
@@ -151,6 +156,22 @@
     }
     .article-link:hover {
       text-decoration: underline;
+    }
+    .community-post-item {
+      display: grid;
+      gap: 0.8rem;
+      padding: 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20,50,39,0.12);
+      background: rgba(255,255,255,0.72);
+    }
+    .community-post-image {
+      width: min(100%, 420px);
+      max-height: 280px;
+      object-fit: cover;
+      border-radius: 18px;
+      border: 1px solid rgba(20,50,39,0.12);
+      background: rgba(20,50,39,0.08);
     }
     .warning { color: #8b322d; }
     footer { background: #162f25; color: rgba(255,255,255,0.7); text-align: center; padding: 1.5rem; font-size: 0.9rem; }
@@ -202,6 +223,16 @@
         <div id="articles-list" class="articles-list"></div>
       </div>
     </section>
+
+    <section class="card">
+      <div class="stack">
+        <div>
+          <h2>Community posts</h2>
+          <p id="community-posts-meta" class="meta">Loading community posts.</p>
+        </div>
+        <div id="community-posts-list" class="posts-list"></div>
+      </div>
+    </section>
   </main>
 
   <footer>
@@ -221,6 +252,8 @@
     const messageButtonEl = document.getElementById("message-button");
     const articlesMetaEl = document.getElementById("articles-meta");
     const articlesListEl = document.getElementById("articles-list");
+    const communityPostsMetaEl = document.getElementById("community-posts-meta");
+    const communityPostsListEl = document.getElementById("community-posts-list");
     const statusEl = document.getElementById("page-status");
     function setStatus(message, isError = false) {
       statusEl.classList.toggle("warning", isError);
@@ -280,6 +313,47 @@
       });
     }
 
+    function renderCommunityPosts(posts) {
+      communityPostsListEl.innerHTML = "";
+      communityPostsMetaEl.textContent = posts.length
+        ? `${posts.length} community post${posts.length === 1 ? "" : "s"} by this member.`
+        : "No community posts yet.";
+
+      if (!posts.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "This member has not published any public community posts yet.";
+        communityPostsListEl.appendChild(empty);
+        return;
+      }
+
+      posts.forEach((post) => {
+        const item = document.createElement("article");
+        item.className = "community-post-item";
+
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = `Posted ${formatDate(post.createdAt)}${post.updatedAt && post.updatedAt !== post.createdAt ? ` · Updated ${formatDate(post.updatedAt)}` : ""}`;
+
+        const body = document.createElement("p");
+        body.className = "meta";
+        body.style.whiteSpace = "pre-wrap";
+        body.textContent = post.body || "";
+
+        item.append(meta, body);
+
+        if (post.imageUrl) {
+          const image = document.createElement("img");
+          image.className = "community-post-image";
+          image.src = post.imageUrl;
+          image.alt = post.imageAlt || "Community post photo";
+          item.appendChild(image);
+        }
+
+        communityPostsListEl.appendChild(item);
+      });
+    }
+
     async function loadProfile() {
       if (!memberId) {
         titleEl.textContent = "Member unavailable";
@@ -304,6 +378,7 @@
         metaEl.textContent = profile.createdAt ? `Member profile · Joined ${formatDate(profile.createdAt)}` : "Member profile";
         bioEl.textContent = profile.bio || "This member has not added a public bio yet.";
         renderArticles(Array.isArray(payload.articles) ? payload.articles : []);
+        renderCommunityPosts(Array.isArray(payload.communityPosts) ? payload.communityPosts : []);
 
         if (profile.avatarUrl) {
           avatarEl.src = profile.avatarUrl;
