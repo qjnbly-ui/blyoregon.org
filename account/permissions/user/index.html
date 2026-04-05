@@ -715,6 +715,9 @@
         return {
           ...profile,
           role: "admin",
+          canSubmitArticles: true,
+          canSelfPublishArticles: true,
+          canSelfPublishArticleEdits: true,
           canReviewArticles: true,
           canPublishArticles: true,
           notificationPreferences: {
@@ -728,6 +731,9 @@
         return {
           ...profile,
           role: "moderator",
+          canSubmitArticles: true,
+          canSelfPublishArticles: false,
+          canSelfPublishArticleEdits: false,
           canReviewArticles: true,
           canPublishArticles: true,
           notificationPreferences: {
@@ -740,6 +746,9 @@
       return {
         ...profile,
         role: "member",
+        canSubmitArticles: true,
+        canSelfPublishArticles: false,
+        canSelfPublishArticleEdits: false,
         canReviewArticles: false,
         canPublishArticles: false,
         notificationPreferences: {
@@ -779,8 +788,8 @@
       roleHelpEl.textContent = isAdminRole
         ? "Admin gives full access across the system. Individual permission toggles are not used while this account is an admin."
         : isModeratorRole
-          ? "Moderator preselects the reviewer/admin queue tools. You can still fine-tune the visible moderator permissions below."
-          : "Member clears moderator-only review tools. Those moderator-only controls stay hidden while this account is a member.";
+          ? "Moderator defaults to review, publish, and admin alerts. Trusted self-publishing stays off unless you grant it separately."
+          : "Member defaults to article submission only. Trusted publish and review powers are turned off, and moderator-only controls stay hidden.";
       toggleShowNameInMessagesEl.disabled = Boolean(isAdminRole || activeProfile.hasPublishedArticles);
       const isOwnAccount = activeProfile.id === (activeSession?.user?.id || activeSession?.id || "");
       deleteUserButtonEl.disabled = Boolean(isOwnAccount || activeProfile.role === "admin");
