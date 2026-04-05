@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notifications | Bly, Oregon</title>
+  <title>Alerts | Bly, Oregon</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,7 +159,7 @@
   <div class="shell">
     <section class="hero">
       <div class="eyebrow">Account Inbox</div>
-      <h1>Notifications</h1>
+      <h1>Alerts</h1>
       <p id="hero-intro">Loading your account inbox.</p>
       <div class="hero-actions">
         <a href="/account/" class="pill-link">Back to account</a>
@@ -169,8 +169,8 @@
     <section class="card">
       <div class="item-header">
         <div>
-          <h2>Your notifications</h2>
-          <p class="meta">Internal notifications stay in your account even if email delivery is turned off. You can delete them when you are done.</p>
+          <h2>Your alerts</h2>
+          <p class="meta">Internal alerts stay in your account even if email delivery is turned off. You can delete them when you are done.</p>
         </div>
         <div class="card-actions" style="margin-top:0">
           <button id="mark-all-button" class="button secondary" type="button" hidden>Mark all read</button>
@@ -220,7 +220,7 @@
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(payload.error || "Unable to update notifications.");
+        throw new Error(payload.error || "Unable to update alerts.");
       }
       return payload;
     }
@@ -228,7 +228,7 @@
     function renderNotifications(notifications, unreadCount) {
       listEl.innerHTML = "";
       heroIntroEl.textContent = unreadCount > 0
-        ? `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"} in your account inbox.`
+        ? `${unreadCount} unread alert${unreadCount === 1 ? "" : "s"} in your account inbox.`
         : "You are caught up. New account activity will appear here.";
       markAllButtonEl.hidden = unreadCount < 1;
       clearInboxButtonEl.hidden = notifications.length < 1;
@@ -236,7 +236,7 @@
       if (!notifications.length) {
         const empty = document.createElement("p");
         empty.className = "meta";
-        empty.textContent = "No notifications yet.";
+        empty.textContent = "No alerts yet.";
         listEl.appendChild(empty);
         return;
       }
@@ -251,7 +251,7 @@
         const copy = document.createElement("div");
         const title = document.createElement("div");
         title.className = "item-title";
-        title.textContent = notification.title || "Notification";
+        title.textContent = notification.title || "Alert";
         const body = document.createElement("p");
         body.className = "meta";
         body.textContent = notification.body || "";
@@ -289,7 +289,7 @@
               await loadPage();
             } catch (error) {
               markReadButton.disabled = false;
-              setStatus(error.message || "Unable to update notifications.", true);
+              setStatus(error.message || "Unable to update alerts.", true);
             }
           });
           actions.appendChild(markReadButton);
@@ -306,7 +306,7 @@
             await loadPage();
           } catch (error) {
             deleteButton.disabled = false;
-            setStatus(error.message || "Unable to update notifications.", true);
+            setStatus(error.message || "Unable to update alerts.", true);
           }
         });
         actions.appendChild(deleteButton);
@@ -336,13 +336,13 @@
             window.location.replace(loginUrl + "&auth_error=expired");
             return;
           }
-          throw new Error(payload.error || "Unable to load notifications.");
+          throw new Error(payload.error || "Unable to load alerts.");
         }
 
         renderNotifications(Array.isArray(payload.notifications) ? payload.notifications : [], Number(payload.unreadCount || 0));
         setStatus("");
       } catch (error) {
-        setStatus(error.message || "Unable to load notifications.", true);
+        setStatus(error.message || "Unable to load alerts.", true);
       }
     }
 
@@ -352,14 +352,14 @@
         await updateNotification("mark_all_read");
         await loadPage();
       } catch (error) {
-        setStatus(error.message || "Unable to update notifications.", true);
+        setStatus(error.message || "Unable to update alerts.", true);
       } finally {
         markAllButtonEl.disabled = false;
       }
     });
 
     clearInboxButtonEl.addEventListener("click", async () => {
-      if (!window.confirm("Clear your entire notification inbox? This deletes all notifications.")) {
+      if (!window.confirm("Clear your entire alerts inbox? This deletes all alerts.")) {
         return;
       }
 
@@ -368,7 +368,7 @@
         await updateNotification("clear_inbox");
         await loadPage();
       } catch (error) {
-        setStatus(error.message || "Unable to update notifications.", true);
+        setStatus(error.message || "Unable to update alerts.", true);
       } finally {
         clearInboxButtonEl.disabled = false;
       }

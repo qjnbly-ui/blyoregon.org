@@ -879,16 +879,16 @@
     <section class="card" id="notifications-card">
       <div class="card-header">
         <div>
-          <h2>Notifications</h2>
+          <h2>Alerts</h2>
           <p class="meta">See account alerts, workflow updates, approvals, and other internal notices in one inbox.</p>
         </div>
         <a class="edit-toggle" href="/account/notifications/">
-          Open notifications
+          Open alerts
           <span class="inline-count" id="notifications-inline-count" hidden>0</span>
         </a>
       </div>
       <div class="stack">
-        <p class="meta" id="notifications-summary">No unread notifications.</p>
+        <p class="meta" id="notifications-summary">No unread alerts.</p>
       </div>
     </section>
 
@@ -957,7 +957,7 @@
           <textarea id="profile-bio" name="bio" maxlength="500" placeholder="Tell people a little about yourself."></textarea>
         </div>
         <div class="field">
-          <label>Notification preferences</label>
+          <label>Alert preferences</label>
           <div class="preference-group">
             <div class="preference-row">
               <div class="preference-copy">
@@ -991,7 +991,7 @@
             </div>
             <div class="preference-row">
               <div class="preference-copy">
-                <strong>Direct messages</strong>
+                <strong>Message alerts</strong>
                 <span>New member-to-member messages and replies sent through the account inbox.</span>
               </div>
               <div class="checkbox-cluster">
@@ -999,6 +999,21 @@
                 <label><input id="notify-direct-messages-email" type="checkbox" /> Email</label>
               </div>
             </div>
+            <div class="preference-row" id="admin-queue-preference-row" hidden>
+              <div class="preference-copy">
+                <strong>Admin alerts</strong>
+                <span>Reviewer/admin alerts when submissions need attention or admin-side publishing actions happen.</span>
+              </div>
+              <div class="checkbox-cluster">
+                <label><input id="notify-admin-queue-internal" type="checkbox" /> In app</label>
+                <label><input id="notify-admin-queue-email" type="checkbox" /> Email</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Messaging identity</label>
+          <div class="preference-group">
             <div class="preference-row">
               <div class="preference-copy">
                 <strong>Show my name in messages</strong>
@@ -1006,16 +1021,6 @@
               </div>
               <div class="checkbox-cluster">
                 <label><input id="show-name-in-messages" type="checkbox" /> Show name</label>
-              </div>
-            </div>
-            <div class="preference-row" id="admin-queue-preference-row" hidden>
-              <div class="preference-copy">
-                <strong>Admin review queue</strong>
-                <span>Reviewer/admin notifications when submissions need attention or admin-side publishing actions happen.</span>
-              </div>
-              <div class="checkbox-cluster">
-                <label><input id="notify-admin-queue-internal" type="checkbox" /> In app</label>
-                <label><input id="notify-admin-queue-email" type="checkbox" /> Email</label>
               </div>
             </div>
           </div>
@@ -1460,8 +1465,8 @@
         notificationsInlineCountEl.hidden = unreadNotificationCount < 1;
         notificationsInlineCountEl.textContent = String(unreadNotificationCount);
         notificationsSummaryEl.innerHTML = unreadNotificationCount > 0
-          ? `<span class="meta-strong">${unreadNotificationCount}</span> unread notification${unreadNotificationCount === 1 ? "" : "s"} waiting in your inbox.`
-          : "No unread notifications.";
+          ? `<span class="meta-strong">${unreadNotificationCount}</span> unread alert${unreadNotificationCount === 1 ? "" : "s"} waiting in your inbox.`
+          : "No unread alerts.";
       } catch (error) {
         titleEl.textContent = "Account error";
         introEl.textContent = "The account page could not be loaded.";

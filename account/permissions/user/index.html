@@ -332,7 +332,7 @@
 
     <section class="card">
       <h2>Access settings</h2>
-      <p class="meta">Use categories below to manage the member's profile settings, messaging identity, notifications, article workflow, media tools, and bucket-specific access.</p>
+      <p class="meta">Use categories below to manage the member's profile settings, messaging identity, alerts, article workflow, media tools, and bucket-specific access.</p>
       <div class="member-summary">
         <div><strong id="member-name">Member</strong></div>
         <div id="member-email" class="meta"></div>
@@ -343,7 +343,7 @@
           <section class="permission-group">
             <div class="permission-group-header">
               <h3>Messaging identity</h3>
-              <p>Controls how this member is identified inside direct-message conversations. This is separate from when notifications are sent.</p>
+              <p>Controls how this member is identified inside direct-message conversations. This is separate from when alerts are sent.</p>
             </div>
             <div class="control-grid">
               <div class="toggle-card">
@@ -360,8 +360,8 @@
 
           <section class="permission-group">
             <div class="permission-group-header">
-              <h3>Notification settings</h3>
-              <p>These are the same member-controlled notification settings shown in profile settings during account creation and later in the account editor.</p>
+              <h3>Alert settings</h3>
+              <p>These are the same member-controlled alert settings shown in profile settings during account creation and later in the account editor.</p>
             </div>
             <div class="control-grid">
               <div class="toggle-card">
@@ -421,7 +421,7 @@
               <div class="toggle-card">
                 <div class="toggle-row">
                   <div class="toggle-copy">
-                    <strong>Direct messages: inbox</strong>
+                    <strong>Message alerts: inbox</strong>
                     <span>New messages from other members and authors on the site.</span>
                   </div>
                   <button id="toggle-direct-messages-internal" class="toggle" type="button" role="switch" aria-checked="false"></button>
@@ -430,8 +430,8 @@
               <div class="toggle-card">
                 <div class="toggle-row">
                   <div class="toggle-copy">
-                    <strong>Direct messages: email</strong>
-                    <span>Email notifications for new member-to-member messages.</span>
+                    <strong>Message alerts: email</strong>
+                    <span>Email alerts for new member-to-member messages.</span>
                   </div>
                   <button id="toggle-direct-messages-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
                 </div>
@@ -439,8 +439,8 @@
               <div class="toggle-card">
                 <div class="toggle-row">
                   <div class="toggle-copy">
-                    <strong>Admin queue: inbox</strong>
-                    <span>Reviewer/admin notifications when submissions need attention or admin-side publishing actions happen.</span>
+                    <strong>Admin alerts: inbox</strong>
+                    <span>Reviewer/admin alerts when submissions need attention or admin-side publishing actions happen.</span>
                   </div>
                   <button id="toggle-admin-queue-internal" class="toggle" type="button" role="switch" aria-checked="false"></button>
                 </div>
@@ -448,8 +448,8 @@
               <div class="toggle-card">
                 <div class="toggle-row">
                   <div class="toggle-copy">
-                    <strong>Admin queue: email</strong>
-                    <span>Email notifications for reviewer/admin article work.</span>
+                    <strong>Admin alerts: email</strong>
+                    <span>Email alerts for reviewer/admin article work.</span>
                   </div>
                   <button id="toggle-admin-queue-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
                 </div>
@@ -579,7 +579,7 @@
           <section class="permission-group danger-group">
             <div class="permission-group-header">
               <h3>Danger zone</h3>
-              <p>Delete this user account from the site. This removes their login access, profile, private messages, and notification inbox data.</p>
+              <p>Delete this user account from the site. This removes their login access, profile, private messages, and alerts inbox data.</p>
             </div>
             <button id="delete-user-button" class="danger-button" type="button">Delete user</button>
           </section>
