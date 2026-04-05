@@ -187,6 +187,12 @@
       color: var(--ink);
       font: inherit;
     }
+    .role-help {
+      margin: 0.6rem 0 0;
+      color: #5c6d63;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
     .toggle-card,
     .bucket-card {
       border-radius: 18px;
@@ -361,6 +367,7 @@
                 <option value="moderator">Moderator</option>
                 <option value="admin">Admin</option>
               </select>
+              <p id="role-help" class="role-help">Member and moderator roles do not automatically turn on tool access. Use the permission toggles below to grant the exact powers you want.</p>
             </div>
           </section>
 
@@ -460,7 +467,7 @@
                   <button id="toggle-direct-messages-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
                 </div>
               </div>
-              <div class="toggle-card">
+              <div class="toggle-card moderator-only">
                 <div class="toggle-row">
                   <div class="toggle-copy">
                     <strong>Admin alerts: inbox</strong>
@@ -469,7 +476,7 @@
                   <button id="toggle-admin-queue-internal" class="toggle" type="button" role="switch" aria-checked="false"></button>
                 </div>
               </div>
-              <div class="toggle-card">
+              <div class="toggle-card moderator-only">
                 <div class="toggle-row">
                   <div class="toggle-copy">
                     <strong>Admin alerts: email</strong>
@@ -568,7 +575,7 @@
                   <button id="toggle-self-publish-article-edits" class="toggle" type="button" role="switch" aria-checked="false"></button>
                 </div>
               </div>
-              <div class="toggle-card">
+              <div class="toggle-card moderator-only">
                 <div class="toggle-row">
                   <div class="toggle-copy">
                     <strong>Review articles</strong>
@@ -577,7 +584,7 @@
                   <button id="toggle-review-articles" class="toggle" type="button" role="switch" aria-checked="false"></button>
                 </div>
               </div>
-              <div class="toggle-card">
+              <div class="toggle-card moderator-only">
                 <div class="toggle-row">
                   <div class="toggle-copy">
                     <strong>Publish articles</strong>
@@ -649,10 +656,12 @@
     const toggleShowNameInMessagesEl = document.getElementById("toggle-show-name-in-messages");
     const showNameInMessagesCopyEl = document.getElementById("show-name-in-messages-copy");
     const roleSelectEl = document.getElementById("role-select");
+    const roleHelpEl = document.getElementById("role-help");
     const deleteUserButtonEl = document.getElementById("delete-user-button");
     const bucketOptionsEl = document.getElementById("bucket-options");
     const memberStatusEl = document.getElementById("member-status");
     const pageStatusEl = document.getElementById("page-status");
+    const moderatorOnlyEls = Array.from(document.querySelectorAll(".moderator-only"));
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname + window.location.search);
     const params = new URLSearchParams(window.location.search);
     const targetUserId = params.get("id") || "";
@@ -700,6 +709,47 @@
       memberStatusEl.textContent = message || "";
     }
 
+    function applyRolePreset(profile, role) {
+      const normalizedRole = String(role || "member").toLowerCase();
+      if (normalizedRole === "admin") {
+        return {
+          ...profile,
+          role: "admin",
+          canReviewArticles: true,
+          canPublishArticles: true,
+          notificationPreferences: {
+            ...profile.notificationPreferences,
+            adminArticleQueueInternal: true,
+            adminArticleQueueEmail: true,
+          },
+        };
+      }
+      if (normalizedRole === "moderator") {
+        return {
+          ...profile,
+          role: "moderator",
+          canReviewArticles: true,
+          canPublishArticles: true,
+          notificationPreferences: {
+            ...profile.notificationPreferences,
+            adminArticleQueueInternal: true,
+            adminArticleQueueEmail: true,
+          },
+        };
+      }
+      return {
+        ...profile,
+        role: "member",
+        canReviewArticles: false,
+        canPublishArticles: false,
+        notificationPreferences: {
+          ...profile.notificationPreferences,
+          adminArticleQueueInternal: false,
+          adminArticleQueueEmail: false,
+        },
+      };
+    }
+
     function syncControls() {
       if (!activeProfile) return;
       roleSelectEl.value = String(activeProfile.role || "member").toLowerCase();
@@ -725,6 +775,12 @@
       togglePublishArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canPublishArticles)));
       toggleShowNameInMessagesEl.setAttribute("aria-checked", String(Boolean(activeProfile.showNameInMessages)));
       const isAdminRole = activeProfile.role === "admin";
+      const isModeratorRole = activeProfile.role === "moderator";
+      roleHelpEl.textContent = isAdminRole
+        ? "Admin gives full access across the system. Individual permission toggles are not used while this account is an admin."
+        : isModeratorRole
+          ? "Moderator preselects the reviewer/admin queue tools. You can still fine-tune the visible moderator permissions below."
+          : "Member clears moderator-only review tools. Those moderator-only controls stay hidden while this account is a member.";
       toggleShowNameInMessagesEl.disabled = Boolean(isAdminRole || activeProfile.hasPublishedArticles);
       const isOwnAccount = activeProfile.id === (activeSession?.user?.id || activeSession?.id || "");
       deleteUserButtonEl.disabled = Boolean(isOwnAccount || activeProfile.role === "admin");
@@ -734,6 +790,9 @@
       allManagedControls().forEach((control) => {
         if (!control) return;
         control.disabled = isAdminRole;
+      });
+      moderatorOnlyEls.forEach((element) => {
+        element.hidden = !isModeratorRole && !isAdminRole;
       });
       roleSelectEl.disabled = isOwnAccount;
       if (isAdminRole) {
@@ -1102,10 +1161,15 @@
 
     roleSelectEl.addEventListener("change", async () => {
       if (!activeProfile) return;
-      await saveProfile({
-        ...activeProfile,
-        role: roleSelectEl.value,
-      });
+      const nextRole = roleSelectEl.value;
+      if (nextRole === "admin" && activeProfile.role !== "admin") {
+        const confirmed = window.confirm("Promote this account to admin? Admin gets full site access immediately.");
+        if (!confirmed) {
+          roleSelectEl.value = activeProfile.role || "member";
+          return;
+        }
+      }
+      await saveProfile(applyRolePreset(activeProfile, nextRole));
     });
 
     deleteUserButtonEl.addEventListener("click", deleteUser);
