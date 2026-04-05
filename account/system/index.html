@@ -74,6 +74,9 @@
       text-decoration: none;
       font-weight: 700;
       border-radius: 999px;
+      width: fit-content;
+      max-width: fit-content;
+      flex: 0 0 auto;
     }
     .pill-link {
       border: 1px solid rgba(255,255,255,0.32);
@@ -142,7 +145,7 @@
     <section class="hero">
       <div class="eyebrow">Admin Tools</div>
       <h1>System settings</h1>
-      <p>Behind-the-scenes article notification and email settings that affect how the dynamic workflow operates.</p>
+      <p>Behind-the-scenes delivery and account notification settings that affect how the site workflow operates.</p>
       <div class="hero-actions">
         <a href="/account/" class="pill-link">Back to account</a>
       </div>
@@ -154,7 +157,7 @@
         <div class="row">
           <div class="copy">
             <strong>Email delivery</strong>
-            <span class="meta">Resend powers article workflow email when the environment is configured.</span>
+            <span class="meta">Resend powers workflow email when the environment is configured.</span>
           </div>
           <span class="status-pill" id="email-enabled-pill">Loading</span>
         </div>

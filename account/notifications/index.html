@@ -68,6 +68,8 @@
     .meta, .status-copy { color: #4c5d54; }
     .hero-actions, .card-actions { margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
     .button, .pill-link {
+      display: inline-flex;
+      align-items: center;
       appearance: none;
       border-radius: 999px;
       padding: 0.8rem 1rem;
@@ -75,6 +77,8 @@
       font-weight: 700;
       text-decoration: none;
       width: fit-content;
+      max-width: fit-content;
+      flex: 0 0 auto;
       cursor: pointer;
     }
     .pill-link {
@@ -121,6 +125,9 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
+      width: fit-content;
+      max-width: fit-content;
+      flex: 0 0 auto;
     }
     .time { color: #5c6d63; font-size: 0.9rem; }
     .warning { color: #8b322d; }
@@ -153,7 +160,7 @@
     <section class="hero">
       <div class="eyebrow">Account Inbox</div>
       <h1>Notifications</h1>
-      <p id="hero-intro">Loading your internal account notifications.</p>
+      <p id="hero-intro">Loading your account inbox.</p>
       <div class="hero-actions">
         <a href="/account/" class="pill-link">Back to account</a>
       </div>
@@ -163,7 +170,7 @@
       <div class="item-header">
         <div>
           <h2>Your notifications</h2>
-          <p class="meta">Internal notifications are stored in your account even if email is disabled.</p>
+          <p class="meta">Internal notifications stay in your account even if email delivery is turned off.</p>
         </div>
         <button id="mark-all-button" class="button secondary" type="button" hidden>Mark all read</button>
       </div>
@@ -218,7 +225,7 @@
       listEl.innerHTML = "";
       heroIntroEl.textContent = unreadCount > 0
         ? `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"} in your account inbox.`
-        : "You are caught up. New article activity will appear here.";
+        : "You are caught up. New account activity will appear here.";
       markAllButtonEl.hidden = unreadCount < 1;
 
       if (!notifications.length) {

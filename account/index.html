@@ -266,8 +266,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 2rem;
-      padding: 0.35rem 0.65rem;
+      padding: 0.3rem 0.58rem;
       border-radius: 999px;
       background: rgba(20, 50, 39, 0.08);
       color: var(--forest);
@@ -394,6 +393,9 @@
       width: fit-content;
     }
     .edit-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
       appearance: none;
       border: 1px solid rgba(20, 50, 39, 0.16);
       border-radius: 999px;
@@ -404,6 +406,8 @@
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
+      width: fit-content;
+      text-decoration: none;
     }
     .save-button:disabled {
       opacity: 0.7;
@@ -860,7 +864,7 @@
       <div class="card-header">
         <div>
           <h2>Notifications</h2>
-          <p class="meta">See article review activity, publishing updates, and other internal account notices.</p>
+          <p class="meta">See account alerts, workflow updates, approvals, and other internal notices in one inbox.</p>
         </div>
         <a class="edit-toggle" href="/account/notifications/">
           Open notifications
@@ -876,7 +880,7 @@
       <div class="card-header">
         <div>
           <h2>System settings</h2>
-          <p class="meta">View the behind-the-scenes article email and notification settings available to admins.</p>
+          <p class="meta">View the behind-the-scenes delivery and notification settings available to admins.</p>
         </div>
         <a class="edit-toggle" href="/account/system/">Open system settings</a>
       </div>
