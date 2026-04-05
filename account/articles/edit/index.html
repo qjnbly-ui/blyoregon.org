@@ -454,6 +454,7 @@
       const canAuthorPublishedEdit = Boolean(activePermissions?.canSubmitArticles && status === "published");
       const canAuthorSubmit = Boolean(activePermissions?.canSubmitArticles && ["draft", "changes_requested"].includes(status));
       const canAuthorSelfPublish = Boolean(activePermissions?.canSelfPublishArticles);
+      const canAuthorSelfPublishArticleEdits = Boolean(activePermissions?.canSelfPublishArticleEdits);
       const canAuthorManage = Boolean(activePermissions?.canSubmitArticles);
       const canReview = Boolean(activePermissions?.canReviewArticles);
       const canPublish = Boolean(activePermissions?.canPublishArticles);
@@ -462,7 +463,9 @@
 
       saveButtonEl.hidden = !canEdit;
       saveButtonEl.disabled = !canEdit;
-      saveButtonEl.textContent = canAuthorPublishedEdit && !canReview && !canPublish ? "Save changes" : "Save draft";
+      saveButtonEl.textContent = canAuthorPublishedEdit && !canReview && !canPublish
+        ? (canAuthorSelfPublishArticleEdits ? "Save changes" : "Save changes for review")
+        : "Save draft";
       submitButtonEl.textContent = canAuthorSelfPublish ? "Publish article" : "Submit for approval";
       submitButtonEl.hidden = !(canAuthorSubmit && !canAuthorPublishedEdit);
       requestChangesButtonEl.hidden = !(canReview && status === "submitted");
@@ -672,7 +675,13 @@
         syncActionButtons();
         setStatus(
           action === "save"
-            ? (activeArticle.status === "published" ? "Changes saved." : "Draft saved.")
+            ? (
+              activeArticle.status === "published"
+                ? "Changes saved."
+                : activeArticle.status === "submitted"
+                  ? "Edits submitted for review."
+                  : "Draft saved."
+            )
             : action === "submit"
               ? (activeArticle.status === "published" ? "Article published." : "Submitted for approval.")
               : action === "request_changes"

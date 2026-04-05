@@ -49,6 +49,7 @@ Current permission fields in `public.profiles`:
 - `media_buckets`
 - `can_submit_articles`
 - `can_self_publish_articles`
+- `can_self_publish_article_edits`
 - `can_review_articles`
 - `can_publish_articles`
 
@@ -61,7 +62,8 @@ Current meaning:
 - `media_buckets`: which managed buckets the user may work in
 - `can_submit_articles`: can create drafts and submit dynamic user articles
   this now defaults to `true` for standard member accounts
-- `can_self_publish_articles`: can publish and update their own articles without admin review
+- `can_self_publish_articles`: can publish new articles without admin review
+- `can_self_publish_article_edits`: can update already-approved articles without admin review
 - `can_review_articles`: can review submitted user articles and request changes
 - `can_publish_articles`: can publish reviewed user articles into the public site
 

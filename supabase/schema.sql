@@ -18,6 +18,7 @@ create table if not exists public.profiles (
   can_delete_media boolean not null default false,
   can_submit_articles boolean not null default true,
   can_self_publish_articles boolean not null default false,
+  can_self_publish_article_edits boolean not null default false,
   can_review_articles boolean not null default false,
   can_publish_articles boolean not null default false,
   notify_article_submissions_internal boolean not null default true,
@@ -40,6 +41,7 @@ alter table public.profiles add column if not exists can_rename_media boolean no
 alter table public.profiles add column if not exists can_delete_media boolean not null default false;
 alter table public.profiles add column if not exists can_submit_articles boolean not null default true;
 alter table public.profiles add column if not exists can_self_publish_articles boolean not null default false;
+alter table public.profiles add column if not exists can_self_publish_article_edits boolean not null default false;
 alter table public.profiles add column if not exists can_review_articles boolean not null default false;
 alter table public.profiles add column if not exists can_publish_articles boolean not null default false;
 alter table public.profiles add column if not exists notify_article_submissions_internal boolean not null default true;
@@ -115,6 +117,22 @@ as $$
       and (
         role = 'admin'
         or can_self_publish_articles = true
+      )
+  );
+$$;
+
+create or replace function public.can_self_publish_article_edits()
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and (
+        role = 'admin'
+        or can_self_publish_article_edits = true
       )
   );
 $$;
@@ -761,6 +779,7 @@ using (user_id = auth.uid() or public.is_admin());
 --     can_delete_media = true,
 --     can_submit_articles = true,
 --     can_self_publish_articles = true,
+--     can_self_publish_article_edits = true,
 --     can_review_articles = true,
 --     can_publish_articles = true,
 --     media_buckets = array['churchfirephotos', 'standingstonechurchconstructionphotos']

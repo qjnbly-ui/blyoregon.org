@@ -378,9 +378,18 @@
                 <div class="toggle-row">
                   <div class="toggle-copy">
                     <strong>Publish own articles</strong>
-                    <span>Lets this member publish and update their own articles without admin review.</span>
+                    <span>Lets this member publish new articles without admin review.</span>
                   </div>
                   <button id="toggle-self-publish-articles" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Publish own article edits</strong>
+                    <span>Lets this member update already-approved articles without sending edits back through review.</span>
+                  </div>
+                  <button id="toggle-self-publish-article-edits" class="toggle" type="button" role="switch" aria-checked="false"></button>
                 </div>
               </div>
               <div class="toggle-card">
@@ -437,6 +446,7 @@
     const toggleDeleteEl = document.getElementById("toggle-delete");
     const toggleSubmitArticlesEl = document.getElementById("toggle-submit-articles");
     const toggleSelfPublishArticlesEl = document.getElementById("toggle-self-publish-articles");
+    const toggleSelfPublishArticleEditsEl = document.getElementById("toggle-self-publish-article-edits");
     const toggleReviewArticlesEl = document.getElementById("toggle-review-articles");
     const togglePublishArticlesEl = document.getElementById("toggle-publish-articles");
     const bucketOptionsEl = document.getElementById("bucket-options");
@@ -472,6 +482,7 @@
       toggleDeleteEl.setAttribute("aria-checked", String(Boolean(activeProfile.canDeleteMedia)));
       toggleSubmitArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canSubmitArticles)));
       toggleSelfPublishArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canSelfPublishArticles)));
+      toggleSelfPublishArticleEditsEl.setAttribute("aria-checked", String(Boolean(activeProfile.canSelfPublishArticleEdits)));
       toggleReviewArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canReviewArticles)));
       togglePublishArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canPublishArticles)));
       bucketOptionsEl.querySelectorAll("input[type=\"checkbox\"]").forEach((input) => {
@@ -498,6 +509,7 @@
             canDeleteMedia: nextState.canDeleteMedia,
             canSubmitArticles: nextState.canSubmitArticles,
             canSelfPublishArticles: nextState.canSelfPublishArticles,
+            canSelfPublishArticleEdits: nextState.canSelfPublishArticleEdits,
             canReviewArticles: nextState.canReviewArticles,
             canPublishArticles: nextState.canPublishArticles,
             mediaBuckets: nextState.mediaBuckets,
@@ -653,6 +665,14 @@
       await saveProfile({
         ...activeProfile,
         canSelfPublishArticles: !activeProfile.canSelfPublishArticles,
+      });
+    });
+
+    toggleSelfPublishArticleEditsEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        canSelfPublishArticleEdits: !activeProfile.canSelfPublishArticleEdits,
       });
     });
 

@@ -63,7 +63,7 @@ async function authenticateRequest(req) {
 
 async function fetchOwnProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,role,can_upload_photos,can_manage_media,media_buckets,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_review_articles,can_publish_articles&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,role,can_upload_photos,can_manage_media,media_buckets,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -79,7 +79,7 @@ async function fetchOwnProfile(session, token) {
 
 async function listProfiles(token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,role,can_upload_photos,can_manage_media,media_buckets,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_review_articles,can_publish_articles&order=display_name.asc.nullslast,email.asc`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,role,can_upload_photos,can_manage_media,media_buckets,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles&order=display_name.asc.nullslast,email.asc`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -108,6 +108,7 @@ async function updateMediaAccess(token, userId, options) {
   const canDeleteMedia = Boolean(options?.canDeleteMedia);
   const canSubmitArticles = Boolean(options?.canSubmitArticles);
   const canSelfPublishArticles = Boolean(options?.canSelfPublishArticles);
+  const canSelfPublishArticleEdits = Boolean(options?.canSelfPublishArticleEdits);
   const canReviewArticles = Boolean(options?.canReviewArticles || options?.canPublishArticles);
   const canPublishArticles = Boolean(options?.canPublishArticles);
   const response = await fetch(
@@ -128,6 +129,7 @@ async function updateMediaAccess(token, userId, options) {
         can_delete_media: canDeleteMedia,
         can_submit_articles: canSubmitArticles,
         can_self_publish_articles: canSelfPublishArticles,
+        can_self_publish_article_edits: canSelfPublishArticleEdits,
         can_review_articles: canReviewArticles,
         can_publish_articles: canPublishArticles,
         media_buckets: mediaBuckets,
@@ -172,6 +174,7 @@ module.exports = async (req, res) => {
               canDeleteMedia: Boolean(profile.can_delete_media || String(profile.role || "").toLowerCase() === "admin"),
               canSubmitArticles: Boolean(profile.can_submit_articles || String(profile.role || "").toLowerCase() === "admin"),
               canSelfPublishArticles: Boolean(profile.can_self_publish_articles || String(profile.role || "").toLowerCase() === "admin"),
+              canSelfPublishArticleEdits: Boolean(profile.can_self_publish_article_edits || String(profile.role || "").toLowerCase() === "admin"),
               canReviewArticles: Boolean(profile.can_review_articles || profile.can_publish_articles || String(profile.role || "").toLowerCase() === "admin"),
               canPublishArticles: Boolean(profile.can_publish_articles || String(profile.role || "").toLowerCase() === "admin"),
               mediaBuckets: Array.isArray(profile.media_buckets) ? profile.media_buckets : [],
@@ -192,6 +195,7 @@ module.exports = async (req, res) => {
       const canDeleteMedia = Boolean(body?.canDeleteMedia);
       const canSubmitArticles = Boolean(body?.canSubmitArticles);
       const canSelfPublishArticles = Boolean(body?.canSelfPublishArticles);
+      const canSelfPublishArticleEdits = Boolean(body?.canSelfPublishArticleEdits);
       const canReviewArticles = Boolean(body?.canReviewArticles || body?.canPublishArticles);
       const canPublishArticles = Boolean(body?.canPublishArticles);
 
@@ -209,6 +213,7 @@ module.exports = async (req, res) => {
         canDeleteMedia,
         canSubmitArticles,
         canSelfPublishArticles,
+        canSelfPublishArticleEdits,
         canReviewArticles,
         canPublishArticles,
       });
@@ -226,6 +231,7 @@ module.exports = async (req, res) => {
           canDeleteMedia: Boolean(updated?.can_delete_media || String(updated?.role || "").toLowerCase() === "admin"),
           canSubmitArticles: Boolean(updated?.can_submit_articles || String(updated?.role || "").toLowerCase() === "admin"),
           canSelfPublishArticles: Boolean(updated?.can_self_publish_articles || String(updated?.role || "").toLowerCase() === "admin"),
+          canSelfPublishArticleEdits: Boolean(updated?.can_self_publish_article_edits || String(updated?.role || "").toLowerCase() === "admin"),
           canReviewArticles: Boolean(updated?.can_review_articles || updated?.can_publish_articles || String(updated?.role || "").toLowerCase() === "admin"),
           canPublishArticles: Boolean(updated?.can_publish_articles || String(updated?.role || "").toLowerCase() === "admin"),
           mediaBuckets: Array.isArray(updated?.media_buckets) ? updated.media_buckets : mediaBuckets,

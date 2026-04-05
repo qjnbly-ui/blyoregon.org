@@ -42,7 +42,7 @@ async function authenticateRequest(req) {
 
 async function fetchProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,created_at&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,created_at&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -130,6 +130,7 @@ module.exports = async (req, res) => {
     const canDeleteMedia = Boolean(profile?.can_delete_media || admin);
     const canSubmitArticles = Boolean(profile?.can_submit_articles || admin);
     const canSelfPublishArticles = Boolean(profile?.can_self_publish_articles || admin);
+    const canSelfPublishArticleEdits = Boolean(profile?.can_self_publish_article_edits || admin);
     const canReviewArticles = Boolean(profile?.can_review_articles || profile?.can_publish_articles || admin);
     const canPublishArticles = Boolean(profile?.can_publish_articles || admin);
     const notificationPreferences = {
@@ -157,6 +158,7 @@ module.exports = async (req, res) => {
         canDeleteMedia,
         canSubmitArticles,
         canSelfPublishArticles,
+        canSelfPublishArticleEdits,
         canReviewArticles,
         canPublishArticles,
         unreadNotificationCount,
@@ -178,6 +180,7 @@ module.exports = async (req, res) => {
           articlePermissions: {
             canPublishArticles,
             canReviewArticles,
+            canSelfPublishArticleEdits,
             canSelfPublishArticles,
             canSubmitArticles,
           },

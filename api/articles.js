@@ -198,7 +198,7 @@ async function authenticateRequest(req) {
 
 async function fetchProfile(session, token) {
   const query = new URLSearchParams({
-    select: "id,email,display_name,role,can_submit_articles,can_self_publish_articles,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email",
+    select: "id,email,display_name,role,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email",
     id: `eq.${session.id}`,
   });
   const response = await fetch(`${getSupabaseUrl()}/rest/v1/profiles?${query.toString()}`, {
@@ -214,7 +214,7 @@ async function fetchProfileById(userId) {
   if (!headers || !userId) return null;
 
   const query = new URLSearchParams({
-    select: "id,email,display_name,role,can_submit_articles,can_self_publish_articles,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email",
+    select: "id,email,display_name,role,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email",
     id: `eq.${userId}`,
     limit: "1",
   });
@@ -233,6 +233,7 @@ function getArticlePermissions(profile) {
     admin,
     canSubmitArticles: Boolean(admin || profile?.can_submit_articles),
     canSelfPublishArticles: Boolean(admin || profile?.can_self_publish_articles),
+    canSelfPublishArticleEdits: Boolean(admin || profile?.can_self_publish_article_edits),
     canReviewArticles: Boolean(admin || profile?.can_review_articles || profile?.can_publish_articles),
     canPublishArticles: Boolean(admin || profile?.can_publish_articles),
   };
@@ -1164,6 +1165,7 @@ module.exports = async (req, res) => {
       const status = String(existing.status || "");
       const canAuthorEdit = isOwner && perms.canSubmitArticles && ["draft", "changes_requested", "published"].includes(status);
       const canAuthorSelfPublish = isOwner && perms.canSelfPublishArticles;
+      const canAuthorSelfPublishEdits = isOwner && perms.canSelfPublishArticleEdits;
       const canAuthorManage = isOwner && perms.canSubmitArticles;
       const canReview = perms.canReviewArticles || perms.canPublishArticles || perms.admin;
       const canPublish = perms.canPublishArticles || perms.admin;
@@ -1236,7 +1238,17 @@ module.exports = async (req, res) => {
         }
         payload.status = "draft";
         payload.published_at = null;
-      } else if (action !== "save") {
+      } else if (action === "save") {
+        if (isOwner && status === "published" && !canReview && !canPublish) {
+          if (canAuthorSelfPublishEdits) {
+            payload.status = "published";
+          } else {
+            payload.status = "submitted";
+            payload.submitted_at = new Date().toISOString();
+            payload.published_at = null;
+          }
+        }
+      } else {
         sendJson(res, 400, { error: "Invalid action" });
         return;
       }
