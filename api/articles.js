@@ -852,21 +852,25 @@ async function createDraft(profile, token) {
 }
 
 async function replaceArticleImages(articleId, images, token, userId) {
+  const headers = buildServiceHeaders() || buildHeaders(token);
   const deleteQuery = new URLSearchParams({
     article_id: `eq.${articleId}`,
   });
   const deleteResponse = await fetch(`${getSupabaseUrl()}/rest/v1/article_images?${deleteQuery.toString()}`, {
     method: "DELETE",
-    headers: buildHeaders(token),
+    headers,
   });
-  if (!deleteResponse.ok) throw new Error("Unable to update article images");
+  if (!deleteResponse.ok) {
+    const payload = await deleteResponse.json().catch(() => ({}));
+    throw new Error(payload.message || payload.error || "Unable to update article images");
+  }
 
   if (!images.length) return [];
 
   const insertResponse = await fetch(`${getSupabaseUrl()}/rest/v1/article_images`, {
     method: "POST",
     headers: {
-      ...buildHeaders(token),
+      ...headers,
       Prefer: "return=representation",
     },
     body: JSON.stringify(
@@ -880,7 +884,10 @@ async function replaceArticleImages(articleId, images, token, userId) {
       }))
     ),
   });
-  if (!insertResponse.ok) throw new Error("Unable to save article images");
+  if (!insertResponse.ok) {
+    const payload = await insertResponse.json().catch(() => ({}));
+    throw new Error(payload.message || payload.error || "Unable to save article images");
+  }
   const rows = await insertResponse.json();
   return Array.isArray(rows) ? rows : [];
 }

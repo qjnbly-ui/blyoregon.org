@@ -197,7 +197,7 @@
     }
     .image-item {
       display: grid;
-      gap: 0.75rem;
+      gap: 0.9rem;
       padding: 0.9rem 1rem;
       border-radius: 18px;
       border: 1px solid rgba(20,50,39,0.12);
@@ -213,22 +213,58 @@
     .image-item-copy {
       display: flex;
       gap: 0.85rem;
-      align-items: center;
+      align-items: flex-start;
       min-width: 0;
     }
     .image-thumb {
-      width: 72px;
-      height: 72px;
+      width: 96px;
+      height: 96px;
       border-radius: 14px;
       object-fit: cover;
       background: rgba(20,50,39,0.1);
       border: 1px solid rgba(20,50,39,0.12);
       flex: 0 0 auto;
     }
+    .image-item-meta {
+      min-width: 0;
+      display: grid;
+      gap: 0.45rem;
+      align-content: start;
+    }
+    .image-item-topline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .image-role {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.62rem;
+      border-radius: 999px;
+      background: rgba(20,50,39,0.08);
+      color: var(--forest);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+    .image-file {
+      color: var(--forest);
+      font-size: 0.95rem;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
     .image-path {
       color: #5c6d63;
       font-size: 0.88rem;
       overflow-wrap: anywhere;
+    }
+    .image-actions {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
     }
     .radio-row {
       display: flex;
@@ -317,7 +353,7 @@
         <div class="stack">
           <div>
             <h3>Photos</h3>
-            <p class="meta">Upload article photos directly to the draft. Pick one cover image and add optional captions.</p>
+            <p class="meta">Upload article photos directly to the draft. One image can be the cover at the top of the public article. The rest appear in the gallery below the article body.</p>
           </div>
           <div class="card-actions">
             <input id="article-images-input" type="file" accept="image/*" multiple />
@@ -390,6 +426,29 @@
         .replace(/^-+|-+$/g, "");
     }
 
+    function filenameFromPath(path) {
+      return String(path || "").split("/").pop() || "Article image";
+    }
+
+    function ensureCoverImage() {
+      if (!activeArticle) return;
+      const currentCover = String(activeArticle.coverImagePath || "").trim();
+      const hasCurrentCover = imageState.some((image) => image.storagePath === currentCover);
+      activeArticle.coverImagePath = hasCurrentCover ? currentCover : (imageState[0]?.storagePath || "");
+    }
+
+    function moveImage(fromIndex, toIndex) {
+      if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= imageState.length || toIndex >= imageState.length) {
+        return;
+      }
+      const nextImages = imageState.slice();
+      const [moved] = nextImages.splice(fromIndex, 1);
+      nextImages.splice(toIndex, 0, moved);
+      imageState = nextImages;
+      ensureCoverImage();
+      renderImages();
+    }
+
     function syncActionButtons() {
       const status = String(activeArticle?.status || "draft");
       const canAuthorSubmit = Boolean(activePermissions?.canSubmitArticles && ["draft", "changes_requested"].includes(status));
@@ -429,6 +488,7 @@
         imagesListEl.appendChild(empty);
         return;
       }
+      ensureCoverImage();
 
       imageState.forEach((image, index) => {
         const row = document.createElement("div");
@@ -444,11 +504,50 @@
         thumb.src = image.imageUrl;
         thumb.alt = image.altText || image.caption || `Article image ${index + 1}`;
         const meta = document.createElement("div");
+        meta.className = "image-item-meta";
+        const topline = document.createElement("div");
+        topline.className = "image-item-topline";
+        const role = document.createElement("span");
+        role.className = "image-role";
+        const isCover = activeArticle?.coverImagePath === image.storagePath || (!activeArticle?.coverImagePath && index === 0);
+        role.textContent = isCover ? "Cover image" : `Gallery image ${isCover ? 1 : imageState.filter((entry) => entry.storagePath !== (activeArticle?.coverImagePath || imageState[0]?.storagePath || "")).findIndex((entry) => entry.storagePath === image.storagePath) + 1}`;
+        const file = document.createElement("div");
+        file.className = "image-file";
+        file.textContent = filenameFromPath(image.storagePath);
         const path = document.createElement("div");
         path.className = "image-path";
         path.textContent = image.storagePath;
-        meta.appendChild(path);
+        topline.append(role);
+        meta.append(topline, file, path);
         copy.append(thumb, meta);
+
+        const actions = document.createElement("div");
+        actions.className = "image-actions";
+
+        const setCoverButton = document.createElement("button");
+        setCoverButton.className = "button secondary";
+        setCoverButton.type = "button";
+        setCoverButton.textContent = isCover ? "Cover image" : "Set as cover";
+        setCoverButton.disabled = !canEdit || isCover;
+        setCoverButton.addEventListener("click", () => {
+          if (!canEdit) return;
+          activeArticle.coverImagePath = image.storagePath;
+          renderImages();
+        });
+
+        const moveUpButton = document.createElement("button");
+        moveUpButton.className = "button secondary";
+        moveUpButton.type = "button";
+        moveUpButton.textContent = "Move earlier";
+        moveUpButton.disabled = !canEdit || index === 0;
+        moveUpButton.addEventListener("click", () => moveImage(index, index - 1));
+
+        const moveDownButton = document.createElement("button");
+        moveDownButton.className = "button secondary";
+        moveDownButton.type = "button";
+        moveDownButton.textContent = "Move later";
+        moveDownButton.disabled = !canEdit || index === imageState.length - 1;
+        moveDownButton.addEventListener("click", () => moveImage(index, index + 1));
 
         const removeButton = document.createElement("button");
         removeButton.className = "button secondary";
@@ -464,24 +563,17 @@
             return;
           }
           imageState = imageState.filter((entry) => entry.storagePath !== image.storagePath);
-          if (activeArticle?.coverImagePath === image.storagePath) {
-            activeArticle.coverImagePath = imageState[0]?.storagePath || "";
-          }
+          ensureCoverImage();
           renderImages();
         });
-        header.append(copy, removeButton);
+        actions.append(setCoverButton, moveUpButton, moveDownButton, removeButton);
+        header.append(copy, actions);
 
-        const coverLabel = document.createElement("label");
-        coverLabel.className = "radio-row";
-        const coverInput = document.createElement("input");
-        coverInput.type = "radio";
-        coverInput.name = "cover-image";
-        coverInput.checked = activeArticle?.coverImagePath === image.storagePath || (!activeArticle?.coverImagePath && index === 0);
-        coverInput.disabled = !canEdit;
-        coverInput.addEventListener("change", () => {
-          activeArticle.coverImagePath = image.storagePath;
-        });
-        coverLabel.append(coverInput, document.createTextNode("Use as cover image"));
+        const placementNote = document.createElement("p");
+        placementNote.className = "meta";
+        placementNote.textContent = isCover
+          ? "This image appears at the top of the public article."
+          : "This image appears in the gallery below the article body.";
 
         const fields = document.createElement("div");
         fields.className = "field-grid";
@@ -511,7 +603,7 @@
         altField.append(altLabel, altInput);
 
         fields.append(captionField, altField);
-        row.append(header, coverLabel, fields);
+        row.append(header, placementNote, fields);
         imagesListEl.appendChild(row);
       });
     }
@@ -658,6 +750,7 @@
       if (!activeArticle.coverImagePath && imageState[0]) {
         activeArticle.coverImagePath = imageState[0].storagePath;
       }
+      ensureCoverImage();
       renderImages();
       setStatus("Images uploaded. Save the article to keep the image list in sync.");
     }
@@ -695,6 +788,7 @@
         activeArticle = payload.article;
         activePermissions = payload.permissions || {};
         imageState = Array.isArray(activeArticle.images) ? activeArticle.images.slice() : [];
+        ensureCoverImage();
 
         titleEl.textContent = activeArticle.title || "Edit article";
         introEl.textContent = `Status: ${formatStatus(activeArticle.status)}.`;
