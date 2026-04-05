@@ -414,6 +414,8 @@ create table if not exists public.businesses (
   phone text,
   business_email text,
   address text,
+  image_path text,
+  image_url text,
   website_url text,
   hours text,
   notes text,
@@ -426,6 +428,17 @@ create table if not exists public.businesses (
   sort_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
+);
+
+create table if not exists public.business_claim_requests (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid not null references public.businesses(id) on delete cascade,
+  requester_id uuid not null references public.profiles(id) on delete cascade,
+  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected', 'cancelled')),
+  created_at timestamptz not null default now(),
+  reviewed_at timestamptz,
+  reviewed_by uuid references public.profiles(id) on delete set null,
+  unique (business_id, requester_id)
 );
 
 alter table public.articles add column if not exists cover_image_path text;
@@ -446,6 +459,8 @@ alter table public.businesses add column if not exists contact_name text;
 alter table public.businesses add column if not exists phone text;
 alter table public.businesses add column if not exists business_email text;
 alter table public.businesses add column if not exists address text;
+alter table public.businesses add column if not exists image_path text;
+alter table public.businesses add column if not exists image_url text;
 alter table public.businesses add column if not exists website_url text;
 alter table public.businesses add column if not exists hours text;
 alter table public.businesses add column if not exists notes text;
@@ -455,6 +470,18 @@ alter table public.businesses add column if not exists reviewed_by uuid referenc
 alter table public.businesses add column if not exists review_notes text;
 alter table public.businesses add column if not exists published_at timestamptz;
 alter table public.businesses add column if not exists sort_order integer not null default 0;
+alter table public.business_claim_requests add column if not exists reviewed_at timestamptz;
+alter table public.business_claim_requests add column if not exists reviewed_by uuid references public.profiles(id) on delete set null;
+
+do $$
+begin
+  alter table public.business_claim_requests
+    drop constraint if exists business_claim_requests_status_check;
+  alter table public.business_claim_requests
+    add constraint business_claim_requests_status_check
+    check (status in ('pending', 'approved', 'rejected', 'cancelled'));
+exception when duplicate_object then null;
+end $$;
 
 do $$
 begin
@@ -561,6 +588,7 @@ alter table public.historical_photo_people enable row level security;
 alter table public.recommendations enable row level security;
 alter table public.articles enable row level security;
 alter table public.businesses enable row level security;
+alter table public.business_claim_requests enable row level security;
 alter table public.article_images enable row level security;
 alter table public.notifications enable row level security;
 alter table public.direct_threads enable row level security;
@@ -574,6 +602,10 @@ on conflict (id) do nothing;
 
 insert into storage.buckets (id, name, public)
 values ('article-images', 'article-images', true)
+on conflict (id) do nothing;
+
+insert into storage.buckets (id, name, public)
+values ('business-images', 'business-images', true)
 on conflict (id) do nothing;
 
 insert into storage.buckets (id, name, public)
@@ -594,6 +626,24 @@ as $$
         or public.can_review_articles()
         or public.can_publish_articles()
         or author_id = auth.uid()
+      )
+  );
+$$;
+
+create or replace function public.can_manage_business(business_uuid uuid)
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.businesses
+    where id = business_uuid
+      and (
+        claimed_by = auth.uid()
+        or public.can_review_articles()
+        or public.can_publish_articles()
+        or public.is_admin()
       )
   );
 $$;
@@ -763,6 +813,12 @@ using (
   bucket_id = 'article-images'
   and public.can_manage_article(((storage.foldername(name))[1])::uuid)
 );
+
+drop policy if exists "business images public read" on storage.objects;
+create policy "business images public read"
+on storage.objects
+for select
+using (bucket_id = 'business-images');
 
 drop policy if exists "community feed images read" on storage.objects;
 create policy "community feed images read"
@@ -1005,6 +1061,40 @@ create policy "businesses submit public"
 on public.businesses
 for insert
 with check (true);
+
+drop policy if exists "business claim requests read own or admin" on public.business_claim_requests;
+create policy "business claim requests read own or admin"
+on public.business_claim_requests
+for select
+using (
+  requester_id = auth.uid()
+  or public.can_review_articles()
+  or public.can_publish_articles()
+  or public.is_admin()
+);
+
+drop policy if exists "business claim requests submit own" on public.business_claim_requests;
+create policy "business claim requests submit own"
+on public.business_claim_requests
+for insert
+with check (requester_id = auth.uid());
+
+drop policy if exists "business claim requests update own or admin" on public.business_claim_requests;
+create policy "business claim requests update own or admin"
+on public.business_claim_requests
+for update
+using (
+  requester_id = auth.uid()
+  or public.can_review_articles()
+  or public.can_publish_articles()
+  or public.is_admin()
+)
+with check (
+  requester_id = auth.uid()
+  or public.can_review_articles()
+  or public.can_publish_articles()
+  or public.is_admin()
+);
 
 drop policy if exists "article images readable by article visibility" on public.article_images;
 create policy "article images readable by article visibility"

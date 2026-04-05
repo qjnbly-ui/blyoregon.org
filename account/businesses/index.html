@@ -46,6 +46,7 @@
     textarea { min-height:110px; resize:vertical; }
     .actions { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center; }
     .button { appearance:none; border-radius:999px; padding:0.78rem 1rem; font:inherit; font-weight:700; cursor:pointer; border:0; background:var(--forest); color:#fff; }
+    .button.secondary { background:transparent; color:var(--forest); border:1px solid rgba(20,50,39,0.14); }
     .inline-status { min-height:1.2rem; font-size:0.95rem; color:#4c5d54; }
     .warning { color:#8b322d; }
     footer { background:#162f25; color:rgba(255,255,255,0.7); text-align:center; padding:1.5rem; font-size:0.9rem; }
@@ -143,6 +144,7 @@
         grid.append(
           field("Business name", "businessName", business.businessName),
           field("Category", "businessCategory", business.businessCategory),
+          field("Image URL", "imageUrl", business.imageUrl),
           descriptionField,
           field("Contact person", "contactName", business.contactName),
           field("Phone", "phone", business.phone),
@@ -153,16 +155,76 @@
           notesField
         );
 
+        const uploadField = document.createElement("label");
+        uploadField.className = "field full";
+        const uploadLabel = document.createElement("span");
+        uploadLabel.textContent = "Upload image";
+        const uploadInput = document.createElement("input");
+        uploadInput.type = "file";
+        uploadInput.accept = "image/*";
+        uploadInput.name = "imageUpload";
+        uploadField.append(uploadLabel, uploadInput);
+        grid.append(uploadField);
+
         const actions = document.createElement("div");
         actions.className = "actions";
         const button = document.createElement("button");
         button.type = "button";
         button.className = "button";
         button.textContent = "Save changes";
+        const uploadButton = document.createElement("button");
+        uploadButton.type = "button";
+        uploadButton.className = "button secondary";
+        uploadButton.textContent = "Upload image";
         const inlineStatus = document.createElement("div");
         inlineStatus.className = "inline-status";
         inlineStatus.setAttribute("aria-live", "polite");
-        actions.append(button, inlineStatus);
+        actions.append(button, uploadButton, inlineStatus);
+
+        uploadButton.addEventListener("click", async () => {
+          const file = uploadInput.files?.[0];
+          if (!file) {
+            inlineStatus.textContent = "Choose an image first.";
+            return;
+          }
+          const session = await window.siteAuth.getSession().catch(() => null);
+          if (!session) {
+            window.location.replace(loginUrl);
+            return;
+          }
+          inlineStatus.textContent = "Uploading image...";
+          try {
+            const prepareResponse = await fetch("/api/businesses", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + session.access_token,
+              },
+              body: JSON.stringify({
+                action: "prepare_image_upload",
+                id: business.id,
+                filename: file.name,
+              }),
+            });
+            const preparePayload = await prepareResponse.json().catch(() => ({}));
+            if (!prepareResponse.ok || !preparePayload.upload?.path || !preparePayload.upload?.token) {
+              throw new Error(preparePayload.error || "Unable to prepare image upload.");
+            }
+            const client = await window.siteAuth.getClient();
+            const { error } = await client.storage.from("business-images").uploadToSignedUrl(
+              preparePayload.upload.path,
+              preparePayload.upload.token,
+              file,
+              { cacheControl: "3600", upsert: false }
+            );
+            if (error) throw new Error(error.message || "Unable to upload image.");
+            business.imagePath = preparePayload.upload.path;
+            grid.querySelector('[name="imageUrl"]').value = preparePayload.upload.publicUrl;
+            inlineStatus.textContent = "Image uploaded. Save changes to keep it.";
+          } catch (error) {
+            inlineStatus.textContent = error.message || "Unable to upload image.";
+          }
+        });
 
         button.addEventListener("click", async () => {
           const session = await window.siteAuth.getSession().catch(() => null);
@@ -184,6 +246,8 @@
                 action: "save",
                 businessName: grid.querySelector('[name="businessName"]').value.trim(),
                 businessCategory: grid.querySelector('[name="businessCategory"]').value.trim(),
+                imagePath: business.imagePath || "",
+                imageUrl: grid.querySelector('[name="imageUrl"]').value.trim(),
                 description: grid.querySelector('[name="description"]').value.trim(),
                 contactName: grid.querySelector('[name="contactName"]').value.trim(),
                 phone: grid.querySelector('[name="phone"]').value.trim(),

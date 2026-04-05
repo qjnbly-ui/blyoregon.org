@@ -75,6 +75,15 @@
     .meta, .status-copy { color: #4c5d54; }
     .warning { color: #8b322d; }
     .list { display: grid; gap: 1rem; margin-top: 1rem; }
+    .claim-list { display: grid; gap: 0.8rem; margin-top: 1rem; }
+    .claim-item {
+      border: 1px solid rgba(20,50,39,0.1);
+      border-radius: 18px;
+      padding: 0.95rem 1rem;
+      background: rgba(255,255,255,0.72);
+      display: grid;
+      gap: 0.7rem;
+    }
     .item {
       border-top: 1px solid rgba(20,50,39,0.12);
       padding-top: 1rem;
@@ -148,6 +157,10 @@
       background: #143227;
       color: #fff;
     }
+    .button.secondary {
+      background: transparent;
+      color: var(--forest);
+    }
     .button.warn {
       border-color: rgba(139, 50, 45, 0.2);
       color: #8b322d;
@@ -188,6 +201,11 @@
     </section>
 
     <section class="card">
+      <h2>Claim requests</h2>
+      <div id="claim-request-list" class="claim-list"></div>
+    </section>
+
+    <section class="card">
       <h2>Submitted and published listings</h2>
       <div id="review-list" class="list"></div>
       <p id="page-status" class="status-copy" aria-live="polite"></p>
@@ -215,6 +233,7 @@
     ];
 
     const listEl = document.getElementById("review-list");
+    const claimListEl = document.getElementById("claim-request-list");
     const statusEl = document.getElementById("page-status");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
 
@@ -306,6 +325,7 @@
           buildField("Business name", "businessName", business.businessName),
           buildField("Category", "businessCategory", business.businessCategory, { type: "select" }),
           buildField("Claimed account email", "claimedAccountEmail", business.claimedByEmail || ""),
+          buildField("Image URL", "imageUrl", business.imageUrl || ""),
           buildField("Description", "description", business.description, { type: "textarea", full: true }),
           buildField("Contact person", "contactName", business.contactName),
           buildField("Phone", "phone", business.phone),
@@ -318,9 +338,18 @@
           buildField("Review notes", "reviewNotes", business.reviewNotes, { type: "textarea", full: true })
         );
 
+        const uploadField = buildField("Upload image", "imageUpload", "");
+        uploadField.classList.add("full");
+        const uploadInput = uploadField.querySelector("input");
+        uploadInput.type = "file";
+        uploadInput.accept = "image/*";
+        uploadInput.value = "";
+        grid.append(uploadField);
+
         const actions = document.createElement("div");
         actions.className = "actions";
         actions.append(
+          createActionButton("Upload image", "upload_image", "secondary"),
           createActionButton("Save", "save"),
           createActionButton("Request changes", "request_changes"),
           createActionButton(business.status === "published" ? "Update live listing" : "Publish", "publish", "primary"),
@@ -340,12 +369,55 @@
               return;
             }
 
+            if (button.dataset.action === "upload_image") {
+              const file = uploadInput.files?.[0];
+              if (!file) {
+                inlineStatus.textContent = "Choose an image first.";
+                return;
+              }
+              inlineStatus.textContent = "Uploading image...";
+              try {
+                const prepareResponse = await fetch("/api/businesses", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + session.access_token,
+                  },
+                  body: JSON.stringify({
+                    action: "prepare_image_upload",
+                    id: business.id,
+                    filename: file.name,
+                  }),
+                });
+                const preparePayload = await prepareResponse.json().catch(() => ({}));
+                if (!prepareResponse.ok || !preparePayload.upload?.path || !preparePayload.upload?.token) {
+                  throw new Error(preparePayload.error || "Unable to prepare image upload.");
+                }
+                const client = await window.siteAuth.getClient();
+                const { error } = await client.storage.from("business-images").uploadToSignedUrl(
+                  preparePayload.upload.path,
+                  preparePayload.upload.token,
+                  file,
+                  { cacheControl: "3600", upsert: false }
+                );
+                if (error) throw new Error(error.message || "Unable to upload image.");
+                business.imagePath = preparePayload.upload.path;
+                form.querySelector('[name="imageUrl"]').value = preparePayload.upload.publicUrl;
+                inlineStatus.textContent = "Image uploaded. Save or publish to keep it.";
+              } catch (error) {
+                inlineStatus.textContent = error.message || "Unable to upload image.";
+              }
+              return;
+            }
+
             const payload = {
               id: business.id,
               action: button.dataset.action,
               businessName: form.querySelector('[name="businessName"]').value.trim(),
               businessCategory: form.querySelector('[name="businessCategory"]').value,
               claimedAccountEmail: form.querySelector('[name="claimedAccountEmail"]').value.trim(),
+              imagePath: business.imagePath || "",
+              imageUrl: form.querySelector('[name="imageUrl"]').value.trim(),
               description: form.querySelector('[name="description"]').value.trim(),
               contactName: form.querySelector('[name="contactName"]').value.trim(),
               phone: form.querySelector('[name="phone"]').value.trim(),
@@ -386,6 +458,73 @@
       });
     }
 
+    function renderClaimRequests(claimRequests, businesses) {
+      claimListEl.innerHTML = "";
+      const pending = (Array.isArray(claimRequests) ? claimRequests : []).filter((request) => request.status === "pending");
+      if (!pending.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "No pending claim requests.";
+        claimListEl.appendChild(empty);
+        return;
+      }
+
+      pending.forEach((request) => {
+        const business = (Array.isArray(businesses) ? businesses : []).find((entry) => entry.id === request.businessId);
+        const item = document.createElement("article");
+        item.className = "claim-item";
+
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = business?.businessName || "Business listing";
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = `${request.requesterName || request.requesterEmail || "Unknown member"} is requesting ownership.${business?.claimedByEmail ? " Current claimed account: " + business.claimedByEmail : ""}`;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        const approveButton = createActionButton("Approve claim", "approve_claim", "primary");
+        const rejectButton = createActionButton("Reject", "reject_claim", "warn");
+        const inlineStatus = document.createElement("div");
+        inlineStatus.className = "inline-status";
+        inlineStatus.setAttribute("aria-live", "polite");
+        actions.append(approveButton, rejectButton, inlineStatus);
+
+        [approveButton, rejectButton].forEach((button) => {
+          button.addEventListener("click", async () => {
+            const session = await window.siteAuth.getSession().catch(() => null);
+            if (!session) {
+              window.location.replace(loginUrl);
+              return;
+            }
+            inlineStatus.textContent = "Saving...";
+            try {
+              const response = await fetch("/api/businesses", {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + session.access_token,
+                },
+                body: JSON.stringify({
+                  action: button.dataset.action,
+                  claimRequestId: request.id,
+                }),
+              });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok) throw new Error(result.error || "Unable to update claim request.");
+              inlineStatus.textContent = "Saved.";
+              loadPage();
+            } catch (error) {
+              inlineStatus.textContent = error.message || "Unable to update claim request.";
+            }
+          });
+        });
+
+        item.append(title, meta, actions);
+        claimListEl.appendChild(item);
+      });
+    }
+
     async function loadPage() {
       try {
         const session = await window.siteAuth.getSession();
@@ -409,7 +548,9 @@
           throw new Error(payload.error || "Unable to load the business queue.");
         }
 
-        renderBusinesses(Array.isArray(payload.businesses) ? payload.businesses : []);
+        const businesses = Array.isArray(payload.businesses) ? payload.businesses : [];
+        renderClaimRequests(Array.isArray(payload.claimRequests) ? payload.claimRequests : [], businesses);
+        renderBusinesses(businesses);
         setStatus("");
       } catch (error) {
         setStatus(error.message || "Unable to load the business queue.", true);

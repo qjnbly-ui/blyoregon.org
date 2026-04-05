@@ -292,6 +292,23 @@
     .biz-meta { list-style: none; padding: 0; margin: 0.8em 0 0; color: #43524a; }
     .biz-meta li { margin: 0.25em 0; }
     .biz-link { display: inline-block; margin-top: 0.6em; color: var(--forest); font-weight: bold; text-decoration: none; }
+    .biz-claim-action {
+      display: inline-block;
+      margin-top: 0.75rem;
+      border: 1px solid rgba(20, 50, 39, 0.16);
+      border-radius: 999px;
+      padding: 0.7rem 1rem;
+      background: transparent;
+      color: var(--forest);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      width: fit-content;
+    }
+    .biz-claim-action:disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
 
     .category { margin-top: 2.5rem; }
     .category h2 {
@@ -302,6 +319,36 @@
     }
 
     .category p.note { margin: 0.25rem 0 1rem; color: #556; }
+
+    .directory-callout {
+      margin: 1.2rem 0 2rem;
+      padding: 1.1rem 1.2rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20, 50, 39, 0.12);
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 10px 24px rgba(12, 26, 20, 0.08);
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .directory-callout h3 {
+      margin: 0;
+      color: var(--forest);
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.2rem;
+    }
+
+    .directory-callout p {
+      margin: 0;
+      color: #43524a;
+      line-height: 1.6;
+    }
+
+    .directory-callout a {
+      color: var(--forest);
+      font-weight: 800;
+      text-decoration: none;
+    }
 
     .cta {
       margin-top: 2rem;
@@ -658,6 +705,11 @@
       <p>
         A place where all local businesses and services can equally advertise.
       </p>
+      <div class="directory-callout">
+        <h3>See your business listed here?</h3>
+        <p>Create an account or sign in, then use the claim button next to your listing. An admin can approve the request and link the business to your account so you can edit it yourself.</p>
+        <p><a href="/login/?next=%2Fbusinesses%2F">Create an account or sign in</a> to request ownership of a listing already on the page.</p>
+      </div>
       <div id="business-directory" hidden></div>
       <div id="legacy-business-directory">
 
@@ -1365,7 +1417,7 @@
               <button class="cta-submit" id="business-submit" type="submit">Send business listing</button>
               <div class="cta-status" id="business-status" aria-live="polite"></div>
             </div>
-            <div class="cta-note">This sends the listing details to the Bly site review queue before anything is published. If you are signed in and select “Yes,” the listing is automatically tied to your account for future updates.</div>
+            <div class="cta-note">Use this form for new listings. For an existing listing, sign in and use the claim button next to that business. If you are signed in and select “Yes,” a new listing is automatically tied to your account for future updates.</div>
           </form>
         </div>
       </div>
@@ -1426,7 +1478,7 @@
 
         const image = document.createElement("img");
         image.alt = business.businessName || "Business listing";
-        image.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Business listing</text></svg>";
+        image.src = business.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Business listing</text></svg>";
 
         const content = document.createElement("div");
         content.className = "biz-content";
@@ -1461,6 +1513,63 @@
           link.rel = "noopener noreferrer";
           link.textContent = "Visit Website";
           content.appendChild(link);
+        }
+
+        if (business.claimedBy) {
+          const claimed = document.createElement("p");
+          claimed.className = "note";
+          claimed.textContent = "This listing is managed through a Bly account.";
+          content.appendChild(claimed);
+        } else if (business.claimRequestedByViewer) {
+          const requested = document.createElement("button");
+          requested.className = "biz-claim-action";
+          requested.type = "button";
+          requested.disabled = true;
+          requested.textContent = "Claim requested";
+          content.appendChild(requested);
+        } else if (business.canRequestClaim) {
+          const claimButton = document.createElement("button");
+          claimButton.className = "biz-claim-action";
+          claimButton.type = "button";
+          claimButton.textContent = "Request claim";
+          claimButton.addEventListener("click", async () => {
+            claimButton.disabled = true;
+            claimButton.textContent = "Sending...";
+            try {
+              const session = await window.siteAuth?.getSession?.().catch(() => null);
+              if (!session?.access_token) {
+                window.location.href = "/login/?next=" + encodeURIComponent("/businesses/");
+                return;
+              }
+              const response = await fetch("/api/businesses", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({
+                  action: "request_claim",
+                  businessId: business.id,
+                }),
+              });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok) {
+                throw new Error(result.error || "Unable to request claim.");
+              }
+              claimButton.textContent = "Claim requested";
+            } catch (error) {
+              claimButton.disabled = false;
+              claimButton.textContent = "Request claim";
+              window.alert(error.message || "Unable to request claim.");
+            }
+          });
+          content.appendChild(claimButton);
+        } else {
+          const signIn = document.createElement("a");
+          signIn.className = "biz-link";
+          signIn.href = "/login/?next=" + encodeURIComponent("/businesses/");
+          signIn.textContent = "Sign in to request claim";
+          content.appendChild(signIn);
         }
 
         if (business.notes) {
@@ -1558,6 +1667,7 @@
             phone: form.phone.value.trim(),
             business_email: form.business_email.value.trim(),
             address: form.address.value.trim(),
+            image_url: "",
             website: form.website.value.trim(),
             hours: form.hours.value.trim(),
             notes: form.notes.value.trim(),

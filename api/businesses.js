@@ -36,6 +36,10 @@ function getServiceHeaders() {
   };
 }
 
+function getPublicApiKey() {
+  return getServiceRoleKey() || getAnonKey();
+}
+
 function getHeaderValue(req, name) {
   const value = req.headers?.[name];
   return Array.isArray(value) ? value[0] : value;
@@ -138,6 +142,29 @@ function normalizeBusinessCategory(value) {
   return match || raw;
 }
 
+function sanitizeFilename(value) {
+  return String(value || "image")
+    .replace(/[^a-z0-9._-]+/gi, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function businessImagePublicUrl(path) {
+  const cleanPath = String(path || "").trim().replace(/^\/+/, "");
+  if (!cleanPath) return "";
+  return `${getSupabaseUrl()}/storage/v1/object/public/business-images/${cleanPath.split("/").map((part) => encodeURIComponent(part)).join("/")}`;
+}
+
+function extractBusinessImagePath(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  const directPath = raw.match(/^business-images\/(.+)$/i)?.[1];
+  if (directPath) return directPath.replace(/^\/+/, "");
+  const publicPath = raw.match(/\/storage\/v1\/object\/public\/business-images\/(.+)$/i)?.[1];
+  if (publicPath) return decodeURIComponent(publicPath);
+  return "";
+}
+
 function serializeBusiness(row) {
   return {
     id: row.id,
@@ -154,6 +181,8 @@ function serializeBusiness(row) {
     phone: row.phone || "",
     businessEmail: row.business_email || "",
     address: row.address || "",
+    imagePath: row.image_path || "",
+    imageUrl: row.image_url || "",
     websiteUrl: row.website_url || "",
     hours: row.hours || "",
     notes: row.notes || "",
@@ -205,11 +234,65 @@ async function fetchBusinesses(params) {
 
 async function fetchBusinessById(id) {
   const rows = await fetchBusinesses({
-    select: "id,author_id,claimed_by,submitter_name,submitter_email,business_name,business_category,description,contact_name,phone,business_email,address,website_url,hours,notes,submitted_at,reviewed_at,reviewed_by,review_notes,status,published_at,sort_order,created_at,updated_at",
+    select: "id,author_id,claimed_by,submitter_name,submitter_email,business_name,business_category,description,contact_name,phone,business_email,address,image_path,image_url,website_url,hours,notes,submitted_at,reviewed_at,reviewed_by,review_notes,status,published_at,sort_order,created_at,updated_at",
     id: `eq.${id}`,
     limit: "1",
   });
   return rows[0] || null;
+}
+
+async function fetchBusinessClaimRequests(params) {
+  const query = new URLSearchParams(params);
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/business_claim_requests?${query.toString()}`, {
+    headers: getServiceHeaders(),
+  });
+  if (!response.ok) throw new Error("Unable to load business claim requests");
+  const rows = await response.json().catch(() => []);
+  return Array.isArray(rows) ? rows : [];
+}
+
+async function fetchBusinessClaimRequestById(id) {
+  const rows = await fetchBusinessClaimRequests({
+    select: "id,business_id,requester_id,status,created_at,reviewed_at,reviewed_by",
+    id: `eq.${id}`,
+    limit: "1",
+  });
+  return rows[0] || null;
+}
+
+async function insertBusinessClaimRequest(payload) {
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/business_claim_requests`, {
+    method: "POST",
+    headers: {
+      ...getServiceHeaders(),
+      Prefer: "return=representation,resolution=merge-duplicates",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    throw new Error(result?.message || result?.error || "Unable to create claim request");
+  }
+  const rows = await response.json().catch(() => []);
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
+}
+
+async function updateBusinessClaimRequest(id, payload) {
+  const query = new URLSearchParams({ id: `eq.${id}`, select: "*" });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/business_claim_requests?${query.toString()}`, {
+    method: "PATCH",
+    headers: {
+      ...getServiceHeaders(),
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    throw new Error(result?.message || result?.error || "Unable to update claim request");
+  }
+  const rows = await response.json().catch(() => []);
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
 async function insertBusiness(payload) {
@@ -247,6 +330,48 @@ async function updateBusiness(id, payload) {
   return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
+async function deleteBusinessImagesFromStorage(paths) {
+  const uniquePaths = Array.from(new Set((Array.isArray(paths) ? paths : []).map((path) => String(path || "").trim().replace(/^\/+/, "")).filter(Boolean)));
+  if (!uniquePaths.length) return;
+  const apiKey = getPublicApiKey();
+  if (!apiKey) return;
+  const response = await fetch(`${getSupabaseUrl()}/storage/v1/object/business-images`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: apiKey,
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({ prefixes: uniquePaths }),
+  });
+  if (!response.ok) throw new Error("Unable to remove business images from storage");
+}
+
+async function createBusinessImageUploadToken(path) {
+  const cleanPath = String(path || "").trim().replace(/^\/+/, "");
+  const headers = getServiceHeaders();
+  if (!cleanPath) throw new Error("Unable to prepare business image upload");
+  const response = await fetch(`${getSupabaseUrl()}/storage/v1/object/upload/sign/business-images/${cleanPath}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({}),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.message || payload.error || "Unable to prepare business image upload");
+  }
+  const signedUrl = String(payload.url || payload.signedURL || "").trim();
+  const parsedToken = signedUrl ? new URL(signedUrl, getSupabaseUrl()).searchParams.get("token") : "";
+  const token = String(payload.token || parsedToken || "").trim();
+  if (!token) throw new Error("Missing upload token");
+  return {
+    path: cleanPath,
+    token,
+    publicUrl: businessImagePublicUrl(cleanPath),
+    uploadUrl: signedUrl || `${getSupabaseUrl()}/storage/v1/object/upload/sign/business-images/${cleanPath}?token=${encodeURIComponent(token)}`,
+  };
+}
+
 async function fetchBusinessModerators() {
   const query = new URLSearchParams({
     select: "id,notify_admin_article_queue_internal,role,can_review_articles,can_publish_articles",
@@ -258,6 +383,29 @@ async function fetchBusinessModerators() {
   if (!response.ok) return [];
   const rows = await response.json().catch(() => []);
   return Array.isArray(rows) ? rows : [];
+}
+
+async function attachRequesterDetails(rows) {
+  const ids = Array.from(new Set((Array.isArray(rows) ? rows : []).map((row) => String(row?.requester_id || "").trim()).filter(Boolean)));
+  if (!ids.length) return rows;
+  const query = new URLSearchParams({
+    select: "id,email,display_name",
+    id: `in.(${ids.map((id) => `"${id}"`).join(",")})`,
+  });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/profiles?${query.toString()}`, {
+    headers: getServiceHeaders(),
+  });
+  if (!response.ok) return rows;
+  const profiles = await response.json().catch(() => []);
+  const map = new Map((Array.isArray(profiles) ? profiles : []).map((profile) => [String(profile.id), profile]));
+  return rows.map((row) => {
+    const profile = map.get(String(row.requester_id || ""));
+    return {
+      ...row,
+      requester_email: profile?.email || "",
+      requester_name: profile?.display_name || "",
+    };
+  });
 }
 
 async function insertNotifications(rows) {
@@ -297,6 +445,27 @@ async function notifyModeratorsOfSubmission(business, actorId = null) {
   await insertNotifications(notifications);
 }
 
+async function notifyModeratorsOfClaimRequest(business, requesterId) {
+  const moderators = await fetchBusinessModerators();
+  const notifications = moderators
+    .filter((row) => row?.notify_admin_article_queue_internal !== false)
+    .map((row) => ({
+      user_id: row.id,
+      actor_id: requesterId || null,
+      type: "business_claim_requested",
+      title: "Business claim request waiting in review",
+      body: `${business.business_name || "A business listing"} has a new ownership request.`,
+      link: "/account/businesses/review/",
+      entity_type: "business",
+      entity_id: business.id,
+      metadata: {
+        status: "pending",
+        claimRequest: true,
+      },
+    }));
+  await insertNotifications(notifications);
+}
+
 module.exports = async (req, res) => {
   try {
     const url = new URL(req.url, "http://localhost");
@@ -319,11 +488,26 @@ module.exports = async (req, res) => {
         }
 
         const rows = await attachClaimProfileDetails(await fetchBusinesses({
-          select: "id,author_id,claimed_by,submitter_name,submitter_email,business_name,business_category,description,contact_name,phone,business_email,address,website_url,hours,notes,submitted_at,reviewed_at,reviewed_by,review_notes,status,published_at,sort_order,created_at,updated_at",
+          select: "id,author_id,claimed_by,submitter_name,submitter_email,business_name,business_category,description,contact_name,phone,business_email,address,image_path,image_url,website_url,hours,notes,submitted_at,reviewed_at,reviewed_by,review_notes,status,published_at,sort_order,created_at,updated_at",
           order: "status.asc,published_at.desc.nullslast,submitted_at.desc.nullslast,updated_at.desc",
+        }));
+        const claimRequests = await attachRequesterDetails(await fetchBusinessClaimRequests({
+          select: "id,business_id,requester_id,status,created_at,reviewed_at,reviewed_by",
+          order: "created_at.desc",
         }));
         sendJson(res, 200, {
           businesses: rows.map(serializeBusiness),
+          claimRequests: claimRequests.map((row) => ({
+            id: row.id,
+            businessId: row.business_id,
+            requesterId: row.requester_id,
+            requesterEmail: row.requester_email || "",
+            requesterName: row.requester_name || "",
+            status: row.status || "pending",
+            createdAt: row.created_at || null,
+            reviewedAt: row.reviewed_at || null,
+            reviewedBy: row.reviewed_by || null,
+          })),
           permissions,
         });
         return;
@@ -337,7 +521,7 @@ module.exports = async (req, res) => {
         }
 
         const rows = await attachClaimProfileDetails(await fetchBusinesses({
-          select: "id,author_id,claimed_by,submitter_name,submitter_email,business_name,business_category,description,contact_name,phone,business_email,address,website_url,hours,notes,submitted_at,reviewed_at,reviewed_by,review_notes,status,published_at,sort_order,created_at,updated_at",
+          select: "id,author_id,claimed_by,submitter_name,submitter_email,business_name,business_category,description,contact_name,phone,business_email,address,image_path,image_url,website_url,hours,notes,submitted_at,reviewed_at,reviewed_by,review_notes,status,published_at,sort_order,created_at,updated_at",
           claimed_by: `eq.${session.id}`,
           order: "published_at.desc.nullslast,business_name.asc",
         }));
@@ -347,13 +531,27 @@ module.exports = async (req, res) => {
         return;
       }
 
+      const { session } = await authenticateRequest(req);
       const rows = await fetchBusinesses({
-        select: "id,business_name,business_category,description,contact_name,phone,business_email,address,website_url,hours,notes,status,published_at,sort_order,created_at,updated_at",
+        select: "id,claimed_by,business_name,business_category,description,contact_name,phone,business_email,address,image_path,image_url,website_url,hours,notes,status,published_at,sort_order,created_at,updated_at",
         status: "eq.published",
         order: "business_category.asc,sort_order.asc,business_name.asc",
       });
+      let requestedBusinessIds = new Set();
+      if (session?.id) {
+        const ownRequests = await fetchBusinessClaimRequests({
+          select: "business_id,status",
+          requester_id: `eq.${session.id}`,
+          status: "eq.pending",
+        }).catch(() => []);
+        requestedBusinessIds = new Set((Array.isArray(ownRequests) ? ownRequests : []).map((row) => String(row.business_id || "")));
+      }
       sendJson(res, 200, {
-        businesses: rows.map(serializeBusiness),
+        businesses: rows.map((row) => ({
+          ...serializeBusiness(row),
+          canRequestClaim: Boolean(session?.id),
+          claimRequestedByViewer: requestedBusinessIds.has(String(row.id || "")),
+        })),
         categories: CATEGORY_ORDER,
       });
       return;
@@ -362,6 +560,107 @@ module.exports = async (req, res) => {
     if (req.method === "POST") {
       const { session } = await authenticateRequest(req);
       const body = await parseJsonBody(req);
+      const requestAction = String(body?.action || "").trim().toLowerCase();
+
+      if (requestAction === "prepare_image_upload") {
+        if (!session) {
+          sendJson(res, 401, { error: "Unauthorized" });
+          return;
+        }
+        const targetBusinessId = String(body?.id || "").trim();
+        if (!targetBusinessId) {
+          sendJson(res, 400, { error: "Missing business id" });
+          return;
+        }
+        const profile = await fetchProfile(session.id);
+        const permissions = getReviewPermissions(profile);
+        const existing = await fetchBusinessById(targetBusinessId);
+        if (!existing) {
+          sendJson(res, 404, { error: "Business listing not found" });
+          return;
+        }
+        const isClaimedOwner = existing.claimed_by === session.id;
+        const canModerate = permissions.canReviewBusinesses || permissions.canPublishBusinesses || permissions.admin;
+        if (!(isClaimedOwner || canModerate)) {
+          sendJson(res, 403, { error: "Forbidden" });
+          return;
+        }
+        const rawFilename = String(body?.filename || "image").trim();
+        const extension = (rawFilename.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]+/g, "");
+        const basename = sanitizeFilename(rawFilename.replace(/\.[^.]+$/, "")) || "image";
+        const path = `${existing.id}/${Date.now()}-${basename}.${extension || "jpg"}`;
+        const upload = await createBusinessImageUploadToken(path);
+        sendJson(res, 200, { ok: true, upload });
+        return;
+      }
+
+      if (requestAction === "request_claim") {
+        if (!session) {
+          sendJson(res, 401, { error: "Unauthorized" });
+          return;
+        }
+        const targetBusinessId = String(body?.businessId || "").trim();
+        if (!targetBusinessId) {
+          sendJson(res, 400, { error: "Missing business id" });
+          return;
+        }
+        const business = await fetchBusinessById(targetBusinessId);
+        if (!business) {
+          sendJson(res, 404, { error: "Business listing not found" });
+          return;
+        }
+        if (business.claimed_by) {
+          sendJson(res, 409, { error: "This listing is already claimed." });
+          return;
+        }
+        const existingRequests = await fetchBusinessClaimRequests({
+          select: "id,business_id,requester_id,status,created_at,reviewed_at,reviewed_by",
+          business_id: `eq.${targetBusinessId}`,
+          requester_id: `eq.${session.id}`,
+          limit: "1",
+        }).catch(() => []);
+        let claimRequest = Array.isArray(existingRequests) && existingRequests.length ? existingRequests[0] : null;
+        if (claimRequest?.status === "pending") {
+          sendJson(res, 200, {
+            ok: true,
+            claimRequest: {
+              id: claimRequest.id,
+              businessId: claimRequest.business_id,
+              requesterId: claimRequest.requester_id,
+              status: claimRequest.status,
+            },
+          });
+          return;
+        }
+        if (claimRequest) {
+          claimRequest = await updateBusinessClaimRequest(claimRequest.id, {
+            status: "pending",
+            reviewed_at: null,
+            reviewed_by: null,
+          });
+        } else {
+          claimRequest = await insertBusinessClaimRequest({
+            business_id: targetBusinessId,
+            requester_id: session.id,
+            status: "pending",
+          });
+        }
+        try {
+          await notifyModeratorsOfClaimRequest(business, session.id);
+        } catch (error) {
+          console.error("Business claim notification failed:", error);
+        }
+        sendJson(res, 200, {
+          ok: true,
+          claimRequest: claimRequest ? {
+            id: claimRequest.id,
+            businessId: claimRequest.business_id,
+            requesterId: claimRequest.requester_id,
+            status: claimRequest.status,
+          } : null,
+        });
+        return;
+      }
 
       const submitterName = normalizeText(body?.submitter_name, 120);
       const submitterEmail = normalizeText(body?.submitter_email, 200);
@@ -387,6 +686,7 @@ module.exports = async (req, res) => {
         phone: normalizeText(body?.phone, 80) || null,
         business_email: normalizeText(body?.business_email, 200) || null,
         address: normalizeText(body?.address, 300) || null,
+        image_url: normalizeText(body?.image_url, 1000) || null,
         website_url: normalizeText(body?.website, 500) || null,
         hours: normalizeText(body?.hours, 200) || null,
         notes: normalizeText(body?.notes, 1000) || null,
@@ -417,12 +717,64 @@ module.exports = async (req, res) => {
 
       const profile = await fetchProfile(session.id);
       const permissions = getReviewPermissions(profile);
-      if (!(permissions.canReviewBusinesses || permissions.canPublishBusinesses || permissions.admin)) {
-        sendJson(res, 403, { error: "Forbidden" });
+      const body = await parseJsonBody(req);
+      const requestAction = String(body?.action || "").trim().toLowerCase();
+
+      if (requestAction === "approve_claim" || requestAction === "reject_claim") {
+        if (!(permissions.canReviewBusinesses || permissions.canPublishBusinesses || permissions.admin)) {
+          sendJson(res, 403, { error: "Forbidden" });
+          return;
+        }
+        const claimRequestId = String(body?.claimRequestId || "").trim();
+        if (!claimRequestId) {
+          sendJson(res, 400, { error: "Missing claim request id" });
+          return;
+        }
+        const claimRequest = await fetchBusinessClaimRequestById(claimRequestId);
+        if (!claimRequest) {
+          sendJson(res, 404, { error: "Claim request not found" });
+          return;
+        }
+        const business = await fetchBusinessById(claimRequest.business_id);
+        if (!business) {
+          sendJson(res, 404, { error: "Business listing not found" });
+          return;
+        }
+        if (requestAction === "approve_claim") {
+          await updateBusiness(business.id, {
+            claimed_by: claimRequest.requester_id,
+            updated_at: new Date().toISOString(),
+          });
+          await updateBusinessClaimRequest(claimRequest.id, {
+            status: "approved",
+            reviewed_at: new Date().toISOString(),
+            reviewed_by: session.id,
+          });
+          const competingRequests = await fetchBusinessClaimRequests({
+            select: "id",
+            business_id: `eq.${business.id}`,
+            status: "eq.pending",
+          }).catch(() => []);
+          await Promise.all(
+            (Array.isArray(competingRequests) ? competingRequests : [])
+              .filter((row) => String(row.id || "") && row.id !== claimRequest.id)
+              .map((row) => updateBusinessClaimRequest(row.id, {
+                status: "rejected",
+                reviewed_at: new Date().toISOString(),
+                reviewed_by: session.id,
+              }).catch(() => null))
+          );
+        } else {
+          await updateBusinessClaimRequest(claimRequest.id, {
+            status: "rejected",
+            reviewed_at: new Date().toISOString(),
+            reviewed_by: session.id,
+          });
+        }
+        sendJson(res, 200, { ok: true });
         return;
       }
 
-      const body = await parseJsonBody(req);
       const targetId = String(body?.id || businessId || "").trim();
       if (!targetId) {
         sendJson(res, 400, { error: "Missing business id" });
@@ -437,7 +789,7 @@ module.exports = async (req, res) => {
 
       const isClaimedOwner = existing.claimed_by === session.id;
 
-      const action = String(body?.action || "save").trim().toLowerCase();
+      const action = requestAction || "save";
       const claimedAccountEmail = normalizeText(body?.claimedAccountEmail, 200).toLowerCase();
       let claimedProfile = null;
       if (claimedAccountEmail) {
@@ -470,6 +822,20 @@ module.exports = async (req, res) => {
         sort_order: Number.isFinite(Number(body?.sortOrder)) ? Number(body.sortOrder) : Number(existing.sort_order || 0),
         updated_at: new Date().toISOString(),
       };
+
+      const submittedImageUrl = normalizeText(body?.imageUrl, 1000);
+      const explicitImagePath = normalizeText(body?.imagePath, 1000);
+      const derivedImagePath = extractBusinessImagePath(submittedImageUrl);
+      const nextImagePath = derivedImagePath || (
+        explicitImagePath && submittedImageUrl === businessImagePublicUrl(explicitImagePath)
+          ? explicitImagePath
+          : ""
+      );
+
+      Object.assign(payload, {
+        image_path: nextImagePath || null,
+        image_url: submittedImageUrl || null,
+      });
 
       if (canModerate) {
         payload.claimed_by = claimedProfile ? claimedProfile.id : (body?.claimedAccountEmail === "" ? null : existing.claimed_by);
@@ -524,7 +890,20 @@ module.exports = async (req, res) => {
         payload.published_at = existing.published_at || null;
       }
 
+      if (payload.image_path && !payload.image_url) {
+        payload.image_url = businessImagePublicUrl(payload.image_path);
+      }
+
+      const previousImagePath = String(existing.image_path || "").trim();
+      const persistedImagePath = String(payload.image_path || "").trim();
       const updated = await updateBusiness(targetId, payload);
+      if (previousImagePath && previousImagePath !== persistedImagePath) {
+        try {
+          await deleteBusinessImagesFromStorage([previousImagePath]);
+        } catch (error) {
+          console.error(`Business image cleanup failed for ${targetId}:`, error);
+        }
+      }
       sendJson(res, 200, {
         ok: true,
         business: updated ? serializeBusiness(updated) : null,
