@@ -260,10 +260,13 @@
     const composerBodyEl = document.getElementById("composer-body");
     const composerSendEl = document.getElementById("composer-send");
     const statusEl = document.getElementById("page-status");
+    const POLL_INTERVAL_MS = 5000;
     let activeSession = null;
     let activeRecipientId = requestedUserId;
     let activeThreadId = requestedThreadId;
     let threadState = [];
+    let pollingTimer = null;
+    let loadInFlight = false;
 
     function setStatus(message, isError = false) {
       statusEl.classList.toggle("warning", isError);
@@ -284,6 +287,21 @@
       if (activeRecipientId) next.searchParams.set("with", activeRecipientId);
       else next.searchParams.delete("with");
       window.history.replaceState({}, "", next.pathname + next.search);
+    }
+
+    function startPolling() {
+      stopPolling();
+      pollingTimer = window.setInterval(() => {
+        if (document.hidden || loadInFlight) return;
+        loadPage({ silent: true });
+      }, POLL_INTERVAL_MS);
+    }
+
+    function stopPolling() {
+      if (pollingTimer) {
+        window.clearInterval(pollingTimer);
+        pollingTimer = null;
+      }
     }
 
     function renderAvatar(profile) {
@@ -398,10 +416,13 @@
       messagesListEl.scrollTop = messagesListEl.scrollHeight;
     }
 
-    async function loadPage() {
+    async function loadPage(options = {}) {
+      if (loadInFlight) return;
+      loadInFlight = true;
       try {
         activeSession = await window.siteAuth.getSession();
         if (!activeSession) {
+          stopPolling();
           window.location.replace(loginUrl);
           return;
         }
@@ -430,7 +451,8 @@
         updateUrl();
         renderThreads(threadState);
         renderMessages(payload.activeThread || null, Array.isArray(payload.messages) ? payload.messages : []);
-        setStatus("");
+        if (!options.silent) setStatus("");
+        startPolling();
 
         if (payload.activeThread?.id) {
           await fetch("/api/messages", {
@@ -446,7 +468,9 @@
           }).catch(() => null);
         }
       } catch (error) {
-        setStatus(error.message || "Unable to load messages.", true);
+        if (!options.silent) setStatus(error.message || "Unable to load messages.", true);
+      } finally {
+        loadInFlight = false;
       }
     }
 
@@ -492,6 +516,14 @@
         composerSendEl.disabled = false;
       }
     });
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        loadPage({ silent: true });
+      }
+    });
+
+    window.addEventListener("beforeunload", stopPolling);
 
     loadPage();
   </script>
