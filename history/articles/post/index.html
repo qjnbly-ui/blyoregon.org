@@ -245,15 +245,14 @@
         .replace(/\*([^*]+)\*/g, "<em>$1</em>");
     }
 
-    function renderBody(markdown) {
+    function renderMarkdownBody(markdown) {
       const source = String(markdown || "").trim();
       if (!source) {
-        bodyEl.innerHTML = "<p>This article does not have body content yet.</p>";
-        return;
+        return "<p>This article does not have body content yet.</p>";
       }
 
       const blocks = source.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
-      bodyEl.innerHTML = blocks.map((block) => {
+      return blocks.map((block) => {
         const lines = block.split("\n").map((line) => line.trimEnd());
         if (lines.every((line) => line.startsWith("1. "))) {
           return `<ol>${lines.map((line) => `<li>${renderInlineMarkup(line.replace(/^1\.\s+/, ""))}</li>`).join("")}</ol>`;
@@ -268,6 +267,55 @@
         if (block.startsWith("# ")) return `<h2>${renderInlineMarkup(block.slice(2))}</h2>`;
         return `<p>${lines.map((line) => renderInlineMarkup(line)).join("<br>")}</p>`;
       }).join("");
+    }
+
+    function sanitizeArticleHtml(html) {
+      const template = document.createElement("template");
+      template.innerHTML = String(html || "");
+      const allowedTags = new Set(["A", "B", "BLOCKQUOTE", "BR", "EM", "H2", "H3", "I", "LI", "OL", "P", "STRONG", "U", "UL"]);
+
+      const cleanNode = (node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          return document.createTextNode(node.textContent || "");
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE) {
+          return document.createDocumentFragment();
+        }
+
+        const tagName = node.tagName.toUpperCase();
+        if (!allowedTags.has(tagName)) {
+          const fragment = document.createDocumentFragment();
+          Array.from(node.childNodes).forEach((child) => fragment.appendChild(cleanNode(child)));
+          return fragment;
+        }
+
+        const cleanEl = document.createElement(tagName.toLowerCase());
+        if (tagName === "A") {
+          const href = String(node.getAttribute("href") || "").trim();
+          if (/^https?:\/\//i.test(href)) {
+            cleanEl.setAttribute("href", href);
+            cleanEl.setAttribute("target", "_blank");
+            cleanEl.setAttribute("rel", "noreferrer");
+          }
+        }
+        Array.from(node.childNodes).forEach((child) => cleanEl.appendChild(cleanNode(child)));
+        return cleanEl;
+      };
+
+      const wrapper = document.createElement("div");
+      Array.from(template.content.childNodes).forEach((child) => wrapper.appendChild(cleanNode(child)));
+      return wrapper.innerHTML.trim();
+    }
+
+    function renderBody(source) {
+      const value = String(source || "").trim();
+      if (!value) {
+        bodyEl.innerHTML = "<p>This article does not have body content yet.</p>";
+        return;
+      }
+      bodyEl.innerHTML = /<\s*[a-z][\s\S]*>/i.test(value)
+        ? sanitizeArticleHtml(value)
+        : renderMarkdownBody(value);
     }
 
     function renderGallery(images, coverImagePath) {
