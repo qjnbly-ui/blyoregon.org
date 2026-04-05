@@ -196,6 +196,11 @@
       opacity: 0.55;
       cursor: not-allowed;
     }
+    .toolbar-button.active {
+      background: var(--forest);
+      color: var(--white);
+      border-color: var(--forest);
+    }
     label {
       color: var(--forest);
       font-size: 0.92rem;
@@ -282,6 +287,29 @@
       color: #5c6d63;
       font-size: 0.9rem;
       line-height: 1.5;
+    }
+    .editor-state {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+      margin: 0.1rem 0 0;
+      color: #5c6d63;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    .editor-state-label {
+      font-weight: 700;
+      color: var(--forest);
+    }
+    .editor-state-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.28rem 0.62rem;
+      border-radius: 999px;
+      background: rgba(20,50,39,0.08);
+      color: var(--forest);
+      font-weight: 700;
     }
     .images-list {
       display: grid;
@@ -437,6 +465,7 @@
         <div class="field">
           <label for="article-body">Body</label>
           <div class="editor-toolbar" id="editor-toolbar">
+            <button class="toolbar-button" type="button" data-format="paragraph">Paragraph</button>
             <button class="toolbar-button" type="button" data-format="heading">Heading</button>
             <button class="toolbar-button" type="button" data-format="subheading">Subheading</button>
             <button class="toolbar-button" type="button" data-format="bold">Bold</button>
@@ -448,7 +477,11 @@
           </div>
           <div id="article-body-editor" class="editor-surface" contenteditable="true" data-placeholder="Write the article here. Plain paragraphs work fine."></div>
           <textarea id="article-body" hidden></textarea>
-          <p class="editor-helper">Use the buttons for headings, bold, quotes, lists, and links. Text stays visually formatted while you write.</p>
+          <div class="editor-state">
+            <span class="editor-state-label">Current text style:</span>
+            <span id="editor-current-format" class="editor-state-chip">Paragraph</span>
+          </div>
+          <p class="editor-helper">Use the buttons for the kind of text you want. `Paragraph` returns you to normal text. Press Enter in a heading to continue in paragraph text below it.</p>
         </div>
         <div class="field">
           <label for="article-review-notes">Review notes</label>
@@ -500,6 +533,7 @@
     const bodyInput = document.getElementById("article-body");
     const bodyEditorEl = document.getElementById("article-body-editor");
     const editorToolbarEl = document.getElementById("editor-toolbar");
+    const editorCurrentFormatEl = document.getElementById("editor-current-format");
     const reviewNotesInput = document.getElementById("article-review-notes");
     const imagesInput = document.getElementById("article-images-input");
     const imagesListEl = document.getElementById("article-images-list");
@@ -615,6 +649,62 @@
       bodyInput.value = sanitizeArticleHtml(bodyEditorEl.innerHTML);
     }
 
+    function getSelectionBlock() {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount < 1) return null;
+      let node = selection.anchorNode;
+      if (!node) return null;
+      if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+      while (node && node !== bodyEditorEl) {
+        const tagName = String(node.nodeName || "").toUpperCase();
+        if (["P", "H2", "H3", "BLOCKQUOTE", "UL", "OL", "LI"].includes(tagName)) {
+          return node;
+        }
+        node = node.parentNode;
+      }
+      return bodyEditorEl.firstElementChild || null;
+    }
+
+    function describeCurrentFormat() {
+      const block = getSelectionBlock();
+      const tagName = String(block?.nodeName || "").toUpperCase();
+      if (tagName === "H2") return "Heading";
+      if (tagName === "H3") return "Subheading";
+      if (tagName === "BLOCKQUOTE") return "Quote";
+      if (tagName === "UL") return "Bulleted list";
+      if (tagName === "OL") return "Numbered list";
+      if (tagName === "LI") {
+        const parentTag = String(block?.parentNode?.nodeName || "").toUpperCase();
+        if (parentTag === "UL") return "Bulleted list";
+        if (parentTag === "OL") return "Numbered list";
+      }
+      return "Paragraph";
+    }
+
+    function updateToolbarState() {
+      const formatLabel = describeCurrentFormat();
+      editorCurrentFormatEl.textContent = formatLabel;
+      const isBold = document.queryCommandState("bold");
+      const isItalic = document.queryCommandState("italic");
+      const block = getSelectionBlock();
+      const tagName = String(block?.nodeName || "").toUpperCase();
+      const listTag = tagName === "LI" ? String(block?.parentNode?.nodeName || "").toUpperCase() : tagName;
+
+      editorToolbarEl.querySelectorAll("[data-format]").forEach((button) => {
+        const format = button.dataset.format || "";
+        const active =
+          (format === "paragraph" && formatLabel === "Paragraph") ||
+          (format === "heading" && tagName === "H2") ||
+          (format === "subheading" && tagName === "H3") ||
+          (format === "bold" && isBold) ||
+          (format === "italic" && isItalic) ||
+          (format === "quote" && tagName === "BLOCKQUOTE") ||
+          (format === "bullets" && listTag === "UL") ||
+          (format === "numbers" && listTag === "OL");
+        button.classList.toggle("active", active);
+      });
+    }
+
     function focusEditor() {
       bodyEditorEl.focus();
     }
@@ -649,32 +739,44 @@
 
     function applyBodyFormat(format) {
       if (bodyInput.disabled) return;
+      if (format === "paragraph") {
+        execEditorCommand("formatBlock", "<p>");
+        updateToolbarState();
+        return;
+      }
       if (format === "heading") {
         execEditorCommand("formatBlock", "<h2>");
+        updateToolbarState();
         return;
       }
       if (format === "subheading") {
         execEditorCommand("formatBlock", "<h3>");
+        updateToolbarState();
         return;
       }
       if (format === "bold") {
         execEditorCommand("bold");
+        updateToolbarState();
         return;
       }
       if (format === "italic") {
         execEditorCommand("italic");
+        updateToolbarState();
         return;
       }
       if (format === "quote") {
         execEditorCommand("formatBlock", "<blockquote>");
+        updateToolbarState();
         return;
       }
       if (format === "bullets") {
         execEditorCommand("insertUnorderedList");
+        updateToolbarState();
         return;
       }
       if (format === "numbers") {
         execEditorCommand("insertOrderedList");
+        updateToolbarState();
         return;
       }
       if (format === "link") {
@@ -687,7 +789,26 @@
         }
         document.execCommand("createLink", false, url);
         syncBodyValue();
+        updateToolbarState();
       }
+    }
+
+    function insertParagraphAfterBlock(block) {
+      const paragraph = document.createElement("p");
+      paragraph.innerHTML = "<br>";
+      if (block?.parentNode) {
+        block.parentNode.insertBefore(paragraph, block.nextSibling);
+      } else {
+        bodyEditorEl.appendChild(paragraph);
+      }
+      const range = document.createRange();
+      range.selectNodeContents(paragraph);
+      range.collapse(true);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      syncBodyValue();
+      updateToolbarState();
     }
 
     function sanitizeFilename(name) {
@@ -1111,6 +1232,7 @@
         reviewNotesInput.value = activeArticle.reviewNotes || "";
         renderImages();
         syncActionButtons();
+        updateToolbarState();
         setStatus("");
       } catch (error) {
         formEl.hidden = true;
@@ -1135,10 +1257,43 @@
 
     bodyEditorEl.addEventListener("input", () => {
       syncBodyValue();
+      updateToolbarState();
     });
 
     bodyEditorEl.addEventListener("blur", () => {
       syncBodyValue();
+      updateToolbarState();
+    });
+
+    bodyEditorEl.addEventListener("keyup", () => {
+      updateToolbarState();
+    });
+
+    bodyEditorEl.addEventListener("mouseup", () => {
+      updateToolbarState();
+    });
+
+    bodyEditorEl.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || event.shiftKey) return;
+      const block = getSelectionBlock();
+      const tagName = String(block?.nodeName || "").toUpperCase();
+      if (tagName === "H2" || tagName === "H3") {
+        event.preventDefault();
+        insertParagraphAfterBlock(block);
+        return;
+      }
+      if (tagName === "BLOCKQUOTE" && !String(block?.textContent || "").trim()) {
+        event.preventDefault();
+        insertParagraphAfterBlock(block);
+      }
+    });
+
+    document.addEventListener("selectionchange", () => {
+      const selection = window.getSelection();
+      if (!selection?.anchorNode) return;
+      if (bodyEditorEl.contains(selection.anchorNode) || selection.anchorNode === bodyEditorEl) {
+        updateToolbarState();
+      }
     });
 
     requestChangesButtonEl.addEventListener("click", async () => {
