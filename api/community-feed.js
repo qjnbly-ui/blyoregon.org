@@ -138,6 +138,7 @@ function serializePost(post, comments) {
   const imagePath = String(post?.image_path || "");
   return {
     id: String(post?.id || ""),
+    authorId: String(post?.author_id || ""),
     authorName: String(post?.author_name || "Bly member"),
     body: String(post?.body || ""),
     imagePath,
@@ -151,7 +152,7 @@ function serializePost(post, comments) {
 
 async function fetchPosts(limit) {
   const query = new URLSearchParams({
-    select: "id,author_name,body,image_path,image_alt,created_at,updated_at",
+    select: "id,author_id,author_name,body,image_path,image_alt,created_at,updated_at",
     status: "eq.published",
     order: "created_at.desc",
     limit: String(limit),

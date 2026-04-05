@@ -209,6 +209,7 @@
   </footer>
 
   <script src="/assets/auth.js"></script>
+  <script src="/assets/member-contact.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
     const memberId = String(params.get("id") || "").trim();
@@ -221,9 +222,6 @@
     const articlesMetaEl = document.getElementById("articles-meta");
     const articlesListEl = document.getElementById("articles-list");
     const statusEl = document.getElementById("page-status");
-    const messageTargetUrl = `/account/messages/?with=${encodeURIComponent(memberId)}`;
-    const loginMessageUrl = `/login/?next=${encodeURIComponent(messageTargetUrl)}`;
-
     function setStatus(message, isError = false) {
       statusEl.classList.toggle("warning", isError);
       statusEl.textContent = message || "";
@@ -319,11 +317,13 @@
         }
 
         if (payload.viewer?.canMessage) {
-          messageButtonEl.hidden = false;
-          messageButtonEl.textContent = payload.viewer?.signedIn ? "Message member" : "Sign in to message";
-          messageButtonEl.onclick = () => {
-            window.location.href = payload.viewer?.signedIn ? messageTargetUrl : loginMessageUrl;
-          };
+          window.memberContact?.configureMessageAction(messageButtonEl, {
+            memberId,
+            canMessage: payload.viewer?.canMessage,
+            signedIn: payload.viewer?.signedIn,
+            messageLabel: "Message member",
+            loginLabel: "Sign in to message",
+          });
         }
 
         setStatus("");
