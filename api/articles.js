@@ -577,72 +577,85 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
     }, authorPrefs.articleReviewEmail);
   }
 
-  if (action === "publish") {
+  if (action === "publish" || action === "publish_update") {
+    const isUpdate = action === "publish_update";
     if (authorPrefs.articlePublishingInternal) {
       addNotification(article.authorId, {
-        type: "article_published",
-        title: "Your article is live",
-        body: `"${article.title || "Untitled article"}" has been published on the site.`,
+        type: isUpdate ? "article_updated" : "article_published",
+        title: isUpdate ? "Your published article was updated" : "Your article is live",
+        body: isUpdate
+          ? `"${article.title || "Untitled article"}" was updated on the live site.`
+          : `"${article.title || "Untitled article"}" has been published on the site.`,
         link: publicUrl || editUrl,
         metadata: { status: "published", slug: article.slug || "" },
       });
     }
 
     addModeratorInternalNotification(() => ({
-      type: "article_published_team",
-      title: "Article published",
-      body: `${article.authorName || "A member"} now has a published article: "${article.title || "Untitled article"}".`,
+      type: isUpdate ? "article_updated_team" : "article_published_team",
+      title: isUpdate ? "Published article updated" : "Article published",
+      body: isUpdate
+        ? `${article.authorName || "A member"} updated the live article "${article.title || "Untitled article"}".`
+        : `${article.authorName || "A member"} now has a published article: "${article.title || "Untitled article"}".`,
       link: publicUrl || reviewUrl,
       metadata: { status: "published", slug: article.slug || "" },
     }));
 
     addAuthorEmail({
-      subject: `[Bly, Oregon] Article published: ${article.title || "Untitled article"}`,
+      subject: `[Bly, Oregon] ${isUpdate ? "Article updated" : "Article published"}: ${article.title || "Untitled article"}`,
       html: renderEmailShell({
-        eyebrow: "Article published",
-        title: "Your article is live",
-        intro: `${escapeHtml(actorName)} published your article.`,
+        eyebrow: isUpdate ? "Article updated" : "Article published",
+        title: isUpdate ? "Your live article was updated" : "Your article is live",
+        intro: isUpdate ? `${escapeHtml(actorName)} updated your published article.` : `${escapeHtml(actorName)} published your article.`,
         bodyHtml:
-          `<p><strong>${safeTitle}</strong> is now live on the site${publishedDate ? ` as of ${escapeHtml(publishedDate)}` : ""}.</p>`,
+          isUpdate
+            ? `<p><strong>${safeTitle}</strong> was updated on the live site.</p>`
+            : `<p><strong>${safeTitle}</strong> is now live on the site${publishedDate ? ` as of ${escapeHtml(publishedDate)}` : ""}.</p>`,
         actionLabel: "View public article",
         actionUrl: publicUrl || editUrl,
       }),
       text:
-        `"${article.title || "Untitled article"}" is now live.\n\nPublic article: ${publicUrl || editUrl}`,
+        isUpdate
+          ? `"${article.title || "Untitled article"}" was updated on the live site.\n\nPublic article: ${publicUrl || editUrl}`
+          : `"${article.title || "Untitled article"}" is now live.\n\nPublic article: ${publicUrl || editUrl}`,
     }, authorPrefs.articlePublishingEmail);
 
     addModeratorEmails(() => ({
-      subject: `[Bly, Oregon] Article published: ${article.title || "Untitled article"}`,
+      subject: `[Bly, Oregon] ${isUpdate ? "Published article updated" : "Article published"}: ${article.title || "Untitled article"}`,
       html: renderEmailShell({
         eyebrow: "Publishing update",
-        title: "An article was published",
-        intro: `${escapeHtml(actorName)} published an article.`,
+        title: isUpdate ? "A live article was updated" : "An article was published",
+        intro: isUpdate ? `${escapeHtml(actorName)} updated a published article.` : `${escapeHtml(actorName)} published an article.`,
         bodyHtml:
-          `<p><strong>${safeTitle}</strong> is now public.</p>` +
+          `<p><strong>${safeTitle}</strong> ${isUpdate ? "was updated on the live site." : "is now public."}</p>` +
           `<p>Author: ${escapeHtml(article.authorName || "")}</p>`,
         actionLabel: publicUrl ? "View article" : "Open review queue",
         actionUrl: publicUrl || reviewUrl,
       }),
       text:
-        `${actorName} published "${article.title || "Untitled article"}".\n\n${publicUrl || reviewUrl}`,
+        isUpdate
+          ? `${actorName} updated the live article "${article.title || "Untitled article"}".\n\n${publicUrl || reviewUrl}`
+          : `${actorName} published "${article.title || "Untitled article"}".\n\n${publicUrl || reviewUrl}`,
     }));
 
     envAdminEmails.forEach((email) => {
       adminPayloads.push({
         to: [email],
-        subject: `[Bly, Oregon] Article published: ${article.title || "Untitled article"}`,
+        subject: `[Bly, Oregon] ${isUpdate ? "Published article updated" : "Article published"}: ${article.title || "Untitled article"}`,
         html: renderEmailShell({
           eyebrow: "Publishing update",
-          title: "An article was published",
-          intro: `${escapeHtml(actorName)} published an article.`,
+          title: isUpdate ? "A live article was updated" : "An article was published",
+          intro: isUpdate ? `${escapeHtml(actorName)} updated a published article.` : `${escapeHtml(actorName)} published an article.`,
           bodyHtml:
-            `<p><strong>${safeTitle}</strong> is now public.</p>` +
+            `<p><strong>${safeTitle}</strong> ${isUpdate ? "was updated on the live site." : "is now public."}</p>` +
             `<p>Author: ${escapeHtml(article.authorName || "")}</p>`,
           actionLabel: publicUrl ? "View article" : "Open review queue",
           actionUrl: publicUrl || reviewUrl,
         }),
         text:
-          `${actorName} published "${article.title || "Untitled article"}".\n\n${publicUrl || reviewUrl}`,
+          isUpdate
+            ? `${actorName} updated the live article "${article.title || "Untitled article"}".\n\n${publicUrl || reviewUrl}`
+            : `${actorName} published "${article.title || "Untitled article"}".\n\n${publicUrl || reviewUrl}`,
       });
     });
   }
@@ -1242,6 +1255,7 @@ module.exports = async (req, res) => {
         if (isOwner && status === "published" && !canReview && !canPublish) {
           if (canAuthorSelfPublishEdits) {
             payload.status = "published";
+            action = "publish_update";
           } else {
             payload.status = "submitted";
             payload.submitted_at = new Date().toISOString();
@@ -1257,7 +1271,7 @@ module.exports = async (req, res) => {
       await replaceArticleImages(existing.id, images, token, session.id);
       const imageMap = await fetchArticleImages([existing.id], token);
       const serializedArticle = updated ? serializeArticle(updated, imageMap) : null;
-      if (serializedArticle && ["submit", "request_changes", "publish", "unpublish"].includes(action)) {
+      if (serializedArticle && ["submit", "request_changes", "publish", "publish_update", "unpublish"].includes(action)) {
         try {
           await sendArticleNotifications({
             req,

@@ -97,7 +97,7 @@ Current behavior:
 - approved user articles render at `/history/articles/post/?slug=...`
 - authors can now unpublish their own published article back to `draft`
 - authors can now delete their own dynamic article and its uploaded article images
-- workflow emails now cover submission, changes requested, publishing, unpublishing, and deletion
+- workflow emails now cover submission, changes requested, publishing, live published-article updates, unpublishing, and deletion
 - stored internal notifications now cover the same article workflow events
 
 Current email environment:
