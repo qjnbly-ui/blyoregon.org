@@ -78,6 +78,7 @@ async function updateProfile(session, token, input) {
     notify_direct_messages_internal: input.notificationPreferences.directMessagesInternal,
     notify_direct_messages_email: input.notificationPreferences.directMessagesEmail,
     show_name_in_messages: input.showNameInMessages,
+    onboarding_complete: input.onboardingComplete,
   };
 
   const response = await fetch(
@@ -148,6 +149,7 @@ module.exports = async (req, res) => {
       directMessagesEmail: body?.notificationPreferences?.directMessagesEmail !== false,
       showNameInMessages: body?.notificationPreferences?.showNameInMessages !== false,
     };
+    const onboardingComplete = body?.onboardingComplete === true;
 
     if (!displayName) {
       sendJson(res, 400, { error: "Public name is required" });
@@ -161,6 +163,7 @@ module.exports = async (req, res) => {
       avatarPath,
       notificationPreferences,
       showNameInMessages: publishedArticles ? true : notificationPreferences.showNameInMessages,
+      onboardingComplete,
     });
     sendJson(res, 200, {
       ok: true,
@@ -170,6 +173,7 @@ module.exports = async (req, res) => {
         displayName: profile?.display_name || displayName,
         bio: profile?.bio || "",
         hasPublishedArticles: publishedArticles,
+        onboardingComplete: profile?.onboarding_complete !== false,
         showNameInMessages: publishedArticles ? true : profile?.show_name_in_messages !== false,
         notificationPreferences: {
           ...notificationPreferences,

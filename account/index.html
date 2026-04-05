@@ -1428,6 +1428,10 @@
         }
 
         const payload = await response.json();
+        if (payload?.profile?.onboardingComplete === false) {
+          window.location.replace(`/account/onboarding/?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+          return;
+        }
         titleEl.textContent = payload.title || "My Account";
         introEl.textContent = payload.intro || "Signed in.";
         await applyProfile(payload.profile || {}, payload.email || "");

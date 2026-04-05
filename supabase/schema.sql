@@ -32,6 +32,7 @@ create table if not exists public.profiles (
   notify_direct_messages_internal boolean not null default true,
   notify_direct_messages_email boolean not null default true,
   show_name_in_messages boolean not null default true,
+  onboarding_complete boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -58,7 +59,9 @@ alter table public.profiles add column if not exists notify_admin_article_queue_
 alter table public.profiles add column if not exists notify_direct_messages_internal boolean not null default true;
 alter table public.profiles add column if not exists notify_direct_messages_email boolean not null default true;
 alter table public.profiles add column if not exists show_name_in_messages boolean not null default true;
+alter table public.profiles add column if not exists onboarding_complete boolean not null default false;
 alter table public.profiles alter column can_submit_articles set default true;
+update public.profiles set onboarding_complete = true where onboarding_complete is false;
 
 update public.profiles
 set can_submit_articles = true
@@ -260,7 +263,8 @@ begin
     notify_admin_article_queue_email,
     notify_direct_messages_internal,
     notify_direct_messages_email,
-    show_name_in_messages
+    show_name_in_messages,
+    onboarding_complete
   )
   values (
     new.id,
@@ -277,7 +281,8 @@ begin
     coalesce((new.raw_user_meta_data ->> 'notify_admin_article_queue_email')::boolean, true),
     coalesce((new.raw_user_meta_data ->> 'notify_direct_messages_internal')::boolean, true),
     coalesce((new.raw_user_meta_data ->> 'notify_direct_messages_email')::boolean, true),
-    coalesce((new.raw_user_meta_data ->> 'show_name_in_messages')::boolean, true)
+    coalesce((new.raw_user_meta_data ->> 'show_name_in_messages')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'onboarding_complete')::boolean, false)
   )
   on conflict (id) do update
     set email = excluded.email,
@@ -294,6 +299,7 @@ begin
         notify_direct_messages_internal = excluded.notify_direct_messages_internal,
         notify_direct_messages_email = excluded.notify_direct_messages_email,
         show_name_in_messages = excluded.show_name_in_messages,
+        onboarding_complete = excluded.onboarding_complete,
         updated_at = now();
 
   return new;

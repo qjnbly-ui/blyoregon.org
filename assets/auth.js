@@ -81,10 +81,11 @@
     const normalizedPath = String(redirectPath || "/account/").startsWith("/")
       ? String(redirectPath || "/account/")
       : `/${String(redirectPath || "account/")}`;
+    const redirectTo = `${config.siteUrl}/login/?next=${encodeURIComponent(normalizedPath)}`;
     const { data, error } = await client.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${config.siteUrl}${normalizedPath}`,
+        redirectTo,
       },
     });
     if (error) throw error;

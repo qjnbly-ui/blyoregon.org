@@ -42,7 +42,7 @@ async function authenticateRequest(req) {
 
 async function fetchProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_direct_messages_internal,notify_direct_messages_email,show_name_in_messages,created_at&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_direct_messages_internal,notify_direct_messages_email,show_name_in_messages,onboarding_complete,created_at&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -247,6 +247,7 @@ module.exports = async (req, res) => {
             canSubmitArticles,
           },
           notificationPreferences,
+          onboardingComplete: profile?.onboarding_complete !== false,
           hasPublishedArticles,
           showNameInMessages: hasPublishedArticles ? true : profile?.show_name_in_messages !== false,
           unreadMessageCount,

@@ -797,6 +797,34 @@
     const authError = params.get("auth_error");
     let mode = "signin";
 
+    async function handleSignedInRedirect(session) {
+      if (!session?.access_token) {
+        window.location.replace(nextUrl);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/member-content", {
+          headers: {
+            Authorization: "Bearer " + session.access_token,
+          },
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          window.location.replace(nextUrl);
+          return;
+        }
+        const onboardingComplete = payload?.profile?.onboardingComplete !== false;
+        if (!onboardingComplete) {
+          window.location.replace(`/account/onboarding/?next=${encodeURIComponent(nextUrl)}`);
+          return;
+        }
+        window.location.replace(nextUrl);
+      } catch (error) {
+        window.location.replace(nextUrl);
+      }
+    }
+
     function setMode(nextMode) {
       mode = nextMode;
       const signingIn = nextMode === "signin";
@@ -834,7 +862,7 @@
 
     window.siteAuth.getSession()
       .then((session) => {
-        if (session && !authError) window.location.replace(nextUrl);
+        if (session && !authError) return handleSignedInRedirect(session);
       })
       .catch((error) => {
         statusEl.textContent = error.message || "Unable to load login.";
@@ -847,8 +875,8 @@
 
       try {
         if (mode === "signin") {
-          await window.siteAuth.login(form.email.value.trim(), form.password.value);
-          window.location.href = nextUrl;
+          const result = await window.siteAuth.login(form.email.value.trim(), form.password.value);
+          await handleSignedInRedirect(result.session || (await window.siteAuth.getSession()));
           return;
         }
 
@@ -867,13 +895,14 @@
             notify_direct_messages_internal: form.notify_direct_messages_internal.checked,
             notify_direct_messages_email: form.notify_direct_messages_email.checked,
             show_name_in_messages: form.show_name_in_messages.checked,
+            onboarding_complete: true,
             notify_admin_article_queue_internal: true,
             notify_admin_article_queue_email: true,
           }
         );
 
         if (result.session) {
-          window.location.href = nextUrl;
+          await handleSignedInRedirect(result.session);
           return;
         }
 

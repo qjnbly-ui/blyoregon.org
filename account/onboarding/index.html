@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finish Profile | Bly, Oregon</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --ink: #1e1f1c;
+      --card: #fffdf9;
+      --white: #fff;
+      --shadow: 0 20px 45px rgba(12,26,20,0.18);
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+    header {
+      background: rgba(20,50,39,0.96);
+      color: var(--white);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem;
+      text-align: center;
+      display: grid;
+      gap: 0.3rem;
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.76rem;
+      color: rgba(255,255,255,0.72);
+      font-weight: 700;
+    }
+    h1 {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.05;
+    }
+    .header-copy {
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+    }
+    main {
+      flex: 1 0 auto;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid rgba(31,64,48,0.12);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.4rem;
+    }
+    form, .stack, .preference-group, .checkbox-grid {
+      display: grid;
+      gap: 1rem;
+    }
+    .field {
+      display: grid;
+      gap: 0.45rem;
+    }
+    label {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--forest);
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.85rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid rgba(33,68,55,0.18);
+      background: rgba(255,255,255,0.96);
+      color: var(--ink);
+      font: inherit;
+    }
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+    }
+    .preference-group {
+      padding: 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20,50,39,0.12);
+      background: rgba(20,50,39,0.04);
+    }
+    .preference-group h2 {
+      margin: 0;
+      color: var(--forest);
+      font-size: 1rem;
+    }
+    .preference-group p {
+      margin: 0;
+      color: #526158;
+      line-height: 1.55;
+      font-size: 0.9rem;
+    }
+    .checkbox-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(20,50,39,0.1);
+    }
+    .checkbox-row:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+    .checkbox-copy {
+      display: grid;
+      gap: 0.2rem;
+    }
+    .checkbox-copy strong {
+      color: var(--forest);
+      font-size: 0.92rem;
+    }
+    .checkbox-copy span {
+      color: #5c6d63;
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+    .checkbox-pair {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+    .checkbox-pair label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .checkbox-pair input {
+      width: auto;
+      padding: 0;
+    }
+    .button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.9rem 1.2rem;
+      background: var(--forest);
+      color: var(--white);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      width: fit-content;
+    }
+    .button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+    .status {
+      min-height: 1.4rem;
+      margin: 0;
+      color: #8b322d;
+      font-size: 0.92rem;
+    }
+    footer {
+      background: #162f25;
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 700px) {
+      .checkbox-row {
+        flex-direction: column;
+      }
+      .checkbox-pair {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="eyebrow">Finish Profile</div>
+      <h1>Complete your member profile</h1>
+      <p class="header-copy">Before you continue, choose the member settings that should be part of your account from the start.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <form id="onboarding-form">
+        <div class="stack">
+          <div class="field">
+            <label for="display-name">Public name</label>
+            <input id="display-name" maxlength="80" required />
+          </div>
+          <div class="field">
+            <label for="bio">Bio</label>
+            <textarea id="bio" maxlength="500" placeholder="Tell people a little about yourself."></textarea>
+          </div>
+        </div>
+
+        <section class="preference-group">
+          <h2>Notification settings</h2>
+          <p>These are the same profile settings you can later edit in your account.</p>
+          <div class="checkbox-grid">
+            <div class="checkbox-row">
+              <div class="checkbox-copy">
+                <strong>Article submissions</strong>
+                <span>Updates when one of your article drafts moves into or through review.</span>
+              </div>
+              <div class="checkbox-pair">
+                <label><input id="notify-article-submissions-internal" type="checkbox" checked /> Inbox</label>
+                <label><input id="notify-article-submissions-email" type="checkbox" checked /> Email</label>
+              </div>
+            </div>
+            <div class="checkbox-row">
+              <div class="checkbox-copy">
+                <strong>Article review</strong>
+                <span>Changes requested and other review decisions on your articles.</span>
+              </div>
+              <div class="checkbox-pair">
+                <label><input id="notify-article-review-internal" type="checkbox" checked /> Inbox</label>
+                <label><input id="notify-article-review-email" type="checkbox" checked /> Email</label>
+              </div>
+            </div>
+            <div class="checkbox-row">
+              <div class="checkbox-copy">
+                <strong>Article publishing</strong>
+                <span>Publishing, live updates, and unpublishing events tied to your articles.</span>
+              </div>
+              <div class="checkbox-pair">
+                <label><input id="notify-article-publishing-internal" type="checkbox" checked /> Inbox</label>
+                <label><input id="notify-article-publishing-email" type="checkbox" checked /> Email</label>
+              </div>
+            </div>
+            <div class="checkbox-row">
+              <div class="checkbox-copy">
+                <strong>Direct messages</strong>
+                <span>New messages from other members and authors on the site.</span>
+              </div>
+              <div class="checkbox-pair">
+                <label><input id="notify-direct-messages-internal" type="checkbox" checked /> Inbox</label>
+                <label><input id="notify-direct-messages-email" type="checkbox" checked /> Email</label>
+              </div>
+            </div>
+            <div class="checkbox-row">
+              <div class="checkbox-copy">
+                <strong>Show name in messages</strong>
+                <span id="show-name-in-messages-copy">Your public name appears inside direct-message conversations.</span>
+              </div>
+              <div class="checkbox-pair">
+                <label><input id="show-name-in-messages" type="checkbox" checked /> Show name</label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <button id="save-button" class="button" type="submit">Finish setup</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const nextUrl = params.get("next") || "/account/";
+    const loginUrl = "/login/?next=" + encodeURIComponent(nextUrl);
+    const formEl = document.getElementById("onboarding-form");
+    const displayNameEl = document.getElementById("display-name");
+    const bioEl = document.getElementById("bio");
+    const notifyArticleSubmissionsInternalEl = document.getElementById("notify-article-submissions-internal");
+    const notifyArticleSubmissionsEmailEl = document.getElementById("notify-article-submissions-email");
+    const notifyArticleReviewInternalEl = document.getElementById("notify-article-review-internal");
+    const notifyArticleReviewEmailEl = document.getElementById("notify-article-review-email");
+    const notifyArticlePublishingInternalEl = document.getElementById("notify-article-publishing-internal");
+    const notifyArticlePublishingEmailEl = document.getElementById("notify-article-publishing-email");
+    const notifyDirectMessagesInternalEl = document.getElementById("notify-direct-messages-internal");
+    const notifyDirectMessagesEmailEl = document.getElementById("notify-direct-messages-email");
+    const showNameInMessagesEl = document.getElementById("show-name-in-messages");
+    const showNameInMessagesCopyEl = document.getElementById("show-name-in-messages-copy");
+    const saveButtonEl = document.getElementById("save-button");
+    const statusEl = document.getElementById("status");
+    let activeSession = null;
+
+    function setStatus(message, isError = false) {
+      statusEl.style.color = isError ? "#8b322d" : "#2f5a46";
+      statusEl.textContent = message || "";
+    }
+
+    function applyProfile(profile) {
+      const notificationPreferences = profile?.notificationPreferences || {};
+      displayNameEl.value = profile?.displayName || "";
+      bioEl.value = profile?.bio || "";
+      notifyArticleSubmissionsInternalEl.checked = notificationPreferences.articleSubmissionsInternal !== false;
+      notifyArticleSubmissionsEmailEl.checked = notificationPreferences.articleSubmissionsEmail !== false;
+      notifyArticleReviewInternalEl.checked = notificationPreferences.articleReviewInternal !== false;
+      notifyArticleReviewEmailEl.checked = notificationPreferences.articleReviewEmail !== false;
+      notifyArticlePublishingInternalEl.checked = notificationPreferences.articlePublishingInternal !== false;
+      notifyArticlePublishingEmailEl.checked = notificationPreferences.articlePublishingEmail !== false;
+      notifyDirectMessagesInternalEl.checked = notificationPreferences.directMessagesInternal !== false;
+      notifyDirectMessagesEmailEl.checked = notificationPreferences.directMessagesEmail !== false;
+      showNameInMessagesEl.checked = profile?.showNameInMessages !== false;
+      showNameInMessagesEl.disabled = Boolean(profile?.hasPublishedArticles);
+      showNameInMessagesCopyEl.textContent = profile?.hasPublishedArticles
+        ? "This stays on because published articles already show your name publicly."
+        : "Your public name appears inside direct-message conversations.";
+    }
+
+    async function loadPage() {
+      try {
+        activeSession = await window.siteAuth.getSession();
+        if (!activeSession) {
+          window.location.replace(loginUrl);
+          return;
+        }
+
+        const response = await fetch("/api/member-content", {
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+          },
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || "Unable to load profile setup.");
+        }
+
+        if (payload?.profile?.onboardingComplete !== false) {
+          window.location.replace(nextUrl);
+          return;
+        }
+
+        applyProfile(payload.profile || {});
+        setStatus("");
+      } catch (error) {
+        setStatus(error.message || "Unable to load profile setup.", true);
+      }
+    }
+
+    formEl.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!activeSession?.access_token) {
+        window.location.replace(loginUrl);
+        return;
+      }
+
+      try {
+        saveButtonEl.disabled = true;
+        setStatus("Saving...");
+        const response = await fetch("/api/profile", {
+          method: "PATCH",
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            displayName: displayNameEl.value.trim(),
+            bio: bioEl.value.trim(),
+            avatarPath: null,
+            onboardingComplete: true,
+            notificationPreferences: {
+              articleSubmissionsInternal: notifyArticleSubmissionsInternalEl.checked,
+              articleSubmissionsEmail: notifyArticleSubmissionsEmailEl.checked,
+              articleReviewInternal: notifyArticleReviewInternalEl.checked,
+              articleReviewEmail: notifyArticleReviewEmailEl.checked,
+              articlePublishingInternal: notifyArticlePublishingInternalEl.checked,
+              articlePublishingEmail: notifyArticlePublishingEmailEl.checked,
+              directMessagesInternal: notifyDirectMessagesInternalEl.checked,
+              directMessagesEmail: notifyDirectMessagesEmailEl.checked,
+              showNameInMessages: showNameInMessagesEl.checked,
+              adminArticleQueueInternal: true,
+              adminArticleQueueEmail: true,
+            },
+          }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || "Unable to save profile setup.");
+        }
+        window.location.replace(nextUrl);
+      } catch (error) {
+        setStatus(error.message || "Unable to save profile setup.", true);
+      } finally {
+        saveButtonEl.disabled = false;
+      }
+    });
+
+    loadPage();
+  </script>
+</body>
+</html>
