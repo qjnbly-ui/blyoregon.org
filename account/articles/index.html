@@ -366,7 +366,7 @@
         const editLink = document.createElement("a");
         editLink.className = "button secondary";
         editLink.href = `/account/articles/edit/?id=${encodeURIComponent(article.id)}`;
-        editLink.textContent = article.status === "published" ? "Open article" : "Edit draft";
+        editLink.textContent = article.status === "published" ? "Edit article" : "Edit draft";
         actions.appendChild(editLink);
 
         if (article.status === "published" && article.slug) {
