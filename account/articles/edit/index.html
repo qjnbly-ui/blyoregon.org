@@ -453,6 +453,7 @@
       const status = String(activeArticle?.status || "draft");
       const canAuthorPublishedEdit = Boolean(activePermissions?.canSubmitArticles && status === "published");
       const canAuthorSubmit = Boolean(activePermissions?.canSubmitArticles && ["draft", "changes_requested"].includes(status));
+      const canAuthorSelfPublish = Boolean(activePermissions?.canSelfPublishArticles);
       const canAuthorManage = Boolean(activePermissions?.canSubmitArticles);
       const canReview = Boolean(activePermissions?.canReviewArticles);
       const canPublish = Boolean(activePermissions?.canPublishArticles);
@@ -462,6 +463,7 @@
       saveButtonEl.hidden = !canEdit;
       saveButtonEl.disabled = !canEdit;
       saveButtonEl.textContent = canAuthorPublishedEdit && !canReview && !canPublish ? "Save changes" : "Save draft";
+      submitButtonEl.textContent = canAuthorSelfPublish ? "Publish article" : "Submit for approval";
       submitButtonEl.hidden = !(canAuthorSubmit && !canAuthorPublishedEdit);
       requestChangesButtonEl.hidden = !(canReview && status === "submitted");
       publishButtonEl.hidden = !(canPublish && ["submitted", "changes_requested"].includes(status));
@@ -672,7 +674,7 @@
           action === "save"
             ? (activeArticle.status === "published" ? "Changes saved." : "Draft saved.")
             : action === "submit"
-              ? "Submitted for approval."
+              ? (activeArticle.status === "published" ? "Article published." : "Submitted for approval.")
               : action === "request_changes"
                 ? "Changes requested."
                 : action === "unpublish"

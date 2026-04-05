@@ -198,7 +198,7 @@ async function authenticateRequest(req) {
 
 async function fetchProfile(session, token) {
   const query = new URLSearchParams({
-    select: "id,email,display_name,role,can_submit_articles,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email",
+    select: "id,email,display_name,role,can_submit_articles,can_self_publish_articles,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email",
     id: `eq.${session.id}`,
   });
   const response = await fetch(`${getSupabaseUrl()}/rest/v1/profiles?${query.toString()}`, {
@@ -214,7 +214,7 @@ async function fetchProfileById(userId) {
   if (!headers || !userId) return null;
 
   const query = new URLSearchParams({
-    select: "id,email,display_name,role,can_submit_articles,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email",
+    select: "id,email,display_name,role,can_submit_articles,can_self_publish_articles,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email",
     id: `eq.${userId}`,
     limit: "1",
   });
@@ -232,6 +232,7 @@ function getArticlePermissions(profile) {
   return {
     admin,
     canSubmitArticles: Boolean(admin || profile?.can_submit_articles),
+    canSelfPublishArticles: Boolean(admin || profile?.can_self_publish_articles),
     canReviewArticles: Boolean(admin || profile?.can_review_articles || profile?.can_publish_articles),
     canPublishArticles: Boolean(admin || profile?.can_publish_articles),
   };
@@ -1162,6 +1163,7 @@ module.exports = async (req, res) => {
 
       const status = String(existing.status || "");
       const canAuthorEdit = isOwner && perms.canSubmitArticles && ["draft", "changes_requested", "published"].includes(status);
+      const canAuthorSelfPublish = isOwner && perms.canSelfPublishArticles;
       const canAuthorManage = isOwner && perms.canSubmitArticles;
       const canReview = perms.canReviewArticles || perms.canPublishArticles || perms.admin;
       const canPublish = perms.canPublishArticles || perms.admin;
@@ -1193,8 +1195,15 @@ module.exports = async (req, res) => {
           sendJson(res, 403, { error: "Only the author can submit this article right now." });
           return;
         }
-        payload.status = "submitted";
-        payload.submitted_at = new Date().toISOString();
+        if (canAuthorSelfPublish) {
+          payload.status = "published";
+          payload.published_at = new Date().toISOString();
+          payload.reviewed_at = new Date().toISOString();
+          payload.reviewed_by = session.id;
+        } else {
+          payload.status = "submitted";
+          payload.submitted_at = new Date().toISOString();
+        }
       } else if (action === "request_changes") {
         if (!canReview) {
           sendJson(res, 403, { error: "Forbidden" });
