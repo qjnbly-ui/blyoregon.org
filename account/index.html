@@ -876,16 +876,6 @@
       </div>
     </section>
 
-    <section class="card" id="system-settings-card" hidden>
-      <div class="card-header">
-        <div>
-          <h2>Delivery status</h2>
-          <p class="meta">Admin-only delivery and environment status for notifications and email. Personal notification choices stay in profile settings.</p>
-        </div>
-        <a class="edit-toggle" href="/account/system/">Open delivery status</a>
-      </div>
-    </section>
-
     <section class="card" id="my-articles-card" hidden>
       <div class="card-header">
         <div>
@@ -1070,7 +1060,6 @@
     const mediaLibraryCardEl = document.getElementById("media-library-card");
     const notificationsSummaryEl = document.getElementById("notifications-summary");
     const notificationsInlineCountEl = document.getElementById("notifications-inline-count");
-    const systemSettingsCardEl = document.getElementById("system-settings-card");
     const myArticlesCardEl = document.getElementById("my-articles-card");
     const articleReviewCardEl = document.getElementById("article-review-card");
     const profileEditToggle = document.getElementById("profile-edit-toggle");
@@ -1396,7 +1385,6 @@
         await applyProfile(payload.profile || {}, payload.email || "");
         userPermissionsCardEl.hidden = !payload.admin;
         mediaLibraryCardEl.hidden = !payload.canManageMedia;
-        systemSettingsCardEl.hidden = !payload.admin;
         myArticlesCardEl.hidden = !(payload.canSubmitArticles || payload.admin);
         articleReviewCardEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
         const unreadNotificationCount = Number(payload.unreadNotificationCount || payload.profile?.unreadNotificationCount || 0);
