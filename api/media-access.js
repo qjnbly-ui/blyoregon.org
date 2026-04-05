@@ -25,6 +25,7 @@ const AVAILABLE_BUCKETS = [
   { id: "churchfirephotos", label: "Church Fire Photos" },
   { id: "standingstonechurchconstructionphotos", label: "Standing Stone Construction Photos" },
 ];
+const AVAILABLE_ROLES = new Set(["member", "moderator", "admin"]);
 
 function parseJsonBody(req) {
   return new Promise((resolve, reject) => {
@@ -123,6 +124,9 @@ function sanitizeBuckets(input) {
 }
 
 async function updateMediaAccess(token, userId, options) {
+  const role = AVAILABLE_ROLES.has(String(options?.role || "").trim().toLowerCase())
+    ? String(options.role).trim().toLowerCase()
+    : "member";
   const mediaBuckets = sanitizeBuckets(options?.mediaBuckets);
   const canUploadPhotos = Boolean(options?.canUploadPhotos);
   const canManageMedia = Boolean(options?.canManageMedia || mediaBuckets.length > 0);
@@ -158,6 +162,7 @@ async function updateMediaAccess(token, userId, options) {
         Prefer: "return=representation",
       },
       body: JSON.stringify({
+        role,
         can_upload_photos: canUploadPhotos,
         can_manage_media: canManageMedia,
         can_edit_media_details: canEditMediaDetails,
@@ -284,6 +289,7 @@ module.exports = async (req, res) => {
       const canEditMediaDetails = Boolean(body?.canEditMediaDetails);
       const canRenameMedia = Boolean(body?.canRenameMedia);
       const canDeleteMedia = Boolean(body?.canDeleteMedia);
+      const role = String(body?.role || "member").trim().toLowerCase();
       const canSubmitArticles = Boolean(body?.canSubmitArticles);
       const canSelfPublishArticles = Boolean(body?.canSelfPublishArticles);
       const canSelfPublishArticleEdits = Boolean(body?.canSelfPublishArticleEdits);
@@ -308,6 +314,7 @@ module.exports = async (req, res) => {
 
       const result = await updateMediaAccess(token, userId, {
         mediaBuckets,
+        role,
         canUploadPhotos,
         canManageMedia,
         canEditMediaDetails,

@@ -178,6 +178,15 @@
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 0.85rem;
     }
+    .role-select {
+      width: 100%;
+      padding: 0.85rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid rgba(33, 68, 55, 0.18);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--ink);
+      font: inherit;
+    }
     .toggle-card,
     .bucket-card {
       border-radius: 18px;
@@ -340,6 +349,21 @@
       </div>
       <div id="controls" hidden>
         <div class="permission-groups">
+          <section class="permission-group">
+            <div class="permission-group-header">
+              <h3>Account role</h3>
+              <p>Choose the overall access level for this member. Use moderator as the semi-admin layer, then add the exact tool permissions below.</p>
+            </div>
+            <div class="field">
+              <label for="role-select">Role</label>
+              <select id="role-select" class="role-select">
+                <option value="member">Member</option>
+                <option value="moderator">Moderator</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </section>
+
           <section class="permission-group">
             <div class="permission-group-header">
               <h3>Messaging identity</h3>
@@ -624,6 +648,7 @@
     const togglePublishArticlesEl = document.getElementById("toggle-publish-articles");
     const toggleShowNameInMessagesEl = document.getElementById("toggle-show-name-in-messages");
     const showNameInMessagesCopyEl = document.getElementById("show-name-in-messages-copy");
+    const roleSelectEl = document.getElementById("role-select");
     const deleteUserButtonEl = document.getElementById("delete-user-button");
     const bucketOptionsEl = document.getElementById("bucket-options");
     const memberStatusEl = document.getElementById("member-status");
@@ -639,6 +664,32 @@
     let activeProfile = null;
     let availableBuckets = [];
 
+    function allManagedControls() {
+      return [
+        toggleUploadEl,
+        toggleArticleSubmissionsInternalEl,
+        toggleArticleSubmissionsEmailEl,
+        toggleArticleReviewInternalEl,
+        toggleArticleReviewEmailEl,
+        toggleArticlePublishingInternalEl,
+        toggleArticlePublishingEmailEl,
+        toggleDirectMessagesInternalEl,
+        toggleDirectMessagesEmailEl,
+        toggleAdminQueueInternalEl,
+        toggleAdminQueueEmailEl,
+        toggleManagerEl,
+        toggleEditDetailsEl,
+        toggleRenameEl,
+        toggleDeleteEl,
+        toggleSubmitArticlesEl,
+        toggleSelfPublishArticlesEl,
+        toggleSelfPublishArticleEditsEl,
+        toggleReviewArticlesEl,
+        togglePublishArticlesEl,
+        toggleShowNameInMessagesEl,
+      ];
+    }
+
     function setPageStatus(message, isError = false) {
       pageStatusEl.classList.toggle("warning", isError);
       pageStatusEl.textContent = message || "";
@@ -651,6 +702,7 @@
 
     function syncControls() {
       if (!activeProfile) return;
+      roleSelectEl.value = String(activeProfile.role || "member").toLowerCase();
       toggleUploadEl.setAttribute("aria-checked", String(Boolean(activeProfile.canUploadPhotos)));
       toggleArticleSubmissionsInternalEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.articleSubmissionsInternal)));
       toggleArticleSubmissionsEmailEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.articleSubmissionsEmail)));
@@ -672,15 +724,24 @@
       toggleReviewArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canReviewArticles)));
       togglePublishArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canPublishArticles)));
       toggleShowNameInMessagesEl.setAttribute("aria-checked", String(Boolean(activeProfile.showNameInMessages)));
-      toggleShowNameInMessagesEl.disabled = Boolean(activeProfile.hasPublishedArticles);
+      const isAdminRole = activeProfile.role === "admin";
+      toggleShowNameInMessagesEl.disabled = Boolean(isAdminRole || activeProfile.hasPublishedArticles);
       const isOwnAccount = activeProfile.id === (activeSession?.user?.id || activeSession?.id || "");
       deleteUserButtonEl.disabled = Boolean(isOwnAccount || activeProfile.role === "admin");
       showNameInMessagesCopyEl.textContent = activeProfile.hasPublishedArticles
         ? "This stays on because the member already has a published article with a public author name."
         : "When off, this member appears as “Bly member” inside message threads.";
+      allManagedControls().forEach((control) => {
+        if (!control) return;
+        control.disabled = isAdminRole;
+      });
+      roleSelectEl.disabled = isOwnAccount;
+      if (isAdminRole) {
+        setMemberStatus("Admins already have full access. Demote this account to moderator or member to manage individual permissions.", false);
+      }
       bucketOptionsEl.querySelectorAll("input[type=\"checkbox\"]").forEach((input) => {
         input.checked = Array.isArray(activeProfile.mediaBuckets) && activeProfile.mediaBuckets.includes(input.value);
-        input.disabled = !activeProfile.canManageMedia;
+        input.disabled = isAdminRole || !activeProfile.canManageMedia;
       });
     }
 
@@ -695,6 +756,7 @@
           },
           body: JSON.stringify({
             userId: activeProfile.id,
+            role: nextState.role,
             canUploadPhotos: nextState.canUploadPhotos,
             canManageMedia: nextState.canManageMedia,
             canEditMediaDetails: nextState.canEditMediaDetails,
@@ -828,17 +890,10 @@
         memberEmailEl.textContent = activeProfile.email || "";
         memberBioEl.textContent = activeProfile.bio || "No bio added yet.";
 
-        if (activeProfile.role === "admin") {
-          controlsEl.hidden = true;
-          setMemberStatus("Admins already have full access.", false);
-          setPageStatus("");
-          return;
-        }
-
         controlsEl.hidden = false;
         renderBucketOptions();
         syncControls();
-        setMemberStatus("");
+        if (activeProfile.role !== "admin") setMemberStatus("");
         setPageStatus("");
       } catch (error) {
         controlsEl.hidden = true;
@@ -1042,6 +1097,14 @@
       await saveProfile({
         ...activeProfile,
         showNameInMessages: !activeProfile.showNameInMessages,
+      });
+    });
+
+    roleSelectEl.addEventListener("change", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        role: roleSelectEl.value,
       });
     });
 
