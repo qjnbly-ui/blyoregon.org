@@ -239,15 +239,46 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, email, display_name)
+  insert into public.profiles (
+    id,
+    email,
+    display_name,
+    bio,
+    notify_article_submissions_internal,
+    notify_article_submissions_email,
+    notify_article_review_internal,
+    notify_article_review_email,
+    notify_article_publishing_internal,
+    notify_article_publishing_email,
+    notify_admin_article_queue_internal,
+    notify_admin_article_queue_email
+  )
   values (
     new.id,
     new.email,
-    coalesce(new.raw_user_meta_data ->> 'full_name', split_part(new.email, '@', 1))
+    coalesce(new.raw_user_meta_data ->> 'full_name', split_part(new.email, '@', 1)),
+    nullif(left(coalesce(new.raw_user_meta_data ->> 'bio', ''), 500), ''),
+    coalesce((new.raw_user_meta_data ->> 'notify_article_submissions_internal')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_article_submissions_email')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_article_review_internal')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_article_review_email')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_article_publishing_internal')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_article_publishing_email')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_admin_article_queue_internal')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_admin_article_queue_email')::boolean, true)
   )
   on conflict (id) do update
     set email = excluded.email,
         display_name = coalesce(excluded.display_name, public.profiles.display_name),
+        bio = coalesce(excluded.bio, public.profiles.bio),
+        notify_article_submissions_internal = excluded.notify_article_submissions_internal,
+        notify_article_submissions_email = excluded.notify_article_submissions_email,
+        notify_article_review_internal = excluded.notify_article_review_internal,
+        notify_article_review_email = excluded.notify_article_review_email,
+        notify_article_publishing_internal = excluded.notify_article_publishing_internal,
+        notify_article_publishing_email = excluded.notify_article_publishing_email,
+        notify_admin_article_queue_internal = excluded.notify_admin_article_queue_internal,
+        notify_admin_article_queue_email = excluded.notify_admin_article_queue_email,
         updated_at = now();
 
   return new;

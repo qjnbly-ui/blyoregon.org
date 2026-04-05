@@ -302,9 +302,103 @@
       font: inherit;
     }
 
-    input:focus {
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.85rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid rgba(33, 68, 55, 0.18);
+      background: rgba(255, 255, 255, 0.96);
+      font: inherit;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus {
       outline: 2px solid rgba(244, 179, 91, 0.45);
       border-color: rgba(33, 68, 55, 0.35);
+    }
+
+    .signup-fields {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .preference-group {
+      display: grid;
+      gap: 0.85rem;
+      padding: 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20, 50, 39, 0.12);
+      background: rgba(20, 50, 39, 0.04);
+    }
+
+    .preference-group h3 {
+      margin: 0;
+      color: var(--forest);
+      font-size: 1rem;
+    }
+
+    .preference-group p {
+      margin: 0;
+      color: #526158;
+      line-height: 1.55;
+      font-size: 0.9rem;
+    }
+
+    .checkbox-grid {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .checkbox-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(20, 50, 39, 0.1);
+    }
+
+    .checkbox-row:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .checkbox-copy {
+      display: grid;
+      gap: 0.22rem;
+    }
+
+    .checkbox-copy strong {
+      color: var(--forest);
+      font-size: 0.92rem;
+    }
+
+    .checkbox-copy span {
+      color: #5c6d63;
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    .checkbox-pair {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    .checkbox-pair label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .checkbox-pair input {
+      width: auto;
+      padding: 0;
     }
 
     button {
@@ -524,6 +618,50 @@
             <input id="full_name" name="full_name" autocomplete="name" />
           </div>
 
+          <div id="signup-fields" class="signup-fields" hidden>
+            <div class="field">
+              <label for="bio">Bio</label>
+              <textarea id="bio" name="bio" maxlength="500" placeholder="Tell people a little about yourself."></textarea>
+            </div>
+
+            <section class="preference-group">
+              <h3>Notification preferences</h3>
+              <p>Choose how your new account should receive workflow and account updates. You can change these later in your profile.</p>
+              <div class="checkbox-grid">
+                <div class="checkbox-row">
+                  <div class="checkbox-copy">
+                    <strong>Article submissions</strong>
+                    <span>Updates when one of your article drafts moves into or through review.</span>
+                  </div>
+                  <div class="checkbox-pair">
+                    <label><input type="checkbox" name="notify_article_submissions_internal" checked /> Inbox</label>
+                    <label><input type="checkbox" name="notify_article_submissions_email" checked /> Email</label>
+                  </div>
+                </div>
+                <div class="checkbox-row">
+                  <div class="checkbox-copy">
+                    <strong>Article review</strong>
+                    <span>Changes requested and other review decisions on your articles.</span>
+                  </div>
+                  <div class="checkbox-pair">
+                    <label><input type="checkbox" name="notify_article_review_internal" checked /> Inbox</label>
+                    <label><input type="checkbox" name="notify_article_review_email" checked /> Email</label>
+                  </div>
+                </div>
+                <div class="checkbox-row">
+                  <div class="checkbox-copy">
+                    <strong>Article publishing</strong>
+                    <span>Publishing, live updates, and unpublishing events tied to your articles.</span>
+                  </div>
+                  <div class="checkbox-pair">
+                    <label><input type="checkbox" name="notify_article_publishing_internal" checked /> Inbox</label>
+                    <label><input type="checkbox" name="notify_article_publishing_email" checked /> Email</label>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
           <div class="field">
             <label for="email">Email</label>
             <input id="email" name="email" type="email" autocomplete="email" required />
@@ -602,6 +740,7 @@
     const signinModeButton = document.getElementById("signin-mode");
     const signupModeButton = document.getElementById("signup-mode");
     const nameField = document.getElementById("name-field");
+    const signupFields = document.getElementById("signup-fields");
     const formCopy = document.getElementById("form-copy");
     const params = new URLSearchParams(window.location.search);
     const nextUrl = params.get("next") || "/account/";
@@ -614,10 +753,11 @@
       signinModeButton.dataset.active = signingIn ? "true" : "false";
       signupModeButton.dataset.active = signingIn ? "false" : "true";
       nameField.hidden = signingIn;
+      signupFields.hidden = signingIn;
       submitButton.textContent = signingIn ? "Sign in" : "Create account";
       formCopy.textContent = signingIn
         ? "Sign in with your email and password."
-        : "Create an account. Public name is what other people may see on submissions and profile pages. If you receive a confirmation email, use it to finish creating your account.";
+        : "Create an account and set up the member-owned parts of your profile now. If you receive a confirmation email, use it to finish creating your account.";
       statusEl.textContent = "";
     }
 
@@ -652,7 +792,18 @@
         const result = await window.siteAuth.signUp(
           form.email.value.trim(),
           form.password.value,
-          { full_name: form.full_name.value.trim() }
+          {
+            full_name: form.full_name.value.trim(),
+            bio: form.bio.value.trim(),
+            notify_article_submissions_internal: form.notify_article_submissions_internal.checked,
+            notify_article_submissions_email: form.notify_article_submissions_email.checked,
+            notify_article_review_internal: form.notify_article_review_internal.checked,
+            notify_article_review_email: form.notify_article_review_email.checked,
+            notify_article_publishing_internal: form.notify_article_publishing_internal.checked,
+            notify_article_publishing_email: form.notify_article_publishing_email.checked,
+            notify_admin_article_queue_internal: true,
+            notify_admin_article_queue_email: true,
+          }
         );
 
         if (result.session) {
