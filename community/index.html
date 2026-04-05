@@ -940,8 +940,10 @@
         mobilePanel.setAttribute("hidden", "");
       }
 
-      async function syncAuthUi() {
-        state.session = await window.siteAuth.getSession().catch(() => null);
+      async function syncAuthUi(sessionOverride) {
+        state.session = sessionOverride === undefined
+          ? await window.siteAuth.getSession().catch(() => null)
+          : (sessionOverride || null);
         authLinks.forEach((link) => {
           link.textContent = state.session ? "Account" : "Login";
           link.href = state.session ? "/account/" : "/login/?next=%2Fcommunity%2F";
@@ -1225,14 +1227,19 @@
       refreshButton.addEventListener("click", loadFeed);
       window.addEventListener("resize", syncMobileHeaderHeight);
 
-      window.siteAuth.onAuthStateChange(async () => {
+      async function initializePage() {
+        syncMobileHeaderHeight();
+        await window.siteAuth.getClient().catch(() => null);
         await syncAuthUi();
-        renderFeed();
-      }).catch(() => {});
+        await loadFeed();
 
-      syncMobileHeaderHeight();
-      syncAuthUi();
-      loadFeed();
+        window.siteAuth.onAuthStateChange(async (_event, session) => {
+          await syncAuthUi(session);
+          renderFeed();
+        }).catch(() => {});
+      }
+
+      initializePage();
     })();
   </script>
 </body>
