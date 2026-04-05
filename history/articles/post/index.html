@@ -113,7 +113,35 @@
       font-family: "Fraunces", "Times New Roman", serif;
       font-size: 1.5rem;
     }
+    .body h3 {
+      margin: 0.3rem 0 0;
+      color: var(--forest);
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
     .body p { margin: 0; }
+    .body blockquote {
+      margin: 0;
+      padding: 0.9rem 1rem;
+      border-left: 4px solid rgba(20,50,39,0.28);
+      background: rgba(20,50,39,0.05);
+      border-radius: 14px;
+      color: #44534b;
+    }
+    .body ul,
+    .body ol {
+      margin: 0;
+      padding-left: 1.35rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+    .body li {
+      color: #2f3934;
+    }
+    .body a {
+      color: var(--forest);
+      font-weight: 700;
+    }
     .gallery {
       display: grid;
       gap: 0.85rem;
@@ -210,6 +238,13 @@
         .replace(/'/g, "&#39;");
     }
 
+    function renderInlineMarkup(text) {
+      return escapeHtml(text)
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+    }
+
     function renderBody(markdown) {
       const source = String(markdown || "").trim();
       if (!source) {
@@ -219,9 +254,19 @@
 
       const blocks = source.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
       bodyEl.innerHTML = blocks.map((block) => {
-        if (block.startsWith("## ")) return `<h2>${escapeHtml(block.slice(3))}</h2>`;
-        if (block.startsWith("# ")) return `<h2>${escapeHtml(block.slice(2))}</h2>`;
-        return `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`;
+        const lines = block.split("\n").map((line) => line.trimEnd());
+        if (lines.every((line) => line.startsWith("1. "))) {
+          return `<ol>${lines.map((line) => `<li>${renderInlineMarkup(line.replace(/^1\.\s+/, ""))}</li>`).join("")}</ol>`;
+        }
+        if (lines.every((line) => line.startsWith("- "))) {
+          return `<ul>${lines.map((line) => `<li>${renderInlineMarkup(line.replace(/^-\s+/, ""))}</li>`).join("")}</ul>`;
+        }
+        if (lines.every((line) => line.startsWith("> "))) {
+          return `<blockquote>${lines.map((line) => renderInlineMarkup(line.replace(/^>\s+/, ""))).join("<br>")}</blockquote>`;
+        }
+        if (block.startsWith("## ")) return `<h3>${renderInlineMarkup(block.slice(3))}</h3>`;
+        if (block.startsWith("# ")) return `<h2>${renderInlineMarkup(block.slice(2))}</h2>`;
+        return `<p>${lines.map((line) => renderInlineMarkup(line)).join("<br>")}</p>`;
       }).join("");
     }
 

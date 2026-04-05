@@ -170,6 +170,32 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.85rem;
     }
+    .editor-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      padding: 0.8rem;
+      border-radius: 16px;
+      border: 1px solid rgba(20,50,39,0.12);
+      background: rgba(20,50,39,0.04);
+    }
+    .toolbar-button {
+      appearance: none;
+      border: 1px solid rgba(20,50,39,0.16);
+      border-radius: 999px;
+      padding: 0.45rem 0.78rem;
+      background: rgba(255,255,255,0.88);
+      color: var(--forest);
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: fit-content;
+    }
+    .toolbar-button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
     label {
       color: var(--forest);
       font-size: 0.92rem;
@@ -343,6 +369,16 @@
         </div>
         <div class="field">
           <label for="article-body">Body</label>
+          <div class="editor-toolbar" id="editor-toolbar">
+            <button class="toolbar-button" type="button" data-format="heading">Heading</button>
+            <button class="toolbar-button" type="button" data-format="subheading">Subheading</button>
+            <button class="toolbar-button" type="button" data-format="bold">Bold</button>
+            <button class="toolbar-button" type="button" data-format="italic">Italic</button>
+            <button class="toolbar-button" type="button" data-format="quote">Quote</button>
+            <button class="toolbar-button" type="button" data-format="bullets">Bullets</button>
+            <button class="toolbar-button" type="button" data-format="numbers">Numbers</button>
+            <button class="toolbar-button" type="button" data-format="link">Link</button>
+          </div>
           <textarea id="article-body" maxlength="40000" placeholder="Write the article here. Plain paragraphs work fine."></textarea>
         </div>
         <div class="field">
@@ -393,6 +429,7 @@
     const statusInput = document.getElementById("article-status");
     const summaryInput = document.getElementById("article-summary");
     const bodyInput = document.getElementById("article-body");
+    const editorToolbarEl = document.getElementById("editor-toolbar");
     const reviewNotesInput = document.getElementById("article-review-notes");
     const imagesInput = document.getElementById("article-images-input");
     const imagesListEl = document.getElementById("article-images-list");
@@ -417,6 +454,86 @@
 
     function formatStatus(status) {
       return String(status || "draft").replace(/_/g, " ");
+    }
+
+    function wrapSelection(prefix, suffix = prefix, placeholder = "text") {
+      const start = bodyInput.selectionStart || 0;
+      const end = bodyInput.selectionEnd || 0;
+      const selected = bodyInput.value.slice(start, end);
+      const content = selected || placeholder;
+      const nextValue = `${bodyInput.value.slice(0, start)}${prefix}${content}${suffix}${bodyInput.value.slice(end)}`;
+      bodyInput.value = nextValue;
+      const selectionStart = start + prefix.length;
+      const selectionEnd = selectionStart + content.length;
+      bodyInput.focus();
+      bodyInput.setSelectionRange(selectionStart, selectionEnd);
+    }
+
+    function prefixSelectedLines(prefix, placeholder) {
+      const start = bodyInput.selectionStart || 0;
+      const end = bodyInput.selectionEnd || 0;
+      const source = bodyInput.value;
+      const lineStart = source.lastIndexOf("\n", Math.max(0, start - 1)) + 1;
+      const lineEndBreak = source.indexOf("\n", end);
+      const lineEnd = lineEndBreak === -1 ? source.length : lineEndBreak;
+      const block = source.slice(lineStart, lineEnd);
+      const base = block || placeholder;
+      const nextBlock = base
+        .split("\n")
+        .map((line, index) => {
+          const clean = line.trim();
+          const fallback = placeholder.split("\n")[index] || "Item";
+          return `${prefix}${clean || fallback}`;
+        })
+        .join("\n");
+      bodyInput.value = `${source.slice(0, lineStart)}${nextBlock}${source.slice(lineEnd)}`;
+      bodyInput.focus();
+      bodyInput.setSelectionRange(lineStart, lineStart + nextBlock.length);
+    }
+
+    function insertLink() {
+      const start = bodyInput.selectionStart || 0;
+      const end = bodyInput.selectionEnd || 0;
+      const selected = bodyInput.value.slice(start, end) || "Link text";
+      const replacement = `[${selected}](https://)`;
+      bodyInput.value = `${bodyInput.value.slice(0, start)}${replacement}${bodyInput.value.slice(end)}`;
+      bodyInput.focus();
+      bodyInput.setSelectionRange(start + 1, start + 1 + selected.length);
+    }
+
+    function applyBodyFormat(format) {
+      if (bodyInput.disabled) return;
+      if (format === "heading") {
+        prefixSelectedLines("# ", "Heading");
+        return;
+      }
+      if (format === "subheading") {
+        prefixSelectedLines("## ", "Subheading");
+        return;
+      }
+      if (format === "bold") {
+        wrapSelection("**", "**", "Bold text");
+        return;
+      }
+      if (format === "italic") {
+        wrapSelection("*", "*", "Italic text");
+        return;
+      }
+      if (format === "quote") {
+        prefixSelectedLines("> ", "Quoted text");
+        return;
+      }
+      if (format === "bullets") {
+        prefixSelectedLines("- ", "List item");
+        return;
+      }
+      if (format === "numbers") {
+        prefixSelectedLines("1. ", "List item");
+        return;
+      }
+      if (format === "link") {
+        insertLink();
+      }
     }
 
     function sanitizeFilename(name) {
@@ -477,6 +594,9 @@
       slugInput.disabled = !canEdit;
       summaryInput.disabled = !canEdit;
       bodyInput.disabled = !canEdit;
+      editorToolbarEl.querySelectorAll("button").forEach((button) => {
+        button.disabled = !canEdit;
+      });
       imagesInput.disabled = !canEdit;
       publicLinkEl.hidden = !(activeArticle?.status === "published" && activeArticle?.slug);
       if (!publicLinkEl.hidden) {
@@ -850,6 +970,12 @@
 
     submitButtonEl.addEventListener("click", async () => {
       await saveArticle("submit");
+    });
+
+    editorToolbarEl.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-format]");
+      if (!button) return;
+      applyBodyFormat(button.dataset.format || "");
     });
 
     requestChangesButtonEl.addEventListener("click", async () => {
