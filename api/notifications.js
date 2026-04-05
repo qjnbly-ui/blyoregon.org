@@ -153,6 +153,22 @@ async function markAllNotificationsRead(userId, token) {
   if (!response.ok) throw new Error("Unable to update notifications");
 }
 
+async function deleteNotifications(userId, token, ids) {
+  const uniqueIds = Array.from(new Set((Array.isArray(ids) ? ids : []).map((id) => String(id || "").trim()).filter(Boolean)));
+  if (!uniqueIds.length) return;
+
+  const query = new URLSearchParams({
+    user_id: `eq.${userId}`,
+    id: `in.(${uniqueIds.join(",")})`,
+  });
+
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/notifications?${query.toString()}`, {
+    method: "DELETE",
+    headers: buildServiceHeaders() || buildUserHeaders(token),
+  });
+  if (!response.ok) throw new Error("Unable to delete notifications");
+}
+
 module.exports = async (req, res) => {
   try {
     const { session, token } = await authenticateRequest(req);
@@ -190,6 +206,8 @@ module.exports = async (req, res) => {
         await markNotificationsRead(session.id, token, [body?.id]);
       } else if (action === "mark_all_read") {
         await markAllNotificationsRead(session.id, token);
+      } else if (action === "delete") {
+        await deleteNotifications(session.id, token, [body?.id]);
       } else {
         sendJson(res, 400, { error: "Invalid action" });
         return;

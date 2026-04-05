@@ -170,7 +170,7 @@
       <div class="item-header">
         <div>
           <h2>Your notifications</h2>
-          <p class="meta">Internal notifications stay in your account even if email delivery is turned off.</p>
+          <p class="meta">Internal notifications stay in your account even if email delivery is turned off. You can delete them when you are done.</p>
         </div>
         <button id="mark-all-button" class="button secondary" type="button" hidden>Mark all read</button>
       </div>
@@ -289,6 +289,22 @@
           });
           actions.appendChild(markReadButton);
         }
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "button secondary";
+        deleteButton.type = "button";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", async () => {
+          try {
+            deleteButton.disabled = true;
+            await updateNotification("delete", notification.id);
+            await loadPage();
+          } catch (error) {
+            deleteButton.disabled = false;
+            setStatus(error.message || "Unable to update notifications.", true);
+          }
+        });
+        actions.appendChild(deleteButton);
 
         row.append(header, time, actions);
         listEl.appendChild(row);
