@@ -197,14 +197,6 @@
       gap: 1.6rem;
     }
 
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
-      gap: 1.3rem;
-      align-items: stretch;
-    }
-
-    .hero-panel,
     .composer-card,
     .feed-card,
     .empty-state,
@@ -215,74 +207,13 @@
       box-shadow: var(--shadow);
     }
 
-    .hero-panel {
-      padding: 2rem;
-      background:
-        linear-gradient(140deg, rgba(20, 50, 39, 0.97), rgba(33, 68, 55, 0.9)),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent);
-      color: var(--white);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .hero-panel::after {
-      content: "";
-      position: absolute;
-      width: 260px;
-      height: 260px;
-      border-radius: 50%;
-      right: -90px;
-      top: -70px;
-      background: radial-gradient(circle, rgba(244, 179, 91, 0.3), transparent 68%);
-      pointer-events: none;
-    }
-
-    .eyebrow {
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-size: 0.76rem;
-      font-weight: 800;
-      color: rgba(255, 255, 255, 0.72);
-    }
-
     h1, h2, h3 {
       margin: 0;
       font-family: "Fraunces", "Times New Roman", serif;
     }
 
-    h1 {
-      font-size: clamp(2.2rem, 4.8vw, 3.35rem);
-      line-height: 0.98;
-      margin-top: 0.55rem;
-    }
-
-    .hero-panel p {
-      margin: 0.95rem 0 0;
-      max-width: 38rem;
-      line-height: 1.7;
-      color: rgba(255, 255, 255, 0.84);
-    }
-
-    .hero-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.65rem;
-      margin-top: 1.25rem;
-    }
-
-    .hero-pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.45rem 0.78rem;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.12);
-      color: rgba(255, 255, 255, 0.92);
-      font-size: 0.84rem;
-      font-weight: 700;
-    }
-
     .composer-card {
-      padding: 1.4rem;
+      padding: 1.25rem 1.35rem;
       display: grid;
       gap: 1rem;
       align-content: start;
@@ -293,6 +224,11 @@
       justify-content: space-between;
       align-items: start;
       gap: 1rem;
+    }
+
+    .composer-top h1 {
+      font-size: clamp(1.7rem, 3.6vw, 2.35rem);
+      line-height: 1.02;
     }
 
     .composer-top p,
@@ -599,12 +535,6 @@
       margin-top: 2rem;
     }
 
-    @media (max-width: 920px) {
-      .hero {
-        grid-template-columns: 1fr;
-      }
-    }
-
     @media (max-width: 760px) {
       body {
         padding-top: var(--mobile-header-height);
@@ -704,7 +634,6 @@
         padding-right: 1rem;
       }
 
-      .hero-panel,
       .composer-card,
       .feed-card,
       .empty-state,
@@ -712,7 +641,6 @@
         border-radius: 22px;
       }
 
-      .hero-panel,
       .composer-card,
       .feed-card {
         padding-left: 1rem;
@@ -756,60 +684,43 @@
   </div>
 
   <main>
-    <section class="hero">
-      <div class="hero-panel">
-        <div class="eyebrow">Public Feed</div>
-        <h1>Bly community posts, newest to oldest.</h1>
-        <p>
-          Anyone can read the feed. To add a post or leave a comment, sign in or create an account.
-          Photos are allowed on posts, and replies stay attached to the conversation.
-        </p>
-        <div class="hero-pills">
-          <span class="hero-pill">Public to view</span>
-          <span class="hero-pill">Account required to post</span>
-          <span class="hero-pill">Comments included</span>
-          <span class="hero-pill">Photos allowed</span>
+    <section class="composer-card">
+      <div class="composer-top">
+        <div>
+          <h1>Add New Post</h1>
+          <p id="composer-copy">Share an update with the community.</p>
         </div>
       </div>
 
-      <aside class="composer-card">
-        <div class="composer-top">
-          <div>
-            <h2>Add New Post</h2>
-            <p id="composer-copy">Sign in or create an account to share an update with the community.</p>
-          </div>
+      <div class="signin-note" id="signed-out-panel">
+        <p>
+          You can browse everything here without an account. To post or comment, use your account first.
+        </p>
+        <div class="button-row" style="margin-top: 0.9rem;">
+          <a class="primary-button" id="create-account-link" href="/login/?next=%2Fcommunity%2F">Create account</a>
+          <a class="secondary-button" id="login-link" href="/login/?next=%2Fcommunity%2F">Login</a>
         </div>
+      </div>
 
-        <div class="signin-note" id="signed-out-panel">
-          <p>
-            You can browse everything here without an account. To post or comment, use your account first.
-          </p>
-          <div class="button-row" style="margin-top: 0.9rem;">
-            <a class="primary-button" id="create-account-link" href="/login/?next=%2Fcommunity%2F">Create account</a>
-            <a class="secondary-button" id="login-link" href="/login/?next=%2Fcommunity%2F">Login</a>
-          </div>
+      <form class="composer-form" id="post-form" hidden>
+        <div class="field">
+          <label for="post-body">Post</label>
+          <textarea id="post-body" name="body" maxlength="3000" placeholder="Share a local update, event, question, or photo caption."></textarea>
         </div>
-
-        <form class="composer-form" id="post-form" hidden>
-          <div class="field">
-            <label for="post-body">Post</label>
-            <textarea id="post-body" name="body" maxlength="3000" placeholder="Share a local update, event, question, or photo caption."></textarea>
-          </div>
-          <div class="field">
-            <label for="post-photo">Photo</label>
-            <input id="post-photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
-          </div>
-          <div class="field">
-            <label for="post-photo-alt">Photo description</label>
-            <input id="post-photo-alt" name="imageAlt" type="text" maxlength="160" placeholder="Describe the photo for accessibility.">
-          </div>
-          <div class="form-note">Images upload with your account before the post is published. Max size: 6 MB.</div>
-          <div class="button-row">
-            <button class="primary-button" id="post-submit" type="submit">Publish Post</button>
-          </div>
-          <div class="status" id="post-status" aria-live="polite"></div>
-        </form>
-      </aside>
+        <div class="field">
+          <label for="post-photo">Photo</label>
+          <input id="post-photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+        </div>
+        <div class="field">
+          <label for="post-photo-alt">Photo description</label>
+          <input id="post-photo-alt" name="imageAlt" type="text" maxlength="160" placeholder="Describe the photo for accessibility.">
+        </div>
+        <div class="form-note">Images upload with your account before the post is published. Max size: 6 MB.</div>
+        <div class="button-row">
+          <button class="primary-button" id="post-submit" type="submit">Publish Post</button>
+        </div>
+        <div class="status" id="post-status" aria-live="polite"></div>
+      </form>
     </section>
 
     <section class="feed-layout">
@@ -889,7 +800,6 @@
   </footer>
 
   <script src="/assets/auth.js"></script>
-  <script src="/assets/member-contact.js"></script>
   <script>
     (() => {
       const FEED_URL = "/api/community-feed";
@@ -1055,20 +965,6 @@
         `;
       }
 
-      function createMessageActionMarkup(post) {
-        if (!post.authorId) return "";
-        if (state.viewer.userId && state.viewer.userId === post.authorId) return "";
-
-        return `
-          <a
-            class="secondary-button"
-            href="#"
-            data-member-message
-            data-member-id="${escapeHtml(post.authorId)}"
-          >${state.session ? "Message member" : "Sign in to message"}</a>
-        `;
-      }
-
       function renderFeed() {
         feedLoading.hidden = true;
         feedList.hidden = false;
@@ -1081,7 +977,7 @@
 
         feedEmpty.hidden = true;
         feedList.innerHTML = state.posts.map((post) => `
-          <article class="feed-card">
+          <article class="feed-card" id="post-${escapeHtml(post.id)}">
             <div class="post-shell">
               <div class="post-header">
                 <div class="post-author">
@@ -1096,7 +992,6 @@
                 <div class="post-meta">Newest posts appear first.</div>
                 <div class="post-actions">
                   ${createPostOwnerActionsMarkup(post)}
-                  ${createMessageActionMarkup(post)}
                 </div>
               </div>
               ${createCommentMarkup(post)}
@@ -1106,20 +1001,7 @@
         `).join("");
 
         wireCommentForms();
-        wireMessageActions();
         wirePostActions();
-      }
-
-      function wireMessageActions() {
-        feedList.querySelectorAll("[data-member-message]").forEach((element) => {
-          window.memberContact?.configureMessageAction(element, {
-            memberId: element.getAttribute("data-member-id"),
-            canMessage: true,
-            signedIn: Boolean(state.session),
-            messageLabel: "Message member",
-            loginLabel: "Sign in to message",
-          });
-        });
       }
 
       async function loadFeed() {

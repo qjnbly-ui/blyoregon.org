@@ -157,6 +157,25 @@
     .article-link:hover {
       text-decoration: underline;
     }
+    .item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .item-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 0.6rem 0.9rem;
+      border: 1px solid rgba(20,50,39,0.16);
+      color: var(--forest);
+      text-decoration: none;
+      font-weight: 700;
+      background: rgba(255,255,255,0.9);
+      width: fit-content;
+    }
     .community-post-item {
       display: grid;
       gap: 0.8rem;
@@ -307,7 +326,15 @@
         summary.className = "meta";
         summary.textContent = article.summary || "Open the article to read more.";
 
-        copy.append(link, meta, summary);
+        const actions = document.createElement("div");
+        actions.className = "item-actions";
+        const openLink = document.createElement("a");
+        openLink.className = "item-link";
+        openLink.href = `/history/articles/post/?slug=${encodeURIComponent(article.slug)}`;
+        openLink.textContent = "Open article";
+
+        actions.appendChild(openLink);
+        copy.append(link, meta, summary, actions);
         item.append(thumb, copy);
         articlesListEl.appendChild(item);
       });
@@ -349,6 +376,16 @@
           image.alt = post.imageAlt || "Community post photo";
           item.appendChild(image);
         }
+
+        const actions = document.createElement("div");
+        actions.className = "item-actions";
+        const openLink = document.createElement("a");
+        openLink.className = "item-link";
+        openLink.href = `/community/#post-${encodeURIComponent(post.id)}`;
+        openLink.textContent = "Open post";
+
+        actions.appendChild(openLink);
+        item.appendChild(actions);
 
         communityPostsListEl.appendChild(item);
       });
