@@ -32,6 +32,24 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+function renderEmailShell({ eyebrow, title, intro, bodyHtml }) {
+  return (
+    `<div style="margin:0;padding:24px;background:#f7f2ea;background-color:#f7f2ea;font-family:Arial,sans-serif;color:#1e1f1c">` +
+      `<div style="max-width:640px;margin:0 auto;background:#fffdf9;background-color:#fffdf9;border:1px solid #d9ddd9;border-radius:24px;overflow:hidden">` +
+        `<div style="padding:28px 28px 22px;background:#214437;background-color:#214437;color:#ffffff">` +
+          `<div style="text-transform:uppercase;letter-spacing:0.18em;font-size:12px;font-weight:700;color:#dbe7df">${escapeHtml(eyebrow)}</div>` +
+          `<h1 style="margin:10px 0 0;font-size:32px;line-height:1.08;font-weight:700;font-family:Georgia,'Times New Roman',serif;color:#ffffff">Bly, Oregon</h1>` +
+          `<p style="margin:10px 0 0;font-family:Arial,sans-serif;font-size:16px;line-height:1.6;color:#eef6f1">${escapeHtml(intro)}</p>` +
+        `</div>` +
+        `<div style="padding:28px;background:#fffdf9;background-color:#fffdf9">` +
+          `<h2 style="margin:0 0 14px;font-size:28px;line-height:1.2;font-family:Georgia,'Times New Roman',serif;color:#143227">${escapeHtml(title)}</h2>` +
+          `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7;color:#33443b">${bodyHtml}</div>` +
+        `</div>` +
+      `</div>` +
+    `</div>`
+  );
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
     res.statusCode = 405;
@@ -83,15 +101,17 @@ module.exports = async (req, res) => {
       to: [to],
       reply_to: email,
       subject: `[Bly Archive] ${category} submission from ${name}`,
-      html:
-        `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1e1f1c">` +
-        `<h2>New archive submission</h2>` +
-        `<p><strong>Name:</strong> ${safeName}</p>` +
-        `<p><strong>Email:</strong> ${safeEmail}</p>` +
-        `<p><strong>Type:</strong> ${safeCategory}</p>` +
-        `<p><strong>Details:</strong><br>${safeDetails}</p>` +
-        `${attachments.length ? "<p><strong>Attachment:</strong> Included with this message.</p>" : ""}` +
-        `</div>`,
+      html: renderEmailShell({
+        eyebrow: "Archive Submission",
+        title: "New archive submission",
+        intro: `${name} submitted a new archive item for review.`,
+        bodyHtml:
+          `<p style="margin:0 0 14px"><strong style="color:#143227">Name:</strong> ${safeName}</p>` +
+          `<p style="margin:0 0 14px"><strong style="color:#143227">Email:</strong> ${safeEmail}</p>` +
+          `<p style="margin:0 0 14px"><strong style="color:#143227">Type:</strong> ${safeCategory}</p>` +
+          `<p style="margin:0 0 14px"><strong style="color:#143227">Details:</strong><br>${safeDetails}</p>` +
+          `${attachments.length ? `<p style="margin:0"><strong style="color:#143227">Attachment:</strong> Included with this message.</p>` : ""}`,
+      }),
       text:
         `New archive submission\n\n` +
         `Name: ${name}\n` +

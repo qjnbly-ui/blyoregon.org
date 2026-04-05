@@ -377,19 +377,19 @@ async function sendEmail(payload) {
 
 function renderEmailShell({ eyebrow, title, intro, bodyHtml, actionLabel, actionUrl }) {
   const actionBlock = actionLabel && actionUrl
-    ? `<p style="margin:24px 0 0"><a href="${escapeHtml(actionUrl)}" style="display:inline-block;background:#143227;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px">${escapeHtml(actionLabel)}</a></p>`
+    ? `<p style="margin:24px 0 0"><a href="${escapeHtml(actionUrl)}" style="display:inline-block;background:#143227;background-color:#143227;color:#ffffff;text-decoration:none;font-weight:700;font-family:Arial,sans-serif;padding:12px 18px;border-radius:999px;border:1px solid #143227">${escapeHtml(actionLabel)}</a></p>`
     : "";
 
   return (
-    `<div style="margin:0;padding:24px;background:#f7f2ea;font-family:Georgia,'Times New Roman',serif;color:#1e1f1c">` +
-      `<div style="max-width:640px;margin:0 auto;background:#fffdf9;border:1px solid #d9ddd9;border-radius:24px;overflow:hidden">` +
+    `<div style="margin:0;padding:24px;background:#f7f2ea;background-color:#f7f2ea;font-family:Arial,sans-serif;color:#1e1f1c">` +
+      `<div style="max-width:640px;margin:0 auto;background:#fffdf9;background-color:#fffdf9;border:1px solid #d9ddd9;border-radius:24px;overflow:hidden">` +
         `<div style="padding:28px 28px 22px;background:#214437;background-color:#214437;color:#ffffff">` +
           `<div style="text-transform:uppercase;letter-spacing:0.18em;font-size:12px;font-weight:700;color:#dbe7df">${escapeHtml(eyebrow)}</div>` +
-          `<h1 style="margin:10px 0 0;font-size:32px;line-height:1.08;font-weight:700;color:#ffffff">Bly, Oregon</h1>` +
+          `<h1 style="margin:10px 0 0;font-size:32px;line-height:1.08;font-weight:700;font-family:Georgia,'Times New Roman',serif;color:#ffffff">Bly, Oregon</h1>` +
           `<p style="margin:10px 0 0;font-family:Arial,sans-serif;font-size:16px;line-height:1.6;color:#eef6f1">${escapeHtml(intro)}</p>` +
         `</div>` +
-        `<div style="padding:28px">` +
-          `<h2 style="margin:0 0 14px;font-size:28px;line-height:1.2;color:#143227">${escapeHtml(title)}</h2>` +
+        `<div style="padding:28px;background:#fffdf9;background-color:#fffdf9">` +
+          `<h2 style="margin:0 0 14px;font-size:28px;line-height:1.2;font-family:Georgia,'Times New Roman',serif;color:#143227">${escapeHtml(title)}</h2>` +
           `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7;color:#33443b">${bodyHtml}</div>` +
           `${actionBlock}` +
         `</div>` +
