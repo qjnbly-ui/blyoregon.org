@@ -417,6 +417,34 @@
       opacity: 0.7;
       cursor: wait;
     }
+    .oauth-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #6a786f;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+    }
+    .oauth-divider::before,
+    .oauth-divider::after {
+      content: "";
+      flex: 1 1 auto;
+      height: 1px;
+      background: rgba(20, 50, 39, 0.14);
+    }
+    .oauth-button {
+      width: 100%;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--ink);
+      border: 1px solid rgba(33, 68, 55, 0.16);
+      box-shadow: none;
+    }
+    .oauth-button:hover {
+      border-color: rgba(33, 68, 55, 0.28);
+    }
 
     .status {
       min-height: 1.4rem;
@@ -692,6 +720,8 @@
           </div>
 
           <button id="submit" type="submit">Sign in</button>
+          <div class="oauth-divider">Or</div>
+          <button id="google-login" class="oauth-button" type="button">Continue with Google</button>
           <p class="status" id="status" aria-live="polite"></p>
           <p class="hint">Use your email address to sign in or create an account.</p>
         </form>
@@ -756,6 +786,7 @@
     const form = document.getElementById("login-form");
     const statusEl = document.getElementById("status");
     const submitButton = document.getElementById("submit");
+    const googleLoginButton = document.getElementById("google-login");
     const signinModeButton = document.getElementById("signin-mode");
     const signupModeButton = document.getElementById("signup-mode");
     const nameField = document.getElementById("name-field");
@@ -782,6 +813,19 @@
 
     signinModeButton.addEventListener("click", () => setMode("signin"));
     signupModeButton.addEventListener("click", () => setMode("signup"));
+
+    googleLoginButton.addEventListener("click", async () => {
+      try {
+        statusEl.style.color = "#2f5a46";
+        statusEl.textContent = "Redirecting to Google...";
+        googleLoginButton.disabled = true;
+        await window.siteAuth.signInWithProvider("google", nextUrl);
+      } catch (error) {
+        googleLoginButton.disabled = false;
+        statusEl.style.color = "#9d2d28";
+        statusEl.textContent = error.message || "Google sign-in failed.";
+      }
+    });
 
     if (authError === "expired") {
       statusEl.style.color = "#9d2d28";

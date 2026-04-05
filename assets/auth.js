@@ -75,6 +75,22 @@
     return data;
   }
 
+  async function signInWithProvider(provider, redirectPath = "/account/") {
+    const client = await getClient();
+    const config = await getConfig();
+    const normalizedPath = String(redirectPath || "/account/").startsWith("/")
+      ? String(redirectPath || "/account/")
+      : `/${String(redirectPath || "account/")}`;
+    const { data, error } = await client.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${config.siteUrl}${normalizedPath}`,
+      },
+    });
+    if (error) throw error;
+    return data;
+  }
+
   async function logout() {
     const client = await getClient();
     const { error } = await client.auth.signOut();
@@ -106,6 +122,7 @@
     login,
     logout,
     onAuthStateChange,
+    signInWithProvider,
     signUp,
   };
 })();
