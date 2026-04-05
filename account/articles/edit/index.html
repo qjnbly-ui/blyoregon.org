@@ -451,16 +451,18 @@
 
     function syncActionButtons() {
       const status = String(activeArticle?.status || "draft");
+      const canAuthorPublishedEdit = Boolean(activePermissions?.canSubmitArticles && status === "published");
       const canAuthorSubmit = Boolean(activePermissions?.canSubmitArticles && ["draft", "changes_requested"].includes(status));
       const canAuthorManage = Boolean(activePermissions?.canSubmitArticles);
       const canReview = Boolean(activePermissions?.canReviewArticles);
       const canPublish = Boolean(activePermissions?.canPublishArticles);
-      const canEdit = Boolean(canReview || canPublish || canAuthorSubmit);
+      const canEdit = Boolean(canReview || canPublish || canAuthorSubmit || canAuthorPublishedEdit);
       const canDelete = Boolean(canAuthorManage || canReview || canPublish);
 
       saveButtonEl.hidden = !canEdit;
       saveButtonEl.disabled = !canEdit;
-      submitButtonEl.hidden = !canAuthorSubmit;
+      saveButtonEl.textContent = canAuthorPublishedEdit && !canReview && !canPublish ? "Save edits for review" : "Save draft";
+      submitButtonEl.hidden = !(canAuthorSubmit && !canAuthorPublishedEdit);
       requestChangesButtonEl.hidden = !(canReview && status === "submitted");
       publishButtonEl.hidden = !(canPublish && ["submitted", "changes_requested"].includes(status));
       unpublishButtonEl.hidden = !((canAuthorManage || canPublish) && status === "published");
@@ -479,7 +481,11 @@
 
     function renderImages() {
       const status = String(activeArticle?.status || "draft");
-      const canEdit = Boolean(activePermissions?.canReviewArticles || activePermissions?.canPublishArticles || (activePermissions?.canSubmitArticles && ["draft", "changes_requested"].includes(status)));
+      const canEdit = Boolean(
+        activePermissions?.canReviewArticles ||
+        activePermissions?.canPublishArticles ||
+        (activePermissions?.canSubmitArticles && ["draft", "changes_requested", "published"].includes(status))
+      );
       imagesListEl.innerHTML = "";
       if (!imageState.length) {
         const empty = document.createElement("p");
@@ -664,7 +670,7 @@
         syncActionButtons();
         setStatus(
           action === "save"
-            ? "Draft saved."
+            ? (activeArticle.status === "submitted" ? "Edits submitted for review." : "Draft saved.")
             : action === "submit"
               ? "Submitted for approval."
               : action === "request_changes"

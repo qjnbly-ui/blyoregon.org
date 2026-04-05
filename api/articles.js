@@ -1117,7 +1117,7 @@ module.exports = async (req, res) => {
 
         const isOwner = existing.author_id === session.id;
         const status = String(existing.status || "");
-        const canAuthorEdit = isOwner && perms.canSubmitArticles && ["draft", "changes_requested"].includes(status);
+        const canAuthorEdit = isOwner && perms.canSubmitArticles && ["draft", "changes_requested", "published"].includes(status);
         const canReview = perms.canReviewArticles || perms.canPublishArticles || perms.admin;
         if (!(canAuthorEdit || canReview)) {
           sendJson(res, 403, { error: "Forbidden" });
@@ -1161,10 +1161,11 @@ module.exports = async (req, res) => {
       const action = String(body?.action || "save").trim().toLowerCase();
 
       const status = String(existing.status || "");
-      const canAuthorEdit = isOwner && perms.canSubmitArticles && ["draft", "changes_requested"].includes(status);
+      const canAuthorEdit = isOwner && perms.canSubmitArticles && ["draft", "changes_requested", "published"].includes(status);
       const canAuthorManage = isOwner && perms.canSubmitArticles;
       const canReview = perms.canReviewArticles || perms.canPublishArticles || perms.admin;
       const canPublish = perms.canPublishArticles || perms.admin;
+      let notificationAction = action;
 
       if (!canAuthorManage && !canReview) {
         sendJson(res, 403, { error: "Forbidden" });
@@ -1228,7 +1229,14 @@ module.exports = async (req, res) => {
         }
         payload.status = "draft";
         payload.published_at = null;
-      } else if (action !== "save") {
+      } else if (action === "save") {
+        if (isOwner && status === "published" && !canReview && !canPublish) {
+          payload.status = "submitted";
+          payload.submitted_at = new Date().toISOString();
+          payload.published_at = null;
+          notificationAction = "submit";
+        }
+      } else {
         sendJson(res, 400, { error: "Invalid action" });
         return;
       }
@@ -1237,13 +1245,13 @@ module.exports = async (req, res) => {
       await replaceArticleImages(existing.id, images, token, session.id);
       const imageMap = await fetchArticleImages([existing.id], token);
       const serializedArticle = updated ? serializeArticle(updated, imageMap) : null;
-      if (serializedArticle && ["submit", "request_changes", "publish", "unpublish"].includes(action)) {
+      if (serializedArticle && ["submit", "request_changes", "publish", "unpublish"].includes(notificationAction)) {
         try {
           await sendArticleNotifications({
             req,
             article: serializedArticle,
             actorProfile: profile,
-            action,
+            action: notificationAction,
             reviewNotes,
           });
         } catch (error) {
