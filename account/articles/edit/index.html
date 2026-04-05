@@ -728,19 +728,38 @@
       const client = await window.siteAuth.getClient();
 
       for (const file of files) {
-        const extension = (file.name.split(".").pop() || "jpg").toLowerCase();
-        const path = `${activeArticle.id}/${Date.now()}-${sanitizeFilename(file.name.replace(/\.[^.]+$/, ""))}.${extension}`;
         setStatus(`Uploading ${file.name}...`);
-        const { error } = await client.storage.from("article-images").upload(path, file, {
-          cacheControl: "3600",
-          upsert: false,
+        const prepareResponse = await fetch(`/api/articles?action=prepare_image_upload`, {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: activeArticle.id,
+            filename: file.name,
+          }),
         });
+        const preparePayload = await prepareResponse.json().catch(() => ({}));
+        if (!prepareResponse.ok || !preparePayload.upload?.path || !preparePayload.upload?.token) {
+          throw new Error(preparePayload.error || `Unable to prepare upload for ${file.name}.`);
+        }
+
+        const { error } = await client.storage.from("article-images").uploadToSignedUrl(
+          preparePayload.upload.path,
+          preparePayload.upload.token,
+          file,
+          {
+            cacheControl: "3600",
+            upsert: false,
+          }
+        );
         if (error) {
           throw new Error(error.message || `Unable to upload ${file.name}.`);
         }
         imageState.push({
-          storagePath: path,
-          imageUrl: `/media/article-images/${path.split("/").map((part) => encodeURIComponent(part)).join("/")}`,
+          storagePath: preparePayload.upload.path,
+          imageUrl: `/media/article-images/${preparePayload.upload.path.split("/").map((part) => encodeURIComponent(part)).join("/")}`,
           caption: "",
           altText: "",
           sortOrder: imageState.length,

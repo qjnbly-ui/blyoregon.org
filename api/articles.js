@@ -117,6 +117,13 @@ function slugify(value) {
     .slice(0, 80);
 }
 
+function sanitizeFilename(value) {
+  return String(value || "image")
+    .replace(/[^a-z0-9._-]+/gi, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function randomSlugSuffix() {
   return Math.random().toString(36).slice(2, 8);
 }
@@ -948,11 +955,45 @@ async function deleteArticleImagesFromStorage(paths) {
   }
 }
 
+async function createArticleImageUploadToken(path) {
+  const cleanPath = String(path || "").trim().replace(/^\/+/, "");
+  const headers = buildServiceHeaders();
+  if (!headers || !cleanPath) {
+    throw new Error("Unable to prepare article image upload");
+  }
+
+  const response = await fetch(`${getSupabaseUrl()}/storage/v1/object/upload/sign/article-images/${cleanPath}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({}),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.message || payload.error || "Unable to prepare article image upload");
+  }
+
+  const signedUrl = String(payload.url || payload.signedURL || "").trim();
+  const parsedToken = signedUrl
+    ? new URL(signedUrl, getSupabaseUrl()).searchParams.get("token")
+    : "";
+  const token = String(payload.token || parsedToken || "").trim();
+  if (!token) {
+    throw new Error("Missing upload token");
+  }
+
+  return {
+    path: cleanPath,
+    token,
+    uploadUrl: signedUrl || `${getSupabaseUrl()}/storage/v1/object/upload/sign/article-images/${cleanPath}?token=${encodeURIComponent(token)}`,
+  };
+}
+
 module.exports = async (req, res) => {
   const requestUrl = new URL(req.url, `https://${getHeaderValue(req, "host") || "blyoregon.org"}`);
   const articleId = String(requestUrl.searchParams.get("id") || "").trim();
   const slug = String(requestUrl.searchParams.get("slug") || "").trim();
   const scope = String(requestUrl.searchParams.get("scope") || "public").trim().toLowerCase();
+  const requestAction = String(requestUrl.searchParams.get("action") || "").trim().toLowerCase();
 
   try {
     if (req.method === "GET") {
@@ -1060,6 +1101,38 @@ module.exports = async (req, res) => {
     const perms = getArticlePermissions(profile);
 
     if (req.method === "POST") {
+      if (requestAction === "prepare_image_upload") {
+        const body = await parseJsonBody(req);
+        const targetArticleId = String(body?.id || articleId || "").trim();
+        if (!targetArticleId) {
+          sendJson(res, 400, { error: "Missing article id" });
+          return;
+        }
+
+        const existing = await fetchArticleById(targetArticleId, token);
+        if (!existing) {
+          sendJson(res, 404, { error: "Article not found" });
+          return;
+        }
+
+        const isOwner = existing.author_id === session.id;
+        const status = String(existing.status || "");
+        const canAuthorEdit = isOwner && perms.canSubmitArticles && ["draft", "changes_requested"].includes(status);
+        const canReview = perms.canReviewArticles || perms.canPublishArticles || perms.admin;
+        if (!(canAuthorEdit || canReview)) {
+          sendJson(res, 403, { error: "Forbidden" });
+          return;
+        }
+
+        const rawFilename = String(body?.filename || "image").trim();
+        const extension = (rawFilename.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]+/g, "");
+        const basename = sanitizeFilename(rawFilename.replace(/\.[^.]+$/, "")) || "image";
+        const path = `${existing.id}/${Date.now()}-${basename}.${extension || "jpg"}`;
+        const upload = await createArticleImageUploadToken(path);
+        sendJson(res, 200, { ok: true, upload });
+        return;
+      }
+
       if (!perms.canSubmitArticles) {
         sendJson(res, 403, { error: "Forbidden" });
         return;
