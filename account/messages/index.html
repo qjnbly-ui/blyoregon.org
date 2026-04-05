@@ -99,6 +99,40 @@
       text-align: left;
       cursor: pointer;
     }
+    .member-picker {
+      display: grid;
+      gap: 0.8rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(20,50,39,0.1);
+    }
+    .member-picker-list {
+      display: grid;
+      gap: 0.7rem;
+      max-height: 320px;
+      overflow: auto;
+    }
+    .member-picker-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      padding: 0.85rem 0.95rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20,50,39,0.1);
+      background: rgba(255,255,255,0.72);
+    }
+    .member-picker-copy {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      min-width: 0;
+    }
+    .member-picker-copy .meta {
+      margin: 0.1rem 0 0;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
     .thread-item.active { border-color: rgba(20,50,39,0.24); box-shadow: inset 0 0 0 1px rgba(20,50,39,0.08); }
     .thread-top, .composer-top { display: flex; gap: 0.8rem; align-items: center; }
     .avatar {
@@ -214,8 +248,18 @@
 
     <div class="layout">
       <section class="card">
-        <h2>Conversations</h2>
+        <div class="card-actions" style="margin-top:0;justify-content:space-between;align-items:center">
+          <h2>Conversations</h2>
+          <button id="new-message-button" class="button secondary" type="button">New conversation</button>
+        </div>
         <div id="thread-list" class="list"></div>
+        <div id="member-picker" class="member-picker" hidden>
+          <div>
+            <h3>Start a new conversation</h3>
+            <p class="meta">This list only shows members whose names are allowed to appear in direct messages. Other members must be contacted from their profile page.</p>
+          </div>
+          <div id="member-picker-list" class="member-picker-list"></div>
+        </div>
       </section>
 
       <section class="card messages-pane">
@@ -256,6 +300,9 @@
     const activeTitleEl = document.getElementById("active-title");
     const activeMetaEl = document.getElementById("active-meta");
     const messagesListEl = document.getElementById("messages-list");
+    const newMessageButtonEl = document.getElementById("new-message-button");
+    const memberPickerEl = document.getElementById("member-picker");
+    const memberPickerListEl = document.getElementById("member-picker-list");
     const composerFormEl = document.getElementById("composer-form");
     const composerBodyEl = document.getElementById("composer-body");
     const composerSendEl = document.getElementById("composer-send");
@@ -265,6 +312,7 @@
     let activeRecipientId = requestedUserId;
     let activeThreadId = requestedThreadId;
     let threadState = [];
+    let availableMembersState = [];
     let pollingTimer = null;
     let loadInFlight = false;
 
@@ -381,6 +429,60 @@
       });
     }
 
+    function renderAvailableMembers(members) {
+      memberPickerListEl.innerHTML = "";
+      if (!members.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "No named members are currently available in the inbox picker.";
+        memberPickerListEl.appendChild(empty);
+        return;
+      }
+
+      members.forEach((member) => {
+        const item = document.createElement("div");
+        item.className = "member-picker-item";
+
+        const copyWrap = document.createElement("div");
+        copyWrap.className = "member-picker-copy";
+
+        const avatar = document.createElement(member.avatarUrl ? "img" : "div");
+        avatar.className = "avatar";
+        if (member.avatarUrl) {
+          avatar.src = member.avatarUrl;
+          avatar.alt = member.displayName || "Member";
+        } else {
+          avatar.classList.add("avatar-placeholder");
+          avatar.textContent = (member.displayName || "?").trim().slice(0, 1).toUpperCase() || "?";
+        }
+
+        const text = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "thread-title";
+        title.textContent = member.displayName || "Bly member";
+        const bio = document.createElement("p");
+        bio.className = "meta";
+        bio.textContent = member.bio || "Open a conversation with this member.";
+        text.append(title, bio);
+        copyWrap.append(avatar, text);
+
+        const action = document.createElement("button");
+        action.type = "button";
+        action.className = "button secondary";
+        action.textContent = "Message";
+        action.addEventListener("click", async () => {
+          activeRecipientId = member.id || "";
+          activeThreadId = "";
+          memberPickerEl.hidden = true;
+          updateUrl();
+          await loadPage();
+        });
+
+        item.append(copyWrap, action);
+        memberPickerListEl.appendChild(item);
+      });
+    }
+
     function renderMessages(activeThread, messages) {
       const counterpart = activeThread?.counterpart || null;
       renderAvatar(counterpart);
@@ -446,10 +548,12 @@
         }
 
         threadState = Array.isArray(payload.threads) ? payload.threads : [];
+        availableMembersState = Array.isArray(payload.availableMembers) ? payload.availableMembers : [];
         if (!activeThreadId && payload.activeThread?.id) activeThreadId = payload.activeThread.id;
         if (!activeRecipientId && payload.activeThread?.counterpart?.id) activeRecipientId = payload.activeThread.counterpart.id;
         updateUrl();
         renderThreads(threadState);
+        renderAvailableMembers(availableMembersState);
         renderMessages(payload.activeThread || null, Array.isArray(payload.messages) ? payload.messages : []);
         if (!options.silent) setStatus("");
         startPolling();
@@ -515,6 +619,10 @@
       } finally {
         composerSendEl.disabled = false;
       }
+    });
+
+    newMessageButtonEl.addEventListener("click", () => {
+      memberPickerEl.hidden = !memberPickerEl.hidden;
     });
 
     document.addEventListener("visibilitychange", () => {

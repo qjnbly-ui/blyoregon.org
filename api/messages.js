@@ -152,6 +152,27 @@ async function fetchProfilesByIds(ids, token = "") {
   return new Map((Array.isArray(rows) ? rows : []).map((row) => [String(row.id || ""), row]));
 }
 
+async function fetchVisibleMessageMembers(userId, token = "") {
+  const headers = buildServiceHeaders() || buildUserHeaders(token);
+  const query = new URLSearchParams({
+    select: "id,display_name,avatar_path,bio,show_name_in_messages",
+    id: `neq.${userId}`,
+    order: "display_name.asc.nullslast",
+  });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/profiles?${query.toString()}`, {
+    headers,
+  });
+  if (!response.ok) throw new Error("Unable to load members");
+  const rows = await response.json().catch(() => []);
+  const profiles = Array.isArray(rows) ? rows : [];
+  const publishedAuthorIds = await fetchPublishedArticleAuthorIds(profiles.map((profile) => profile.id), token);
+  return profiles
+    .filter((profile) => publishedAuthorIds.has(String(profile.id || "").trim()) || profile.show_name_in_messages !== false)
+    .map((profile) => serializeMember(profile, {
+      hasPublishedArticles: publishedAuthorIds.has(String(profile.id || "").trim()),
+    }));
+}
+
 async function fetchPublishedArticleAuthorIds(ids, token = "") {
   const normalizedIds = Array.from(new Set((ids || []).map((id) => String(id || "").trim()).filter(Boolean)));
   if (!normalizedIds.length) return new Set();
@@ -461,7 +482,10 @@ module.exports = async (req, res) => {
       const url = new URL(req.url, `https://${getHeaderValue(req, "host") || "blyoregon.org"}`);
       const counterpartId = String(url.searchParams.get("with") || "").trim();
       const threadIdParam = String(url.searchParams.get("thread") || "").trim();
-      const threads = await buildThreadsPayload(session.id, token);
+      const [threads, availableMembers] = await Promise.all([
+        buildThreadsPayload(session.id, token),
+        fetchVisibleMessageMembers(session.id, token),
+      ]);
 
       let activeThread = null;
       let activeMessages = [];
@@ -539,6 +563,7 @@ module.exports = async (req, res) => {
             senderName: senderId === session.id ? "You" : senderDisplay.displayName,
           };
         }),
+        availableMembers,
         unreadCount: threads.reduce((sum, thread) => sum + Number(thread.unreadCount || 0), 0),
       });
       return;
