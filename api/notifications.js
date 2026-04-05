@@ -169,6 +169,18 @@ async function deleteNotifications(userId, token, ids) {
   if (!response.ok) throw new Error("Unable to delete notifications");
 }
 
+async function deleteAllNotifications(userId, token) {
+  const query = new URLSearchParams({
+    user_id: `eq.${userId}`,
+  });
+
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/notifications?${query.toString()}`, {
+    method: "DELETE",
+    headers: buildServiceHeaders() || buildUserHeaders(token),
+  });
+  if (!response.ok) throw new Error("Unable to clear inbox");
+}
+
 module.exports = async (req, res) => {
   try {
     const { session, token } = await authenticateRequest(req);
@@ -208,6 +220,8 @@ module.exports = async (req, res) => {
         await markAllNotificationsRead(session.id, token);
       } else if (action === "delete") {
         await deleteNotifications(session.id, token, [body?.id]);
+      } else if (action === "clear_inbox") {
+        await deleteAllNotifications(session.id, token);
       } else {
         sendJson(res, 400, { error: "Invalid action" });
         return;

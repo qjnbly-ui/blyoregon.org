@@ -31,6 +31,7 @@ create table if not exists public.profiles (
   notify_admin_article_queue_email boolean not null default true,
   notify_direct_messages_internal boolean not null default true,
   notify_direct_messages_email boolean not null default true,
+  show_name_in_messages boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -56,6 +57,7 @@ alter table public.profiles add column if not exists notify_admin_article_queue_
 alter table public.profiles add column if not exists notify_admin_article_queue_email boolean not null default true;
 alter table public.profiles add column if not exists notify_direct_messages_internal boolean not null default true;
 alter table public.profiles add column if not exists notify_direct_messages_email boolean not null default true;
+alter table public.profiles add column if not exists show_name_in_messages boolean not null default true;
 alter table public.profiles alter column can_submit_articles set default true;
 
 update public.profiles
@@ -257,7 +259,8 @@ begin
     notify_admin_article_queue_internal,
     notify_admin_article_queue_email,
     notify_direct_messages_internal,
-    notify_direct_messages_email
+    notify_direct_messages_email,
+    show_name_in_messages
   )
   values (
     new.id,
@@ -273,7 +276,8 @@ begin
     coalesce((new.raw_user_meta_data ->> 'notify_admin_article_queue_internal')::boolean, true),
     coalesce((new.raw_user_meta_data ->> 'notify_admin_article_queue_email')::boolean, true),
     coalesce((new.raw_user_meta_data ->> 'notify_direct_messages_internal')::boolean, true),
-    coalesce((new.raw_user_meta_data ->> 'notify_direct_messages_email')::boolean, true)
+    coalesce((new.raw_user_meta_data ->> 'notify_direct_messages_email')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'show_name_in_messages')::boolean, true)
   )
   on conflict (id) do update
     set email = excluded.email,
@@ -289,6 +293,7 @@ begin
         notify_admin_article_queue_email = excluded.notify_admin_article_queue_email,
         notify_direct_messages_internal = excluded.notify_direct_messages_internal,
         notify_direct_messages_email = excluded.notify_direct_messages_email,
+        show_name_in_messages = excluded.show_name_in_messages,
         updated_at = now();
 
   return new;

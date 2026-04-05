@@ -172,7 +172,10 @@
           <h2>Your notifications</h2>
           <p class="meta">Internal notifications stay in your account even if email delivery is turned off. You can delete them when you are done.</p>
         </div>
-        <button id="mark-all-button" class="button secondary" type="button" hidden>Mark all read</button>
+        <div class="card-actions" style="margin-top:0">
+          <button id="mark-all-button" class="button secondary" type="button" hidden>Mark all read</button>
+          <button id="clear-inbox-button" class="button secondary" type="button" hidden>Clear inbox</button>
+        </div>
       </div>
       <div id="notification-list" class="list"></div>
       <p id="page-status" class="status-copy" aria-live="polite"></p>
@@ -189,6 +192,7 @@
     const statusEl = document.getElementById("page-status");
     const heroIntroEl = document.getElementById("hero-intro");
     const markAllButtonEl = document.getElementById("mark-all-button");
+    const clearInboxButtonEl = document.getElementById("clear-inbox-button");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     let activeSession = null;
 
@@ -227,6 +231,7 @@
         ? `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"} in your account inbox.`
         : "You are caught up. New account activity will appear here.";
       markAllButtonEl.hidden = unreadCount < 1;
+      clearInboxButtonEl.hidden = notifications.length < 1;
 
       if (!notifications.length) {
         const empty = document.createElement("p");
@@ -350,6 +355,22 @@
         setStatus(error.message || "Unable to update notifications.", true);
       } finally {
         markAllButtonEl.disabled = false;
+      }
+    });
+
+    clearInboxButtonEl.addEventListener("click", async () => {
+      if (!window.confirm("Clear your entire notification inbox? This deletes all notifications.")) {
+        return;
+      }
+
+      try {
+        clearInboxButtonEl.disabled = true;
+        await updateNotification("clear_inbox");
+        await loadPage();
+      } catch (error) {
+        setStatus(error.message || "Unable to update notifications.", true);
+      } finally {
+        clearInboxButtonEl.disabled = false;
       }
     });
 

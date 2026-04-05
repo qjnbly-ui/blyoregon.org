@@ -255,6 +255,16 @@
       font-size: 0.9rem;
       margin: 0;
     }
+    .member-summary {
+      display: grid;
+      gap: 0.35rem;
+      margin-top: 0.9rem;
+      padding-top: 0.9rem;
+      border-top: 1px solid rgba(20, 50, 39, 0.12);
+    }
+    .member-summary strong {
+      color: var(--forest);
+    }
     .warning {
       color: #8b322d;
     }
@@ -302,9 +312,113 @@
 
     <section class="card">
       <h2>Access settings</h2>
-      <p class="meta">Use categories below to manage media tools, article workflow, and bucket-specific access for one member.</p>
+      <p class="meta">Use categories below to manage the member's profile settings, notifications, article workflow, media tools, and bucket-specific access.</p>
+      <div class="member-summary">
+        <div><strong id="member-name">Member</strong></div>
+        <div id="member-email" class="meta"></div>
+        <div id="member-bio" class="meta"></div>
+      </div>
       <div id="controls" hidden>
         <div class="permission-groups">
+          <section class="permission-group">
+            <div class="permission-group-header">
+              <h3>Notification settings</h3>
+              <p>These are the same member-controlled notification settings shown in profile settings during account creation and later in the account editor.</p>
+            </div>
+            <div class="control-grid">
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Article submissions: inbox</strong>
+                    <span>Updates when one of this member's article drafts moves into or through review.</span>
+                  </div>
+                  <button id="toggle-article-submissions-internal" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Article submissions: email</strong>
+                    <span>Email updates when article drafts move into or through review.</span>
+                  </div>
+                  <button id="toggle-article-submissions-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Article review: inbox</strong>
+                    <span>Changes requested and other review decisions on this member's articles.</span>
+                  </div>
+                  <button id="toggle-article-review-internal" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Article review: email</strong>
+                    <span>Email changes requested and other review decisions.</span>
+                  </div>
+                  <button id="toggle-article-review-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Article publishing: inbox</strong>
+                    <span>Publishing, live updates, and unpublishing events tied to this member's articles.</span>
+                  </div>
+                  <button id="toggle-article-publishing-internal" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Article publishing: email</strong>
+                    <span>Email publishing, live update, and unpublishing events.</span>
+                  </div>
+                  <button id="toggle-article-publishing-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Direct messages: inbox</strong>
+                    <span>New messages from other members and authors on the site.</span>
+                  </div>
+                  <button id="toggle-direct-messages-internal" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Direct messages: email</strong>
+                    <span>Email notifications for new member-to-member messages.</span>
+                  </div>
+                  <button id="toggle-direct-messages-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Admin queue: inbox</strong>
+                    <span>Reviewer/admin notifications when submissions need attention or admin-side publishing actions happen.</span>
+                  </div>
+                  <button id="toggle-admin-queue-internal" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Admin queue: email</strong>
+                    <span>Email notifications for reviewer/admin article work.</span>
+                  </div>
+                  <button id="toggle-admin-queue-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <section class="permission-group">
             <div class="permission-group-header">
               <h3>Media permissions</h3>
@@ -415,6 +529,24 @@
 
           <section class="permission-group">
             <div class="permission-group-header">
+              <h3>Messaging profile</h3>
+              <p>Controls whether this member's public name appears inside direct-message conversations.</p>
+            </div>
+            <div class="control-grid">
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Show name in messages</strong>
+                    <span id="show-name-in-messages-copy">When off, this member appears as “Bly member” inside message threads.</span>
+                  </div>
+                  <button id="toggle-show-name-in-messages" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="permission-group">
+            <div class="permission-group-header">
               <h3>Bucket access</h3>
               <p>Choose which historical photo buckets this member can work in when media manager access is enabled.</p>
             </div>
@@ -439,6 +571,19 @@
     const titleEl = document.getElementById("page-title");
     const introEl = document.getElementById("page-intro");
     const controlsEl = document.getElementById("controls");
+    const memberNameEl = document.getElementById("member-name");
+    const memberEmailEl = document.getElementById("member-email");
+    const memberBioEl = document.getElementById("member-bio");
+    const toggleArticleSubmissionsInternalEl = document.getElementById("toggle-article-submissions-internal");
+    const toggleArticleSubmissionsEmailEl = document.getElementById("toggle-article-submissions-email");
+    const toggleArticleReviewInternalEl = document.getElementById("toggle-article-review-internal");
+    const toggleArticleReviewEmailEl = document.getElementById("toggle-article-review-email");
+    const toggleArticlePublishingInternalEl = document.getElementById("toggle-article-publishing-internal");
+    const toggleArticlePublishingEmailEl = document.getElementById("toggle-article-publishing-email");
+    const toggleDirectMessagesInternalEl = document.getElementById("toggle-direct-messages-internal");
+    const toggleDirectMessagesEmailEl = document.getElementById("toggle-direct-messages-email");
+    const toggleAdminQueueInternalEl = document.getElementById("toggle-admin-queue-internal");
+    const toggleAdminQueueEmailEl = document.getElementById("toggle-admin-queue-email");
     const toggleUploadEl = document.getElementById("toggle-upload");
     const toggleManagerEl = document.getElementById("toggle-manager");
     const toggleEditDetailsEl = document.getElementById("toggle-edit-details");
@@ -449,6 +594,8 @@
     const toggleSelfPublishArticleEditsEl = document.getElementById("toggle-self-publish-article-edits");
     const toggleReviewArticlesEl = document.getElementById("toggle-review-articles");
     const togglePublishArticlesEl = document.getElementById("toggle-publish-articles");
+    const toggleShowNameInMessagesEl = document.getElementById("toggle-show-name-in-messages");
+    const showNameInMessagesCopyEl = document.getElementById("show-name-in-messages-copy");
     const bucketOptionsEl = document.getElementById("bucket-options");
     const memberStatusEl = document.getElementById("member-status");
     const pageStatusEl = document.getElementById("page-status");
@@ -476,6 +623,16 @@
     function syncControls() {
       if (!activeProfile) return;
       toggleUploadEl.setAttribute("aria-checked", String(Boolean(activeProfile.canUploadPhotos)));
+      toggleArticleSubmissionsInternalEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.articleSubmissionsInternal)));
+      toggleArticleSubmissionsEmailEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.articleSubmissionsEmail)));
+      toggleArticleReviewInternalEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.articleReviewInternal)));
+      toggleArticleReviewEmailEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.articleReviewEmail)));
+      toggleArticlePublishingInternalEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.articlePublishingInternal)));
+      toggleArticlePublishingEmailEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.articlePublishingEmail)));
+      toggleDirectMessagesInternalEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.directMessagesInternal)));
+      toggleDirectMessagesEmailEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.directMessagesEmail)));
+      toggleAdminQueueInternalEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.adminArticleQueueInternal)));
+      toggleAdminQueueEmailEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.adminArticleQueueEmail)));
       toggleManagerEl.setAttribute("aria-checked", String(Boolean(activeProfile.canManageMedia)));
       toggleEditDetailsEl.setAttribute("aria-checked", String(Boolean(activeProfile.canEditMediaDetails)));
       toggleRenameEl.setAttribute("aria-checked", String(Boolean(activeProfile.canRenameMedia)));
@@ -485,6 +642,11 @@
       toggleSelfPublishArticleEditsEl.setAttribute("aria-checked", String(Boolean(activeProfile.canSelfPublishArticleEdits)));
       toggleReviewArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canReviewArticles)));
       togglePublishArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canPublishArticles)));
+      toggleShowNameInMessagesEl.setAttribute("aria-checked", String(Boolean(activeProfile.showNameInMessages)));
+      toggleShowNameInMessagesEl.disabled = Boolean(activeProfile.hasPublishedArticles);
+      showNameInMessagesCopyEl.textContent = activeProfile.hasPublishedArticles
+        ? "This stays on because the member already has a published article with a public author name."
+        : "When off, this member appears as “Bly member” inside message threads.";
       bucketOptionsEl.querySelectorAll("input[type=\"checkbox\"]").forEach((input) => {
         input.checked = Array.isArray(activeProfile.mediaBuckets) && activeProfile.mediaBuckets.includes(input.value);
         input.disabled = !activeProfile.canManageMedia;
@@ -512,6 +674,17 @@
             canSelfPublishArticleEdits: nextState.canSelfPublishArticleEdits,
             canReviewArticles: nextState.canReviewArticles,
             canPublishArticles: nextState.canPublishArticles,
+            notifyArticleSubmissionsInternal: nextState.notificationPreferences?.articleSubmissionsInternal,
+            notifyArticleSubmissionsEmail: nextState.notificationPreferences?.articleSubmissionsEmail,
+            notifyArticleReviewInternal: nextState.notificationPreferences?.articleReviewInternal,
+            notifyArticleReviewEmail: nextState.notificationPreferences?.articleReviewEmail,
+            notifyArticlePublishingInternal: nextState.notificationPreferences?.articlePublishingInternal,
+            notifyArticlePublishingEmail: nextState.notificationPreferences?.articlePublishingEmail,
+            notifyDirectMessagesInternal: nextState.notificationPreferences?.directMessagesInternal,
+            notifyDirectMessagesEmail: nextState.notificationPreferences?.directMessagesEmail,
+            notifyAdminArticleQueueInternal: nextState.notificationPreferences?.adminArticleQueueInternal,
+            notifyAdminArticleQueueEmail: nextState.notificationPreferences?.adminArticleQueueEmail,
+            showNameInMessages: nextState.showNameInMessages,
             mediaBuckets: nextState.mediaBuckets,
           }),
         });
@@ -592,6 +765,9 @@
 
         titleEl.textContent = activeProfile.displayName || activeProfile.email || "Member permissions";
         introEl.textContent = activeProfile.email || "Manage this member's access settings.";
+        memberNameEl.textContent = activeProfile.displayName || "Unnamed member";
+        memberEmailEl.textContent = activeProfile.email || "";
+        memberBioEl.textContent = activeProfile.bio || "No bio added yet.";
 
         if (activeProfile.role === "admin") {
           controlsEl.hidden = true;
@@ -616,6 +792,116 @@
       await saveProfile({
         ...activeProfile,
         canUploadPhotos: !activeProfile.canUploadPhotos,
+      });
+    });
+
+    toggleArticleSubmissionsInternalEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          articleSubmissionsInternal: !activeProfile.notificationPreferences?.articleSubmissionsInternal,
+        },
+      });
+    });
+
+    toggleArticleSubmissionsEmailEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          articleSubmissionsEmail: !activeProfile.notificationPreferences?.articleSubmissionsEmail,
+        },
+      });
+    });
+
+    toggleArticleReviewInternalEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          articleReviewInternal: !activeProfile.notificationPreferences?.articleReviewInternal,
+        },
+      });
+    });
+
+    toggleArticleReviewEmailEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          articleReviewEmail: !activeProfile.notificationPreferences?.articleReviewEmail,
+        },
+      });
+    });
+
+    toggleArticlePublishingInternalEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          articlePublishingInternal: !activeProfile.notificationPreferences?.articlePublishingInternal,
+        },
+      });
+    });
+
+    toggleArticlePublishingEmailEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          articlePublishingEmail: !activeProfile.notificationPreferences?.articlePublishingEmail,
+        },
+      });
+    });
+
+    toggleDirectMessagesInternalEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          directMessagesInternal: !activeProfile.notificationPreferences?.directMessagesInternal,
+        },
+      });
+    });
+
+    toggleDirectMessagesEmailEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          directMessagesEmail: !activeProfile.notificationPreferences?.directMessagesEmail,
+        },
+      });
+    });
+
+    toggleAdminQueueInternalEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          adminArticleQueueInternal: !activeProfile.notificationPreferences?.adminArticleQueueInternal,
+        },
+      });
+    });
+
+    toggleAdminQueueEmailEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          adminArticleQueueEmail: !activeProfile.notificationPreferences?.adminArticleQueueEmail,
+        },
       });
     });
 
@@ -689,6 +975,14 @@
       await saveProfile({
         ...activeProfile,
         canPublishArticles: !activeProfile.canPublishArticles,
+      });
+    });
+
+    toggleShowNameInMessagesEl.addEventListener("click", async () => {
+      if (!activeProfile || activeProfile.hasPublishedArticles) return;
+      await saveProfile({
+        ...activeProfile,
+        showNameInMessages: !activeProfile.showNameInMessages,
       });
     });
 

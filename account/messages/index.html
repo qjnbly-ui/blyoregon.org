@@ -154,6 +154,13 @@
     }
     .bubble-meta { font-size: 0.82rem; color: #5c6d63; }
     .bubble.mine .bubble-meta { color: rgba(255,255,255,0.72); }
+    .bubble-author {
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--forest);
+    }
+    .bubble.mine .bubble-author { color: rgba(255,255,255,0.92); }
     .composer { display: grid; gap: 0.75rem; }
     textarea {
       width: 100%;
@@ -376,12 +383,15 @@
       messages.forEach((message) => {
         const bubble = document.createElement("article");
         bubble.className = `bubble${message.senderId === activeSession?.user?.id ? " mine" : ""}`;
+        const author = document.createElement("div");
+        author.className = "bubble-author";
+        author.textContent = message.senderName || (message.senderId === activeSession?.user?.id ? "You" : (counterpart?.displayName || "Bly member"));
         const body = document.createElement("div");
         body.textContent = message.body || "";
         const meta = document.createElement("div");
         meta.className = "bubble-meta";
         meta.textContent = formatDate(message.createdAt);
-        bubble.append(body, meta);
+        bubble.append(author, body, meta);
         messagesListEl.appendChild(bubble);
       });
 

@@ -668,6 +668,15 @@
                     <label><input type="checkbox" name="notify_direct_messages_email" checked /> Email</label>
                   </div>
                 </div>
+                <div class="checkbox-row">
+                  <div class="checkbox-copy">
+                    <strong>Show name in messages</strong>
+                    <span>Your public name appears inside direct-message conversations. This can be turned off later unless you publish an article.</span>
+                  </div>
+                  <div class="checkbox-pair">
+                    <label><input type="checkbox" name="show_name_in_messages" checked /> Show name</label>
+                  </div>
+                </div>
               </div>
             </section>
           </div>
@@ -813,6 +822,7 @@
             notify_article_publishing_email: form.notify_article_publishing_email.checked,
             notify_direct_messages_internal: form.notify_direct_messages_internal.checked,
             notify_direct_messages_email: form.notify_direct_messages_email.checked,
+            show_name_in_messages: form.show_name_in_messages.checked,
             notify_admin_article_queue_internal: true,
             notify_admin_article_queue_email: true,
           }

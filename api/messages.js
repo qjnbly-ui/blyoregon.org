@@ -124,7 +124,7 @@ async function authenticateRequest(req) {
 async function fetchProfileById(userId, token = "") {
   const headers = buildServiceHeaders() || buildUserHeaders(token);
   const query = new URLSearchParams({
-    select: "id,email,display_name,avatar_path,bio,notify_direct_messages_internal,notify_direct_messages_email",
+    select: "id,email,display_name,avatar_path,bio,show_name_in_messages,notify_direct_messages_internal,notify_direct_messages_email",
     id: `eq.${userId}`,
     limit: "1",
   });
@@ -141,7 +141,7 @@ async function fetchProfilesByIds(ids, token = "") {
   if (!normalizedIds.length) return new Map();
   const headers = buildServiceHeaders() || buildUserHeaders(token);
   const query = new URLSearchParams({
-    select: "id,email,display_name,avatar_path,bio,notify_direct_messages_internal,notify_direct_messages_email",
+    select: "id,email,display_name,avatar_path,bio,show_name_in_messages,notify_direct_messages_internal,notify_direct_messages_email",
     id: `in.(${normalizedIds.join(",")})`,
   });
   const response = await fetch(`${getSupabaseUrl()}/rest/v1/profiles?${query.toString()}`, {
@@ -152,13 +152,48 @@ async function fetchProfilesByIds(ids, token = "") {
   return new Map((Array.isArray(rows) ? rows : []).map((row) => [String(row.id || ""), row]));
 }
 
-function serializeMember(profile) {
+async function fetchPublishedArticleAuthorIds(ids, token = "") {
+  const normalizedIds = Array.from(new Set((ids || []).map((id) => String(id || "").trim()).filter(Boolean)));
+  if (!normalizedIds.length) return new Set();
+  const headers = buildServiceHeaders() || buildUserHeaders(token);
+  const query = new URLSearchParams({
+    select: "author_id",
+    status: "eq.published",
+    author_id: `in.(${normalizedIds.join(",")})`,
+  });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/articles?${query.toString()}`, {
+    headers,
+  });
+  if (!response.ok) throw new Error("Unable to load published article authors");
+  const rows = await response.json().catch(() => []);
+  return new Set((Array.isArray(rows) ? rows : []).map((row) => String(row.author_id || "").trim()).filter(Boolean));
+}
+
+function resolveMessageDisplay(profile, hasPublishedArticles = false) {
+  if (!profile) {
+    return {
+      displayName: "Bly member",
+      bio: "",
+      nameVisibleInMessages: false,
+    };
+  }
+  const nameVisibleInMessages = hasPublishedArticles || profile.show_name_in_messages !== false;
+  return {
+    displayName: nameVisibleInMessages ? (profile.display_name || "Bly member") : "Bly member",
+    bio: nameVisibleInMessages ? (profile.bio || "") : "",
+    nameVisibleInMessages,
+  };
+}
+
+function serializeMember(profile, options = {}) {
+  const resolved = resolveMessageDisplay(profile, options.hasPublishedArticles);
   return {
     id: profile?.id || "",
-    displayName: profile?.display_name || "Bly member",
+    displayName: resolved.displayName,
     avatarPath: profile?.avatar_path || "",
     avatarUrl: avatarUrl(profile?.avatar_path),
-    bio: profile?.bio || "",
+    bio: resolved.bio,
+    nameVisibleInMessages: resolved.nameVisibleInMessages,
   };
 }
 
@@ -385,6 +420,7 @@ async function buildThreadsPayload(userId, token = "") {
     fetchProfilesByIds(counterpartIds, token),
     fetchUnreadCountsForThreads(userId, threadIds, token),
   ]);
+  const publishedAuthorIds = await fetchPublishedArticleAuthorIds(counterpartIds, token);
   const latestMessages = new Map();
   await Promise.all(
     threads.map(async (thread) => {
@@ -402,7 +438,9 @@ async function buildThreadsPayload(userId, token = "") {
     const latest = latestMessages.get(threadId);
     return {
       id: threadId,
-      counterpart: serializeMember(counterpart),
+      counterpart: serializeMember(counterpart, {
+        hasPublishedArticles: publishedAuthorIds.has(counterpartId),
+      }),
       preview: summarizeText(latest?.body || ""),
       unreadCount: Number(unreadCounts.get(threadId) || 0),
       updatedAt: thread.last_message_at || thread.updated_at || thread.created_at || null,
@@ -428,6 +466,7 @@ module.exports = async (req, res) => {
       let activeThread = null;
       let activeMessages = [];
       let counterpartProfile = null;
+      let publishedAuthorIds = new Set();
 
       if (counterpartId) {
         if (counterpartId === session.id) {
@@ -439,6 +478,7 @@ module.exports = async (req, res) => {
           sendJson(res, 404, { error: "Member not found" });
           return;
         }
+        publishedAuthorIds = await fetchPublishedArticleAuthorIds([counterpartId], token);
         const existing = await fetchThreadByParticipants(session.id, counterpartId, token);
         if (existing) {
           activeThread = existing;
@@ -446,7 +486,9 @@ module.exports = async (req, res) => {
         } else {
           activeThread = {
             id: "",
-            counterpart: serializeMember(counterpartProfile),
+            counterpart: serializeMember(counterpartProfile, {
+              hasPublishedArticles: publishedAuthorIds.has(counterpartId),
+            }),
           };
         }
       } else if (threadIdParam) {
@@ -458,11 +500,13 @@ module.exports = async (req, res) => {
             user_two_id: activeSummary.counterpart.id,
           };
           counterpartProfile = await fetchProfileById(activeSummary.counterpart.id, token);
+          publishedAuthorIds = await fetchPublishedArticleAuthorIds([activeSummary.counterpart.id], token);
           activeMessages = await fetchMessagesForThread(threadIdParam, token);
         }
       } else if (threads.length) {
         const firstThread = threads[0];
         counterpartProfile = await fetchProfileById(firstThread.counterpart.id, token);
+        publishedAuthorIds = await fetchPublishedArticleAuthorIds([firstThread.counterpart.id], token);
         activeMessages = await fetchMessagesForThread(firstThread.id, token);
         activeThread = {
           id: firstThread.id,
@@ -471,15 +515,30 @@ module.exports = async (req, res) => {
         };
       }
 
+      const senderIds = Array.from(new Set(activeMessages.map((message) => String(message.sender_id || "").trim()).filter(Boolean)));
+      const senderProfiles = await fetchProfilesByIds(senderIds, token);
+      const senderPublishedIds = await fetchPublishedArticleAuthorIds(senderIds, token);
+
       sendJson(res, 200, {
         threads,
         activeThread: activeThread
           ? {
               id: String(activeThread.id || "").trim(),
-              counterpart: activeThread.counterpart || serializeMember(counterpartProfile),
+              counterpart: activeThread.counterpart || serializeMember(counterpartProfile, {
+                hasPublishedArticles: publishedAuthorIds.has(String(counterpartProfile?.id || "").trim()),
+              }),
             }
           : null,
-        messages: activeMessages.map(serializeMessage),
+        messages: activeMessages.map((message) => {
+          const serialized = serializeMessage(message);
+          const senderId = String(message.sender_id || "").trim();
+          const senderProfile = senderProfiles.get(senderId) || null;
+          const senderDisplay = resolveMessageDisplay(senderProfile, senderPublishedIds.has(senderId));
+          return {
+            ...serialized,
+            senderName: senderId === session.id ? "You" : senderDisplay.displayName,
+          };
+        }),
         unreadCount: threads.reduce((sum, thread) => sum + Number(thread.unreadCount || 0), 0),
       });
       return;
@@ -520,7 +579,8 @@ module.exports = async (req, res) => {
 
       const siteUrl = getSiteUrl(req);
       const messageUrl = `${siteUrl}/account/messages/?thread=${encodeURIComponent(thread.id)}`;
-      const senderName = senderProfile.display_name || senderProfile.email || "A Bly member";
+      const publishedAuthorIds = await fetchPublishedArticleAuthorIds([session.id, recipientId], token);
+      const senderName = resolveMessageDisplay(senderProfile, publishedAuthorIds.has(session.id)).displayName || senderProfile.email || "A Bly member";
       const recipientPrefs = {
         internal: recipientProfile.notify_direct_messages_internal !== false,
         email: recipientProfile.notify_direct_messages_email !== false,
@@ -573,9 +633,20 @@ module.exports = async (req, res) => {
         ok: true,
         thread: {
           id: String(thread.id || "").trim(),
-          counterpart: serializeMember(recipientProfile),
+          counterpart: serializeMember(recipientProfile, {
+            hasPublishedArticles: publishedAuthorIds.has(recipientId),
+          }),
         },
-        messages: messages.map(serializeMessage),
+        messages: messages.map((row) => {
+          const serialized = serializeMessage(row);
+          const senderId = String(row.sender_id || "").trim();
+          const profile = senderId === session.id ? senderProfile : recipientProfile;
+          const senderDisplay = resolveMessageDisplay(profile, publishedAuthorIds.has(senderId));
+          return {
+            ...serialized,
+            senderName: senderId === session.id ? "You" : senderDisplay.displayName,
+          };
+        }),
       });
       return;
     }

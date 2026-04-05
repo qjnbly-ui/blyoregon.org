@@ -999,6 +999,15 @@
                 <label><input id="notify-direct-messages-email" type="checkbox" /> Email</label>
               </div>
             </div>
+            <div class="preference-row">
+              <div class="preference-copy">
+                <strong>Show my name in messages</strong>
+                <span id="show-name-in-messages-copy">Your public name will appear inside direct-message conversations.</span>
+              </div>
+              <div class="checkbox-cluster">
+                <label><input id="show-name-in-messages" type="checkbox" /> Show name</label>
+              </div>
+            </div>
             <div class="preference-row" id="admin-queue-preference-row" hidden>
               <div class="preference-copy">
                 <strong>Admin review queue</strong>
@@ -1115,6 +1124,8 @@
     const notifyArticlePublishingEmailInput = document.getElementById("notify-article-publishing-email");
     const notifyDirectMessagesInternalInput = document.getElementById("notify-direct-messages-internal");
     const notifyDirectMessagesEmailInput = document.getElementById("notify-direct-messages-email");
+    const showNameInMessagesInput = document.getElementById("show-name-in-messages");
+    const showNameInMessagesCopyEl = document.getElementById("show-name-in-messages-copy");
     const adminQueuePreferenceRowEl = document.getElementById("admin-queue-preference-row");
     const notifyAdminQueueInternalInput = document.getElementById("notify-admin-queue-internal");
     const notifyAdminQueueEmailInput = document.getElementById("notify-admin-queue-email");
@@ -1189,6 +1200,11 @@
       notifyArticlePublishingEmailInput.checked = notificationPreferences.articlePublishingEmail !== false;
       notifyDirectMessagesInternalInput.checked = notificationPreferences.directMessagesInternal !== false;
       notifyDirectMessagesEmailInput.checked = notificationPreferences.directMessagesEmail !== false;
+      showNameInMessagesInput.checked = profile?.showNameInMessages !== false;
+      showNameInMessagesInput.disabled = Boolean(profile?.hasPublishedArticles);
+      showNameInMessagesCopyEl.textContent = profile?.hasPublishedArticles
+        ? "This stays on because published articles already show your name publicly."
+        : "Your public name will appear inside direct-message conversations.";
       notifyAdminQueueInternalInput.checked = notificationPreferences.adminArticleQueueInternal !== false;
       notifyAdminQueueEmailInput.checked = notificationPreferences.adminArticleQueueEmail !== false;
       const isAdminOperator = Boolean(profile?.role === "admin" || profile?.articlePermissions?.canReviewArticles || profile?.articlePermissions?.canPublishArticles);
@@ -1505,6 +1521,7 @@
               articlePublishingEmail: notifyArticlePublishingEmailInput.checked,
               directMessagesInternal: notifyDirectMessagesInternalInput.checked,
               directMessagesEmail: notifyDirectMessagesEmailInput.checked,
+              showNameInMessages: showNameInMessagesInput.checked,
               adminArticleQueueInternal: notifyAdminQueueInternalInput.checked,
               adminArticleQueueEmail: notifyAdminQueueEmailInput.checked,
             },
@@ -1541,9 +1558,12 @@
               articlePublishingEmail: notifyArticlePublishingEmailInput.checked,
               directMessagesInternal: notifyDirectMessagesInternalInput.checked,
               directMessagesEmail: notifyDirectMessagesEmailInput.checked,
+              showNameInMessages: showNameInMessagesInput.checked,
               adminArticleQueueInternal: notifyAdminQueueInternalInput.checked,
               adminArticleQueueEmail: notifyAdminQueueEmailInput.checked,
             },
+            hasPublishedArticles: payload.profile?.hasPublishedArticles,
+            showNameInMessages: payload.profile?.showNameInMessages,
             articlePermissions: {
               canReviewArticles: !adminQueuePreferenceRowEl.hidden,
               canPublishArticles: !adminQueuePreferenceRowEl.hidden,

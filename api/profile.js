@@ -77,6 +77,7 @@ async function updateProfile(session, token, input) {
     notify_admin_article_queue_email: input.notificationPreferences.adminArticleQueueEmail,
     notify_direct_messages_internal: input.notificationPreferences.directMessagesInternal,
     notify_direct_messages_email: input.notificationPreferences.directMessagesEmail,
+    show_name_in_messages: input.showNameInMessages,
   };
 
   const response = await fetch(
@@ -99,6 +100,22 @@ async function updateProfile(session, token, input) {
 
   const rows = await response.json();
   return Array.isArray(rows) && rows.length ? rows[0] : null;
+}
+
+async function hasPublishedArticles(session, token) {
+  const response = await fetch(
+    `${getSupabaseUrl()}/rest/v1/articles?select=id&author_id=eq.${encodeURIComponent(session.id)}&status=eq.published&limit=1`,
+    {
+      headers: {
+        apikey: getAnonKey(),
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) return false;
+  const rows = await response.json().catch(() => []);
+  return Array.isArray(rows) && rows.length > 0;
 }
 
 module.exports = async (req, res) => {
@@ -129,6 +146,7 @@ module.exports = async (req, res) => {
       adminArticleQueueEmail: body?.notificationPreferences?.adminArticleQueueEmail !== false,
       directMessagesInternal: body?.notificationPreferences?.directMessagesInternal !== false,
       directMessagesEmail: body?.notificationPreferences?.directMessagesEmail !== false,
+      showNameInMessages: body?.notificationPreferences?.showNameInMessages !== false,
     };
 
     if (!displayName) {
@@ -136,7 +154,14 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const profile = await updateProfile(session, token, { displayName, bio, avatarPath, notificationPreferences });
+    const publishedArticles = await hasPublishedArticles(session, token);
+    const profile = await updateProfile(session, token, {
+      displayName,
+      bio,
+      avatarPath,
+      notificationPreferences,
+      showNameInMessages: publishedArticles ? true : notificationPreferences.showNameInMessages,
+    });
     sendJson(res, 200, {
       ok: true,
       profile: {
@@ -144,7 +169,12 @@ module.exports = async (req, res) => {
         avatarUrl: profile?.avatar_path ? `/media/profile-photos/${profile.avatar_path}` : "",
         displayName: profile?.display_name || displayName,
         bio: profile?.bio || "",
-        notificationPreferences,
+        hasPublishedArticles: publishedArticles,
+        showNameInMessages: publishedArticles ? true : profile?.show_name_in_messages !== false,
+        notificationPreferences: {
+          ...notificationPreferences,
+          showNameInMessages: publishedArticles ? true : profile?.show_name_in_messages !== false,
+        },
       },
     });
   } catch (error) {

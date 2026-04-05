@@ -42,7 +42,7 @@ async function authenticateRequest(req) {
 
 async function fetchProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_direct_messages_internal,notify_direct_messages_email,created_at&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_direct_messages_internal,notify_direct_messages_email,show_name_in_messages,created_at&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -127,6 +127,28 @@ async function fetchUnreadMessageCount(userId, token) {
   return Number.isFinite(total) ? total : 0;
 }
 
+async function fetchHasPublishedArticles(userId, token) {
+  if (!userId) return false;
+  const serviceKey = getServiceRoleKey();
+  const headers = serviceKey
+    ? {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+      }
+    : {
+        apikey: getAnonKey(),
+        Authorization: `Bearer ${token}`,
+      };
+
+  const response = await fetch(
+    `${getSupabaseUrl()}/rest/v1/articles?select=id&author_id=eq.${encodeURIComponent(userId)}&status=eq.published&limit=1`,
+    { headers }
+  );
+  if (!response.ok) return false;
+  const rows = await response.json().catch(() => []);
+  return Array.isArray(rows) && rows.length > 0;
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "GET") {
     res.statusCode = 405;
@@ -144,10 +166,11 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const [profile, unreadNotificationCount, unreadMessageCount] = await Promise.all([
+    const [profile, unreadNotificationCount, unreadMessageCount, hasPublishedArticles] = await Promise.all([
       fetchProfile(session, token),
       fetchUnreadNotificationCount(session.id, token),
       fetchUnreadMessageCount(session.id, token),
+      fetchHasPublishedArticles(session.id, token),
     ]);
     const email = String(profile?.email || session.email || "");
     const displayName = String(
@@ -179,6 +202,7 @@ module.exports = async (req, res) => {
       adminArticleQueueEmail: profile?.notify_admin_article_queue_email !== false,
       directMessagesInternal: profile?.notify_direct_messages_internal !== false,
       directMessagesEmail: profile?.notify_direct_messages_email !== false,
+      showNameInMessages: hasPublishedArticles ? true : profile?.show_name_in_messages !== false,
     };
 
     res.statusCode = 200;
@@ -223,6 +247,8 @@ module.exports = async (req, res) => {
             canSubmitArticles,
           },
           notificationPreferences,
+          hasPublishedArticles,
+          showNameInMessages: hasPublishedArticles ? true : profile?.show_name_in_messages !== false,
           unreadMessageCount,
           unreadNotificationCount,
           role,

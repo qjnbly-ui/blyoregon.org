@@ -77,9 +77,28 @@ async function fetchOwnProfile(session, token) {
   return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
+async function fetchPublishedArticleAuthorIds(token, userIds = []) {
+  const normalizedIds = Array.from(new Set((userIds || []).map((id) => String(id || "").trim()).filter(Boolean)));
+  if (!normalizedIds.length) return new Set();
+
+  const response = await fetch(
+    `${getSupabaseUrl()}/rest/v1/articles?select=author_id&status=eq.published&author_id=in.(${normalizedIds.join(",")})`,
+    {
+      headers: {
+        apikey: getAnonKey(),
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) return new Set();
+  const rows = await response.json().catch(() => []);
+  return new Set((Array.isArray(rows) ? rows : []).map((row) => String(row?.author_id || "").trim()).filter(Boolean));
+}
+
 async function listProfiles(token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,role,can_upload_photos,can_manage_media,media_buckets,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles&order=display_name.asc.nullslast,email.asc`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,bio,role,can_upload_photos,can_manage_media,media_buckets,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_direct_messages_internal,notify_direct_messages_email,show_name_in_messages&order=display_name.asc.nullslast,email.asc`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -111,6 +130,19 @@ async function updateMediaAccess(token, userId, options) {
   const canSelfPublishArticleEdits = Boolean(options?.canSelfPublishArticleEdits);
   const canReviewArticles = Boolean(options?.canReviewArticles || options?.canPublishArticles);
   const canPublishArticles = Boolean(options?.canPublishArticles);
+  const notifyArticleSubmissionsInternal = Boolean(options?.notifyArticleSubmissionsInternal !== false);
+  const notifyArticleSubmissionsEmail = Boolean(options?.notifyArticleSubmissionsEmail !== false);
+  const notifyArticleReviewInternal = Boolean(options?.notifyArticleReviewInternal !== false);
+  const notifyArticleReviewEmail = Boolean(options?.notifyArticleReviewEmail !== false);
+  const notifyArticlePublishingInternal = Boolean(options?.notifyArticlePublishingInternal !== false);
+  const notifyArticlePublishingEmail = Boolean(options?.notifyArticlePublishingEmail !== false);
+  const notifyAdminArticleQueueInternal = Boolean(options?.notifyAdminArticleQueueInternal !== false);
+  const notifyAdminArticleQueueEmail = Boolean(options?.notifyAdminArticleQueueEmail !== false);
+  const notifyDirectMessagesInternal = Boolean(options?.notifyDirectMessagesInternal !== false);
+  const notifyDirectMessagesEmail = Boolean(options?.notifyDirectMessagesEmail !== false);
+  const publishedAuthorIds = await fetchPublishedArticleAuthorIds(token, [userId]);
+  const hasPublishedArticles = publishedAuthorIds.has(userId);
+  const showNameInMessages = hasPublishedArticles ? true : Boolean(options?.showNameInMessages !== false);
   const response = await fetch(
     `${getSupabaseUrl()}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}`,
     {
@@ -132,6 +164,17 @@ async function updateMediaAccess(token, userId, options) {
         can_self_publish_article_edits: canSelfPublishArticleEdits,
         can_review_articles: canReviewArticles,
         can_publish_articles: canPublishArticles,
+        notify_article_submissions_internal: notifyArticleSubmissionsInternal,
+        notify_article_submissions_email: notifyArticleSubmissionsEmail,
+        notify_article_review_internal: notifyArticleReviewInternal,
+        notify_article_review_email: notifyArticleReviewEmail,
+        notify_article_publishing_internal: notifyArticlePublishingInternal,
+        notify_article_publishing_email: notifyArticlePublishingEmail,
+        notify_admin_article_queue_internal: notifyAdminArticleQueueInternal,
+        notify_admin_article_queue_email: notifyAdminArticleQueueEmail,
+        notify_direct_messages_internal: notifyDirectMessagesInternal,
+        notify_direct_messages_email: notifyDirectMessagesEmail,
+        show_name_in_messages: showNameInMessages,
         media_buckets: mediaBuckets,
       }),
     }
@@ -139,7 +182,11 @@ async function updateMediaAccess(token, userId, options) {
 
   if (!response.ok) throw new Error("Unable to update media access");
   const rows = await response.json();
-  return Array.isArray(rows) && rows.length ? rows[0] : null;
+  const profile = Array.isArray(rows) && rows.length ? rows[0] : null;
+  return {
+    profile,
+    hasPublishedArticles,
+  };
 }
 
 module.exports = async (req, res) => {
@@ -159,6 +206,10 @@ module.exports = async (req, res) => {
 
     if (req.method === "GET") {
       const profiles = await listProfiles(token);
+      const publishedAuthorIds = await fetchPublishedArticleAuthorIds(
+        token,
+        Array.isArray(profiles) ? profiles.map((profile) => profile.id) : []
+      );
       sendJson(res, 200, {
         availableBuckets: AVAILABLE_BUCKETS,
         profiles: Array.isArray(profiles)
@@ -166,6 +217,7 @@ module.exports = async (req, res) => {
               id: profile.id,
               email: profile.email || "",
               displayName: profile.display_name || "",
+              bio: profile.bio || "",
               role: String(profile.role || "member").toLowerCase(),
               canUploadPhotos: Boolean(profile.can_upload_photos || String(profile.role || "").toLowerCase() === "admin"),
               canManageMedia: Boolean(profile.can_manage_media || String(profile.role || "").toLowerCase() === "admin"),
@@ -177,6 +229,22 @@ module.exports = async (req, res) => {
               canSelfPublishArticleEdits: Boolean(profile.can_self_publish_article_edits || String(profile.role || "").toLowerCase() === "admin"),
               canReviewArticles: Boolean(profile.can_review_articles || profile.can_publish_articles || String(profile.role || "").toLowerCase() === "admin"),
               canPublishArticles: Boolean(profile.can_publish_articles || String(profile.role || "").toLowerCase() === "admin"),
+              hasPublishedArticles: publishedAuthorIds.has(String(profile.id || "").trim()),
+              notificationPreferences: {
+                articleSubmissionsInternal: profile.notify_article_submissions_internal !== false,
+                articleSubmissionsEmail: profile.notify_article_submissions_email !== false,
+                articleReviewInternal: profile.notify_article_review_internal !== false,
+                articleReviewEmail: profile.notify_article_review_email !== false,
+                articlePublishingInternal: profile.notify_article_publishing_internal !== false,
+                articlePublishingEmail: profile.notify_article_publishing_email !== false,
+                adminArticleQueueInternal: profile.notify_admin_article_queue_internal !== false,
+                adminArticleQueueEmail: profile.notify_admin_article_queue_email !== false,
+                directMessagesInternal: profile.notify_direct_messages_internal !== false,
+                directMessagesEmail: profile.notify_direct_messages_email !== false,
+              },
+              showNameInMessages: publishedAuthorIds.has(String(profile.id || "").trim())
+                ? true
+                : profile.show_name_in_messages !== false,
               mediaBuckets: Array.isArray(profile.media_buckets) ? profile.media_buckets : [],
             }))
           : [],
@@ -198,13 +266,24 @@ module.exports = async (req, res) => {
       const canSelfPublishArticleEdits = Boolean(body?.canSelfPublishArticleEdits);
       const canReviewArticles = Boolean(body?.canReviewArticles || body?.canPublishArticles);
       const canPublishArticles = Boolean(body?.canPublishArticles);
+      const notifyArticleSubmissionsInternal = Boolean(body?.notifyArticleSubmissionsInternal !== false);
+      const notifyArticleSubmissionsEmail = Boolean(body?.notifyArticleSubmissionsEmail !== false);
+      const notifyArticleReviewInternal = Boolean(body?.notifyArticleReviewInternal !== false);
+      const notifyArticleReviewEmail = Boolean(body?.notifyArticleReviewEmail !== false);
+      const notifyArticlePublishingInternal = Boolean(body?.notifyArticlePublishingInternal !== false);
+      const notifyArticlePublishingEmail = Boolean(body?.notifyArticlePublishingEmail !== false);
+      const notifyAdminArticleQueueInternal = Boolean(body?.notifyAdminArticleQueueInternal !== false);
+      const notifyAdminArticleQueueEmail = Boolean(body?.notifyAdminArticleQueueEmail !== false);
+      const notifyDirectMessagesInternal = Boolean(body?.notifyDirectMessagesInternal !== false);
+      const notifyDirectMessagesEmail = Boolean(body?.notifyDirectMessagesEmail !== false);
+      const showNameInMessages = Boolean(body?.showNameInMessages !== false);
 
       if (!userId) {
         sendJson(res, 400, { error: "Missing userId" });
         return;
       }
 
-      const updated = await updateMediaAccess(token, userId, {
+      const result = await updateMediaAccess(token, userId, {
         mediaBuckets,
         canUploadPhotos,
         canManageMedia,
@@ -216,13 +295,26 @@ module.exports = async (req, res) => {
         canSelfPublishArticleEdits,
         canReviewArticles,
         canPublishArticles,
+        notifyArticleSubmissionsInternal,
+        notifyArticleSubmissionsEmail,
+        notifyArticleReviewInternal,
+        notifyArticleReviewEmail,
+        notifyArticlePublishingInternal,
+        notifyArticlePublishingEmail,
+        notifyAdminArticleQueueInternal,
+        notifyAdminArticleQueueEmail,
+        notifyDirectMessagesInternal,
+        notifyDirectMessagesEmail,
+        showNameInMessages,
       });
+      const updated = result?.profile || null;
       sendJson(res, 200, {
         ok: true,
         profile: {
           id: updated?.id || userId,
           email: updated?.email || "",
           displayName: updated?.display_name || "",
+          bio: updated?.bio || "",
           role: String(updated?.role || "member").toLowerCase(),
           canUploadPhotos: Boolean(updated?.can_upload_photos || String(updated?.role || "").toLowerCase() === "admin"),
           canManageMedia: Boolean(updated?.can_manage_media || String(updated?.role || "").toLowerCase() === "admin"),
@@ -234,6 +326,20 @@ module.exports = async (req, res) => {
           canSelfPublishArticleEdits: Boolean(updated?.can_self_publish_article_edits || String(updated?.role || "").toLowerCase() === "admin"),
           canReviewArticles: Boolean(updated?.can_review_articles || updated?.can_publish_articles || String(updated?.role || "").toLowerCase() === "admin"),
           canPublishArticles: Boolean(updated?.can_publish_articles || String(updated?.role || "").toLowerCase() === "admin"),
+          hasPublishedArticles: Boolean(result?.hasPublishedArticles),
+          notificationPreferences: {
+            articleSubmissionsInternal: updated?.notify_article_submissions_internal !== false,
+            articleSubmissionsEmail: updated?.notify_article_submissions_email !== false,
+            articleReviewInternal: updated?.notify_article_review_internal !== false,
+            articleReviewEmail: updated?.notify_article_review_email !== false,
+            articlePublishingInternal: updated?.notify_article_publishing_internal !== false,
+            articlePublishingEmail: updated?.notify_article_publishing_email !== false,
+            adminArticleQueueInternal: updated?.notify_admin_article_queue_internal !== false,
+            adminArticleQueueEmail: updated?.notify_admin_article_queue_email !== false,
+            directMessagesInternal: updated?.notify_direct_messages_internal !== false,
+            directMessagesEmail: updated?.notify_direct_messages_email !== false,
+          },
+          showNameInMessages: result?.hasPublishedArticles ? true : updated?.show_name_in_messages !== false,
           mediaBuckets: Array.isArray(updated?.media_buckets) ? updated.media_buckets : mediaBuckets,
         },
       });
