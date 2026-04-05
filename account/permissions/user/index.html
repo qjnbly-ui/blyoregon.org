@@ -268,6 +268,26 @@
     .warning {
       color: #8b322d;
     }
+    .danger-group {
+      border-color: rgba(139, 50, 45, 0.18);
+      background: rgba(139, 50, 45, 0.05);
+    }
+    .danger-button {
+      appearance: none;
+      border: 1px solid rgba(139, 50, 45, 0.35);
+      border-radius: 999px;
+      padding: 0.75rem 1rem;
+      background: #fff7f6;
+      color: #8b322d;
+      font: inherit;
+      font-weight: 700;
+      width: fit-content;
+      cursor: pointer;
+    }
+    .danger-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
     footer {
       background: #162f25;
       color: rgba(255, 255, 255, 0.7);
@@ -312,7 +332,7 @@
 
     <section class="card">
       <h2>Access settings</h2>
-      <p class="meta">Use categories below to manage the member's profile settings, notifications, article workflow, media tools, and bucket-specific access.</p>
+      <p class="meta">Use categories below to manage the member's profile settings, messaging identity, notifications, article workflow, media tools, and bucket-specific access.</p>
       <div class="member-summary">
         <div><strong id="member-name">Member</strong></div>
         <div id="member-email" class="meta"></div>
@@ -320,6 +340,24 @@
       </div>
       <div id="controls" hidden>
         <div class="permission-groups">
+          <section class="permission-group">
+            <div class="permission-group-header">
+              <h3>Messaging identity</h3>
+              <p>Controls how this member is identified inside direct-message conversations. This is separate from when notifications are sent.</p>
+            </div>
+            <div class="control-grid">
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Show name in messages</strong>
+                    <span id="show-name-in-messages-copy">When off, this member appears as “Bly member” inside message threads.</span>
+                  </div>
+                  <button id="toggle-show-name-in-messages" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <section class="permission-group">
             <div class="permission-group-header">
               <h3>Notification settings</h3>
@@ -529,24 +567,6 @@
 
           <section class="permission-group">
             <div class="permission-group-header">
-              <h3>Messaging profile</h3>
-              <p>Controls whether this member's public name appears inside direct-message conversations.</p>
-            </div>
-            <div class="control-grid">
-              <div class="toggle-card">
-                <div class="toggle-row">
-                  <div class="toggle-copy">
-                    <strong>Show name in messages</strong>
-                    <span id="show-name-in-messages-copy">When off, this member appears as “Bly member” inside message threads.</span>
-                  </div>
-                  <button id="toggle-show-name-in-messages" class="toggle" type="button" role="switch" aria-checked="false"></button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="permission-group">
-            <div class="permission-group-header">
               <h3>Bucket access</h3>
               <p>Choose which historical photo buckets this member can work in when media manager access is enabled.</p>
             </div>
@@ -554,6 +574,14 @@
               <h3>Media buckets</h3>
               <div id="bucket-options" class="bucket-options"></div>
             </div>
+          </section>
+
+          <section class="permission-group danger-group">
+            <div class="permission-group-header">
+              <h3>Danger zone</h3>
+              <p>Delete this user account from the site. This removes their login access, profile, private messages, and notification inbox data.</p>
+            </div>
+            <button id="delete-user-button" class="danger-button" type="button">Delete user</button>
           </section>
         </div>
       </div>
@@ -596,6 +624,7 @@
     const togglePublishArticlesEl = document.getElementById("toggle-publish-articles");
     const toggleShowNameInMessagesEl = document.getElementById("toggle-show-name-in-messages");
     const showNameInMessagesCopyEl = document.getElementById("show-name-in-messages-copy");
+    const deleteUserButtonEl = document.getElementById("delete-user-button");
     const bucketOptionsEl = document.getElementById("bucket-options");
     const memberStatusEl = document.getElementById("member-status");
     const pageStatusEl = document.getElementById("page-status");
@@ -644,6 +673,8 @@
       togglePublishArticlesEl.setAttribute("aria-checked", String(Boolean(activeProfile.canPublishArticles)));
       toggleShowNameInMessagesEl.setAttribute("aria-checked", String(Boolean(activeProfile.showNameInMessages)));
       toggleShowNameInMessagesEl.disabled = Boolean(activeProfile.hasPublishedArticles);
+      const isOwnAccount = activeProfile.id === (activeSession?.user?.id || activeSession?.id || "");
+      deleteUserButtonEl.disabled = Boolean(isOwnAccount || activeProfile.role === "admin");
       showNameInMessagesCopyEl.textContent = activeProfile.hasPublishedArticles
         ? "This stays on because the member already has a published article with a public author name."
         : "When off, this member appears as “Bly member” inside message threads.";
@@ -699,6 +730,34 @@
       } catch (error) {
         syncControls();
         setMemberStatus(error.message || "Unable to update access.", true);
+      }
+    }
+
+    async function deleteUser() {
+      if (!activeProfile || !activeSession) return;
+      const memberLabel = activeProfile.displayName || activeProfile.email || "this user";
+      const confirmed = window.confirm(`Delete ${memberLabel}? This removes their login access and private account data. This cannot be undone.`);
+      if (!confirmed) return;
+
+      setMemberStatus("Deleting user...");
+      deleteUserButtonEl.disabled = true;
+      try {
+        const response = await fetch("/api/media-access", {
+          method: "DELETE",
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: activeProfile.id,
+          }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || "Unable to delete user.");
+        window.location.replace("/account/permissions/?deleted=1");
+      } catch (error) {
+        syncControls();
+        setMemberStatus(error.message || "Unable to delete user.", true);
       }
     }
 
@@ -985,6 +1044,8 @@
         showNameInMessages: !activeProfile.showNameInMessages,
       });
     });
+
+    deleteUserButtonEl.addEventListener("click", deleteUser);
 
     loadPage();
   </script>

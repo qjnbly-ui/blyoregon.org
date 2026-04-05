@@ -6,6 +6,10 @@ function getAnonKey() {
   return String(process.env.SUPABASE_ANON_KEY || "").trim();
 }
 
+function getServiceRoleKey() {
+  return String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+}
+
 function getHeaderValue(req, name) {
   const value = req.headers?.[name];
   return Array.isArray(value) ? value[0] : value;
@@ -189,6 +193,25 @@ async function updateMediaAccess(token, userId, options) {
   };
 }
 
+async function deleteUserAccount(userId) {
+  const serviceKey = getServiceRoleKey();
+  if (!serviceKey) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
+
+  const response = await fetch(`${getSupabaseUrl()}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+    headers: {
+      apikey: serviceKey,
+      Authorization: `Bearer ${serviceKey}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(payload?.msg || payload?.error_description || payload?.error || "Unable to delete user");
+  }
+}
+
 module.exports = async (req, res) => {
   try {
     const { session, token } = await authenticateRequest(req);
@@ -343,6 +366,40 @@ module.exports = async (req, res) => {
           mediaBuckets: Array.isArray(updated?.media_buckets) ? updated.media_buckets : mediaBuckets,
         },
       });
+      return;
+    }
+
+    if (req.method === "DELETE") {
+      const body = await parseJsonBody(req);
+      const userId = String(body?.userId || "").trim();
+
+      if (!userId) {
+        sendJson(res, 400, { error: "Missing userId" });
+        return;
+      }
+
+      if (userId === String(session.id || "").trim()) {
+        sendJson(res, 400, { error: "You cannot delete your own account from this screen." });
+        return;
+      }
+
+      const profiles = await listProfiles(token);
+      const targetProfile = Array.isArray(profiles)
+        ? profiles.find((profile) => String(profile?.id || "").trim() === userId)
+        : null;
+
+      if (!targetProfile) {
+        sendJson(res, 404, { error: "That member could not be found." });
+        return;
+      }
+
+      if (String(targetProfile.role || "").toLowerCase() === "admin") {
+        sendJson(res, 400, { error: "Admins cannot be deleted from this screen." });
+        return;
+      }
+
+      await deleteUserAccount(userId);
+      sendJson(res, 200, { ok: true });
       return;
     }
 
