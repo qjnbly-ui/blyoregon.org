@@ -178,6 +178,7 @@ module.exports = async (req, res) => {
     );
     const role = String(profile?.role || "member").toLowerCase();
     const admin = role === "admin";
+    const moderator = role === "moderator";
     const mediaBuckets = Array.isArray(profile?.media_buckets)
       ? profile.media_buckets.filter((bucket) => typeof bucket === "string" && bucket.trim())
       : [];
@@ -189,8 +190,8 @@ module.exports = async (req, res) => {
     const canSubmitArticles = Boolean(profile?.can_submit_articles || admin);
     const canSelfPublishArticles = Boolean(profile?.can_self_publish_articles || admin);
     const canSelfPublishArticleEdits = Boolean(profile?.can_self_publish_article_edits || admin);
-    const canReviewArticles = Boolean(profile?.can_review_articles || profile?.can_publish_articles || admin);
-    const canPublishArticles = Boolean(profile?.can_publish_articles || admin);
+    const canReviewArticles = Boolean(profile?.can_review_articles || profile?.can_publish_articles || moderator || admin);
+    const canPublishArticles = Boolean(profile?.can_publish_articles || moderator || admin);
     const notificationPreferences = {
       articleSubmissionsInternal: profile?.notify_article_submissions_internal !== false,
       articleSubmissionsEmail: profile?.notify_article_submissions_email !== false,

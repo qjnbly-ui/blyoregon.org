@@ -229,13 +229,14 @@ async function fetchProfileById(userId) {
 function getArticlePermissions(profile) {
   const role = String(profile?.role || "").toLowerCase();
   const admin = role === "admin";
+  const moderator = role === "moderator";
   return {
     admin,
     canSubmitArticles: Boolean(admin || profile?.can_submit_articles),
     canSelfPublishArticles: Boolean(admin || profile?.can_self_publish_articles),
     canSelfPublishArticleEdits: Boolean(admin || profile?.can_self_publish_article_edits),
-    canReviewArticles: Boolean(admin || profile?.can_review_articles || profile?.can_publish_articles),
-    canPublishArticles: Boolean(admin || profile?.can_publish_articles),
+    canReviewArticles: Boolean(admin || moderator || profile?.can_review_articles || profile?.can_publish_articles),
+    canPublishArticles: Boolean(admin || moderator || profile?.can_publish_articles),
   };
 }
 

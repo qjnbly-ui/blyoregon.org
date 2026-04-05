@@ -123,29 +123,86 @@ function sanitizeBuckets(input) {
     : [];
 }
 
-async function updateMediaAccess(token, userId, options) {
-  const role = AVAILABLE_ROLES.has(String(options?.role || "").trim().toLowerCase())
-    ? String(options.role).trim().toLowerCase()
+function applyRolePreset(role, options = {}) {
+  const normalizedRole = AVAILABLE_ROLES.has(String(role || "").trim().toLowerCase())
+    ? String(role).trim().toLowerCase()
     : "member";
+
+  if (normalizedRole === "admin") {
+    return {
+      role: "admin",
+      canUploadPhotos: true,
+      canManageMedia: true,
+      canEditMediaDetails: true,
+      canRenameMedia: true,
+      canDeleteMedia: true,
+      canSubmitArticles: true,
+      canSelfPublishArticles: true,
+      canSelfPublishArticleEdits: true,
+      canReviewArticles: true,
+      canPublishArticles: true,
+      notifyAdminArticleQueueInternal: true,
+      notifyAdminArticleQueueEmail: true,
+    };
+  }
+
+  if (normalizedRole === "moderator") {
+    return {
+      role: "moderator",
+      canUploadPhotos: Boolean(options?.canUploadPhotos),
+      canManageMedia: Boolean(options?.canManageMedia),
+      canEditMediaDetails: Boolean(options?.canEditMediaDetails),
+      canRenameMedia: Boolean(options?.canRenameMedia),
+      canDeleteMedia: Boolean(options?.canDeleteMedia),
+      canSubmitArticles: Boolean(options?.canSubmitArticles),
+      canSelfPublishArticles: Boolean(options?.canSelfPublishArticles),
+      canSelfPublishArticleEdits: Boolean(options?.canSelfPublishArticleEdits),
+      canReviewArticles: true,
+      canPublishArticles: true,
+      notifyAdminArticleQueueInternal: true,
+      notifyAdminArticleQueueEmail: true,
+    };
+  }
+
+  return {
+    role: "member",
+    canUploadPhotos: Boolean(options?.canUploadPhotos),
+    canManageMedia: Boolean(options?.canManageMedia),
+    canEditMediaDetails: Boolean(options?.canEditMediaDetails),
+    canRenameMedia: Boolean(options?.canRenameMedia),
+    canDeleteMedia: Boolean(options?.canDeleteMedia),
+    canSubmitArticles: Boolean(options?.canSubmitArticles),
+    canSelfPublishArticles: Boolean(options?.canSelfPublishArticles),
+    canSelfPublishArticleEdits: Boolean(options?.canSelfPublishArticleEdits),
+    canReviewArticles: false,
+    canPublishArticles: false,
+    notifyAdminArticleQueueInternal: false,
+    notifyAdminArticleQueueEmail: false,
+  };
+}
+
+async function updateMediaAccess(token, userId, options) {
+  const rolePreset = applyRolePreset(options?.role, options);
+  const role = rolePreset.role;
   const mediaBuckets = sanitizeBuckets(options?.mediaBuckets);
-  const canUploadPhotos = Boolean(options?.canUploadPhotos);
-  const canManageMedia = Boolean(options?.canManageMedia || mediaBuckets.length > 0);
-  const canEditMediaDetails = Boolean(options?.canEditMediaDetails);
-  const canRenameMedia = Boolean(options?.canRenameMedia);
-  const canDeleteMedia = Boolean(options?.canDeleteMedia);
-  const canSubmitArticles = Boolean(options?.canSubmitArticles);
-  const canSelfPublishArticles = Boolean(options?.canSelfPublishArticles);
-  const canSelfPublishArticleEdits = Boolean(options?.canSelfPublishArticleEdits);
-  const canReviewArticles = Boolean(options?.canReviewArticles || options?.canPublishArticles);
-  const canPublishArticles = Boolean(options?.canPublishArticles);
+  const canUploadPhotos = Boolean(rolePreset.canUploadPhotos);
+  const canManageMedia = Boolean(rolePreset.canManageMedia || mediaBuckets.length > 0 || role === "admin");
+  const canEditMediaDetails = Boolean(rolePreset.canEditMediaDetails || role === "admin");
+  const canRenameMedia = Boolean(rolePreset.canRenameMedia || role === "admin");
+  const canDeleteMedia = Boolean(rolePreset.canDeleteMedia || role === "admin");
+  const canSubmitArticles = Boolean(rolePreset.canSubmitArticles || role === "admin");
+  const canSelfPublishArticles = Boolean(rolePreset.canSelfPublishArticles || role === "admin");
+  const canSelfPublishArticleEdits = Boolean(rolePreset.canSelfPublishArticleEdits || role === "admin");
+  const canReviewArticles = Boolean(rolePreset.canReviewArticles || role === "admin");
+  const canPublishArticles = Boolean(rolePreset.canPublishArticles || role === "admin");
   const notifyArticleSubmissionsInternal = Boolean(options?.notifyArticleSubmissionsInternal !== false);
   const notifyArticleSubmissionsEmail = Boolean(options?.notifyArticleSubmissionsEmail !== false);
   const notifyArticleReviewInternal = Boolean(options?.notifyArticleReviewInternal !== false);
   const notifyArticleReviewEmail = Boolean(options?.notifyArticleReviewEmail !== false);
   const notifyArticlePublishingInternal = Boolean(options?.notifyArticlePublishingInternal !== false);
   const notifyArticlePublishingEmail = Boolean(options?.notifyArticlePublishingEmail !== false);
-  const notifyAdminArticleQueueInternal = Boolean(options?.notifyAdminArticleQueueInternal !== false);
-  const notifyAdminArticleQueueEmail = Boolean(options?.notifyAdminArticleQueueEmail !== false);
+  const notifyAdminArticleQueueInternal = Boolean(rolePreset.notifyAdminArticleQueueInternal);
+  const notifyAdminArticleQueueEmail = Boolean(rolePreset.notifyAdminArticleQueueEmail);
   const notifyDirectMessagesInternal = Boolean(options?.notifyDirectMessagesInternal !== false);
   const notifyDirectMessagesEmail = Boolean(options?.notifyDirectMessagesEmail !== false);
   const publishedAuthorIds = await fetchPublishedArticleAuthorIds(token, [userId]);
