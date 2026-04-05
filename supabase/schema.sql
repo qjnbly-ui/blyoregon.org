@@ -19,6 +19,14 @@ create table if not exists public.profiles (
   can_submit_articles boolean not null default true,
   can_review_articles boolean not null default false,
   can_publish_articles boolean not null default false,
+  notify_article_submissions_internal boolean not null default true,
+  notify_article_submissions_email boolean not null default true,
+  notify_article_review_internal boolean not null default true,
+  notify_article_review_email boolean not null default true,
+  notify_article_publishing_internal boolean not null default true,
+  notify_article_publishing_email boolean not null default true,
+  notify_admin_article_queue_internal boolean not null default true,
+  notify_admin_article_queue_email boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -32,6 +40,14 @@ alter table public.profiles add column if not exists can_delete_media boolean no
 alter table public.profiles add column if not exists can_submit_articles boolean not null default true;
 alter table public.profiles add column if not exists can_review_articles boolean not null default false;
 alter table public.profiles add column if not exists can_publish_articles boolean not null default false;
+alter table public.profiles add column if not exists notify_article_submissions_internal boolean not null default true;
+alter table public.profiles add column if not exists notify_article_submissions_email boolean not null default true;
+alter table public.profiles add column if not exists notify_article_review_internal boolean not null default true;
+alter table public.profiles add column if not exists notify_article_review_email boolean not null default true;
+alter table public.profiles add column if not exists notify_article_publishing_internal boolean not null default true;
+alter table public.profiles add column if not exists notify_article_publishing_email boolean not null default true;
+alter table public.profiles add column if not exists notify_admin_article_queue_internal boolean not null default true;
+alter table public.profiles add column if not exists notify_admin_article_queue_email boolean not null default true;
 alter table public.profiles alter column can_submit_articles set default true;
 
 update public.profiles

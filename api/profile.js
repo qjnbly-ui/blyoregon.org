@@ -67,6 +67,14 @@ async function updateProfile(session, token, input) {
     display_name: input.displayName,
     avatar_path: input.avatarPath,
     bio: input.bio,
+    notify_article_submissions_internal: input.notificationPreferences.articleSubmissionsInternal,
+    notify_article_submissions_email: input.notificationPreferences.articleSubmissionsEmail,
+    notify_article_review_internal: input.notificationPreferences.articleReviewInternal,
+    notify_article_review_email: input.notificationPreferences.articleReviewEmail,
+    notify_article_publishing_internal: input.notificationPreferences.articlePublishingInternal,
+    notify_article_publishing_email: input.notificationPreferences.articlePublishingEmail,
+    notify_admin_article_queue_internal: input.notificationPreferences.adminArticleQueueInternal,
+    notify_admin_article_queue_email: input.notificationPreferences.adminArticleQueueEmail,
   };
 
   const response = await fetch(
@@ -108,13 +116,23 @@ module.exports = async (req, res) => {
     const displayName = String(body?.displayName || "").trim().slice(0, 80);
     const bio = String(body?.bio || "").trim().slice(0, 500);
     const avatarPath = body?.avatarPath == null ? null : String(body.avatarPath).trim().slice(0, 255);
+    const notificationPreferences = {
+      articleSubmissionsInternal: body?.notificationPreferences?.articleSubmissionsInternal !== false,
+      articleSubmissionsEmail: body?.notificationPreferences?.articleSubmissionsEmail !== false,
+      articleReviewInternal: body?.notificationPreferences?.articleReviewInternal !== false,
+      articleReviewEmail: body?.notificationPreferences?.articleReviewEmail !== false,
+      articlePublishingInternal: body?.notificationPreferences?.articlePublishingInternal !== false,
+      articlePublishingEmail: body?.notificationPreferences?.articlePublishingEmail !== false,
+      adminArticleQueueInternal: body?.notificationPreferences?.adminArticleQueueInternal !== false,
+      adminArticleQueueEmail: body?.notificationPreferences?.adminArticleQueueEmail !== false,
+    };
 
     if (!displayName) {
       sendJson(res, 400, { error: "Public name is required" });
       return;
     }
 
-    const profile = await updateProfile(session, token, { displayName, bio, avatarPath });
+    const profile = await updateProfile(session, token, { displayName, bio, avatarPath, notificationPreferences });
     sendJson(res, 200, {
       ok: true,
       profile: {
@@ -122,6 +140,7 @@ module.exports = async (req, res) => {
         avatarUrl: profile?.avatar_path ? `/media/profile-photos/${profile.avatar_path}` : "",
         displayName: profile?.display_name || displayName,
         bio: profile?.bio || "",
+        notificationPreferences,
       },
     });
   } catch (error) {

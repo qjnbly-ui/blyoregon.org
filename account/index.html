@@ -308,6 +308,55 @@
       display: grid;
       gap: 0.45rem;
     }
+    .preference-group {
+      display: grid;
+      gap: 0.85rem;
+      margin-top: 0.35rem;
+    }
+    .preference-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      border-top: 1px solid rgba(20, 50, 39, 0.12);
+    }
+    .preference-row:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+    .preference-copy {
+      min-width: 0;
+      display: grid;
+      gap: 0.25rem;
+    }
+    .preference-copy strong {
+      color: var(--forest);
+      font-size: 0.95rem;
+    }
+    .preference-copy span {
+      color: #526158;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+    .checkbox-cluster {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+    .checkbox-cluster label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.88rem;
+      color: var(--forest);
+      font-weight: 600;
+    }
+    .checkbox-cluster input {
+      width: auto;
+      padding: 0;
+    }
     label {
       color: var(--forest);
       font-size: 0.92rem;
@@ -662,7 +711,15 @@
         flex-direction: column;
         align-items: flex-start;
       }
+      .preference-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
       .bucket-checkboxes {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .checkbox-cluster {
         width: 100%;
         justify-content: flex-start;
       }
@@ -815,6 +872,16 @@
       </div>
     </section>
 
+    <section class="card" id="system-settings-card" hidden>
+      <div class="card-header">
+        <div>
+          <h2>System settings</h2>
+          <p class="meta">View the behind-the-scenes article email and notification settings available to admins.</p>
+        </div>
+        <a class="edit-toggle" href="/account/system/">Open system settings</a>
+      </div>
+    </section>
+
     <section class="card" id="my-articles-card" hidden>
       <div class="card-header">
         <div>
@@ -878,6 +945,51 @@
         <div class="field">
           <label for="profile-bio">Bio</label>
           <textarea id="profile-bio" name="bio" maxlength="500" placeholder="Tell people a little about yourself."></textarea>
+        </div>
+        <div class="field">
+          <label>Notification preferences</label>
+          <div class="preference-group">
+            <div class="preference-row">
+              <div class="preference-copy">
+                <strong>Article submissions</strong>
+                <span>Confirmation when you submit an article and when your submission enters review.</span>
+              </div>
+              <div class="checkbox-cluster">
+                <label><input id="notify-article-submissions-internal" type="checkbox" /> In app</label>
+                <label><input id="notify-article-submissions-email" type="checkbox" /> Email</label>
+              </div>
+            </div>
+            <div class="preference-row">
+              <div class="preference-copy">
+                <strong>Article review updates</strong>
+                <span>Changes requested and other editor feedback on your own articles.</span>
+              </div>
+              <div class="checkbox-cluster">
+                <label><input id="notify-article-review-internal" type="checkbox" /> In app</label>
+                <label><input id="notify-article-review-email" type="checkbox" /> Email</label>
+              </div>
+            </div>
+            <div class="preference-row">
+              <div class="preference-copy">
+                <strong>Publishing updates</strong>
+                <span>Publish, unpublish, and delete activity tied to your article records.</span>
+              </div>
+              <div class="checkbox-cluster">
+                <label><input id="notify-article-publishing-internal" type="checkbox" /> In app</label>
+                <label><input id="notify-article-publishing-email" type="checkbox" /> Email</label>
+              </div>
+            </div>
+            <div class="preference-row" id="admin-queue-preference-row" hidden>
+              <div class="preference-copy">
+                <strong>Admin review queue</strong>
+                <span>Reviewer/admin notifications when submissions need attention or admin-side publishing actions happen.</span>
+              </div>
+              <div class="checkbox-cluster">
+                <label><input id="notify-admin-queue-internal" type="checkbox" /> In app</label>
+                <label><input id="notify-admin-queue-email" type="checkbox" /> Email</label>
+              </div>
+            </div>
+          </div>
         </div>
         <button class="save-button" id="profile-save" type="submit">Save profile</button>
         <p class="form-status" id="profile-status" aria-live="polite"></p>
@@ -954,6 +1066,7 @@
     const mediaLibraryCardEl = document.getElementById("media-library-card");
     const notificationsSummaryEl = document.getElementById("notifications-summary");
     const notificationsInlineCountEl = document.getElementById("notifications-inline-count");
+    const systemSettingsCardEl = document.getElementById("system-settings-card");
     const myArticlesCardEl = document.getElementById("my-articles-card");
     const articleReviewCardEl = document.getElementById("article-review-card");
     const profileEditToggle = document.getElementById("profile-edit-toggle");
@@ -973,6 +1086,15 @@
     const photoCropYValueEl = document.getElementById("photo-crop-y-value");
     const profileDisplayNameInput = document.getElementById("profile-display-name");
     const profileBioInput = document.getElementById("profile-bio");
+    const notifyArticleSubmissionsInternalInput = document.getElementById("notify-article-submissions-internal");
+    const notifyArticleSubmissionsEmailInput = document.getElementById("notify-article-submissions-email");
+    const notifyArticleReviewInternalInput = document.getElementById("notify-article-review-internal");
+    const notifyArticleReviewEmailInput = document.getElementById("notify-article-review-email");
+    const notifyArticlePublishingInternalInput = document.getElementById("notify-article-publishing-internal");
+    const notifyArticlePublishingEmailInput = document.getElementById("notify-article-publishing-email");
+    const adminQueuePreferenceRowEl = document.getElementById("admin-queue-preference-row");
+    const notifyAdminQueueInternalInput = document.getElementById("notify-admin-queue-internal");
+    const notifyAdminQueueEmailInput = document.getElementById("notify-admin-queue-email");
     const profileSaveButton = document.getElementById("profile-save");
     const profileStatusEl = document.getElementById("profile-status");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
@@ -1028,6 +1150,7 @@
       const displayName = profile?.displayName || "-";
       const bio = profile?.bio || "";
       const avatarUrl = await resolveAvatarUrl(profile);
+      const notificationPreferences = profile?.notificationPreferences || {};
       currentAvatarPath = profile?.avatarPath || "";
       displayNameEl.textContent = displayName;
       emailEl.textContent = email || "-";
@@ -1035,6 +1158,16 @@
       bioEl.textContent = bio || "No bio added yet.";
       profileDisplayNameInput.value = profile?.displayName || "";
       profileBioInput.value = bio;
+      notifyArticleSubmissionsInternalInput.checked = notificationPreferences.articleSubmissionsInternal !== false;
+      notifyArticleSubmissionsEmailInput.checked = notificationPreferences.articleSubmissionsEmail !== false;
+      notifyArticleReviewInternalInput.checked = notificationPreferences.articleReviewInternal !== false;
+      notifyArticleReviewEmailInput.checked = notificationPreferences.articleReviewEmail !== false;
+      notifyArticlePublishingInternalInput.checked = notificationPreferences.articlePublishingInternal !== false;
+      notifyArticlePublishingEmailInput.checked = notificationPreferences.articlePublishingEmail !== false;
+      notifyAdminQueueInternalInput.checked = notificationPreferences.adminArticleQueueInternal !== false;
+      notifyAdminQueueEmailInput.checked = notificationPreferences.adminArticleQueueEmail !== false;
+      const isAdminOperator = Boolean(profile?.role === "admin" || profile?.articlePermissions?.canReviewArticles || profile?.articlePermissions?.canPublishArticles);
+      adminQueuePreferenceRowEl.hidden = !isAdminOperator;
       if (avatarUrl) {
         avatarEl.src = `${avatarUrl}${avatarUrl.includes("?") ? "&" : "?"}t=${Date.now()}`;
         avatarEl.hidden = false;
@@ -1259,6 +1392,7 @@
         await applyProfile(payload.profile || {}, payload.email || "");
         userPermissionsCardEl.hidden = !payload.admin;
         mediaLibraryCardEl.hidden = !payload.canManageMedia;
+        systemSettingsCardEl.hidden = !payload.admin;
         myArticlesCardEl.hidden = !(payload.canSubmitArticles || payload.admin);
         articleReviewCardEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
         const unreadNotificationCount = Number(payload.unreadNotificationCount || payload.profile?.unreadNotificationCount || 0);
@@ -1331,6 +1465,16 @@
             avatarPath,
             displayName: profileDisplayNameInput.value.trim(),
             bio: profileBioInput.value.trim(),
+            notificationPreferences: {
+              articleSubmissionsInternal: notifyArticleSubmissionsInternalInput.checked,
+              articleSubmissionsEmail: notifyArticleSubmissionsEmailInput.checked,
+              articleReviewInternal: notifyArticleReviewInternalInput.checked,
+              articleReviewEmail: notifyArticleReviewEmailInput.checked,
+              articlePublishingInternal: notifyArticlePublishingInternalInput.checked,
+              articlePublishingEmail: notifyArticlePublishingEmailInput.checked,
+              adminArticleQueueInternal: notifyAdminQueueInternalInput.checked,
+              adminArticleQueueEmail: notifyAdminQueueEmailInput.checked,
+            },
           }),
         });
 
@@ -1355,6 +1499,20 @@
             avatarUrl: payload.profile?.avatarUrl || (avatarPath ? `/media/profile-photos/${avatarPath}` : ""),
             displayName: payload.profile?.displayName || profileDisplayNameInput.value.trim(),
             bio: payload.profile?.bio || profileBioInput.value.trim(),
+            notificationPreferences: payload.profile?.notificationPreferences || {
+              articleSubmissionsInternal: notifyArticleSubmissionsInternalInput.checked,
+              articleSubmissionsEmail: notifyArticleSubmissionsEmailInput.checked,
+              articleReviewInternal: notifyArticleReviewInternalInput.checked,
+              articleReviewEmail: notifyArticleReviewEmailInput.checked,
+              articlePublishingInternal: notifyArticlePublishingInternalInput.checked,
+              articlePublishingEmail: notifyArticlePublishingEmailInput.checked,
+              adminArticleQueueInternal: notifyAdminQueueInternalInput.checked,
+              adminArticleQueueEmail: notifyAdminQueueEmailInput.checked,
+            },
+            articlePermissions: {
+              canReviewArticles: !adminQueuePreferenceRowEl.hidden,
+              canPublishArticles: !adminQueuePreferenceRowEl.hidden,
+            },
             role: roleEl.textContent || "member",
           },
           emailEl.textContent || ""

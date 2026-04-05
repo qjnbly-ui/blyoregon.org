@@ -17,6 +17,8 @@ Recommended admin model:
 - user articles can move through `draft`, `submitted`, `changes_requested`, `published`, and `archived`
 - admins or delegated reviewers can request changes or publish approved submissions
 - article workflow events can create both email notifications and stored internal notifications
+- users can now control article email/inbox delivery preferences from their account profile
+- admins have a read-only system settings screen for env-managed delivery behavior
 - your account should be promoted by updating `public.profiles.role = 'admin'`
 
 System integration map:

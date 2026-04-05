@@ -14,14 +14,17 @@ Use it alongside [supabase/schema.sql](/Users/quentinnichols/Documents/Websites/
 ### Accounts and profiles
 
 - Page: [account/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/account/index.html)
+- Admin system page: [account/system/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/account/system/index.html)
 - Auth helper: [assets/auth.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/assets/auth.js)
 - Profile API: [api/profile.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/profile.js)
 - Account bootstrap API: [api/member-content.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/member-content.js)
+- Admin system settings API: [api/system-settings.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/system-settings.js)
 
 `public.profiles` stores:
 - identity fields like `display_name`, `avatar_path`, `bio`
 - site role like `member` or `admin`
 - media permissions and bucket access
+- notification preference fields for article email and internal inbox delivery
 
 `public.notifications` stores:
 - internal account notifications
@@ -29,6 +32,7 @@ Use it alongside [supabase/schema.sql](/Users/quentinnichols/Documents/Websites/
 - unread/read state per user
 
 Profile photo upload is separate from historical photo/media permissions.
+Notification preferences are now edited on the account profile form.
 
 ### Permissions admin flow
 
@@ -77,6 +81,7 @@ Current behavior:
 - dynamic user submissions live in `public.articles`
 - submitted article images live in `public.article_images` plus the `article-images` storage bucket
 - article workflow emails are sent from [api/articles.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/articles.js) through Resend when configured
+- article workflow notifications now respect per-profile notification preferences
 - `/api/articles` serves:
   - public published article list
   - public article detail by slug
@@ -96,6 +101,16 @@ Current email environment:
 - `RESEND_FROM_EMAIL`
 - `ADMIN_EMAILS`
 - optional `PUBLIC_SITE_URL`
+
+Current per-profile notification preference groups:
+- article submissions
+- article review updates
+- article publishing updates
+- admin review queue alerts
+
+Each group can be controlled separately for:
+- internal inbox notifications
+- email notifications
 
 Current internal notification behavior:
 - `/api/articles` creates `public.notifications` rows when article workflow events happen

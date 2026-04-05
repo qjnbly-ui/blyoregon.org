@@ -191,7 +191,7 @@ async function authenticateRequest(req) {
 
 async function fetchProfile(session, token) {
   const query = new URLSearchParams({
-    select: "id,email,display_name,role,can_submit_articles,can_review_articles,can_publish_articles",
+    select: "id,email,display_name,role,can_submit_articles,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email",
     id: `eq.${session.id}`,
   });
   const response = await fetch(`${getSupabaseUrl()}/rest/v1/profiles?${query.toString()}`, {
@@ -207,7 +207,7 @@ async function fetchProfileById(userId) {
   if (!headers || !userId) return null;
 
   const query = new URLSearchParams({
-    select: "id,email,display_name,role,can_submit_articles,can_review_articles,can_publish_articles",
+    select: "id,email,display_name,role,can_submit_articles,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email",
     id: `eq.${userId}`,
     limit: "1",
   });
@@ -294,7 +294,7 @@ async function fetchArticleModerators() {
   if (!headers) return [];
 
   const query = new URLSearchParams({
-    select: "id,email,display_name,role,can_review_articles,can_publish_articles",
+    select: "id,email,display_name,role,can_review_articles,can_publish_articles,notify_admin_article_queue_internal,notify_admin_article_queue_email",
     or: "(role.eq.admin,can_review_articles.eq.true,can_publish_articles.eq.true)",
   });
   const response = await fetch(`${getSupabaseUrl()}/rest/v1/profiles?${query.toString()}`, {
@@ -303,17 +303,6 @@ async function fetchArticleModerators() {
   if (!response.ok) return [];
   const rows = await response.json().catch(() => []);
   return Array.isArray(rows) ? rows : [];
-}
-
-function getModeratorEmails(rows) {
-  const envEmails = getEnv("ADMIN_EMAILS")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
-  const rowEmails = (Array.isArray(rows) ? rows : [])
-    .map((row) => String(row?.email || "").trim())
-    .filter(Boolean);
-  return Array.from(new Set([...envEmails, ...rowEmails]));
 }
 
 function getModeratorIds(rows, excludeUserId = "") {
@@ -326,13 +315,28 @@ function getModeratorIds(rows, excludeUserId = "") {
   );
 }
 
+function getNotificationPreferences(profile) {
+  return {
+    articleSubmissionsInternal: profile?.notify_article_submissions_internal !== false,
+    articleSubmissionsEmail: profile?.notify_article_submissions_email !== false,
+    articleReviewInternal: profile?.notify_article_review_internal !== false,
+    articleReviewEmail: profile?.notify_article_review_email !== false,
+    articlePublishingInternal: profile?.notify_article_publishing_internal !== false,
+    articlePublishingEmail: profile?.notify_article_publishing_email !== false,
+    adminArticleQueueInternal: profile?.notify_admin_article_queue_internal !== false,
+    adminArticleQueueEmail: profile?.notify_admin_article_queue_email !== false,
+  };
+}
+
 async function insertNotifications(rows) {
   if (!Array.isArray(rows) || !rows.length) return;
+  const serviceHeaders = buildServiceHeaders();
+  if (!serviceHeaders) return;
 
   const response = await fetch(`${getSupabaseUrl()}/rest/v1/notifications`, {
     method: "POST",
     headers: {
-      ...buildServiceHeaders(),
+      ...serviceHeaders,
       Prefer: "return=minimal",
     },
     body: JSON.stringify(rows),
@@ -386,23 +390,24 @@ function renderEmailShell({ eyebrow, title, intro, bodyHtml, actionLabel, action
 }
 
 async function sendArticleNotifications({ req, article, actorProfile, action, reviewNotes = "" }) {
-  const resendKey = getEnv("RESEND_API_KEY");
-  if (!resendKey || !article) return;
+  if (!article) return;
 
   const siteUrl = getSiteUrl(req);
   const actorName = String(actorProfile?.display_name || actorProfile?.email || "A Bly member").trim();
+  const actorEmail = String(actorProfile?.email || "").trim();
   const authorProfile = actorProfile?.id === article.authorId
     ? actorProfile
     : await fetchProfileById(article.authorId);
+  const authorPrefs = getNotificationPreferences(authorProfile);
   const authorEmail = String(authorProfile?.email || "").trim();
-  const moderators = await fetchArticleModerators();
-  const moderatorIds = getModeratorIds(moderators).filter(
-    (id) => id && id !== (authorProfile?.id || "") && id !== (actorProfile?.id || "")
-  );
-  const actorEmail = String(actorProfile?.email || "").trim();
-  const adminEmails = getModeratorEmails(moderators).filter(
-    (email) => email && email !== authorEmail && email !== actorEmail
-  );
+  const moderators = (await fetchArticleModerators()).filter((row) => {
+    const id = String(row?.id || "").trim();
+    return id && id !== (authorProfile?.id || "") && id !== (actorProfile?.id || "");
+  });
+  const envAdminEmails = getEnv("ADMIN_EMAILS")
+    .split(",")
+    .map((value) => value.trim())
+    .filter((email) => email && email !== authorEmail && email !== actorEmail);
   const safeTitle = escapeHtml(article.title || "Untitled article");
   const publicUrl = articlePublicUrl(siteUrl, article);
   const editUrl = articleEditUrl(siteUrl, article);
@@ -430,46 +435,89 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
     });
   }
 
-  if (action === "submit") {
-    addNotification(article.authorId, {
-      type: "article_submitted",
-      title: "Article submitted for review",
-      body: `"${article.title || "Untitled article"}" is now waiting for admin review.`,
-      link: editUrl,
-      metadata: { status: "submitted", slug: article.slug || "" },
+  function addAuthorEmail(payload, shouldSend) {
+    if (!shouldSend || !authorEmail) return;
+    authorPayloads.push({
+      to: [authorEmail],
+      ...payload,
     });
-    moderatorIds.forEach((userId) => {
-      addNotification(userId, {
-        type: "article_review_needed",
-        title: "Article waiting in review queue",
-        body: `${article.authorName || actorName} submitted "${article.title || "Untitled article"}" for review.`,
-        link: reviewUrl,
-        metadata: { status: "submitted", slug: article.slug || "" },
+  }
+
+  function addModeratorInternalNotification(payloadFactory) {
+    moderators.forEach((row) => {
+      const prefs = getNotificationPreferences(row);
+      if (!prefs.adminArticleQueueInternal) return;
+      addNotification(row.id, payloadFactory(row));
+    });
+  }
+
+  function addModeratorEmails(payloadFactory) {
+    moderators.forEach((row) => {
+      const prefs = getNotificationPreferences(row);
+      const email = String(row?.email || "").trim();
+      if (!prefs.adminArticleQueueEmail || !email || email === authorEmail || email === actorEmail) return;
+      adminPayloads.push({
+        to: [email],
+        ...payloadFactory(row),
       });
     });
+  }
 
-    if (authorEmail) {
-      authorPayloads.push({
-        to: [authorEmail],
-        subject: `[Bly, Oregon] Article submitted: ${article.title || "Untitled article"}`,
-        html: renderEmailShell({
-          eyebrow: "Article submission",
-          title: "Your article is in review",
-          intro: "A dynamic article was submitted from your account.",
-          bodyHtml:
-            `<p><strong>${safeTitle}</strong> was submitted for approval.</p>` +
-            `<p>You can keep track of it from your account while an admin reviews it.</p>`,
-          actionLabel: "Open article",
-          actionUrl: editUrl,
-        }),
-        text:
-          `Your article "${article.title || "Untitled article"}" was submitted for approval.\n\nOpen article: ${editUrl}`,
+  if (action === "submit") {
+    if (authorPrefs.articleSubmissionsInternal) {
+      addNotification(article.authorId, {
+        type: "article_submitted",
+        title: "Article submitted for review",
+        body: `"${article.title || "Untitled article"}" is now waiting for admin review.`,
+        link: editUrl,
+        metadata: { status: "submitted", slug: article.slug || "" },
       });
     }
 
-    if (adminEmails.length) {
+    addModeratorInternalNotification(() => ({
+      type: "article_review_needed",
+      title: "Article waiting in review queue",
+      body: `${article.authorName || actorName} submitted "${article.title || "Untitled article"}" for review.`,
+      link: reviewUrl,
+      metadata: { status: "submitted", slug: article.slug || "" },
+    }));
+
+    addAuthorEmail({
+      subject: `[Bly, Oregon] Article submitted: ${article.title || "Untitled article"}`,
+      html: renderEmailShell({
+        eyebrow: "Article submission",
+        title: "Your article is in review",
+        intro: "A dynamic article was submitted from your account.",
+        bodyHtml:
+          `<p><strong>${safeTitle}</strong> was submitted for approval.</p>` +
+          `<p>You can keep track of it from your account while an admin reviews it.</p>`,
+        actionLabel: "Open article",
+        actionUrl: editUrl,
+      }),
+      text:
+        `Your article "${article.title || "Untitled article"}" was submitted for approval.\n\nOpen article: ${editUrl}`,
+    }, authorPrefs.articleSubmissionsEmail);
+
+    addModeratorEmails(() => ({
+      reply_to: authorEmail || undefined,
+      subject: `[Bly, Oregon] Article awaiting review: ${article.title || "Untitled article"}`,
+      html: renderEmailShell({
+        eyebrow: "Review queue",
+        title: "A member submitted an article",
+        intro: `${escapeHtml(actorName)} submitted an article for review.`,
+        bodyHtml:
+          `<p><strong>${safeTitle}</strong> is waiting in the review queue.</p>` +
+          `<p>Author: ${escapeHtml(article.authorName || actorName)}</p>`,
+        actionLabel: "Open review queue",
+        actionUrl: reviewUrl,
+      }),
+      text:
+        `${actorName} submitted "${article.title || "Untitled article"}" for review.\n\nReview queue: ${reviewUrl}`,
+    }));
+
+    envAdminEmails.forEach((email) => {
       adminPayloads.push({
-        to: adminEmails,
+        to: [email],
         reply_to: authorEmail || undefined,
         subject: `[Bly, Oregon] Article awaiting review: ${article.title || "Untitled article"}`,
         html: renderEmailShell({
@@ -485,80 +533,94 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
         text:
           `${actorName} submitted "${article.title || "Untitled article"}" for review.\n\nReview queue: ${reviewUrl}`,
       });
-    }
+    });
   }
 
   if (action === "request_changes") {
-    addNotification(article.authorId, {
-      type: "article_changes_requested",
-      title: "Changes requested on your article",
-      body: reviewNotes
-        ? `An editor requested changes on "${article.title || "Untitled article"}": ${reviewNotes}`
-        : `An editor requested changes on "${article.title || "Untitled article"}".`,
-      link: editUrl,
-      metadata: { status: "changes_requested", slug: article.slug || "" },
-    });
-    if (authorEmail) {
-      authorPayloads.push({
-        to: [authorEmail],
-        subject: `[Bly, Oregon] Changes requested: ${article.title || "Untitled article"}`,
-        html: renderEmailShell({
-          eyebrow: "Article review",
-          title: "Changes were requested",
-          intro: `${escapeHtml(actorName)} reviewed your article.`,
-          bodyHtml:
-            `<p><strong>${safeTitle}</strong> was sent back for revision.</p>` +
-            `${safeNotes ? `<p><strong>Review notes:</strong><br>${safeNotes}</p>` : ""}`,
-          actionLabel: "Edit article",
-          actionUrl: editUrl,
-        }),
-        text:
-          `Changes were requested for "${article.title || "Untitled article"}".` +
-          `${reviewNotes ? `\n\nReview notes:\n${reviewNotes}` : ""}` +
-          `\n\nEdit article: ${editUrl}`,
+    if (authorPrefs.articleReviewInternal) {
+      addNotification(article.authorId, {
+        type: "article_changes_requested",
+        title: "Changes requested on your article",
+        body: reviewNotes
+          ? `An editor requested changes on "${article.title || "Untitled article"}": ${reviewNotes}`
+          : `An editor requested changes on "${article.title || "Untitled article"}".`,
+        link: editUrl,
+        metadata: { status: "changes_requested", slug: article.slug || "" },
       });
     }
+
+    addAuthorEmail({
+      subject: `[Bly, Oregon] Changes requested: ${article.title || "Untitled article"}`,
+      html: renderEmailShell({
+        eyebrow: "Article review",
+        title: "Changes were requested",
+        intro: `${escapeHtml(actorName)} reviewed your article.`,
+        bodyHtml:
+          `<p><strong>${safeTitle}</strong> was sent back for revision.</p>` +
+          `${safeNotes ? `<p><strong>Review notes:</strong><br>${safeNotes}</p>` : ""}`,
+        actionLabel: "Edit article",
+        actionUrl: editUrl,
+      }),
+      text:
+        `Changes were requested for "${article.title || "Untitled article"}".` +
+        `${reviewNotes ? `\n\nReview notes:\n${reviewNotes}` : ""}` +
+        `\n\nEdit article: ${editUrl}`,
+    }, authorPrefs.articleReviewEmail);
   }
 
   if (action === "publish") {
-    addNotification(article.authorId, {
-      type: "article_published",
-      title: "Your article is live",
-      body: `"${article.title || "Untitled article"}" has been published on the site.`,
-      link: publicUrl || editUrl,
-      metadata: { status: "published", slug: article.slug || "" },
-    });
-    moderatorIds.forEach((userId) => {
-      addNotification(userId, {
-        type: "article_published_team",
-        title: "Article published",
-        body: `${article.authorName || "A member"} now has a published article: "${article.title || "Untitled article"}".`,
-        link: publicUrl || reviewUrl,
+    if (authorPrefs.articlePublishingInternal) {
+      addNotification(article.authorId, {
+        type: "article_published",
+        title: "Your article is live",
+        body: `"${article.title || "Untitled article"}" has been published on the site.`,
+        link: publicUrl || editUrl,
         metadata: { status: "published", slug: article.slug || "" },
-      });
-    });
-
-    if (authorEmail) {
-      authorPayloads.push({
-        to: [authorEmail],
-        subject: `[Bly, Oregon] Article published: ${article.title || "Untitled article"}`,
-        html: renderEmailShell({
-          eyebrow: "Article published",
-          title: "Your article is live",
-          intro: `${escapeHtml(actorName)} published your article.`,
-          bodyHtml:
-            `<p><strong>${safeTitle}</strong> is now live on the site${publishedDate ? ` as of ${escapeHtml(publishedDate)}` : ""}.</p>`,
-          actionLabel: "View public article",
-          actionUrl: publicUrl || editUrl,
-        }),
-        text:
-          `"${article.title || "Untitled article"}" is now live.\n\nPublic article: ${publicUrl || editUrl}`,
       });
     }
 
-    if (adminEmails.length) {
+    addModeratorInternalNotification(() => ({
+      type: "article_published_team",
+      title: "Article published",
+      body: `${article.authorName || "A member"} now has a published article: "${article.title || "Untitled article"}".`,
+      link: publicUrl || reviewUrl,
+      metadata: { status: "published", slug: article.slug || "" },
+    }));
+
+    addAuthorEmail({
+      subject: `[Bly, Oregon] Article published: ${article.title || "Untitled article"}`,
+      html: renderEmailShell({
+        eyebrow: "Article published",
+        title: "Your article is live",
+        intro: `${escapeHtml(actorName)} published your article.`,
+        bodyHtml:
+          `<p><strong>${safeTitle}</strong> is now live on the site${publishedDate ? ` as of ${escapeHtml(publishedDate)}` : ""}.</p>`,
+        actionLabel: "View public article",
+        actionUrl: publicUrl || editUrl,
+      }),
+      text:
+        `"${article.title || "Untitled article"}" is now live.\n\nPublic article: ${publicUrl || editUrl}`,
+    }, authorPrefs.articlePublishingEmail);
+
+    addModeratorEmails(() => ({
+      subject: `[Bly, Oregon] Article published: ${article.title || "Untitled article"}`,
+      html: renderEmailShell({
+        eyebrow: "Publishing update",
+        title: "An article was published",
+        intro: `${escapeHtml(actorName)} published an article.`,
+        bodyHtml:
+          `<p><strong>${safeTitle}</strong> is now public.</p>` +
+          `<p>Author: ${escapeHtml(article.authorName || "")}</p>`,
+        actionLabel: publicUrl ? "View article" : "Open review queue",
+        actionUrl: publicUrl || reviewUrl,
+      }),
+      text:
+        `${actorName} published "${article.title || "Untitled article"}".\n\n${publicUrl || reviewUrl}`,
+    }));
+
+    envAdminEmails.forEach((email) => {
       adminPayloads.push({
-        to: adminEmails,
+        to: [email],
         subject: `[Bly, Oregon] Article published: ${article.title || "Untitled article"}`,
         html: renderEmailShell({
           eyebrow: "Publishing update",
@@ -573,48 +635,61 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
         text:
           `${actorName} published "${article.title || "Untitled article"}".\n\n${publicUrl || reviewUrl}`,
       });
-    }
+    });
   }
 
   if (action === "unpublish") {
-    addNotification(article.authorId, {
-      type: "article_unpublished",
-      title: "Article moved back to draft",
-      body: `"${article.title || "Untitled article"}" is no longer public.`,
-      link: editUrl,
-      metadata: { status: "draft", slug: article.slug || "" },
-    });
-    moderatorIds.forEach((userId) => {
-      addNotification(userId, {
-        type: "article_unpublished_team",
-        title: "Article unpublished",
-        body: `${actorName} moved "${article.title || "Untitled article"}" back to draft.`,
+    if (authorPrefs.articlePublishingInternal) {
+      addNotification(article.authorId, {
+        type: "article_unpublished",
+        title: "Article moved back to draft",
+        body: `"${article.title || "Untitled article"}" is no longer public.`,
         link: editUrl,
         metadata: { status: "draft", slug: article.slug || "" },
       });
-    });
-
-    if (authorEmail) {
-      authorPayloads.push({
-        to: [authorEmail],
-        subject: `[Bly, Oregon] Article unpublished: ${article.title || "Untitled article"}`,
-        html: renderEmailShell({
-          eyebrow: "Article update",
-          title: "Your article was moved back to draft",
-          intro: "The public version is no longer visible on the site.",
-          bodyHtml:
-            `<p><strong>${safeTitle}</strong> is now back in draft status.</p>`,
-          actionLabel: "Open article",
-          actionUrl: editUrl,
-        }),
-        text:
-          `"${article.title || "Untitled article"}" was moved back to draft.\n\nEdit article: ${editUrl}`,
-      });
     }
 
-    if (adminEmails.length) {
+    addModeratorInternalNotification(() => ({
+      type: "article_unpublished_team",
+      title: "Article unpublished",
+      body: `${actorName} moved "${article.title || "Untitled article"}" back to draft.`,
+      link: editUrl,
+      metadata: { status: "draft", slug: article.slug || "" },
+    }));
+
+    addAuthorEmail({
+      subject: `[Bly, Oregon] Article unpublished: ${article.title || "Untitled article"}`,
+      html: renderEmailShell({
+        eyebrow: "Article update",
+        title: "Your article was moved back to draft",
+        intro: "The public version is no longer visible on the site.",
+        bodyHtml:
+          `<p><strong>${safeTitle}</strong> is now back in draft status.</p>`,
+        actionLabel: "Open article",
+        actionUrl: editUrl,
+      }),
+      text:
+        `"${article.title || "Untitled article"}" was moved back to draft.\n\nEdit article: ${editUrl}`,
+    }, authorPrefs.articlePublishingEmail);
+
+    addModeratorEmails(() => ({
+      subject: `[Bly, Oregon] Article unpublished: ${article.title || "Untitled article"}`,
+      html: renderEmailShell({
+        eyebrow: "Publishing update",
+        title: "An article was unpublished",
+        intro: `${escapeHtml(actorName)} moved an article back to draft.`,
+        bodyHtml:
+          `<p><strong>${safeTitle}</strong> is no longer public.</p>`,
+        actionLabel: "Open article",
+        actionUrl: editUrl,
+      }),
+      text:
+        `${actorName} unpublished "${article.title || "Untitled article"}".\n\nEdit article: ${editUrl}`,
+    }));
+
+    envAdminEmails.forEach((email) => {
       adminPayloads.push({
-        to: adminEmails,
+        to: [email],
         subject: `[Bly, Oregon] Article unpublished: ${article.title || "Untitled article"}`,
         html: renderEmailShell({
           eyebrow: "Publishing update",
@@ -628,46 +703,57 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
         text:
           `${actorName} unpublished "${article.title || "Untitled article"}".\n\nEdit article: ${editUrl}`,
       });
-    }
+    });
   }
 
   if (action === "delete") {
-    addNotification(article.authorId, {
-      type: "article_deleted",
-      title: "Article deleted",
-      body: `"${article.title || "Untitled article"}" was removed from the dynamic article system.`,
-      link: "/account/articles/",
-      metadata: { deleted: true, slug: article.slug || "" },
-    });
-    moderatorIds.forEach((userId) => {
-      addNotification(userId, {
-        type: "article_deleted_team",
+    if (authorPrefs.articlePublishingInternal) {
+      addNotification(article.authorId, {
+        type: "article_deleted",
         title: "Article deleted",
-        body: `${actorName} deleted "${article.title || "Untitled article"}".`,
-        link: "/account/articles/review/",
+        body: `"${article.title || "Untitled article"}" was removed from the dynamic article system.`,
+        link: "/account/articles/",
         metadata: { deleted: true, slug: article.slug || "" },
-      });
-    });
-
-    if (authorEmail) {
-      authorPayloads.push({
-        to: [authorEmail],
-        subject: `[Bly, Oregon] Article deleted: ${article.title || "Untitled article"}`,
-        html: renderEmailShell({
-          eyebrow: "Article deleted",
-          title: "Your article was deleted",
-          intro: `${escapeHtml(actorName)} deleted the article record.`,
-          bodyHtml:
-            `<p><strong>${safeTitle}</strong> and its uploaded article images were removed from the dynamic article system.</p>`,
-        }),
-        text:
-          `"${article.title || "Untitled article"}" was deleted from the dynamic article system.`,
       });
     }
 
-    if (adminEmails.length) {
+    addModeratorInternalNotification(() => ({
+      type: "article_deleted_team",
+      title: "Article deleted",
+      body: `${actorName} deleted "${article.title || "Untitled article"}".`,
+      link: "/account/articles/review/",
+      metadata: { deleted: true, slug: article.slug || "" },
+    }));
+
+    addAuthorEmail({
+      subject: `[Bly, Oregon] Article deleted: ${article.title || "Untitled article"}`,
+      html: renderEmailShell({
+        eyebrow: "Article deleted",
+        title: "Your article was deleted",
+        intro: `${escapeHtml(actorName)} deleted the article record.`,
+        bodyHtml:
+          `<p><strong>${safeTitle}</strong> and its uploaded article images were removed from the dynamic article system.</p>`,
+      }),
+      text:
+        `"${article.title || "Untitled article"}" was deleted from the dynamic article system.`,
+    }, authorPrefs.articlePublishingEmail);
+
+    addModeratorEmails(() => ({
+      subject: `[Bly, Oregon] Article deleted: ${article.title || "Untitled article"}`,
+      html: renderEmailShell({
+        eyebrow: "Article deleted",
+        title: "An article was deleted",
+        intro: `${escapeHtml(actorName)} deleted an article.`,
+        bodyHtml:
+          `<p><strong>${safeTitle}</strong> was removed from the dynamic article workflow.</p>`,
+      }),
+      text:
+        `${actorName} deleted "${article.title || "Untitled article"}".`,
+    }));
+
+    envAdminEmails.forEach((email) => {
       adminPayloads.push({
-        to: adminEmails,
+        to: [email],
         subject: `[Bly, Oregon] Article deleted: ${article.title || "Untitled article"}`,
         html: renderEmailShell({
           eyebrow: "Article deleted",
@@ -679,13 +765,16 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
         text:
           `${actorName} deleted "${article.title || "Untitled article"}".`,
       });
-    }
+    });
   }
 
-  const from = getEnv("RESEND_FROM_EMAIL", "noreply@blyoregon.org");
   if (storedNotifications.length) {
     await insertNotifications(storedNotifications);
   }
+
+  if (!getEnv("RESEND_API_KEY")) return;
+
+  const from = getEnv("RESEND_FROM_EMAIL", "noreply@blyoregon.org");
   const jobs = [...authorPayloads, ...adminPayloads].map((payload) =>
     sendEmail({
       from: `Bly, Oregon <${from}>`,

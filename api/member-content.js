@@ -42,7 +42,7 @@ async function authenticateRequest(req) {
 
 async function fetchProfile(session, token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_review_articles,can_publish_articles,created_at&id=eq.${encodeURIComponent(session.id)}`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,avatar_path,bio,role,can_manage_media,media_buckets,can_upload_photos,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,created_at&id=eq.${encodeURIComponent(session.id)}`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -131,6 +131,16 @@ module.exports = async (req, res) => {
     const canSubmitArticles = Boolean(profile?.can_submit_articles || admin);
     const canReviewArticles = Boolean(profile?.can_review_articles || profile?.can_publish_articles || admin);
     const canPublishArticles = Boolean(profile?.can_publish_articles || admin);
+    const notificationPreferences = {
+      articleSubmissionsInternal: profile?.notify_article_submissions_internal !== false,
+      articleSubmissionsEmail: profile?.notify_article_submissions_email !== false,
+      articleReviewInternal: profile?.notify_article_review_internal !== false,
+      articleReviewEmail: profile?.notify_article_review_email !== false,
+      articlePublishingInternal: profile?.notify_article_publishing_internal !== false,
+      articlePublishingEmail: profile?.notify_article_publishing_email !== false,
+      adminArticleQueueInternal: profile?.notify_admin_article_queue_internal !== false,
+      adminArticleQueueEmail: profile?.notify_admin_article_queue_email !== false,
+    };
 
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
@@ -168,6 +178,7 @@ module.exports = async (req, res) => {
             canReviewArticles,
             canSubmitArticles,
           },
+          notificationPreferences,
           unreadNotificationCount,
           role,
         },
