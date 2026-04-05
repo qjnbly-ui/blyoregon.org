@@ -6,6 +6,10 @@ function getAnonKey() {
   return String(process.env.SUPABASE_ANON_KEY || "").trim();
 }
 
+function getServiceRoleKey() {
+  return String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+}
+
 function getHeaderValue(req, name) {
   const value = req.headers?.[name];
   return Array.isArray(value) ? value[0] : value;
@@ -55,6 +59,40 @@ async function fetchProfile(session, token) {
   return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
+async function fetchUnreadNotificationCount(userId, token) {
+  const serviceKey = getServiceRoleKey();
+  if (!userId) return 0;
+
+  const query = new URLSearchParams({
+    select: "id",
+    user_id: `eq.${userId}`,
+    read_at: "is.null",
+  });
+
+  const headers = serviceKey
+    ? {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        Prefer: "count=exact",
+        Range: "0-0",
+      }
+    : {
+        apikey: getAnonKey(),
+        Authorization: `Bearer ${token}`,
+        Prefer: "count=exact",
+        Range: "0-0",
+      };
+
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/notifications?${query.toString()}`, {
+    headers,
+  });
+
+  if (!response.ok) return 0;
+  const contentRange = String(response.headers.get("content-range") || "");
+  const total = Number(contentRange.split("/")[1]);
+  return Number.isFinite(total) ? total : 0;
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "GET") {
     res.statusCode = 405;
@@ -72,7 +110,10 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const profile = await fetchProfile(session, token);
+    const [profile, unreadNotificationCount] = await Promise.all([
+      fetchProfile(session, token),
+      fetchUnreadNotificationCount(session.id, token),
+    ]);
     const email = String(profile?.email || session.email || "");
     const displayName = String(
       profile?.display_name || session.user_metadata?.full_name || email || session.id
@@ -106,6 +147,7 @@ module.exports = async (req, res) => {
         canSubmitArticles,
         canReviewArticles,
         canPublishArticles,
+        unreadNotificationCount,
         email,
         profile: {
           avatarPath: profile?.avatar_path || "",
@@ -126,6 +168,7 @@ module.exports = async (req, res) => {
             canReviewArticles,
             canSubmitArticles,
           },
+          unreadNotificationCount,
           role,
         },
       })

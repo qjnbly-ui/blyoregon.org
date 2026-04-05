@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications | Bly, Oregon</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --ink: #1e1f1c;
+      --card: #fffdf9;
+      --white: #fff;
+      --shadow: 0 20px 45px rgba(12,26,20,0.18);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+    header { background: rgba(20,50,39,0.96); color: var(--white); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand-title { font-family: "Fraunces", "Times New Roman", serif; font-size: 1.4rem; font-weight: 700; }
+    .brand-subtitle { font-size: 0.85rem; color: rgba(255,255,255,0.72); }
+    nav { display: flex; gap: 0.75rem; align-items: center; }
+    nav a { color: var(--white); text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 0.45rem 0.8rem; border-radius: 999px; border: 1px solid transparent; }
+    nav a.account-link { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); }
+    .shell {
+      flex: 1 0 auto;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .hero, .card {
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid rgba(31,64,48,0.12);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.4rem;
+    }
+    .hero { background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88)); color: var(--white); }
+    .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.76rem; color: rgba(255,255,255,0.72); font-weight: 700; }
+    .hero h1 { margin: 0.3rem 0 0; font-family: "Fraunces", "Times New Roman", serif; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.02; }
+    .hero p, .meta, .status-copy { margin: 0.65rem 0 0; line-height: 1.6; }
+    .hero p { color: rgba(255,255,255,0.82); }
+    .meta, .status-copy { color: #4c5d54; }
+    .hero-actions, .card-actions { margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .button, .pill-link {
+      appearance: none;
+      border-radius: 999px;
+      padding: 0.8rem 1rem;
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      width: fit-content;
+      cursor: pointer;
+    }
+    .pill-link {
+      border: 1px solid rgba(255,255,255,0.32);
+      background: transparent;
+      color: var(--white);
+    }
+    .button.secondary {
+      border: 1px solid rgba(20,50,39,0.16);
+      background: transparent;
+      color: var(--forest);
+    }
+    .button:disabled { opacity: 0.65; cursor: wait; }
+    h2 { margin: 0; color: var(--forest); }
+    .list { display: grid; gap: 0.9rem; margin-top: 1rem; }
+    .item {
+      display: grid;
+      gap: 0.75rem;
+      padding: 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20,50,39,0.1);
+      background: rgba(255,255,255,0.72);
+    }
+    .item.unread {
+      border-color: rgba(20,50,39,0.22);
+      box-shadow: inset 0 0 0 1px rgba(20,50,39,0.08);
+    }
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .item-title { font-weight: 700; font-size: 1.05rem; color: var(--forest); }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.32rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(20,50,39,0.08);
+      color: var(--forest);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .time { color: #5c6d63; font-size: 0.9rem; }
+    .warning { color: #8b322d; }
+    footer { background: #162f25; color: rgba(255,255,255,0.7); text-align: center; padding: 1.5rem; font-size: 0.9rem; }
+    @media (max-width: 600px) {
+      .shell { padding: 1rem 0.75rem 2rem; }
+      .hero, .card { padding: 1.1rem 1rem; border-radius: 20px; }
+      .header-inner { padding: 0.75rem 0.9rem; }
+      .brand-title { font-size: 1rem; }
+      .brand-subtitle { font-size: 0.72rem; }
+      nav { width: 100%; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">A Community in Klamath County</div>
+      </div>
+      <nav>
+        <a href="/account/" class="account-link">Account</a>
+        <a href="/account/articles/">My articles</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Account Inbox</div>
+      <h1>Notifications</h1>
+      <p id="hero-intro">Loading your internal account notifications.</p>
+      <div class="hero-actions">
+        <a href="/account/" class="pill-link">Back to account</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="item-header">
+        <div>
+          <h2>Your notifications</h2>
+          <p class="meta">Internal notifications are stored in your account even if email is disabled.</p>
+        </div>
+        <button id="mark-all-button" class="button secondary" type="button" hidden>Mark all read</button>
+      </div>
+      <div id="notification-list" class="list"></div>
+      <p id="page-status" class="status-copy" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+
+  <script src="/assets/auth.js"></script>
+  <script>
+    const listEl = document.getElementById("notification-list");
+    const statusEl = document.getElementById("page-status");
+    const heroIntroEl = document.getElementById("hero-intro");
+    const markAllButtonEl = document.getElementById("mark-all-button");
+    const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
+    let activeSession = null;
+
+    function setStatus(message, isError = false) {
+      statusEl.classList.toggle("warning", isError);
+      statusEl.textContent = message || "";
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return date.toLocaleString();
+    }
+
+    async function updateNotification(action, id) {
+      if (!activeSession?.access_token) return;
+      const response = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: {
+          Authorization: "Bearer " + activeSession.access_token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action, id }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || "Unable to update notifications.");
+      }
+      return payload;
+    }
+
+    function renderNotifications(notifications, unreadCount) {
+      listEl.innerHTML = "";
+      heroIntroEl.textContent = unreadCount > 0
+        ? `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"} in your account inbox.`
+        : "You are caught up. New article activity will appear here.";
+      markAllButtonEl.hidden = unreadCount < 1;
+
+      if (!notifications.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "No notifications yet.";
+        listEl.appendChild(empty);
+        return;
+      }
+
+      notifications.forEach((notification) => {
+        const row = document.createElement("article");
+        row.className = `item${notification.readAt ? "" : " unread"}`;
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+
+        const copy = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = notification.title || "Notification";
+        const body = document.createElement("p");
+        body.className = "meta";
+        body.textContent = notification.body || "";
+        copy.append(title, body);
+
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = notification.readAt ? "Read" : "Unread";
+        header.append(copy, chip);
+
+        const time = document.createElement("div");
+        time.className = "time";
+        time.textContent = formatDate(notification.createdAt);
+
+        const actions = document.createElement("div");
+        actions.className = "card-actions";
+
+        if (notification.link) {
+          const openLink = document.createElement("a");
+          openLink.className = "button secondary";
+          openLink.href = notification.link;
+          openLink.textContent = "Open";
+          actions.appendChild(openLink);
+        }
+
+        if (!notification.readAt) {
+          const markReadButton = document.createElement("button");
+          markReadButton.className = "button secondary";
+          markReadButton.type = "button";
+          markReadButton.textContent = "Mark read";
+          markReadButton.addEventListener("click", async () => {
+            try {
+              markReadButton.disabled = true;
+              await updateNotification("mark_read", notification.id);
+              await loadPage();
+            } catch (error) {
+              markReadButton.disabled = false;
+              setStatus(error.message || "Unable to update notifications.", true);
+            }
+          });
+          actions.appendChild(markReadButton);
+        }
+
+        row.append(header, time, actions);
+        listEl.appendChild(row);
+      });
+    }
+
+    async function loadPage() {
+      try {
+        activeSession = await window.siteAuth.getSession();
+        if (!activeSession) {
+          window.location.replace(loginUrl);
+          return;
+        }
+
+        const response = await fetch("/api/notifications", {
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+          },
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          if (response.status === 401) {
+            await window.siteAuth.logout();
+            window.location.replace(loginUrl + "&auth_error=expired");
+            return;
+          }
+          throw new Error(payload.error || "Unable to load notifications.");
+        }
+
+        renderNotifications(Array.isArray(payload.notifications) ? payload.notifications : [], Number(payload.unreadCount || 0));
+        setStatus("");
+      } catch (error) {
+        setStatus(error.message || "Unable to load notifications.", true);
+      }
+    }
+
+    markAllButtonEl.addEventListener("click", async () => {
+      try {
+        markAllButtonEl.disabled = true;
+        await updateNotification("mark_all_read");
+        await loadPage();
+      } catch (error) {
+        setStatus(error.message || "Unable to update notifications.", true);
+      } finally {
+        markAllButtonEl.disabled = false;
+      }
+    });
+
+    loadPage();
+  </script>
+</body>
+</html>

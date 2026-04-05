@@ -251,12 +251,29 @@
       color: #47564e;
       line-height: 1.6;
     }
+    .meta-strong {
+      color: var(--forest);
+      font-weight: 700;
+    }
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: start;
       gap: 1rem;
       flex-wrap: wrap;
+    }
+    .inline-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(20, 50, 39, 0.08);
+      color: var(--forest);
+      font-size: 0.84rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
     }
     .profile-photo {
       width: 104px;
@@ -782,6 +799,22 @@
       </div>
     </section>
 
+    <section class="card" id="notifications-card">
+      <div class="card-header">
+        <div>
+          <h2>Notifications</h2>
+          <p class="meta">See article review activity, publishing updates, and other internal account notices.</p>
+        </div>
+        <a class="edit-toggle" href="/account/notifications/">
+          Open notifications
+          <span class="inline-count" id="notifications-inline-count" hidden>0</span>
+        </a>
+      </div>
+      <div class="stack">
+        <p class="meta" id="notifications-summary">No unread notifications.</p>
+      </div>
+    </section>
+
     <section class="card" id="my-articles-card" hidden>
       <div class="card-header">
         <div>
@@ -919,6 +952,8 @@
     const avatarPlaceholderEl = document.getElementById("profile-avatar-placeholder");
     const userPermissionsCardEl = document.getElementById("user-permissions-card");
     const mediaLibraryCardEl = document.getElementById("media-library-card");
+    const notificationsSummaryEl = document.getElementById("notifications-summary");
+    const notificationsInlineCountEl = document.getElementById("notifications-inline-count");
     const myArticlesCardEl = document.getElementById("my-articles-card");
     const articleReviewCardEl = document.getElementById("article-review-card");
     const profileEditToggle = document.getElementById("profile-edit-toggle");
@@ -1226,6 +1261,7 @@
         mediaLibraryCardEl.hidden = !payload.canManageMedia;
         myArticlesCardEl.hidden = !(payload.canSubmitArticles || payload.admin);
         articleReviewCardEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
+        const unreadNotificationCount = Number(payload.unreadNotificationCount || payload.profile?.unreadNotificationCount || 0);
 
         badgesEl.innerHTML = "";
         addBadge("Signed In");
@@ -1234,6 +1270,13 @@
         if (payload.canManageMedia) addBadge("Media Manager");
         if (payload.canSubmitArticles) addBadge("Article Writer");
         if (payload.canReviewArticles || payload.canPublishArticles) addBadge("Article Review");
+        if (unreadNotificationCount > 0) addBadge(`${unreadNotificationCount} Unread`);
+
+        notificationsInlineCountEl.hidden = unreadNotificationCount < 1;
+        notificationsInlineCountEl.textContent = String(unreadNotificationCount);
+        notificationsSummaryEl.innerHTML = unreadNotificationCount > 0
+          ? `<span class="meta-strong">${unreadNotificationCount}</span> unread notification${unreadNotificationCount === 1 ? "" : "s"} waiting in your inbox.`
+          : "No unread notifications.";
       } catch (error) {
         titleEl.textContent = "Account error";
         introEl.textContent = "The account page could not be loaded.";

@@ -326,6 +326,21 @@ create table if not exists public.article_images (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  actor_id uuid references public.profiles(id) on delete set null,
+  type text not null,
+  title text not null,
+  body text not null default '',
+  link text,
+  entity_type text,
+  entity_id uuid,
+  metadata jsonb not null default '{}'::jsonb,
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
 alter table public.profiles enable row level security;
 alter table public.photo_albums enable row level security;
 alter table public.photos enable row level security;
@@ -335,6 +350,7 @@ alter table public.historical_photo_people enable row level security;
 alter table public.recommendations enable row level security;
 alter table public.articles enable row level security;
 alter table public.article_images enable row level security;
+alter table public.notifications enable row level security;
 
 insert into storage.buckets (id, name, public)
 values ('profile-photos', 'profile-photos', true)
@@ -675,6 +691,31 @@ on public.article_images
 for all
 using (public.can_manage_article(article_id))
 with check (public.can_manage_article(article_id));
+
+drop policy if exists "notifications read own or admin" on public.notifications;
+create policy "notifications read own or admin"
+on public.notifications
+for select
+using (user_id = auth.uid() or public.is_admin());
+
+drop policy if exists "notifications update own or admin" on public.notifications;
+create policy "notifications update own or admin"
+on public.notifications
+for update
+using (user_id = auth.uid() or public.is_admin())
+with check (user_id = auth.uid() or public.is_admin());
+
+drop policy if exists "notifications admin insert" on public.notifications;
+create policy "notifications admin insert"
+on public.notifications
+for insert
+with check (public.is_admin());
+
+drop policy if exists "notifications delete own or admin" on public.notifications;
+create policy "notifications delete own or admin"
+on public.notifications
+for delete
+using (user_id = auth.uid() or public.is_admin());
 
 -- After creating your user account, promote it once:
 -- update public.profiles

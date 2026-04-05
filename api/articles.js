@@ -316,6 +316,33 @@ function getModeratorEmails(rows) {
   return Array.from(new Set([...envEmails, ...rowEmails]));
 }
 
+function getModeratorIds(rows, excludeUserId = "") {
+  return Array.from(
+    new Set(
+      (Array.isArray(rows) ? rows : [])
+        .map((row) => String(row?.id || "").trim())
+        .filter((id) => id && id !== excludeUserId)
+    )
+  );
+}
+
+async function insertNotifications(rows) {
+  if (!Array.isArray(rows) || !rows.length) return;
+
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/notifications`, {
+    method: "POST",
+    headers: {
+      ...buildServiceHeaders(),
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify(rows),
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    throw new Error(result?.message || result?.error || "Unable to store notifications");
+  }
+}
+
 async function sendEmail(payload) {
   const resendKey = getEnv("RESEND_API_KEY");
   if (!resendKey) return false;
@@ -369,7 +396,13 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
     : await fetchProfileById(article.authorId);
   const authorEmail = String(authorProfile?.email || "").trim();
   const moderators = await fetchArticleModerators();
-  const adminEmails = getModeratorEmails(moderators).filter((email) => email && email !== authorEmail);
+  const moderatorIds = getModeratorIds(moderators).filter(
+    (id) => id && id !== (authorProfile?.id || "") && id !== (actorProfile?.id || "")
+  );
+  const actorEmail = String(actorProfile?.email || "").trim();
+  const adminEmails = getModeratorEmails(moderators).filter(
+    (email) => email && email !== authorEmail && email !== actorEmail
+  );
   const safeTitle = escapeHtml(article.title || "Untitled article");
   const publicUrl = articlePublicUrl(siteUrl, article);
   const editUrl = articleEditUrl(siteUrl, article);
@@ -379,8 +412,42 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
 
   const authorPayloads = [];
   const adminPayloads = [];
+  const storedNotifications = [];
+
+  function addNotification(userId, payload) {
+    const normalizedUserId = String(userId || "").trim();
+    if (!normalizedUserId) return;
+    storedNotifications.push({
+      user_id: normalizedUserId,
+      actor_id: actorProfile?.id || null,
+      type: payload.type,
+      title: payload.title,
+      body: payload.body || "",
+      link: payload.link || null,
+      entity_type: payload.entityType || "article",
+      entity_id: article.id || null,
+      metadata: payload.metadata || {},
+    });
+  }
 
   if (action === "submit") {
+    addNotification(article.authorId, {
+      type: "article_submitted",
+      title: "Article submitted for review",
+      body: `"${article.title || "Untitled article"}" is now waiting for admin review.`,
+      link: editUrl,
+      metadata: { status: "submitted", slug: article.slug || "" },
+    });
+    moderatorIds.forEach((userId) => {
+      addNotification(userId, {
+        type: "article_review_needed",
+        title: "Article waiting in review queue",
+        body: `${article.authorName || actorName} submitted "${article.title || "Untitled article"}" for review.`,
+        link: reviewUrl,
+        metadata: { status: "submitted", slug: article.slug || "" },
+      });
+    });
+
     if (authorEmail) {
       authorPayloads.push({
         to: [authorEmail],
@@ -421,28 +488,56 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
     }
   }
 
-  if (action === "request_changes" && authorEmail) {
-    authorPayloads.push({
-      to: [authorEmail],
-      subject: `[Bly, Oregon] Changes requested: ${article.title || "Untitled article"}`,
-      html: renderEmailShell({
-        eyebrow: "Article review",
-        title: "Changes were requested",
-        intro: `${escapeHtml(actorName)} reviewed your article.`,
-        bodyHtml:
-          `<p><strong>${safeTitle}</strong> was sent back for revision.</p>` +
-          `${safeNotes ? `<p><strong>Review notes:</strong><br>${safeNotes}</p>` : ""}`,
-        actionLabel: "Edit article",
-        actionUrl: editUrl,
-      }),
-      text:
-        `Changes were requested for "${article.title || "Untitled article"}".` +
-        `${reviewNotes ? `\n\nReview notes:\n${reviewNotes}` : ""}` +
-        `\n\nEdit article: ${editUrl}`,
+  if (action === "request_changes") {
+    addNotification(article.authorId, {
+      type: "article_changes_requested",
+      title: "Changes requested on your article",
+      body: reviewNotes
+        ? `An editor requested changes on "${article.title || "Untitled article"}": ${reviewNotes}`
+        : `An editor requested changes on "${article.title || "Untitled article"}".`,
+      link: editUrl,
+      metadata: { status: "changes_requested", slug: article.slug || "" },
     });
+    if (authorEmail) {
+      authorPayloads.push({
+        to: [authorEmail],
+        subject: `[Bly, Oregon] Changes requested: ${article.title || "Untitled article"}`,
+        html: renderEmailShell({
+          eyebrow: "Article review",
+          title: "Changes were requested",
+          intro: `${escapeHtml(actorName)} reviewed your article.`,
+          bodyHtml:
+            `<p><strong>${safeTitle}</strong> was sent back for revision.</p>` +
+            `${safeNotes ? `<p><strong>Review notes:</strong><br>${safeNotes}</p>` : ""}`,
+          actionLabel: "Edit article",
+          actionUrl: editUrl,
+        }),
+        text:
+          `Changes were requested for "${article.title || "Untitled article"}".` +
+          `${reviewNotes ? `\n\nReview notes:\n${reviewNotes}` : ""}` +
+          `\n\nEdit article: ${editUrl}`,
+      });
+    }
   }
 
   if (action === "publish") {
+    addNotification(article.authorId, {
+      type: "article_published",
+      title: "Your article is live",
+      body: `"${article.title || "Untitled article"}" has been published on the site.`,
+      link: publicUrl || editUrl,
+      metadata: { status: "published", slug: article.slug || "" },
+    });
+    moderatorIds.forEach((userId) => {
+      addNotification(userId, {
+        type: "article_published_team",
+        title: "Article published",
+        body: `${article.authorName || "A member"} now has a published article: "${article.title || "Untitled article"}".`,
+        link: publicUrl || reviewUrl,
+        metadata: { status: "published", slug: article.slug || "" },
+      });
+    });
+
     if (authorEmail) {
       authorPayloads.push({
         to: [authorEmail],
@@ -482,6 +577,23 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
   }
 
   if (action === "unpublish") {
+    addNotification(article.authorId, {
+      type: "article_unpublished",
+      title: "Article moved back to draft",
+      body: `"${article.title || "Untitled article"}" is no longer public.`,
+      link: editUrl,
+      metadata: { status: "draft", slug: article.slug || "" },
+    });
+    moderatorIds.forEach((userId) => {
+      addNotification(userId, {
+        type: "article_unpublished_team",
+        title: "Article unpublished",
+        body: `${actorName} moved "${article.title || "Untitled article"}" back to draft.`,
+        link: editUrl,
+        metadata: { status: "draft", slug: article.slug || "" },
+      });
+    });
+
     if (authorEmail) {
       authorPayloads.push({
         to: [authorEmail],
@@ -520,6 +632,23 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
   }
 
   if (action === "delete") {
+    addNotification(article.authorId, {
+      type: "article_deleted",
+      title: "Article deleted",
+      body: `"${article.title || "Untitled article"}" was removed from the dynamic article system.`,
+      link: "/account/articles/",
+      metadata: { deleted: true, slug: article.slug || "" },
+    });
+    moderatorIds.forEach((userId) => {
+      addNotification(userId, {
+        type: "article_deleted_team",
+        title: "Article deleted",
+        body: `${actorName} deleted "${article.title || "Untitled article"}".`,
+        link: "/account/articles/review/",
+        metadata: { deleted: true, slug: article.slug || "" },
+      });
+    });
+
     if (authorEmail) {
       authorPayloads.push({
         to: [authorEmail],
@@ -554,6 +683,9 @@ async function sendArticleNotifications({ req, article, actorProfile, action, re
   }
 
   const from = getEnv("RESEND_FROM_EMAIL", "noreply@blyoregon.org");
+  if (storedNotifications.length) {
+    await insertNotifications(storedNotifications);
+  }
   const jobs = [...authorPayloads, ...adminPayloads].map((payload) =>
     sendEmail({
       from: `Bly, Oregon <${from}>`,

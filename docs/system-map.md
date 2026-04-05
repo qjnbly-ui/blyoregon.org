@@ -23,6 +23,11 @@ Use it alongside [supabase/schema.sql](/Users/quentinnichols/Documents/Websites/
 - site role like `member` or `admin`
 - media permissions and bucket access
 
+`public.notifications` stores:
+- internal account notifications
+- links back to article editors, review queues, and public article pages
+- unread/read state per user
+
 Profile photo upload is separate from historical photo/media permissions.
 
 ### Permissions admin flow
@@ -62,8 +67,10 @@ Admins bypass these checks.
 - Shared author/reviewer editor: [account/articles/edit/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/account/articles/edit/index.html)
 - Review queue: [account/articles/review/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/account/articles/review/index.html)
 - API: [api/articles.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/articles.js)
+- Notifications API: [api/notifications.js](/Users/quentinnichols/Documents/Websites/blyoregon.org/api/notifications.js)
 - Public list host page: [history/articles/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/history/articles/index.html)
 - Public dynamic article page: [history/articles/post/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/history/articles/post/index.html)
+- Account notifications page: [account/notifications/index.html](/Users/quentinnichols/Documents/Websites/blyoregon.org/account/notifications/index.html)
 
 Current behavior:
 - static archive articles in `history/articles/*.html` stay in place
@@ -82,12 +89,20 @@ Current behavior:
 - authors can now unpublish their own published article back to `draft`
 - authors can now delete their own dynamic article and its uploaded article images
 - workflow emails now cover submission, changes requested, publishing, unpublishing, and deletion
+- stored internal notifications now cover the same article workflow events
 
 Current email environment:
 - `RESEND_API_KEY`
 - `RESEND_FROM_EMAIL`
 - `ADMIN_EMAILS`
 - optional `PUBLIC_SITE_URL`
+
+Current internal notification behavior:
+- `/api/articles` creates `public.notifications` rows when article workflow events happen
+- `/api/member-content` returns `unreadNotificationCount` for the account page
+- `/api/notifications` lists notifications and marks them read
+- `/account/` shows a notifications card with unread count
+- `/account/notifications/` is the full internal inbox
 
 Current article statuses:
 - `draft`
@@ -153,6 +168,7 @@ Historical archive tables now include:
 Dynamic article tables now include:
 - `articles`
 - `article_images`
+- `notifications`
 
 ### Current storage policy functions
 
