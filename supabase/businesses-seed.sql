@@ -64,6 +64,23 @@ with seed (
 
     ('Recreation & Community Space', 'Ruth Obenchain Recreation Center', 'Membership-run community gym with scheduled events. The building is not staffed and the doors stay locked; access is arranged through the website (typically at least a day in advance) for monthly memberships and open gym nights. Rentals are also handled online-call if you have questions.', null, '(541) 904-0428', null, '19140 Edler Street, Bly, OR 97622', '/assets/rorchomeimage.jpg', 'https://ruthobenchainrc.com', null, 'Website label on old page: ruthobenchainrc.com', 10)
 )
+update public.businesses as existing
+set
+  description = seed.description,
+  contact_name = seed.contact_name,
+  phone = seed.phone,
+  business_email = seed.business_email,
+  address = seed.address,
+  image_url = seed.image_url,
+  website_url = seed.website_url,
+  hours = seed.hours,
+  notes = seed.notes,
+  sort_order = seed.sort_order,
+  updated_at = now()
+from seed
+where existing.business_name = seed.business_name
+  and existing.business_category = seed.business_category;
+
 insert into public.businesses (
   business_category,
   business_name,

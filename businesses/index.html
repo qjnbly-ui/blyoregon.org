@@ -1472,6 +1472,32 @@
         return item;
       }
 
+      function getBusinessImageClass(business) {
+        const name = String(business?.businessName || "").toLowerCase();
+        const imageUrl = String(business?.imageUrl || "").toLowerCase();
+        if (
+          name.includes("fire department") ||
+          name.includes("community action team") ||
+          name.includes("postal service") ||
+          name.includes("outdoor store") ||
+          name.includes("running w enterprises") ||
+          name.includes("rustic rain") ||
+          name.includes("gearhart elementary school") ||
+          imageUrl.includes("logo")
+        ) {
+          return "logo";
+        }
+        if (name.includes("outlaw rocks")) return "outlaw-photo";
+        if (
+          name.includes("aspen ridge resort") ||
+          name.includes("barn at marvin garden")
+        ) {
+          return "contain-photo";
+        }
+        if (name.includes("fastbreak")) return "fastbreak-photo";
+        return "";
+      }
+
       function createBusinessCard(business) {
         const article = document.createElement("article");
         article.className = "biz-card";
@@ -1479,6 +1505,8 @@
         const image = document.createElement("img");
         image.alt = business.businessName || "Business listing";
         image.src = business.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Business listing</text></svg>";
+        const imageClass = getBusinessImageClass(business);
+        if (imageClass) image.classList.add(imageClass);
 
         const content = document.createElement("div");
         content.className = "biz-content";
@@ -1625,7 +1653,11 @@
 
       async function loadDirectory() {
         try {
-          const response = await fetch("/api/businesses");
+          const session = await window.siteAuth?.getSession?.().catch(() => null);
+          const headers = session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : undefined;
+          const response = await fetch("/api/businesses", { headers });
           const payload = await response.json().catch(() => ({}));
           if (!response.ok) return;
           renderDirectory(Array.isArray(payload.businesses) ? payload.businesses : []);
