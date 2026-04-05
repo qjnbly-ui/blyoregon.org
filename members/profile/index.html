@@ -115,11 +115,50 @@
       border: 0;
       cursor: pointer;
     }
+    .articles-list {
+      display: grid;
+      gap: 0.9rem;
+      margin-top: 1rem;
+    }
+    .article-item {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+      padding: 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20,50,39,0.12);
+      background: rgba(255,255,255,0.72);
+    }
+    .article-thumb {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 16px;
+      background: rgba(20,50,39,0.1);
+      border: 1px solid rgba(20,50,39,0.12);
+    }
+    .article-copy {
+      display: grid;
+      gap: 0.45rem;
+      min-width: 0;
+    }
+    .article-link {
+      color: var(--forest);
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 1.02rem;
+    }
+    .article-link:hover {
+      text-decoration: underline;
+    }
     .warning { color: #8b322d; }
     footer { background: #162f25; color: rgba(255,255,255,0.7); text-align: center; padding: 1.5rem; font-size: 0.9rem; }
     @media (max-width: 700px) {
       .profile-layout { grid-template-columns: 1fr; }
       .avatar { width: 150px; height: 150px; }
+      .article-item { grid-template-columns: 1fr; }
+      .article-thumb { width: 100%; height: auto; aspect-ratio: 1 / 1; }
       main { padding: 1rem 0.75rem 2rem; }
       .card { padding: 1.1rem 1rem; border-radius: 20px; }
     }
@@ -153,6 +192,16 @@
         </div>
       </div>
     </section>
+
+    <section class="card">
+      <div class="stack">
+        <div>
+          <h2>Published articles</h2>
+          <p id="articles-meta" class="meta">Loading published articles.</p>
+        </div>
+        <div id="articles-list" class="articles-list"></div>
+      </div>
+    </section>
   </main>
 
   <footer>
@@ -169,7 +218,11 @@
     const avatarPlaceholderEl = document.getElementById("profile-avatar-placeholder");
     const bioEl = document.getElementById("profile-bio");
     const messageButtonEl = document.getElementById("message-button");
+    const articlesMetaEl = document.getElementById("articles-meta");
+    const articlesListEl = document.getElementById("articles-list");
     const statusEl = document.getElementById("page-status");
+    const messageTargetUrl = `/account/messages/?with=${encodeURIComponent(memberId)}`;
+    const loginMessageUrl = `/login/?next=${encodeURIComponent(messageTargetUrl)}`;
 
     function setStatus(message, isError = false) {
       statusEl.classList.toggle("warning", isError);
@@ -181,6 +234,52 @@
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return "";
       return date.toLocaleDateString();
+    }
+
+    function renderArticles(articles) {
+      articlesListEl.innerHTML = "";
+      articlesMetaEl.textContent = articles.length
+        ? `${articles.length} published article${articles.length === 1 ? "" : "s"} by this member.`
+        : "No published articles yet.";
+
+      if (!articles.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "This member has not published any public articles yet.";
+        articlesListEl.appendChild(empty);
+        return;
+      }
+
+      articles.forEach((article) => {
+        const item = document.createElement("article");
+        item.className = "article-item";
+
+        const thumb = document.createElement(article.coverImageUrl ? "img" : "div");
+        thumb.className = "article-thumb";
+        if (article.coverImageUrl) {
+          thumb.src = article.coverImageUrl;
+          thumb.alt = article.title || "Article image";
+        }
+
+        const copy = document.createElement("div");
+        copy.className = "article-copy";
+        const link = document.createElement("a");
+        link.className = "article-link";
+        link.href = `/history/articles/post/?slug=${encodeURIComponent(article.slug)}`;
+        link.textContent = article.title || "Untitled article";
+
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = article.publishedAt ? `Published ${formatDate(article.publishedAt)}` : "Published article";
+
+        const summary = document.createElement("p");
+        summary.className = "meta";
+        summary.textContent = article.summary || "Open the article to read more.";
+
+        copy.append(link, meta, summary);
+        item.append(thumb, copy);
+        articlesListEl.appendChild(item);
+      });
     }
 
     async function loadProfile() {
@@ -206,6 +305,7 @@
         titleEl.textContent = profile.displayName || "Bly member";
         metaEl.textContent = profile.createdAt ? `Member profile · Joined ${formatDate(profile.createdAt)}` : "Member profile";
         bioEl.textContent = profile.bio || "This member has not added a public bio yet.";
+        renderArticles(Array.isArray(payload.articles) ? payload.articles : []);
 
         if (profile.avatarUrl) {
           avatarEl.src = profile.avatarUrl;
@@ -220,9 +320,10 @@
 
         if (payload.viewer?.canMessage) {
           messageButtonEl.hidden = false;
-          messageButtonEl.addEventListener("click", () => {
-            window.location.href = `/account/messages/?with=${encodeURIComponent(profile.id)}`;
-          });
+          messageButtonEl.textContent = payload.viewer?.signedIn ? "Message member" : "Sign in to message";
+          messageButtonEl.onclick = () => {
+            window.location.href = payload.viewer?.signedIn ? messageTargetUrl : loginMessageUrl;
+          };
         }
 
         setStatus("");

@@ -67,6 +67,27 @@ async function fetchProfileById(userId) {
   return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
+async function fetchPublishedArticlesByAuthor(userId) {
+  const apiKey = getPublicApiKey();
+  if (!apiKey || !userId) return [];
+
+  const query = new URLSearchParams({
+    select: "id,slug,title,summary,published_at,created_at,cover_image_path",
+    author_id: `eq.${userId}`,
+    status: "eq.published",
+    order: "published_at.desc.nullslast,created_at.desc",
+  });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/articles?${query.toString()}`, {
+    headers: {
+      apikey: apiKey,
+      Authorization: `Bearer ${apiKey}`,
+    },
+  });
+  if (!response.ok) throw new Error("Unable to load member articles");
+  const rows = await response.json().catch(() => []);
+  return Array.isArray(rows) ? rows : [];
+}
+
 function serializeProfile(profile) {
   return {
     id: profile?.id || "",
@@ -75,6 +96,19 @@ function serializeProfile(profile) {
     avatarUrl: profile?.avatar_path ? `/media/profile-photos/${profile.avatar_path}` : "",
     bio: profile?.bio || "",
     createdAt: profile?.created_at || null,
+  };
+}
+
+function serializeArticle(article) {
+  const coverPath = String(article?.cover_image_path || "").trim();
+  return {
+    id: article?.id || "",
+    slug: article?.slug || "",
+    title: article?.title || "Untitled article",
+    summary: article?.summary || "",
+    publishedAt: article?.published_at || article?.created_at || null,
+    coverImagePath: coverPath,
+    coverImageUrl: coverPath ? `/media/article-images/${coverPath.split("/").map((part) => encodeURIComponent(part)).join("/")}` : "",
   };
 }
 
@@ -93,7 +127,10 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const profile = await fetchProfileById(userId);
+    const [profile, publishedArticles] = await Promise.all([
+      fetchProfileById(userId),
+      fetchPublishedArticlesByAuthor(userId),
+    ]);
     if (!profile) {
       sendJson(res, 404, { error: "Member not found" });
       return;
@@ -101,10 +138,11 @@ module.exports = async (req, res) => {
 
     sendJson(res, 200, {
       profile: serializeProfile(profile),
+      articles: publishedArticles.map(serializeArticle),
       viewer: {
         signedIn: Boolean(session?.id),
         isSelf: Boolean(session?.id && session.id === userId),
-        canMessage: Boolean(session?.id && session.id !== userId),
+        canMessage: Boolean(!session?.id || session.id !== userId),
       },
     });
   } catch (error) {
