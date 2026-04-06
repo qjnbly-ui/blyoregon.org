@@ -96,6 +96,30 @@
       border-color: rgba(255, 255, 255, 0.5);
       background: rgba(255, 255, 255, 0.08);
     }
+    .account-area-nav {
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding: 0.15rem 0 0.35rem;
+      scrollbar-width: thin;
+    }
+    .account-area-nav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: var(--forest);
+      border: 1px solid rgba(20, 50, 39, 0.14);
+      background: rgba(255, 255, 255, 0.72);
+      padding: 0.72rem 0.95rem;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .account-area-nav a.active {
+      background: var(--forest);
+      border-color: var(--forest);
+      color: var(--white);
+    }
     .mobile-nav {
       display: none;
       align-items: center;
@@ -459,6 +483,18 @@
       <h1>Manage current photo libraries.</h1>
       <p>Upload or remove files from the current historical image buckets. Access is limited to your admin account and anyone you explicitly grant bucket access.</p>
     </section>
+
+    <nav class="account-area-nav" aria-label="Account sections">
+      <a href="/account/">My account</a>
+      <a href="/account/articles/">My articles</a>
+      <a href="/account/businesses/">My businesses</a>
+      <a href="/account/notifications/">Alerts</a>
+      <a href="/account/messages/">Messages</a>
+      <a class="active" href="/media-manager/" aria-current="page">Media library</a>
+      <a href="/account/permissions/">User permissions</a>
+      <a href="/account/articles/review/">Article review</a>
+      <a href="/account/businesses/review/">Business review</a>
+    </nav>
 
     <section class="bucket-card" data-bucket-card="churchfirephotos" hidden>
       <div class="bucket-header">

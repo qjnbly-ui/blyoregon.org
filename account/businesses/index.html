@@ -25,6 +25,30 @@
     nav { display:flex; gap:0.75rem; align-items:center; }
     nav a { color:var(--white); text-decoration:none; font-weight:600; padding:0.45rem 0.8rem; border-radius:999px; border:1px solid transparent; }
     nav a.account-link { border-color:rgba(255,255,255,0.35); background:rgba(255,255,255,0.12); }
+    .account-area-nav {
+      display:flex;
+      gap:0.7rem;
+      flex-wrap:nowrap;
+      overflow-x:auto;
+      padding:0.15rem 0 0.35rem;
+      scrollbar-width:thin;
+    }
+    .account-area-nav a {
+      flex:0 0 auto;
+      text-decoration:none;
+      color:var(--forest);
+      border:1px solid rgba(20,50,39,0.14);
+      background:rgba(255,255,255,0.72);
+      padding:0.72rem 0.95rem;
+      border-radius:999px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .account-area-nav a.active {
+      background:var(--forest);
+      border-color:var(--forest);
+      color:var(--white);
+    }
     .shell { max-width:1080px; margin:0 auto; padding:2.5rem 1.5rem 3.5rem; display:grid; gap:1rem; }
     .hero,.card { background:var(--card); border-radius:24px; border:1px solid rgba(31,64,48,0.12); box-shadow:var(--shadow); padding:1.35rem 1.4rem; }
     .hero { background:linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88)); color:var(--white); }
@@ -73,6 +97,18 @@
       <h1>My businesses</h1>
       <p>These listings are claimed by your account. You can update the live directory details here.</p>
     </section>
+
+    <nav class="account-area-nav" aria-label="Account sections">
+      <a href="/account/">My account</a>
+      <a href="/account/articles/">My articles</a>
+      <a class="active" href="/account/businesses/" aria-current="page">My businesses</a>
+      <a href="/account/notifications/">Alerts</a>
+      <a href="/account/messages/">Messages</a>
+      <a href="/media-manager/">Media library</a>
+      <a href="/account/permissions/">User permissions</a>
+      <a href="/account/articles/review/">Article review</a>
+      <a href="/account/businesses/review/">Business review</a>
+    </nav>
 
     <section class="card">
       <h2>Pending claim requests</h2>

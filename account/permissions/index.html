@@ -78,6 +78,30 @@
       border-color: rgba(255, 255, 255, 0.35);
       background: rgba(255, 255, 255, 0.12);
     }
+    .account-area-nav {
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding: 0.15rem 0 0.35rem;
+      scrollbar-width: thin;
+    }
+    .account-area-nav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: var(--forest);
+      border: 1px solid rgba(20,50,39,0.14);
+      background: rgba(255,255,255,0.72);
+      padding: 0.72rem 0.95rem;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .account-area-nav a.active {
+      background: var(--forest);
+      border-color: var(--forest);
+      color: var(--white);
+    }
     .shell {
       flex: 1 0 auto;
       max-width: 1080px;
@@ -217,10 +241,19 @@
       <div class="eyebrow">Admin Tools</div>
       <h1>User permissions</h1>
       <p>Select a member to open a dedicated permissions screen for that person.</p>
-      <div class="hero-actions">
-        <a class="pill-link" href="/account/">Back to account</a>
-      </div>
     </section>
+
+    <nav class="account-area-nav" aria-label="Account sections">
+      <a href="/account/">My account</a>
+      <a href="/account/articles/">My articles</a>
+      <a href="/account/businesses/">My businesses</a>
+      <a href="/account/notifications/">Alerts</a>
+      <a href="/account/messages/">Messages</a>
+      <a href="/media-manager/">Media library</a>
+      <a class="active" href="/account/permissions/" aria-current="page">User permissions</a>
+      <a href="/account/articles/review/">Article review</a>
+      <a href="/account/businesses/review/">Business review</a>
+    </nav>
 
     <section class="card">
       <h2>Choose a member</h2>

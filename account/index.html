@@ -61,7 +61,8 @@
       flex-wrap: wrap;
       justify-content: flex-end;
     }
-    nav a {
+    nav a,
+    nav button {
       color: var(--white);
       text-decoration: none;
       font-weight: 600;
@@ -69,12 +70,17 @@
       padding: 0.4rem 0.75rem;
       border-radius: 999px;
       border: 1px solid transparent;
+      font: inherit;
+      cursor: pointer;
+      background: transparent;
     }
-    nav a.account-link {
+    nav a.account-link,
+    nav button.account-link {
       border-color: rgba(255, 255, 255, 0.35);
       background: rgba(255, 255, 255, 0.12);
     }
-    nav a:hover {
+    nav a:hover,
+    nav button:hover {
       border-color: rgba(255, 255, 255, 0.5);
       background: rgba(255, 255, 255, 0.08);
     }
@@ -86,10 +92,13 @@
     }
     .mobile-login {
       color: var(--white);
-      text-decoration: none;
       text-transform: uppercase;
       letter-spacing: 0.2em;
       font-size: 0.9rem;
+      border: 0;
+      background: transparent;
+      font: inherit;
+      cursor: pointer;
     }
     .mobile-menu-toggle {
       list-style: none;
@@ -177,17 +186,6 @@
       font-size: 0.85rem;
       color: rgba(255, 255, 255, 0.7);
     }
-    .logout {
-      appearance: none;
-      border: 0;
-      border-radius: 999px;
-      padding: 0.8rem 1.1rem;
-      background: rgba(20, 50, 39, 0.96);
-      color: var(--white);
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
     .hero {
       background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88));
       color: white;
@@ -220,6 +218,30 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
+    }
+    .account-area-nav {
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding: 0.2rem 0 0.35rem;
+      scrollbar-width: thin;
+    }
+    .account-area-nav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: var(--forest);
+      border: 1px solid rgba(20, 50, 39, 0.14);
+      background: rgba(255, 255, 255, 0.72);
+      padding: 0.72rem 0.95rem;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .account-area-nav a.active {
+      background: var(--forest);
+      border-color: var(--forest);
+      color: var(--white);
     }
     .badge {
       display: inline-flex;
@@ -779,9 +801,9 @@
           <a href="/history/">History</a>
           <a href="/recreation/">Recreation</a>
         </div>
-        <a class="account-link" href="/account/">Account</a>
+        <button class="account-link" id="header-logout" type="button" data-account-logout>Log out</button>
         <div class="mobile-nav">
-          <a class="mobile-login" href="/account/">Account</a>
+          <button class="mobile-login" id="mobile-logout" type="button" data-account-logout>Log out</button>
           <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-label="Toggle menu"></button>
         </div>
       </nav>
@@ -799,14 +821,22 @@
 
   <div class="shell">
     <section class="hero">
-      <div class="eyebrow">My Account</div>
-      <h1 id="title">Loading account...</h1>
+      <div class="eyebrow">Account</div>
+      <h1 id="title">Account home</h1>
       <p id="intro">Loading your account details.</p>
-      <div class="badges" id="badges"></div>
-      <div>
-        <button class="logout" id="logout" type="button">Log out</button>
-      </div>
     </section>
+
+    <nav class="account-area-nav" aria-label="Account sections">
+      <a class="active" href="/account/" aria-current="page">My account</a>
+      <a href="/account/articles/">My articles</a>
+      <a href="/account/businesses/">My businesses</a>
+      <a href="/account/notifications/">Alerts</a>
+      <a href="/account/messages/">Messages</a>
+      <a href="/media-manager/">Media library</a>
+      <a href="/account/permissions/">User permissions</a>
+      <a href="/account/articles/review/">Article review</a>
+      <a href="/account/businesses/review/">Business review</a>
+    </nav>
 
     <article class="card">
       <div class="card-header">
@@ -1084,18 +1114,8 @@
       const toggle = mobileNav.querySelector(".mobile-menu-toggle");
       const panel = document.querySelector(".mobile-menu-panel");
       if (!toggle || !panel) return;
-      const authLinks = document.querySelectorAll("a.account-link, a.mobile-login");
-
       const syncMobileHeaderHeight = () => {
         document.documentElement.style.setProperty("--mobile-header-height", `${header.offsetHeight}px`);
-      };
-
-      const syncAuthNav = async () => {
-        const session = await window.siteAuth.getSession().catch(() => null);
-        authLinks.forEach((link) => {
-          link.textContent = session ? "Account" : "Login";
-          link.href = session ? "/account/" : "/login/";
-        });
       };
 
       const closeMenu = () => {
@@ -1107,7 +1127,6 @@
 
       syncMobileHeaderHeight();
       window.addEventListener("resize", syncMobileHeaderHeight);
-      syncAuthNav();
 
       toggle.addEventListener("click", () => {
         syncMobileHeaderHeight();
@@ -1126,10 +1145,9 @@
       });
     })();
 
-    const authLinks = document.querySelectorAll("a.account-link, a.mobile-login");
+    const logoutButtons = document.querySelectorAll("[data-account-logout]");
     const titleEl = document.getElementById("title");
     const introEl = document.getElementById("intro");
-    const badgesEl = document.getElementById("badges");
     const displayNameEl = document.getElementById("display-name");
     const emailEl = document.getElementById("email");
     const roleEl = document.getElementById("role");
@@ -1211,13 +1229,6 @@
         profileAvatarInput.value = "";
         clearEditorObjectUrl();
       }
-    }
-
-    function addBadge(text) {
-      const badge = document.createElement("span");
-      badge.className = "badge";
-      badge.textContent = text;
-      badgesEl.appendChild(badge);
     }
 
     async function resolveAvatarUrl(profile) {
@@ -1460,10 +1471,6 @@
       try {
         const session = await window.siteAuth.getSession();
         activeSession = session;
-        authLinks.forEach((link) => {
-          link.textContent = session ? "Account" : "Login";
-          link.href = session ? "/account/" : "/login/";
-        });
         if (!session) {
           window.location.replace(loginUrl);
           return;
@@ -1489,7 +1496,7 @@
           window.location.replace(`/account/onboarding/?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
           return;
         }
-        titleEl.textContent = payload.title || "My Account";
+        titleEl.textContent = "Account home";
         introEl.textContent = payload.intro || "Signed in.";
         await applyProfile(payload.profile || {}, payload.email || "");
         userPermissionsCardEl.hidden = !payload.admin;
@@ -1500,18 +1507,6 @@
         businessReviewCardEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
         const unreadNotificationCount = Number(payload.unreadNotificationCount || payload.profile?.unreadNotificationCount || 0);
         const unreadMessageCount = Number(payload.unreadMessageCount || payload.profile?.unreadMessageCount || 0);
-
-        badgesEl.innerHTML = "";
-        addBadge("Signed In");
-        addBadge(payload.admin ? "Admin" : "Member");
-        if (payload.canUploadPhotos) addBadge("Uploads Enabled");
-        if (payload.canManageMedia) addBadge("Media Manager");
-        if (payload.canSubmitArticles) addBadge("Article Writer");
-        if (Number(payload.claimedBusinessCount || payload.profile?.claimedBusinessCount || 0) > 0) addBadge("Business Owner");
-        if (payload.canReviewArticles || payload.canPublishArticles) addBadge("Article Review");
-        if (payload.canReviewArticles || payload.canPublishArticles) addBadge("Business Review");
-        if (unreadMessageCount > 0) addBadge(`${unreadMessageCount} Message${unreadMessageCount === 1 ? "" : "s"}`);
-        if (unreadNotificationCount > 0) addBadge(`${unreadNotificationCount} Unread`);
 
         messagesInlineCountEl.hidden = unreadMessageCount < 1;
         messagesInlineCountEl.textContent = String(unreadMessageCount);
@@ -1732,9 +1727,11 @@
       profileStatusEl.textContent = "Photo will be removed when you save your profile.";
     });
 
-    document.getElementById("logout").addEventListener("click", async () => {
-      await window.siteAuth.logout();
-      window.location.href = "/login/";
+    logoutButtons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        await window.siteAuth.logout();
+        window.location.href = "/login/";
+      });
     });
 
     setEditPanelOpen(false);
