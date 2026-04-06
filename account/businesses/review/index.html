@@ -233,6 +233,74 @@
     </section>
 
     <section class="card">
+      <h2>Add a business listing</h2>
+      <form id="create-business-form" class="editor">
+        <div class="grid">
+          <label class="field">
+            <span>Submitter name</span>
+            <input name="submitterName" type="text" placeholder="Added by admin" required>
+          </label>
+          <label class="field">
+            <span>Submitter email</span>
+            <input name="submitterEmail" type="email" placeholder="admin@example.com" required>
+          </label>
+          <label class="field">
+            <span>Business name</span>
+            <input name="businessName" type="text" required>
+          </label>
+          <label class="field">
+            <span>Category</span>
+            <select name="businessCategory"></select>
+          </label>
+          <label class="field full">
+            <span>Description</span>
+            <textarea name="description" required></textarea>
+          </label>
+          <label class="field">
+            <span>Contact person</span>
+            <input name="contactName" type="text">
+          </label>
+          <label class="field">
+            <span>Phone</span>
+            <input name="phone" type="text">
+          </label>
+          <label class="field">
+            <span>Business email</span>
+            <input name="businessEmail" type="email">
+          </label>
+          <label class="field">
+            <span>Address</span>
+            <input name="address" type="text">
+          </label>
+          <label class="field">
+            <span>Image URL</span>
+            <input name="imageUrl" type="url">
+          </label>
+          <label class="field">
+            <span>Website</span>
+            <input name="websiteUrl" type="url">
+          </label>
+          <label class="field">
+            <span>Facebook URL</span>
+            <input name="facebookUrl" type="url">
+          </label>
+          <label class="field">
+            <span>Hours</span>
+            <input name="hours" type="text">
+          </label>
+          <label class="field full">
+            <span>Notes</span>
+            <textarea name="notes"></textarea>
+          </label>
+        </div>
+        <div class="actions">
+          <button class="button primary" type="submit">Create listing</button>
+        </div>
+        <div id="create-business-status" class="inline-status" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <section class="card">
       <h2>Claim requests</h2>
       <div id="claim-request-list" class="claim-list"></div>
     </section>
@@ -267,7 +335,17 @@
     const listEl = document.getElementById("review-list");
     const claimListEl = document.getElementById("claim-request-list");
     const statusEl = document.getElementById("page-status");
+    const createForm = document.getElementById("create-business-form");
+    const createStatusEl = document.getElementById("create-business-status");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
+
+    CATEGORY_OPTIONS.forEach((optionValue) => {
+      const option = document.createElement("option");
+      option.value = optionValue;
+      option.textContent = optionValue;
+      if (optionValue === "Other") option.selected = true;
+      createForm.querySelector('[name="businessCategory"]').appendChild(option);
+    });
 
     function setStatus(message, isError = false) {
       statusEl.classList.toggle("warning", isError);
@@ -634,6 +712,52 @@
         setStatus(error.message || "Unable to load the business queue.", true);
       }
     }
+
+    createForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const session = await window.siteAuth.getSession().catch(() => null);
+      if (!session) {
+        window.location.replace(loginUrl);
+        return;
+      }
+
+      const form = event.currentTarget;
+      const payload = {
+        submitter_name: form.submitterName.value.trim(),
+        submitter_email: form.submitterEmail.value.trim(),
+        business_name: form.businessName.value.trim(),
+        business_category: form.businessCategory.value,
+        description: form.description.value.trim(),
+        contact: form.contactName.value.trim(),
+        phone: form.phone.value.trim(),
+        business_email: form.businessEmail.value.trim(),
+        address: form.address.value.trim(),
+        image_url: form.imageUrl.value.trim(),
+        website: form.websiteUrl.value.trim(),
+        hours: form.hours.value.trim(),
+        notes: buildNotesValue(form.notes.value.trim(), form.facebookUrl.value.trim()),
+      };
+
+      createStatusEl.textContent = "Creating listing...";
+      try {
+        const response = await fetch("/api/businesses", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + session.access_token,
+          },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || "Unable to create business listing.");
+        form.reset();
+        form.businessCategory.value = "Other";
+        createStatusEl.textContent = "Listing added to the review queue.";
+        loadPage();
+      } catch (error) {
+        createStatusEl.textContent = error.message || "Unable to create business listing.";
+      }
+    });
 
     loadPage();
   </script>

@@ -37,6 +37,8 @@
         radial-gradient(circle at top right, rgba(159, 179, 159, 0.2), transparent 24%),
         linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     header {
@@ -195,6 +197,8 @@
       padding: 2.3rem 1.5rem 3.5rem;
       display: grid;
       gap: 1.6rem;
+      width: 100%;
+      flex: 1 0 auto;
     }
 
     .composer-card,
@@ -223,6 +227,11 @@
       display: flex;
       justify-content: space-between;
       align-items: start;
+      gap: 1rem;
+    }
+
+    .section-panel {
+      display: grid;
       gap: 1rem;
     }
 
@@ -685,58 +694,61 @@
 
   <main>
     <section class="composer-card">
-      <div class="composer-top">
-        <div>
-          <h1>Add New Post</h1>
-          <p id="composer-copy">Share an update with the community.</p>
-        </div>
-      </div>
-
-      <div class="signin-note" id="signed-out-panel">
-        <p>
-          You can browse everything here without an account. To post or comment, use your account first.
-        </p>
-        <div class="button-row" style="margin-top: 0.9rem;">
-          <a class="primary-button" id="create-account-link" href="/login/?next=%2Fcommunity%2F">Create account</a>
-          <a class="secondary-button" id="login-link" href="/login/?next=%2Fcommunity%2F">Login</a>
-        </div>
-      </div>
-
-      <form class="composer-form" id="post-form" hidden>
-        <div class="field">
-          <label for="post-body">Post</label>
-          <textarea id="post-body" name="body" maxlength="3000" placeholder="Share a local update, event, question, or photo caption."></textarea>
-        </div>
-        <div class="field">
-          <label for="post-photo">Photo</label>
-          <input id="post-photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
-        </div>
-        <div class="field">
-          <label for="post-photo-alt">Photo description</label>
-          <input id="post-photo-alt" name="imageAlt" type="text" maxlength="160" placeholder="Describe the photo for accessibility.">
-        </div>
-        <div class="form-note">Images upload with your account before the post is published. Max size: 6 MB.</div>
-        <div class="button-row">
-          <button class="primary-button" id="post-submit" type="submit">Publish Post</button>
-        </div>
-        <div class="status" id="post-status" aria-live="polite"></div>
-      </form>
-    </section>
-
-    <section class="feed-layout">
       <div class="feed-header">
         <div>
-          <h2>Community Feed</h2>
-          <p>Latest first, with comments beneath each post.</p>
+          <h1>Community Feed</h1>
+          <p id="composer-copy">Latest first, with comments beneath each post.</p>
         </div>
-        <button class="secondary-button" id="refresh-feed" type="button">Refresh Feed</button>
+        <div class="button-row">
+          <button class="primary-button" id="toggle-composer" type="button" aria-expanded="false">Add post</button>
+          <button class="secondary-button" id="toggle-feed" type="button" aria-expanded="false">View community feed</button>
+        </div>
       </div>
 
-      <div class="loading" id="feed-loading">Loading posts...</div>
-      <div id="feed-list" hidden></div>
-      <div class="empty-state" id="feed-empty" hidden>
-        <h3>No posts yet</h3>
-        <p>The first community post will show up here.</p>
+      <div class="section-panel" id="composer-panel" hidden>
+        <div class="signin-note" id="signed-out-panel">
+          <p>
+            You can browse everything here without an account. To post or comment, use your account first.
+          </p>
+          <div class="button-row" style="margin-top: 0.9rem;">
+            <a class="primary-button" id="create-account-link" href="/login/?next=%2Fcommunity%2F">Create account</a>
+            <a class="secondary-button" id="login-link" href="/login/?next=%2Fcommunity%2F">Login</a>
+          </div>
+        </div>
+
+        <form class="composer-form" id="post-form" hidden>
+          <div class="field">
+            <label for="post-body">Post</label>
+            <textarea id="post-body" name="body" maxlength="3000" placeholder="Share a local update, event, question, or photo caption."></textarea>
+          </div>
+          <div class="field">
+            <label for="post-photo">Photo</label>
+            <input id="post-photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+          </div>
+          <div class="field">
+            <label for="post-photo-alt">Photo description</label>
+            <input id="post-photo-alt" name="imageAlt" type="text" maxlength="160" placeholder="Describe the photo for accessibility.">
+          </div>
+          <div class="form-note">Images upload with your account before the post is published. Max size: 6 MB.</div>
+          <div class="button-row">
+            <button class="primary-button" id="post-submit" type="submit">Publish Post</button>
+          </div>
+          <div class="status" id="post-status" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <div class="section-panel" id="feed-panel" hidden>
+        <div class="feed-header">
+          <div></div>
+          <button class="secondary-button" id="refresh-feed" type="button">Refresh Feed</button>
+        </div>
+
+        <div class="loading" id="feed-loading">Loading posts...</div>
+        <div id="feed-list" hidden></div>
+        <div class="empty-state" id="feed-empty" hidden>
+          <h3>No posts yet</h3>
+          <p>The first community post will show up here.</p>
+        </div>
       </div>
     </section>
 
@@ -765,32 +777,37 @@
       </div>
 
       <article class="submission-card">
-        <div>
-          <h3>Send an event or community update</h3>
-          <p>If something should be added to the broader community section, send it directly for review here.</p>
+        <div class="composer-top">
+          <div>
+            <h3>Send an event or community update</h3>
+            <p>If something should be added to the broader community section, send it directly for review here.</p>
+          </div>
+          <button class="secondary-button" id="toggle-community-form" type="button" aria-expanded="false">Open form</button>
         </div>
-        <form class="composer-form" id="community-form">
-          <div class="field">
-            <label for="community-name">Your name</label>
-            <input id="community-name" name="name" type="text" placeholder="Jane Doe" required>
-          </div>
-          <div class="field">
-            <label for="community-email">Your email</label>
-            <input id="community-email" name="email" type="text" placeholder="you@example.com" required>
-          </div>
-          <div class="field">
-            <label for="community-category">What are you sending?</label>
-            <input id="community-category" name="category" type="text" placeholder="Community event, volunteer opportunity, correction, or update" required>
-          </div>
-          <div class="field">
-            <label for="community-details">Details</label>
-            <textarea id="community-details" name="details" maxlength="3000" placeholder="Share the details that should appear on the community section." required></textarea>
-          </div>
-          <div class="button-row">
-            <button class="primary-button" id="community-submit" type="submit">Send Update</button>
-          </div>
-          <div class="status" id="community-status" aria-live="polite"></div>
-        </form>
+        <div class="section-panel" id="community-form-panel" hidden>
+          <form class="composer-form" id="community-form">
+            <div class="field">
+              <label for="community-name">Your name</label>
+              <input id="community-name" name="name" type="text" placeholder="Jane Doe" required>
+            </div>
+            <div class="field">
+              <label for="community-email">Your email</label>
+              <input id="community-email" name="email" type="text" placeholder="you@example.com" required>
+            </div>
+            <div class="field">
+              <label for="community-category">What are you sending?</label>
+              <input id="community-category" name="category" type="text" placeholder="Community event, volunteer opportunity, correction, or update" required>
+            </div>
+            <div class="field">
+              <label for="community-details">Details</label>
+              <textarea id="community-details" name="details" maxlength="3000" placeholder="Share the details that should appear on the community section." required></textarea>
+            </div>
+            <div class="button-row">
+              <button class="primary-button" id="community-submit" type="submit">Send Update</button>
+            </div>
+            <div class="status" id="community-status" aria-live="polite"></div>
+          </form>
+        </div>
       </article>
     </section>
   </main>
@@ -826,10 +843,16 @@
       const postBody = document.getElementById("post-body");
       const postPhoto = document.getElementById("post-photo");
       const composerCopy = document.getElementById("composer-copy");
+      const composerPanel = document.getElementById("composer-panel");
+      const composerToggle = document.getElementById("toggle-composer");
+      const feedPanel = document.getElementById("feed-panel");
+      const feedToggle = document.getElementById("toggle-feed");
       const feedList = document.getElementById("feed-list");
       const feedEmpty = document.getElementById("feed-empty");
       const feedLoading = document.getElementById("feed-loading");
       const refreshButton = document.getElementById("refresh-feed");
+      const communityFormPanel = document.getElementById("community-form-panel");
+      const communityFormToggle = document.getElementById("toggle-community-form");
       const communityForm = document.getElementById("community-form");
       const communityStatus = document.getElementById("community-status");
       const communitySubmit = document.getElementById("community-submit");
@@ -872,6 +895,24 @@
         document.body.classList.remove("mobile-menu-open");
         mobileToggle.setAttribute("aria-expanded", "false");
         mobilePanel.setAttribute("hidden", "");
+      }
+
+      function setComposerExpanded(expanded) {
+        composerPanel.hidden = !expanded;
+        composerToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+        composerToggle.textContent = expanded ? "Close post form" : "Add post";
+      }
+
+      function setFeedExpanded(expanded) {
+        feedPanel.hidden = !expanded;
+        feedToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+        feedToggle.textContent = expanded ? "Hide community feed" : "View community feed";
+      }
+
+      function setCommunityFormExpanded(expanded) {
+        communityFormPanel.hidden = !expanded;
+        communityFormToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+        communityFormToggle.textContent = expanded ? "Close form" : "Open form";
       }
 
       async function syncAuthUi(sessionOverride) {
@@ -1215,6 +1256,18 @@
         });
       }
 
+      composerToggle.addEventListener("click", () => {
+        setComposerExpanded(composerPanel.hidden);
+      });
+
+      feedToggle.addEventListener("click", () => {
+        setFeedExpanded(feedPanel.hidden);
+      });
+
+      communityFormToggle.addEventListener("click", () => {
+        setCommunityFormExpanded(communityFormPanel.hidden);
+      });
+
       postForm.addEventListener("submit", handlePostSubmit);
       communityForm.addEventListener("submit", handleCommunityUpdateSubmit);
       refreshButton.addEventListener("click", loadFeed);
@@ -1222,6 +1275,9 @@
 
       async function initializePage() {
         syncMobileHeaderHeight();
+        setComposerExpanded(false);
+        setFeedExpanded(false);
+        setCommunityFormExpanded(false);
         await window.siteAuth.getClient().catch(() => null);
         await syncAuthUi();
         await loadFeed();
