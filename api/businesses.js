@@ -40,6 +40,10 @@ function getPublicApiKey() {
   return getServiceRoleKey() || getAnonKey();
 }
 
+function getEnv(name, fallback = "") {
+  return String(process.env[name] || fallback).trim();
+}
+
 function getHeaderValue(req, name) {
   const value = req.headers?.[name];
   return Array.isArray(value) ? value[0] : value;
@@ -49,6 +53,29 @@ function sendJson(res, statusCode, payload) {
   res.statusCode = statusCode;
   res.setHeader("Content-Type", "application/json");
   res.end(JSON.stringify(payload));
+}
+
+function getSiteUrl(req) {
+  const explicit = getEnv("PUBLIC_SITE_URL");
+  if (explicit) return explicit.replace(/\/+$/, "");
+  const host = req.headers?.host || "blyoregon.org";
+  const protocol = host.includes("localhost") || host.startsWith("127.0.0.1") ? "http" : "https";
+  return `${protocol}://${host}`.replace(/\/+$/, "");
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function summarizeText(value, maxLength = 180) {
+  const normalized = String(value || "").replace(/\s+/g, " ").trim();
+  if (!normalized) return "";
+  return normalized.length <= maxLength ? normalized : `${normalized.slice(0, maxLength - 1).trim()}…`;
 }
 
 async function parseJsonBody(req) {
@@ -92,7 +119,7 @@ async function authenticateRequest(req) {
 async function fetchProfile(userId) {
   if (!userId) return null;
   const query = new URLSearchParams({
-    select: "id,email,display_name,role,can_review_articles,can_publish_articles,notify_admin_article_queue_internal",
+    select: "id,email,display_name,role,can_review_articles,can_publish_articles,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_business_updates_internal,notify_business_updates_email,notify_admin_business_queue_internal,notify_admin_business_queue_email",
     id: `eq.${userId}`,
     limit: "1",
   });
@@ -108,7 +135,7 @@ async function fetchProfileByEmail(email) {
   const normalized = normalizeText(email, 200).toLowerCase();
   if (!normalized) return null;
   const query = new URLSearchParams({
-    select: "id,email,display_name,role,can_review_articles,can_publish_articles,notify_admin_article_queue_internal",
+    select: "id,email,display_name,role,can_review_articles,can_publish_articles,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_business_updates_internal,notify_business_updates_email,notify_admin_business_queue_internal,notify_admin_business_queue_email",
     email: `eq.${normalized}`,
     limit: "1",
   });
@@ -374,7 +401,7 @@ async function createBusinessImageUploadToken(path) {
 
 async function fetchBusinessModerators() {
   const query = new URLSearchParams({
-    select: "id,notify_admin_article_queue_internal,role,can_review_articles,can_publish_articles",
+    select: "id,email,display_name,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_admin_business_queue_internal,notify_admin_business_queue_email,role,can_review_articles,can_publish_articles",
     or: "(role.eq.admin,can_review_articles.eq.true,can_publish_articles.eq.true)",
   });
   const response = await fetch(`${getSupabaseUrl()}/rest/v1/profiles?${query.toString()}`, {
@@ -424,10 +451,75 @@ async function insertNotifications(rows) {
   }
 }
 
+async function sendEmail(payload) {
+  const resendKey = getEnv("RESEND_API_KEY");
+  if (!resendKey) return false;
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    throw new Error(result?.message || result?.error || "Unable to send email");
+  }
+  return true;
+}
+
+function renderEmailShell({ eyebrow, title, intro, bodyHtml, actionLabel, actionUrl }) {
+  const actionBlock = actionLabel && actionUrl
+    ? `<p style="margin:24px 0 0"><a href="${escapeHtml(actionUrl)}" style="display:inline-block;background:#143227;background-color:#143227;color:#ffffff;text-decoration:none;font-weight:700;font-family:Arial,sans-serif;padding:12px 18px;border-radius:999px;border:1px solid #143227">${escapeHtml(actionLabel)}</a></p>`
+    : "";
+
+  return (
+    `<div style="margin:0;padding:24px;background:#f7f2ea;background-color:#f7f2ea;font-family:Arial,sans-serif;color:#1e1f1c">` +
+      `<div style="max-width:640px;margin:0 auto;background:#fffdf9;background-color:#fffdf9;border:1px solid #d9ddd9;border-radius:24px;overflow:hidden">` +
+        `<div style="padding:28px 28px 22px;background:#214437;background-color:#214437;color:#ffffff">` +
+          `<div style="text-transform:uppercase;letter-spacing:0.18em;font-size:12px;font-weight:700;color:#dbe7df">${escapeHtml(eyebrow)}</div>` +
+          `<h1 style="margin:10px 0 0;font-size:32px;line-height:1.08;font-weight:700;font-family:Georgia,'Times New Roman',serif;color:#ffffff">Bly, Oregon</h1>` +
+          `<p style="margin:10px 0 0;font-family:Arial,sans-serif;font-size:16px;line-height:1.6;color:#eef6f1">${escapeHtml(intro)}</p>` +
+        `</div>` +
+        `<div style="padding:28px;background:#fffdf9;background-color:#fffdf9">` +
+          `<h2 style="margin:0 0 14px;font-size:28px;line-height:1.2;font-family:Georgia,'Times New Roman',serif;color:#143227">${escapeHtml(title)}</h2>` +
+          `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.7;color:#33443b">${bodyHtml}</div>` +
+          `${actionBlock}` +
+        `</div>` +
+      `</div>` +
+    `</div>`
+  );
+}
+
+function getBusinessNotificationPreferences(profile) {
+  return {
+    businessUpdatesInternal: profile?.notify_business_updates_internal !== false,
+    businessUpdatesEmail: profile?.notify_business_updates_email !== false,
+    adminBusinessQueueInternal: profile?.notify_admin_business_queue_internal !== false,
+    adminBusinessQueueEmail: profile?.notify_admin_business_queue_email !== false,
+  };
+}
+
+async function fetchProfilesByIds(ids) {
+  const normalizedIds = Array.from(new Set((Array.isArray(ids) ? ids : []).map((id) => String(id || "").trim()).filter(Boolean)));
+  if (!normalizedIds.length) return new Map();
+  const query = new URLSearchParams({
+    select: "id,email,display_name,role,can_review_articles,can_publish_articles,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_business_updates_internal,notify_business_updates_email,notify_admin_business_queue_internal,notify_admin_business_queue_email",
+    id: `in.(${normalizedIds.map((id) => `"${id}"`).join(",")})`,
+  });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/profiles?${query.toString()}`, {
+    headers: getServiceHeaders(),
+  });
+  if (!response.ok) throw new Error("Unable to load account profiles");
+  const rows = await response.json().catch(() => []);
+  return new Map((Array.isArray(rows) ? rows : []).map((row) => [String(row.id || ""), row]));
+}
+
 async function notifyModeratorsOfSubmission(business, actorId = null) {
   const moderators = await fetchBusinessModerators();
   const notifications = moderators
-    .filter((row) => row?.notify_admin_article_queue_internal !== false)
+    .filter((row) => getBusinessNotificationPreferences(row).adminBusinessQueueInternal)
     .map((row) => ({
       user_id: row.id,
       actor_id: actorId || null,
@@ -448,7 +540,7 @@ async function notifyModeratorsOfSubmission(business, actorId = null) {
 async function notifyModeratorsOfClaimRequest(business, requesterId) {
   const moderators = await fetchBusinessModerators();
   const notifications = moderators
-    .filter((row) => row?.notify_admin_article_queue_internal !== false)
+    .filter((row) => getBusinessNotificationPreferences(row).adminBusinessQueueInternal)
     .map((row) => ({
       user_id: row.id,
       actor_id: requesterId || null,
@@ -464,6 +556,102 @@ async function notifyModeratorsOfClaimRequest(business, requesterId) {
       },
     }));
   await insertNotifications(notifications);
+}
+
+async function emailBusinessModerators({ req, business, actorProfile, subject, eyebrow, title, intro, bodyHtml }) {
+  const moderators = await fetchBusinessModerators();
+  const actorEmail = String(actorProfile?.email || "").trim();
+  const recipientPayloads = moderators
+    .filter((row) => getBusinessNotificationPreferences(row).adminBusinessQueueEmail)
+    .map((row) => String(row?.email || "").trim())
+    .filter((email) => email && email !== actorEmail)
+    .map((email) => ({
+      to: [email],
+      from: getEnv("RESEND_FROM_EMAIL", "noreply@blyoregon.org"),
+      reply_to: actorEmail || undefined,
+      subject,
+      html: renderEmailShell({
+        eyebrow,
+        title,
+        intro,
+        bodyHtml,
+        actionLabel: "Open business review",
+        actionUrl: `${getSiteUrl(req)}/account/businesses/review/`,
+      }),
+      text: `${title}\n\n${summarizeText(bodyHtml.replace(/<[^>]+>/g, " "), 280)}\n\nOpen review: ${getSiteUrl(req)}/account/businesses/review/`,
+    }));
+
+  for (const payload of recipientPayloads) {
+    try {
+      await sendEmail(payload);
+    } catch (error) {
+      console.warn(error);
+    }
+  }
+}
+
+async function notifyBusinessMembers({ req, business, actorProfile, type, title, body, emailSubject, emailTitle, emailIntro, emailBodyHtml, linkPath = "/account/businesses/" }) {
+  const participantIds = Array.from(
+    new Set([
+      String(business?.author_id || "").trim(),
+      String(business?.claimed_by || "").trim(),
+    ].filter(Boolean))
+  );
+  if (!participantIds.length) return;
+
+  const participantProfiles = await fetchProfilesByIds(participantIds);
+  const storedNotifications = [];
+  const siteUrl = getSiteUrl(req);
+  const actionUrl = `${siteUrl}${linkPath}`;
+
+  participantIds.forEach((userId) => {
+    const profile = participantProfiles.get(userId);
+    const prefs = getBusinessNotificationPreferences(profile);
+    if (!prefs.businessUpdatesInternal) return;
+    storedNotifications.push({
+      user_id: userId,
+      actor_id: actorProfile?.id || null,
+      type,
+      title,
+      body,
+      link: linkPath,
+      entity_type: "business",
+      entity_id: business.id || null,
+      metadata: {
+        businessId: business.id || null,
+        status: business.status || "",
+      },
+    });
+  });
+
+  await insertNotifications(storedNotifications).catch((error) => {
+    console.warn(error);
+  });
+
+  for (const userId of participantIds) {
+    const profile = participantProfiles.get(userId);
+    const prefs = getBusinessNotificationPreferences(profile);
+    const email = String(profile?.email || "").trim();
+    if (!prefs.businessUpdatesEmail || !email) continue;
+    try {
+      await sendEmail({
+        to: [email],
+        from: getEnv("RESEND_FROM_EMAIL", "noreply@blyoregon.org"),
+        subject: emailSubject,
+        html: renderEmailShell({
+          eyebrow: "Business listing",
+          title: emailTitle,
+          intro: emailIntro,
+          bodyHtml: emailBodyHtml,
+          actionLabel: "Open my businesses",
+          actionUrl,
+        }),
+        text: `${emailTitle}\n\n${summarizeText(emailBodyHtml.replace(/<[^>]+>/g, " "), 280)}\n\nOpen: ${actionUrl}`,
+      });
+    } catch (error) {
+      console.warn(error);
+    }
+  }
 }
 
 module.exports = async (req, res) => {
@@ -580,6 +768,7 @@ module.exports = async (req, res) => {
 
     if (req.method === "POST") {
       const { session } = await authenticateRequest(req);
+      const actorProfile = session?.id ? await fetchProfile(session.id).catch(() => null) : null;
       const body = await parseJsonBody(req);
       const requestAction = String(body?.action || "").trim().toLowerCase();
 
@@ -593,7 +782,7 @@ module.exports = async (req, res) => {
           sendJson(res, 400, { error: "Missing business id" });
           return;
         }
-        const profile = await fetchProfile(session.id);
+        const profile = actorProfile || await fetchProfile(session.id);
         const permissions = getReviewPermissions(profile);
         const existing = await fetchBusinessById(targetBusinessId);
         if (!existing) {
@@ -668,6 +857,16 @@ module.exports = async (req, res) => {
         }
         try {
           await notifyModeratorsOfClaimRequest(business, session.id);
+          await emailBusinessModerators({
+            req,
+            business,
+            actorProfile: actorProfile || { id: session.id },
+            subject: `[Bly, Oregon] Business claim request: ${business.business_name || "Business listing"}`,
+            eyebrow: "Business claim",
+            title: "A member requested ownership",
+            intro: `${escapeHtml(actorProfile?.display_name || actorProfile?.email || "A Bly member")} requested ownership of a business listing.`,
+            bodyHtml: `<p><strong>${escapeHtml(business.business_name || "Business listing")}</strong> now has a claim request waiting in the business review queue.</p>`,
+          });
         } catch (error) {
           console.error("Business claim notification failed:", error);
         }
@@ -717,7 +916,37 @@ module.exports = async (req, res) => {
       });
 
       try {
-        if (inserted) await notifyModeratorsOfSubmission(inserted, session?.id || null);
+        if (inserted) {
+          await notifyModeratorsOfSubmission(inserted, session?.id || null);
+          await emailBusinessModerators({
+            req,
+            business: inserted,
+            actorProfile: actorProfile || { id: session?.id || null, email: submitterEmail, display_name: submitterName },
+            subject: `[Bly, Oregon] Business submitted: ${inserted.business_name || "Business listing"}`,
+            eyebrow: "Business review",
+            title: "A business listing is waiting in review",
+            intro: `${escapeHtml(actorProfile?.display_name || submitterName || "A Bly member")} submitted a business listing for review.`,
+            bodyHtml:
+              `<p><strong>${escapeHtml(inserted.business_name || "Business listing")}</strong> was submitted to the business directory.</p>` +
+              `<p>Category: ${escapeHtml(inserted.business_category || "Other")}</p>`,
+          });
+          if (session?.id) {
+            await notifyBusinessMembers({
+              req,
+              business: inserted,
+              actorProfile: actorProfile || { id: session.id, email: submitterEmail, display_name: submitterName },
+              type: "business_submitted",
+              title: "Business listing submitted",
+              body: `${inserted.business_name || "Your business listing"} was submitted for review.`,
+              emailSubject: `[Bly, Oregon] Business submitted: ${inserted.business_name || "Business listing"}`,
+              emailTitle: "Your business listing is in review",
+              emailIntro: "A business listing was submitted from your Bly account.",
+              emailBodyHtml:
+                `<p><strong>${escapeHtml(inserted.business_name || "Business listing")}</strong> was submitted for approval.</p>` +
+                `<p>You can track business ownership and edits from your account.</p>`,
+            });
+          }
+        }
       } catch (error) {
         console.error("Business submission notification failed:", error);
       }
@@ -738,6 +967,7 @@ module.exports = async (req, res) => {
 
       const profile = await fetchProfile(session.id);
       const permissions = getReviewPermissions(profile);
+      const actorProfile = profile || { id: session.id };
       const body = await parseJsonBody(req);
       const requestAction = String(body?.action || "").trim().toLowerCase();
 
@@ -762,7 +992,7 @@ module.exports = async (req, res) => {
           return;
         }
         if (requestAction === "approve_claim") {
-          await updateBusiness(business.id, {
+          const approvedBusiness = await updateBusiness(business.id, {
             claimed_by: claimRequest.requester_id,
             updated_at: new Date().toISOString(),
           });
@@ -785,12 +1015,47 @@ module.exports = async (req, res) => {
                 reviewed_by: session.id,
               }).catch(() => null))
           );
+          try {
+            await notifyBusinessMembers({
+              req,
+              business: approvedBusiness || { ...business, claimed_by: claimRequest.requester_id },
+              actorProfile,
+              type: "business_claim_approved",
+              title: "Business claim approved",
+              body: `${business.business_name || "A business listing"} was linked to your account.`,
+              emailSubject: `[Bly, Oregon] Claim approved: ${business.business_name || "Business listing"}`,
+              emailTitle: "You now manage a business listing",
+              emailIntro: "An admin approved your business ownership request.",
+              emailBodyHtml:
+                `<p><strong>${escapeHtml(business.business_name || "Business listing")}</strong> is now linked to your account.</p>` +
+                `<p>You can edit it anytime from your account.</p>`,
+            });
+          } catch (error) {
+            console.warn(error);
+          }
         } else {
           await updateBusinessClaimRequest(claimRequest.id, {
             status: "rejected",
             reviewed_at: new Date().toISOString(),
             reviewed_by: session.id,
           });
+          try {
+            await notifyBusinessMembers({
+              req,
+              business: { ...business, author_id: claimRequest.requester_id },
+              actorProfile,
+              type: "business_claim_rejected",
+              title: "Business claim rejected",
+              body: `${business.business_name || "A business listing"} was not linked to your account.`,
+              emailSubject: `[Bly, Oregon] Claim update: ${business.business_name || "Business listing"}`,
+              emailTitle: "Your claim request was reviewed",
+              emailIntro: "An admin reviewed your business claim request.",
+              emailBodyHtml:
+                `<p>Your request to claim <strong>${escapeHtml(business.business_name || "this business listing")}</strong> was not approved.</p>`,
+            });
+          } catch (error) {
+            console.warn(error);
+          }
         }
         sendJson(res, 200, { ok: true });
         return;
@@ -917,6 +1182,7 @@ module.exports = async (req, res) => {
 
       const previousImagePath = String(existing.image_path || "").trim();
       const persistedImagePath = String(payload.image_path || "").trim();
+      const previousClaimedBy = String(existing.claimed_by || "").trim();
       const updated = await updateBusiness(targetId, payload);
       if (previousImagePath && previousImagePath !== persistedImagePath) {
         try {
@@ -924,6 +1190,84 @@ module.exports = async (req, res) => {
         } catch (error) {
           console.error(`Business image cleanup failed for ${targetId}:`, error);
         }
+      }
+      try {
+        const businessForNotifications = updated || existing;
+        if (action === "publish") {
+          await notifyBusinessMembers({
+            req,
+            business: businessForNotifications,
+            actorProfile,
+            type: "business_published",
+            title: "Business listing published",
+            body: `${businessForNotifications.business_name || "Your business listing"} is now live on the site.`,
+            emailSubject: `[Bly, Oregon] Published: ${businessForNotifications.business_name || "Business listing"}`,
+            emailTitle: "Your business listing is live",
+            emailIntro: "A business listing tied to your account was published.",
+            emailBodyHtml: `<p><strong>${escapeHtml(businessForNotifications.business_name || "Business listing")}</strong> is now live in the Bly business directory.</p>`,
+          });
+        } else if (action === "request_changes") {
+          await notifyBusinessMembers({
+            req,
+            business: businessForNotifications,
+            actorProfile,
+            type: "business_changes_requested",
+            title: "Changes requested on a business listing",
+            body: payload.review_notes
+              ? `${businessForNotifications.business_name || "Your business listing"} needs updates: ${summarizeText(payload.review_notes, 140)}`
+              : `${businessForNotifications.business_name || "Your business listing"} needs updates before it can go live.`,
+            emailSubject: `[Bly, Oregon] Changes requested: ${businessForNotifications.business_name || "Business listing"}`,
+            emailTitle: "Changes were requested",
+            emailIntro: "An admin reviewed a business listing tied to your account.",
+            emailBodyHtml:
+              `<p><strong>${escapeHtml(businessForNotifications.business_name || "Business listing")}</strong> needs updates before it can move forward.</p>` +
+              (payload.review_notes ? `<p>Review notes: ${escapeHtml(payload.review_notes)}</p>` : ""),
+          });
+        } else if (action === "unpublish") {
+          await notifyBusinessMembers({
+            req,
+            business: businessForNotifications,
+            actorProfile,
+            type: "business_unpublished",
+            title: "Business listing unpublished",
+            body: `${businessForNotifications.business_name || "Your business listing"} was removed from the live directory.`,
+            emailSubject: `[Bly, Oregon] Unpublished: ${businessForNotifications.business_name || "Business listing"}`,
+            emailTitle: "Your business listing was unpublished",
+            emailIntro: "An admin removed a business listing tied to your account from the live directory.",
+            emailBodyHtml: `<p><strong>${escapeHtml(businessForNotifications.business_name || "Business listing")}</strong> is no longer live in the business directory.</p>`,
+          });
+        } else if (action === "archive") {
+          await notifyBusinessMembers({
+            req,
+            business: businessForNotifications,
+            actorProfile,
+            type: "business_archived",
+            title: "Business listing archived",
+            body: `${businessForNotifications.business_name || "Your business listing"} was archived.`,
+            emailSubject: `[Bly, Oregon] Archived: ${businessForNotifications.business_name || "Business listing"}`,
+            emailTitle: "Your business listing was archived",
+            emailIntro: "An admin archived a business listing tied to your account.",
+            emailBodyHtml: `<p><strong>${escapeHtml(businessForNotifications.business_name || "Business listing")}</strong> was archived and is no longer part of the active directory workflow.</p>`,
+          });
+        } else if (action === "save" && previousClaimedBy !== String(updated?.claimed_by || "").trim()) {
+          const assignedUserId = String(updated?.claimed_by || "").trim();
+          if (assignedUserId) {
+            await notifyBusinessMembers({
+              req,
+              business: updated,
+              actorProfile,
+              type: "business_owner_assigned",
+              title: "Business listing linked to your account",
+              body: `${updated.business_name || "A business listing"} is now linked to your account.`,
+              emailSubject: `[Bly, Oregon] Business linked: ${updated.business_name || "Business listing"}`,
+              emailTitle: "You can now manage a business listing",
+              emailIntro: "An admin linked a business listing to your Bly account.",
+              emailBodyHtml: `<p><strong>${escapeHtml(updated.business_name || "Business listing")}</strong> is now linked to your account and available in My businesses.</p>`,
+            });
+          }
+        }
+      } catch (error) {
+        console.warn(error);
       }
       sendJson(res, 200, {
         ok: true,

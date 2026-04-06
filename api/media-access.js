@@ -103,7 +103,7 @@ async function fetchPublishedArticleAuthorIds(token, userIds = []) {
 
 async function listProfiles(token) {
   const response = await fetch(
-    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,bio,role,can_upload_photos,can_manage_media,media_buckets,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_direct_messages_internal,notify_direct_messages_email,show_name_in_messages&order=display_name.asc.nullslast,email.asc`,
+    `${getSupabaseUrl()}/rest/v1/profiles?select=id,email,display_name,bio,role,can_upload_photos,can_manage_media,media_buckets,can_edit_media_details,can_rename_media,can_delete_media,can_submit_articles,can_self_publish_articles,can_self_publish_article_edits,can_review_articles,can_publish_articles,notify_article_submissions_internal,notify_article_submissions_email,notify_article_review_internal,notify_article_review_email,notify_article_publishing_internal,notify_article_publishing_email,notify_admin_article_queue_internal,notify_admin_article_queue_email,notify_direct_messages_internal,notify_direct_messages_email,notify_business_updates_internal,notify_business_updates_email,notify_admin_business_queue_internal,notify_admin_business_queue_email,show_name_in_messages&order=display_name.asc.nullslast,email.asc`,
     {
       headers: {
         apikey: getAnonKey(),
@@ -143,6 +143,8 @@ function applyRolePreset(role, options = {}) {
       canPublishArticles: true,
       notifyAdminArticleQueueInternal: true,
       notifyAdminArticleQueueEmail: true,
+      notifyAdminBusinessQueueInternal: true,
+      notifyAdminBusinessQueueEmail: true,
     };
   }
 
@@ -161,6 +163,8 @@ function applyRolePreset(role, options = {}) {
       canPublishArticles: true,
       notifyAdminArticleQueueInternal: true,
       notifyAdminArticleQueueEmail: true,
+      notifyAdminBusinessQueueInternal: true,
+      notifyAdminBusinessQueueEmail: true,
     };
   }
 
@@ -178,6 +182,8 @@ function applyRolePreset(role, options = {}) {
     canPublishArticles: false,
     notifyAdminArticleQueueInternal: false,
     notifyAdminArticleQueueEmail: false,
+    notifyAdminBusinessQueueInternal: false,
+    notifyAdminBusinessQueueEmail: false,
   };
 }
 
@@ -205,6 +211,10 @@ async function updateMediaAccess(token, userId, options) {
   const notifyAdminArticleQueueEmail = Boolean(rolePreset.notifyAdminArticleQueueEmail);
   const notifyDirectMessagesInternal = Boolean(options?.notifyDirectMessagesInternal !== false);
   const notifyDirectMessagesEmail = Boolean(options?.notifyDirectMessagesEmail !== false);
+  const notifyBusinessUpdatesInternal = Boolean(options?.notifyBusinessUpdatesInternal !== false);
+  const notifyBusinessUpdatesEmail = Boolean(options?.notifyBusinessUpdatesEmail !== false);
+  const notifyAdminBusinessQueueInternal = Boolean(rolePreset.notifyAdminBusinessQueueInternal);
+  const notifyAdminBusinessQueueEmail = Boolean(rolePreset.notifyAdminBusinessQueueEmail);
   const publishedAuthorIds = await fetchPublishedArticleAuthorIds(token, [userId]);
   const hasPublishedArticles = publishedAuthorIds.has(userId);
   const showNameInMessages = hasPublishedArticles ? true : Boolean(options?.showNameInMessages !== false);
@@ -240,6 +250,10 @@ async function updateMediaAccess(token, userId, options) {
         notify_admin_article_queue_email: notifyAdminArticleQueueEmail,
         notify_direct_messages_internal: notifyDirectMessagesInternal,
         notify_direct_messages_email: notifyDirectMessagesEmail,
+        notify_business_updates_internal: notifyBusinessUpdatesInternal,
+        notify_business_updates_email: notifyBusinessUpdatesEmail,
+        notify_admin_business_queue_internal: notifyAdminBusinessQueueInternal,
+        notify_admin_business_queue_email: notifyAdminBusinessQueueEmail,
         show_name_in_messages: showNameInMessages,
         media_buckets: mediaBuckets,
       }),
@@ -326,6 +340,10 @@ module.exports = async (req, res) => {
                 adminArticleQueueEmail: profile.notify_admin_article_queue_email !== false,
                 directMessagesInternal: profile.notify_direct_messages_internal !== false,
                 directMessagesEmail: profile.notify_direct_messages_email !== false,
+                businessUpdatesInternal: profile.notify_business_updates_internal !== false,
+                businessUpdatesEmail: profile.notify_business_updates_email !== false,
+                adminBusinessQueueInternal: profile.notify_admin_business_queue_internal !== false,
+                adminBusinessQueueEmail: profile.notify_admin_business_queue_email !== false,
               },
               showNameInMessages: publishedAuthorIds.has(String(profile.id || "").trim())
                 ? true
@@ -362,6 +380,10 @@ module.exports = async (req, res) => {
       const notifyAdminArticleQueueEmail = Boolean(body?.notifyAdminArticleQueueEmail !== false);
       const notifyDirectMessagesInternal = Boolean(body?.notifyDirectMessagesInternal !== false);
       const notifyDirectMessagesEmail = Boolean(body?.notifyDirectMessagesEmail !== false);
+      const notifyBusinessUpdatesInternal = Boolean(body?.notifyBusinessUpdatesInternal !== false);
+      const notifyBusinessUpdatesEmail = Boolean(body?.notifyBusinessUpdatesEmail !== false);
+      const notifyAdminBusinessQueueInternal = Boolean(body?.notifyAdminBusinessQueueInternal !== false);
+      const notifyAdminBusinessQueueEmail = Boolean(body?.notifyAdminBusinessQueueEmail !== false);
       const showNameInMessages = Boolean(body?.showNameInMessages !== false);
 
       if (!userId) {
@@ -392,6 +414,10 @@ module.exports = async (req, res) => {
         notifyAdminArticleQueueEmail,
         notifyDirectMessagesInternal,
         notifyDirectMessagesEmail,
+        notifyBusinessUpdatesInternal,
+        notifyBusinessUpdatesEmail,
+        notifyAdminBusinessQueueInternal,
+        notifyAdminBusinessQueueEmail,
         showNameInMessages,
       });
       const updated = result?.profile || null;
@@ -425,6 +451,10 @@ module.exports = async (req, res) => {
             adminArticleQueueEmail: updated?.notify_admin_article_queue_email !== false,
             directMessagesInternal: updated?.notify_direct_messages_internal !== false,
             directMessagesEmail: updated?.notify_direct_messages_email !== false,
+            businessUpdatesInternal: updated?.notify_business_updates_internal !== false,
+            businessUpdatesEmail: updated?.notify_business_updates_email !== false,
+            adminBusinessQueueInternal: updated?.notify_admin_business_queue_internal !== false,
+            adminBusinessQueueEmail: updated?.notify_admin_business_queue_email !== false,
           },
           showNameInMessages: result?.hasPublishedArticles ? true : updated?.show_name_in_messages !== false,
           mediaBuckets: Array.isArray(updated?.media_buckets) ? updated.media_buckets : mediaBuckets,

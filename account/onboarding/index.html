@@ -264,6 +264,16 @@
                 <label><input id="notify-direct-messages-email" type="checkbox" checked /> Email</label>
               </div>
             </div>
+            <div class="checkbox-row">
+              <div class="checkbox-copy">
+                <strong>Business listing updates</strong>
+                <span>Claim decisions, review changes, publishing updates, and other changes tied to your business listings.</span>
+              </div>
+              <div class="checkbox-pair">
+                <label><input id="notify-business-updates-internal" type="checkbox" checked /> Inbox</label>
+                <label><input id="notify-business-updates-email" type="checkbox" checked /> Email</label>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -309,6 +319,8 @@
     const notifyArticlePublishingEmailEl = document.getElementById("notify-article-publishing-email");
     const notifyDirectMessagesInternalEl = document.getElementById("notify-direct-messages-internal");
     const notifyDirectMessagesEmailEl = document.getElementById("notify-direct-messages-email");
+    const notifyBusinessUpdatesInternalEl = document.getElementById("notify-business-updates-internal");
+    const notifyBusinessUpdatesEmailEl = document.getElementById("notify-business-updates-email");
     const showNameInMessagesEl = document.getElementById("show-name-in-messages");
     const showNameInMessagesCopyEl = document.getElementById("show-name-in-messages-copy");
     const saveButtonEl = document.getElementById("save-button");
@@ -332,6 +344,8 @@
       notifyArticlePublishingEmailEl.checked = notificationPreferences.articlePublishingEmail !== false;
       notifyDirectMessagesInternalEl.checked = notificationPreferences.directMessagesInternal !== false;
       notifyDirectMessagesEmailEl.checked = notificationPreferences.directMessagesEmail !== false;
+      notifyBusinessUpdatesInternalEl.checked = notificationPreferences.businessUpdatesInternal !== false;
+      notifyBusinessUpdatesEmailEl.checked = notificationPreferences.businessUpdatesEmail !== false;
       showNameInMessagesEl.checked = profile?.showNameInMessages !== false;
       showNameInMessagesEl.disabled = Boolean(profile?.hasPublishedArticles);
       showNameInMessagesCopyEl.textContent = profile?.hasPublishedArticles
@@ -399,9 +413,13 @@
               articlePublishingEmail: notifyArticlePublishingEmailEl.checked,
               directMessagesInternal: notifyDirectMessagesInternalEl.checked,
               directMessagesEmail: notifyDirectMessagesEmailEl.checked,
+              businessUpdatesInternal: notifyBusinessUpdatesInternalEl.checked,
+              businessUpdatesEmail: notifyBusinessUpdatesEmailEl.checked,
               showNameInMessages: showNameInMessagesEl.checked,
               adminArticleQueueInternal: true,
               adminArticleQueueEmail: true,
+              adminBusinessQueueInternal: true,
+              adminBusinessQueueEmail: true,
             },
           }),
         });

@@ -1019,6 +1019,16 @@
                 <label><input id="notify-direct-messages-email" type="checkbox" /> Email</label>
               </div>
             </div>
+            <div class="preference-row">
+              <div class="preference-copy">
+                <strong>Business listing updates</strong>
+                <span>Claim decisions, review changes, publishing changes, and other updates tied to your business listings.</span>
+              </div>
+              <div class="checkbox-cluster">
+                <label><input id="notify-business-updates-internal" type="checkbox" /> In app</label>
+                <label><input id="notify-business-updates-email" type="checkbox" /> Email</label>
+              </div>
+            </div>
             <div class="preference-row" id="admin-queue-preference-row" hidden>
               <div class="preference-copy">
                 <strong>Admin alerts</strong>
@@ -1027,6 +1037,16 @@
               <div class="checkbox-cluster">
                 <label><input id="notify-admin-queue-internal" type="checkbox" /> In app</label>
                 <label><input id="notify-admin-queue-email" type="checkbox" /> Email</label>
+              </div>
+            </div>
+            <div class="preference-row" id="admin-business-queue-preference-row" hidden>
+              <div class="preference-copy">
+                <strong>Business admin alerts</strong>
+                <span>Reviewer/admin alerts when business submissions or claim requests need attention.</span>
+              </div>
+              <div class="checkbox-cluster">
+                <label><input id="notify-admin-business-queue-internal" type="checkbox" /> In app</label>
+                <label><input id="notify-admin-business-queue-email" type="checkbox" /> Email</label>
               </div>
             </div>
           </div>
@@ -1151,11 +1171,16 @@
     const notifyArticlePublishingEmailInput = document.getElementById("notify-article-publishing-email");
     const notifyDirectMessagesInternalInput = document.getElementById("notify-direct-messages-internal");
     const notifyDirectMessagesEmailInput = document.getElementById("notify-direct-messages-email");
+    const notifyBusinessUpdatesInternalInput = document.getElementById("notify-business-updates-internal");
+    const notifyBusinessUpdatesEmailInput = document.getElementById("notify-business-updates-email");
     const showNameInMessagesInput = document.getElementById("show-name-in-messages");
     const showNameInMessagesCopyEl = document.getElementById("show-name-in-messages-copy");
     const adminQueuePreferenceRowEl = document.getElementById("admin-queue-preference-row");
     const notifyAdminQueueInternalInput = document.getElementById("notify-admin-queue-internal");
     const notifyAdminQueueEmailInput = document.getElementById("notify-admin-queue-email");
+    const adminBusinessQueuePreferenceRowEl = document.getElementById("admin-business-queue-preference-row");
+    const notifyAdminBusinessQueueInternalInput = document.getElementById("notify-admin-business-queue-internal");
+    const notifyAdminBusinessQueueEmailInput = document.getElementById("notify-admin-business-queue-email");
     const profileSaveButton = document.getElementById("profile-save");
     const profileStatusEl = document.getElementById("profile-status");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
@@ -1227,6 +1252,8 @@
       notifyArticlePublishingEmailInput.checked = notificationPreferences.articlePublishingEmail !== false;
       notifyDirectMessagesInternalInput.checked = notificationPreferences.directMessagesInternal !== false;
       notifyDirectMessagesEmailInput.checked = notificationPreferences.directMessagesEmail !== false;
+      notifyBusinessUpdatesInternalInput.checked = notificationPreferences.businessUpdatesInternal !== false;
+      notifyBusinessUpdatesEmailInput.checked = notificationPreferences.businessUpdatesEmail !== false;
       showNameInMessagesInput.checked = profile?.showNameInMessages !== false;
       showNameInMessagesInput.disabled = Boolean(profile?.hasPublishedArticles);
       showNameInMessagesCopyEl.textContent = profile?.hasPublishedArticles
@@ -1234,8 +1261,11 @@
         : "Your public name will appear inside direct-message conversations.";
       notifyAdminQueueInternalInput.checked = notificationPreferences.adminArticleQueueInternal !== false;
       notifyAdminQueueEmailInput.checked = notificationPreferences.adminArticleQueueEmail !== false;
+      notifyAdminBusinessQueueInternalInput.checked = notificationPreferences.adminBusinessQueueInternal !== false;
+      notifyAdminBusinessQueueEmailInput.checked = notificationPreferences.adminBusinessQueueEmail !== false;
       const isAdminOperator = Boolean(profile?.role === "admin" || profile?.articlePermissions?.canReviewArticles || profile?.articlePermissions?.canPublishArticles);
       adminQueuePreferenceRowEl.hidden = !isAdminOperator;
+      adminBusinessQueuePreferenceRowEl.hidden = !isAdminOperator;
       if (avatarUrl) {
         avatarEl.src = `${avatarUrl}${avatarUrl.includes("?") ? "&" : "?"}t=${Date.now()}`;
         avatarEl.hidden = false;
@@ -1556,9 +1586,13 @@
               articlePublishingEmail: notifyArticlePublishingEmailInput.checked,
               directMessagesInternal: notifyDirectMessagesInternalInput.checked,
               directMessagesEmail: notifyDirectMessagesEmailInput.checked,
+              businessUpdatesInternal: notifyBusinessUpdatesInternalInput.checked,
+              businessUpdatesEmail: notifyBusinessUpdatesEmailInput.checked,
               showNameInMessages: showNameInMessagesInput.checked,
               adminArticleQueueInternal: notifyAdminQueueInternalInput.checked,
               adminArticleQueueEmail: notifyAdminQueueEmailInput.checked,
+              adminBusinessQueueInternal: notifyAdminBusinessQueueInternalInput.checked,
+              adminBusinessQueueEmail: notifyAdminBusinessQueueEmailInput.checked,
             },
           }),
         });
@@ -1593,9 +1627,13 @@
               articlePublishingEmail: notifyArticlePublishingEmailInput.checked,
               directMessagesInternal: notifyDirectMessagesInternalInput.checked,
               directMessagesEmail: notifyDirectMessagesEmailInput.checked,
+              businessUpdatesInternal: notifyBusinessUpdatesInternalInput.checked,
+              businessUpdatesEmail: notifyBusinessUpdatesEmailInput.checked,
               showNameInMessages: showNameInMessagesInput.checked,
               adminArticleQueueInternal: notifyAdminQueueInternalInput.checked,
               adminArticleQueueEmail: notifyAdminQueueEmailInput.checked,
+              adminBusinessQueueInternal: notifyAdminBusinessQueueInternalInput.checked,
+              adminBusinessQueueEmail: notifyAdminBusinessQueueEmailInput.checked,
             },
             hasPublishedArticles: payload.profile?.hasPublishedArticles,
             showNameInMessages: payload.profile?.showNameInMessages,

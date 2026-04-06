@@ -467,6 +467,24 @@
                   <button id="toggle-direct-messages-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
                 </div>
               </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Business updates: inbox</strong>
+                    <span>Claim decisions, review changes, publishing changes, and other updates tied to this member's business listings.</span>
+                  </div>
+                  <button id="toggle-business-updates-internal" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Business updates: email</strong>
+                    <span>Email alerts for business listing workflow changes.</span>
+                  </div>
+                  <button id="toggle-business-updates-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
               <div class="toggle-card moderator-only">
                 <div class="toggle-row">
                   <div class="toggle-copy">
@@ -483,6 +501,24 @@
                     <span>Email alerts for reviewer/admin article work.</span>
                   </div>
                   <button id="toggle-admin-queue-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card moderator-only">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Business admin alerts: inbox</strong>
+                    <span>Reviewer/admin alerts when business submissions or ownership claims need attention.</span>
+                  </div>
+                  <button id="toggle-admin-business-queue-internal" class="toggle" type="button" role="switch" aria-checked="false"></button>
+                </div>
+              </div>
+              <div class="toggle-card moderator-only">
+                <div class="toggle-row">
+                  <div class="toggle-copy">
+                    <strong>Business admin alerts: email</strong>
+                    <span>Email alerts for business review queue work.</span>
+                  </div>
+                  <button id="toggle-admin-business-queue-email" class="toggle" type="button" role="switch" aria-checked="false"></button>
                 </div>
               </div>
             </div>
@@ -641,8 +677,12 @@
     const toggleArticlePublishingEmailEl = document.getElementById("toggle-article-publishing-email");
     const toggleDirectMessagesInternalEl = document.getElementById("toggle-direct-messages-internal");
     const toggleDirectMessagesEmailEl = document.getElementById("toggle-direct-messages-email");
+    const toggleBusinessUpdatesInternalEl = document.getElementById("toggle-business-updates-internal");
+    const toggleBusinessUpdatesEmailEl = document.getElementById("toggle-business-updates-email");
     const toggleAdminQueueInternalEl = document.getElementById("toggle-admin-queue-internal");
     const toggleAdminQueueEmailEl = document.getElementById("toggle-admin-queue-email");
+    const toggleAdminBusinessQueueInternalEl = document.getElementById("toggle-admin-business-queue-internal");
+    const toggleAdminBusinessQueueEmailEl = document.getElementById("toggle-admin-business-queue-email");
     const toggleUploadEl = document.getElementById("toggle-upload");
     const toggleManagerEl = document.getElementById("toggle-manager");
     const toggleEditDetailsEl = document.getElementById("toggle-edit-details");
@@ -684,8 +724,12 @@
         toggleArticlePublishingEmailEl,
         toggleDirectMessagesInternalEl,
         toggleDirectMessagesEmailEl,
+        toggleBusinessUpdatesInternalEl,
+        toggleBusinessUpdatesEmailEl,
         toggleAdminQueueInternalEl,
         toggleAdminQueueEmailEl,
+        toggleAdminBusinessQueueInternalEl,
+        toggleAdminBusinessQueueEmailEl,
         toggleManagerEl,
         toggleEditDetailsEl,
         toggleRenameEl,
@@ -724,6 +768,8 @@
             ...profile.notificationPreferences,
             adminArticleQueueInternal: true,
             adminArticleQueueEmail: true,
+            adminBusinessQueueInternal: true,
+            adminBusinessQueueEmail: true,
           },
         };
       }
@@ -740,6 +786,8 @@
             ...profile.notificationPreferences,
             adminArticleQueueInternal: true,
             adminArticleQueueEmail: true,
+            adminBusinessQueueInternal: true,
+            adminBusinessQueueEmail: true,
           },
         };
       }
@@ -755,6 +803,8 @@
           ...profile.notificationPreferences,
           adminArticleQueueInternal: false,
           adminArticleQueueEmail: false,
+          adminBusinessQueueInternal: false,
+          adminBusinessQueueEmail: false,
         },
       };
     }
@@ -771,8 +821,12 @@
       toggleArticlePublishingEmailEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.articlePublishingEmail)));
       toggleDirectMessagesInternalEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.directMessagesInternal)));
       toggleDirectMessagesEmailEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.directMessagesEmail)));
+      toggleBusinessUpdatesInternalEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.businessUpdatesInternal)));
+      toggleBusinessUpdatesEmailEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.businessUpdatesEmail)));
       toggleAdminQueueInternalEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.adminArticleQueueInternal)));
       toggleAdminQueueEmailEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.adminArticleQueueEmail)));
+      toggleAdminBusinessQueueInternalEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.adminBusinessQueueInternal)));
+      toggleAdminBusinessQueueEmailEl.setAttribute("aria-checked", String(Boolean(activeProfile.notificationPreferences?.adminBusinessQueueEmail)));
       toggleManagerEl.setAttribute("aria-checked", String(Boolean(activeProfile.canManageMedia)));
       toggleEditDetailsEl.setAttribute("aria-checked", String(Boolean(activeProfile.canEditMediaDetails)));
       toggleRenameEl.setAttribute("aria-checked", String(Boolean(activeProfile.canRenameMedia)));
@@ -843,8 +897,12 @@
             notifyArticlePublishingEmail: nextState.notificationPreferences?.articlePublishingEmail,
             notifyDirectMessagesInternal: nextState.notificationPreferences?.directMessagesInternal,
             notifyDirectMessagesEmail: nextState.notificationPreferences?.directMessagesEmail,
+            notifyBusinessUpdatesInternal: nextState.notificationPreferences?.businessUpdatesInternal,
+            notifyBusinessUpdatesEmail: nextState.notificationPreferences?.businessUpdatesEmail,
             notifyAdminArticleQueueInternal: nextState.notificationPreferences?.adminArticleQueueInternal,
             notifyAdminArticleQueueEmail: nextState.notificationPreferences?.adminArticleQueueEmail,
+            notifyAdminBusinessQueueInternal: nextState.notificationPreferences?.adminBusinessQueueInternal,
+            notifyAdminBusinessQueueEmail: nextState.notificationPreferences?.adminBusinessQueueEmail,
             showNameInMessages: nextState.showNameInMessages,
             mediaBuckets: nextState.mediaBuckets,
           }),
@@ -1065,6 +1123,28 @@
       });
     });
 
+    toggleBusinessUpdatesInternalEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          businessUpdatesInternal: !activeProfile.notificationPreferences?.businessUpdatesInternal,
+        },
+      });
+    });
+
+    toggleBusinessUpdatesEmailEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          businessUpdatesEmail: !activeProfile.notificationPreferences?.businessUpdatesEmail,
+        },
+      });
+    });
+
     toggleAdminQueueInternalEl.addEventListener("click", async () => {
       if (!activeProfile) return;
       await saveProfile({
@@ -1083,6 +1163,28 @@
         notificationPreferences: {
           ...activeProfile.notificationPreferences,
           adminArticleQueueEmail: !activeProfile.notificationPreferences?.adminArticleQueueEmail,
+        },
+      });
+    });
+
+    toggleAdminBusinessQueueInternalEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          adminBusinessQueueInternal: !activeProfile.notificationPreferences?.adminBusinessQueueInternal,
+        },
+      });
+    });
+
+    toggleAdminBusinessQueueEmailEl.addEventListener("click", async () => {
+      if (!activeProfile) return;
+      await saveProfile({
+        ...activeProfile,
+        notificationPreferences: {
+          ...activeProfile.notificationPreferences,
+          adminBusinessQueueEmail: !activeProfile.notificationPreferences?.adminBusinessQueueEmail,
         },
       });
     });

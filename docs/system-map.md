@@ -28,6 +28,7 @@ Use it alongside [supabase/schema.sql](/Users/quentinnichols/Documents/Websites/
 - media permissions and bucket access
 - notification preference fields for article email and internal inbox delivery
 - notification preference fields for direct messages
+- notification preference fields for business listing updates and business review queue alerts
 
 `public.direct_threads` and `public.direct_messages` store:
 - direct member-to-member conversations
@@ -121,6 +122,8 @@ Current per-profile notification preference groups:
 - article publishing updates
 - admin review queue alerts
 - direct messages
+- business listing updates
+- business admin queue alerts
 
 Each group can be controlled separately for:
 - internal inbox notifications

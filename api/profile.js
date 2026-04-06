@@ -77,6 +77,10 @@ async function updateProfile(session, token, input) {
     notify_admin_article_queue_email: input.notificationPreferences.adminArticleQueueEmail,
     notify_direct_messages_internal: input.notificationPreferences.directMessagesInternal,
     notify_direct_messages_email: input.notificationPreferences.directMessagesEmail,
+    notify_business_updates_internal: input.notificationPreferences.businessUpdatesInternal,
+    notify_business_updates_email: input.notificationPreferences.businessUpdatesEmail,
+    notify_admin_business_queue_internal: input.notificationPreferences.adminBusinessQueueInternal,
+    notify_admin_business_queue_email: input.notificationPreferences.adminBusinessQueueEmail,
     show_name_in_messages: input.showNameInMessages,
     onboarding_complete: input.onboardingComplete,
   };
@@ -147,6 +151,10 @@ module.exports = async (req, res) => {
       adminArticleQueueEmail: body?.notificationPreferences?.adminArticleQueueEmail !== false,
       directMessagesInternal: body?.notificationPreferences?.directMessagesInternal !== false,
       directMessagesEmail: body?.notificationPreferences?.directMessagesEmail !== false,
+      businessUpdatesInternal: body?.notificationPreferences?.businessUpdatesInternal !== false,
+      businessUpdatesEmail: body?.notificationPreferences?.businessUpdatesEmail !== false,
+      adminBusinessQueueInternal: body?.notificationPreferences?.adminBusinessQueueInternal !== false,
+      adminBusinessQueueEmail: body?.notificationPreferences?.adminBusinessQueueEmail !== false,
       showNameInMessages: body?.notificationPreferences?.showNameInMessages !== false,
     };
     const onboardingComplete = body?.onboardingComplete === true;

@@ -31,6 +31,10 @@ create table if not exists public.profiles (
   notify_admin_article_queue_email boolean not null default true,
   notify_direct_messages_internal boolean not null default true,
   notify_direct_messages_email boolean not null default true,
+  notify_business_updates_internal boolean not null default true,
+  notify_business_updates_email boolean not null default true,
+  notify_admin_business_queue_internal boolean not null default true,
+  notify_admin_business_queue_email boolean not null default true,
   show_name_in_messages boolean not null default true,
   onboarding_complete boolean not null default false,
   created_at timestamptz not null default now(),
@@ -58,6 +62,10 @@ alter table public.profiles add column if not exists notify_admin_article_queue_
 alter table public.profiles add column if not exists notify_admin_article_queue_email boolean not null default true;
 alter table public.profiles add column if not exists notify_direct_messages_internal boolean not null default true;
 alter table public.profiles add column if not exists notify_direct_messages_email boolean not null default true;
+alter table public.profiles add column if not exists notify_business_updates_internal boolean not null default true;
+alter table public.profiles add column if not exists notify_business_updates_email boolean not null default true;
+alter table public.profiles add column if not exists notify_admin_business_queue_internal boolean not null default true;
+alter table public.profiles add column if not exists notify_admin_business_queue_email boolean not null default true;
 alter table public.profiles add column if not exists show_name_in_messages boolean not null default true;
 alter table public.profiles add column if not exists onboarding_complete boolean not null default false;
 alter table public.profiles alter column can_submit_articles set default true;
@@ -263,6 +271,10 @@ begin
     notify_admin_article_queue_email,
     notify_direct_messages_internal,
     notify_direct_messages_email,
+    notify_business_updates_internal,
+    notify_business_updates_email,
+    notify_admin_business_queue_internal,
+    notify_admin_business_queue_email,
     show_name_in_messages,
     onboarding_complete
   )
@@ -281,6 +293,10 @@ begin
     coalesce((new.raw_user_meta_data ->> 'notify_admin_article_queue_email')::boolean, true),
     coalesce((new.raw_user_meta_data ->> 'notify_direct_messages_internal')::boolean, true),
     coalesce((new.raw_user_meta_data ->> 'notify_direct_messages_email')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_business_updates_internal')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_business_updates_email')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_admin_business_queue_internal')::boolean, true),
+    coalesce((new.raw_user_meta_data ->> 'notify_admin_business_queue_email')::boolean, true),
     coalesce((new.raw_user_meta_data ->> 'show_name_in_messages')::boolean, true),
     coalesce((new.raw_user_meta_data ->> 'onboarding_complete')::boolean, false)
   )
@@ -298,6 +314,10 @@ begin
         notify_admin_article_queue_email = excluded.notify_admin_article_queue_email,
         notify_direct_messages_internal = excluded.notify_direct_messages_internal,
         notify_direct_messages_email = excluded.notify_direct_messages_email,
+        notify_business_updates_internal = excluded.notify_business_updates_internal,
+        notify_business_updates_email = excluded.notify_business_updates_email,
+        notify_admin_business_queue_internal = excluded.notify_admin_business_queue_internal,
+        notify_admin_business_queue_email = excluded.notify_admin_business_queue_email,
         show_name_in_messages = excluded.show_name_in_messages,
         onboarding_complete = excluded.onboarding_complete,
         updated_at = now();

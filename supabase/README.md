@@ -19,6 +19,7 @@ Recommended admin model:
 - article workflow events can create both email notifications and stored internal notifications
 - users can now control article email/inbox delivery preferences from their account profile
 - users can now receive direct member-to-member messages through the account inbox
+- business directory workflow events can now use the same account inbox and email preference model
 - your account should be promoted by updating `public.profiles.role = 'admin'`
 
 System integration map:
