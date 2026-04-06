@@ -37,7 +37,7 @@
       z-index: 10;
       background: rgba(20, 50, 39, 0.96);
       color: var(--white);
-      backdrop-filter: blur(8ppox);
+      backdrop-filter: blur(8px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     .header-inner {
@@ -359,7 +359,7 @@
       padding: 1.5rem;
       font-size: 0.9rem;
     }
-    @media (max-width: 600px) {
+    @media (max-width: 760px) {
       body {
         padding-top: var(--mobile-header-height);
       }
@@ -388,7 +388,8 @@
         color: var(--white);
       }
       .nav-links,
-      nav a.account-link {
+      nav a.account-link,
+      nav button.account-link {
         display: none;
       }
       .mobile-nav {
