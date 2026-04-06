@@ -259,6 +259,16 @@
       color: var(--forest);
     }
 
+    .directory-intro {
+      text-align: center;
+    }
+
+    .directory-intro > p {
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 720px;
+    }
+
     .biz-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -298,33 +308,12 @@
       text-decoration: none;
     }
     .biz-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.65rem 1rem;
+      display: grid;
+      gap: 0.5rem;
       margin-top: 0.85rem;
-      align-items: center;
+      justify-items: start;
     }
     .biz-link { display: inline-block; }
-    .biz-claim-action {
-      display: inline-block;
-      margin-top: 0.9rem;
-      border: 0;
-      padding: 0;
-      background: transparent;
-      color: var(--forest);
-      font: inherit;
-      font-size: 0.92rem;
-      font-weight: 800;
-      text-decoration: underline;
-      text-underline-offset: 0.15em;
-      cursor: pointer;
-      width: fit-content;
-    }
-    .biz-claim-action:disabled {
-      opacity: 0.7;
-      cursor: default;
-    }
-
     .category { margin-top: 2.5rem; }
     .category h2 {
       margin: 0 0 1rem;
@@ -715,15 +704,15 @@
   </section>
 
   <main class="container">
-    <section>
+    <section class="directory-intro">
       <h2 class="section-header">Business Directory</h2>
       <p>
         A place where all local businesses and services can equally advertise.
       </p>
       <div class="directory-callout">
         <h3>See your business listed here?</h3>
-        <p>Create an account or sign in, then use the ownership link next to your listing. An admin can approve the request and link the business to your account so you can edit it yourself.</p>
-        <p><a href="/login/?next=%2Fbusinesses%2F">Create an account or sign in</a> to request ownership of a listing already on the page.</p>
+        <p>Create an account or sign in, then use the claim section below. An admin can approve the request and link the business to your account so you can edit it yourself.</p>
+        <a id="claim-callout-link" href="#business-access">Go to form</a>
       </div>
       <div id="business-directory" hidden></div>
       <div id="legacy-business-directory">
@@ -742,9 +731,8 @@
                 <li><strong>Address:</strong> Highway 140, P.O. Box 25, Bly, OR 97622</li>
                 <li><strong>Phone:</strong> (541) 353-2427</li>
                 <li><strong>Hours:</strong> Mon–Fri, 7:45 am–4:30 pm (closed holidays)</li>
-                <li><strong>Website:</strong> fs.usda.gov</li>
               </ul>
-              <a class="biz-link" href="https://www.fs.usda.gov/r06/fremont-winema/recreation/bly-ranger-district" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://www.fs.usda.gov/r06/fremont-winema/recreation/bly-ranger-district" target="_blank" rel="noopener noreferrer">View Website</a>
             </div>
           </article>
 
@@ -756,7 +744,6 @@
               <ul class="biz-meta">
                 <li><strong>Mailing Address:</strong> P.O. Box 483, Bly, OR 97622</li>
                 <li><strong>Phone:</strong> (541) 891-4661</li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
               <a class="biz-link" href="https://www.facebook.com/blyoregon/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
@@ -772,7 +759,6 @@
                 <li><strong>Phone:</strong> (541) 205-9260</li>
                 <li><strong>Fire Chief:</strong> Bruce Nichols</li>
                 <li><strong>Email:</strong> <a href="mailto:bruce.nichols@blyrfpd.com">bruce.nichols@blyrfpd.com</a></li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
               <a class="biz-link" href="https://www.facebook.com/groups/501603116688599/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
@@ -786,7 +772,6 @@
               <p>Postal services for Bly.</p>
               <ul class="biz-meta">
                 <li><strong>Address:</strong> 61133 OR-140, Bly, OR 97622</li>
-                <li><strong>Website:</strong> usps.com</li>
               </ul>
               <a class="biz-link" href="https://tools.usps.com/locations/details/1355296" target="_blank" rel="noopener noreferrer">Find on USPS</a>
             </div>
@@ -800,9 +785,8 @@
               <ul class="biz-meta">
                 <li><strong>Address:</strong> 61100 Metler St, Bly, OR 97622</li>
                 <li><strong>Phone:</strong> (541) 353-2299</li>
-                <li><strong>Website:</strong> klamathlibrary.org</li>
               </ul>
-              <a class="biz-link" href="https://klamathlibrary.org/bly-branch" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://klamathlibrary.org/bly-branch" target="_blank" rel="noopener noreferrer">View Website</a>
             </div>
           </article>
 
@@ -822,7 +806,6 @@
               <ul class="biz-meta">
                 <li><strong>Address:</strong> 61435 OR-140, Bly, OR 97622</li>
                 <li><strong>Phone:</strong> (541) 591-0035</li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
               <a class="biz-link" href="https://www.facebook.com/thebreadwagon/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
@@ -835,7 +818,6 @@
               <p>Groceries, liquor, and more.</p>
               <ul class="biz-meta">
                 <li><strong>Phone:</strong> (541) 353-2271</li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
               <a class="biz-link" href="https://www.facebook.com/profile.php?id=61560008241304" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
@@ -850,7 +832,6 @@
                 <li><strong>Address:</strong> 61036 Hwy 140 E, Bly, OR 97622</li>
                 <li><strong>Phone:</strong> (541) 407-0312</li>
                 <li><strong>Email:</strong> <a href="mailto:highwaycafellc23@gmail.com">highwaycafellc23@gmail.com</a></li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
               <a class="biz-link" href="https://www.facebook.com/p/The-Highway-Cafe-61564613140888/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
@@ -896,10 +877,8 @@
               <ul class="biz-meta">
                 <li><strong>Address:</strong> 61282 Highway 140, Bly, OR 97622</li>
                 <li><strong>Email:</strong> <a href="mailto:outlawrocksllc@gmail.com">outlawrocksllc@gmail.com</a></li>
-                <li><strong>Website:</strong> outlawrocksllc.com</li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
-              <a class="biz-link" href="https://outlawrocksllc.com" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://outlawrocksllc.com" target="_blank" rel="noopener noreferrer">View Website</a>
               <a class="biz-link" href="https://www.facebook.com/outlawrocksllc/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
           </article>
@@ -913,7 +892,6 @@
                 <li><strong>Contact:</strong> Chrissy Holgate</li>
                 <li><strong>Phone:</strong> (541) 891-2568</li>
                 <li><strong>Email:</strong> <a href="mailto:rusticrain@hotmail.com">rusticrain@hotmail.com</a></li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
               <a class="biz-link" href="https://www.facebook.com/rusticrain78/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
@@ -927,7 +905,6 @@
               <ul class="biz-meta">
                 <li><strong>Address:</strong> 19311 Main Ave, Bly, OR 97622</li>
                 <li><strong>Phone:</strong> (541) 591-0035</li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
               <a class="biz-link" href="https://www.facebook.com/mainstreetmercantilebly/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
@@ -986,10 +963,8 @@
               <p>Veteran owned & operated plumbing services.</p>
               <ul class="biz-meta">
                 <li><strong>Phone:</strong> (541) 891-3557</li>
-                <li><strong>Website:</strong> holgateplumbing.com</li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
-              <a class="biz-link" href="https://www.holgateplumbing.com/" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://www.holgateplumbing.com/" target="_blank" rel="noopener noreferrer">View Website</a>
               <a class="biz-link" href="https://www.facebook.com/p/Holgate-Plumbing-100093822325623/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
           </article>
@@ -1024,10 +999,8 @@
               <h3>Millen Construction</h3>
               <p>General contracting and construction.</p>
               <ul class="biz-meta">
-                <li><strong>Website:</strong> millenconstruction.com</li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
-              <a class="biz-link" href="http://millenconstruction.com/" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="http://millenconstruction.com/" target="_blank" rel="noopener noreferrer">View Website</a>
               <a class="biz-link" href="https://www.facebook.com/millenconstruction/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
           </article>
@@ -1054,10 +1027,8 @@
                 <li><strong>Phone:</strong> (541) 533-2105</li>
                 <li><strong>Fax:</strong> (541) 533-3127</li>
                 <li><strong>Cell:</strong> (541) 891-7863</li>
-                <li><strong>Website:</strong> duartesales.com</li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
-              <a class="biz-link" href="http://www.duartesales.com" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="http://www.duartesales.com" target="_blank" rel="noopener noreferrer">View Website</a>
               <a class="biz-link" href="https://www.facebook.com/profile.php?id=100057065245352" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
           </article>
@@ -1102,9 +1073,8 @@
               <p>Your care is our mission.</p>
               <ul class="biz-meta">
                 <li><strong>Phone:</strong> (541) 882-2902</li>
-                <li><strong>Website:</strong> klamathhospice.org</li>
               </ul>
-              <a class="biz-link" href="https://www.klamathhospice.org" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://www.klamathhospice.org" target="_blank" rel="noopener noreferrer">View Website</a>
             </div>
           </article>
 
@@ -1142,9 +1112,8 @@
               <ul class="biz-meta">
                 <li><strong>Address:</strong> Mile Marker 18 Fishhole Creek Rd, Bly, OR 97622</li>
                 <li><strong>Phone:</strong> (541) 884-8685</li>
-                <li><strong>Website:</strong> aspenrr.com</li>
               </ul>
-              <a class="biz-link" href="https://www.aspenrr.com/" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://www.aspenrr.com/" target="_blank" rel="noopener noreferrer">View Website</a>
             </div>
           </article>
 
@@ -1211,10 +1180,8 @@
                 <li><strong>Address:</strong> 61100 Metler St, Bly, OR 97622</li>
                 <li><strong>Phone:</strong> (541) 353-2417</li>
                 <li><strong>Email:</strong> <a href="mailto:nixonm@kcsd.k12.or.us">nixonm@kcsd.k12.or.us</a></li>
-                <li><strong>Website:</strong> kcsd.k12.or.us</li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
-              <a class="biz-link" href="https://www.kcsd.k12.or.us/schools/gearhart/" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://www.kcsd.k12.or.us/schools/gearhart/" target="_blank" rel="noopener noreferrer">View Website</a>
               <a class="biz-link" href="https://www.facebook.com/profile.php?id=61564219626370" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
           </article>
@@ -1272,7 +1239,6 @@
               <ul class="biz-meta">
                 <li><strong>Pastor:</strong> David Prantner</li>
                 <li><strong>Phone:</strong> (541) 353-2622</li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
               <a class="biz-link" href="https://www.facebook.com/StandingStoneCMA/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
@@ -1306,10 +1272,8 @@
                 <li><strong>Address:</strong> 61138 Hwy 140 E, Bly, OR 97622</li>
                 <li><strong>Phone:</strong> (541) 353-2562</li>
                 <li><strong>Emergency:</strong> (541) 891-3902</li>
-                <li><strong>Website:</strong> blywater.com</li>
-                <li><strong>Website/Social:</strong> Facebook</li>
               </ul>
-              <a class="biz-link" href="https://www.blywater.com/" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://www.blywater.com/" target="_blank" rel="noopener noreferrer">View Website</a>
               <a class="biz-link" href="https://www.facebook.com/p/Bly-Water-and-Sanitary-District-100079576039064/" target="_blank" rel="noopener noreferrer">View on Facebook</a>
             </div>
           </article>
@@ -1330,9 +1294,8 @@
               <ul class="biz-meta">
                 <li><strong>Address:</strong> 19140 Edler Street, Bly, OR 97622</li>
                 <li><strong>Phone:</strong> (541) 904-0428</li>
-                <li><strong>Website:</strong> ruthobenchainrc.com</li>
               </ul>
-              <a class="biz-link" href="https://ruthobenchainrc.com" target="_blank" rel="noopener noreferrer">Visit Website</a>
+              <a class="biz-link" href="https://ruthobenchainrc.com" target="_blank" rel="noopener noreferrer">View Website</a>
             </div>
           </article>
 
@@ -1340,7 +1303,38 @@
       </div>
       </div>
 
-      <div class="cta">
+      <div id="business-access">
+      <div class="cta" id="business-access-signin" hidden>
+        <p>
+          Sign in to claim an existing business listing or submit a new one. Both actions are tied to your Bly account.
+        </p>
+        <a class="cta-toggle" href="/login/?next=%2Fbusinesses%2F">Create an account or sign in</a>
+      </div>
+
+      <div class="cta" id="business-access-forms" hidden>
+        <p>
+          Already listed here? Use the claim section below and we can review ownership of the listing.
+        </p>
+        <button class="cta-toggle" id="claim-toggle" type="button" aria-expanded="false" aria-controls="claim-panel">
+          Claim a business listing
+        </button>
+        <div class="cta-panel" id="claim-panel" hidden>
+          <form class="cta-form" id="claim-form">
+            <div class="cta-grid">
+              <div class="cta-field">
+                <label for="claim-business-id">Business to claim</label>
+                <select id="claim-business-id" name="business_id" required>
+                  <option value="">Choose a business</option>
+                </select>
+              </div>
+            </div>
+            <div class="cta-actions">
+              <button class="cta-submit" id="claim-submit" type="submit">Send claim request</button>
+              <div class="cta-status" id="claim-status" aria-live="polite"></div>
+            </div>
+            <div class="cta-note">Sign in first. Claimed listings and listings with a pending request are not shown here.</div>
+          </form>
+        </div>
         <p>
           Want your business listed here? Send the details below and we can review it for the directory.
         </p>
@@ -1359,7 +1353,7 @@
                 <input id="biz-submit-email" name="submitter_email" type="email" placeholder="you@example.com" required>
               </div>
             </div>
-            <input name="self_claim" type="hidden" value="no">
+            <input name="self_claim" type="hidden" value="yes">
             <div class="cta-grid">
               <div class="cta-field">
                 <label for="biz-name">Business name</label>
@@ -1424,9 +1418,10 @@
               <button class="cta-submit" id="business-submit" type="submit">Send business listing</button>
               <div class="cta-status" id="business-status" aria-live="polite"></div>
             </div>
-            <div class="cta-note">Use this form for new listings. If your business is already listed above, sign in and use the ownership link on that listing instead.</div>
+            <div class="cta-note">Use this form for new listings. New listings submitted here are tied to your account so you can manage them after approval.</div>
           </form>
         </div>
+      </div>
       </div>
     </section>
   </main>
@@ -1448,12 +1443,21 @@
       ];
 
       const form = document.getElementById("business-form");
+      const claimForm = document.getElementById("claim-form");
+      const claimBusinessSelect = document.getElementById("claim-business-id");
+      const claimStatusEl = document.getElementById("claim-status");
+      const claimSubmitButton = document.getElementById("claim-submit");
       const statusEl = document.getElementById("business-status");
       const submitButton = document.getElementById("business-submit");
       const toggleButton = document.getElementById("business-toggle");
+      const claimToggleButton = document.getElementById("claim-toggle");
+      const signInCta = document.getElementById("business-access-signin");
+      const formsCta = document.getElementById("business-access-forms");
       const panel = document.getElementById("business-panel");
+      const claimPanel = document.getElementById("claim-panel");
       const dynamicDirectory = document.getElementById("business-directory");
       const legacyDirectory = document.getElementById("legacy-business-directory");
+      let directoryBusinesses = [];
 
       function normalizeUrl(value) {
         const raw = String(value || "").trim();
@@ -1516,21 +1520,6 @@
         return "Visit Website";
       }
 
-      function getLinkMetaLabel(url) {
-        const actionLabel = getLinkLabel(url);
-        return actionLabel === "Visit Website" ? "Website" : "Website/Social";
-      }
-
-      function getLinkDisplayText(url) {
-        const normalized = normalizeUrl(url);
-        if (!normalized) return "";
-        try {
-          return new URL(normalized).hostname.replace(/^www\./i, "");
-        } catch (_error) {
-          return normalized.replace(/^https?:\/\//i, "");
-        }
-      }
-
       function extractBusinessLinks(business) {
         const links = [];
         const seen = new Set();
@@ -1541,7 +1530,6 @@
           links.push({
             href: url,
             label: getLinkLabel(url),
-            display: getLinkDisplayText(url),
           });
         }
         addLink(business.websiteUrl);
@@ -1619,7 +1607,6 @@
           buildPhoneMetaItem(business.phone),
           buildEmailMetaItem(business.businessEmail),
           buildMetaItem("Hours", business.hours),
-          businessLinks[0] ? buildLinkedValueItem(getLinkMetaLabel(businessLinks[0].href), businessLinks[0].href, businessLinks[0].display) : null,
         ].filter(Boolean).forEach((item) => meta.appendChild(item));
         if (meta.children.length) content.appendChild(meta);
 
@@ -1632,7 +1619,7 @@
             link.href = entry.href;
             link.target = "_blank";
             link.rel = "noopener noreferrer";
-            link.textContent = entry.label;
+            link.textContent = entry.label === "Visit Website" ? "View Website" : entry.label;
             actions.appendChild(link);
           });
           content.appendChild(actions);
@@ -1643,56 +1630,6 @@
           claimed.className = "note";
           claimed.textContent = "This listing is managed through a Bly account.";
           content.appendChild(claimed);
-        } else if (business.claimRequestedByViewer) {
-          const requested = document.createElement("button");
-          requested.className = "biz-claim-action";
-          requested.type = "button";
-          requested.disabled = true;
-          requested.textContent = "Ownership request sent";
-          content.appendChild(requested);
-        } else if (business.canRequestClaim) {
-          const claimButton = document.createElement("button");
-          claimButton.className = "biz-claim-action";
-          claimButton.type = "button";
-          claimButton.textContent = "Own this business?";
-          claimButton.addEventListener("click", async () => {
-            claimButton.disabled = true;
-            claimButton.textContent = "Sending...";
-            try {
-              const session = await window.siteAuth?.getSession?.().catch(() => null);
-              if (!session?.access_token) {
-                window.location.href = "/login/?next=" + encodeURIComponent("/businesses/");
-                return;
-              }
-              const response = await fetch("/api/businesses", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${session.access_token}`,
-                },
-                body: JSON.stringify({
-                  action: "request_claim",
-                  businessId: business.id,
-                }),
-              });
-              const result = await response.json().catch(() => ({}));
-              if (!response.ok) {
-                throw new Error(result.error || "Unable to request claim.");
-              }
-              claimButton.textContent = "Ownership request sent";
-            } catch (error) {
-              claimButton.disabled = false;
-              claimButton.textContent = "Own this business?";
-              window.alert(error.message || "Unable to request claim.");
-            }
-          });
-          content.appendChild(claimButton);
-        } else {
-          const signIn = document.createElement("a");
-          signIn.className = "biz-claim-action";
-          signIn.href = "/login/?next=" + encodeURIComponent("/businesses/");
-          signIn.textContent = "Own this business?";
-          content.appendChild(signIn);
         }
 
         const cleanedNotes = cleanBusinessNotes(business.notes);
@@ -1707,8 +1644,62 @@
         return article;
       }
 
+      function populateClaimOptions(businesses) {
+        if (!claimBusinessSelect) return;
+        claimBusinessSelect.innerHTML = "";
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Choose a business";
+        claimBusinessSelect.appendChild(placeholder);
+
+        const claimable = (Array.isArray(businesses) ? businesses : [])
+          .filter((business) => business?.id && !business?.claimedBy && !business?.claimRequestedByViewer)
+          .sort((a, b) => String(a.businessName || "").localeCompare(String(b.businessName || "")));
+
+        claimable.forEach((business) => {
+          const option = document.createElement("option");
+          option.value = business.id;
+          option.textContent = business.businessCategory
+            ? `${business.businessName} (${business.businessCategory})`
+            : business.businessName;
+          claimBusinessSelect.appendChild(option);
+        });
+
+        claimSubmitButton.disabled = !claimable.length;
+        if (!claimable.length) {
+          claimStatusEl.textContent = "No unclaimed businesses are available to request right now.";
+        } else if (!claimStatusEl.dataset.locked) {
+          claimStatusEl.textContent = "";
+        }
+      }
+
+      async function getCurrentSession() {
+        return window.siteAuth?.getSession?.().catch(() => null);
+      }
+
+      async function syncAccessState() {
+        const session = await getCurrentSession();
+        const signedIn = Boolean(session?.access_token);
+        if (signedIn) {
+          formsCta?.removeAttribute("hidden");
+          signInCta?.setAttribute("hidden", "");
+        } else {
+          formsCta?.setAttribute("hidden", "");
+          signInCta?.removeAttribute("hidden");
+          panel?.setAttribute("hidden", "");
+          claimPanel?.setAttribute("hidden", "");
+          toggleButton?.setAttribute("aria-expanded", "false");
+          claimToggleButton?.setAttribute("aria-expanded", "false");
+          toggleButton.textContent = "Submit business information";
+          claimToggleButton.textContent = "Claim a business listing";
+        }
+        return session;
+      }
+
       function renderDirectory(businesses) {
         dynamicDirectory.innerHTML = "";
+        directoryBusinesses = Array.isArray(businesses) ? businesses : [];
+        populateClaimOptions(directoryBusinesses);
 
         if (!Array.isArray(businesses) || !businesses.length) {
           dynamicDirectory.setAttribute("hidden", "");
@@ -1749,7 +1740,7 @@
 
       async function loadDirectory() {
         try {
-          const session = await window.siteAuth?.getSession?.().catch(() => null);
+          const session = await getCurrentSession();
           const headers = session?.access_token
             ? { Authorization: `Bearer ${session.access_token}` }
             : undefined;
@@ -1762,19 +1753,71 @@
         }
       }
 
-      toggleButton.addEventListener("click", () => {
-        const isHidden = panel.hasAttribute("hidden");
+      function setPanelState(button, targetPanel, openLabel, closedLabel) {
+        const isHidden = targetPanel.hasAttribute("hidden");
         if (isHidden) {
-          panel.removeAttribute("hidden");
-          toggleButton.setAttribute("aria-expanded", "true");
-          toggleButton.textContent = "Hide business form";
-          form.querySelector("input, select, textarea")?.focus();
+          targetPanel.removeAttribute("hidden");
+          button.setAttribute("aria-expanded", "true");
+          button.textContent = openLabel;
+          targetPanel.querySelector("input, select, textarea")?.focus();
           return;
         }
+        targetPanel.setAttribute("hidden", "");
+        button.setAttribute("aria-expanded", "false");
+        button.textContent = closedLabel;
+      }
 
-        panel.setAttribute("hidden", "");
-        toggleButton.setAttribute("aria-expanded", "false");
-        toggleButton.textContent = "Submit business information";
+      toggleButton.addEventListener("click", () => {
+        setPanelState(toggleButton, panel, "Hide business form", "Submit business information");
+      });
+
+      claimToggleButton.addEventListener("click", () => {
+        setPanelState(claimToggleButton, claimPanel, "Hide claim form", "Claim a business listing");
+      });
+
+      claimForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        claimStatusEl.dataset.locked = "true";
+        claimSubmitButton.disabled = true;
+        claimStatusEl.textContent = "Sending...";
+
+        try {
+          const businessId = String(claimBusinessSelect.value || "").trim();
+          if (!businessId) throw new Error("Choose a business to claim.");
+
+          const session = await getCurrentSession();
+          if (!session?.access_token) {
+            window.location.href = "/login/?next=" + encodeURIComponent("/businesses/");
+            return;
+          }
+
+          const response = await fetch("/api/businesses", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({
+              action: "request_claim",
+              businessId,
+            }),
+          });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(result.error || "Unable to request claim.");
+          }
+
+          claimForm.reset();
+          claimStatusEl.textContent = "Your claim request is now in the review queue.";
+          claimPanel.setAttribute("hidden", "");
+          claimToggleButton.setAttribute("aria-expanded", "false");
+          claimToggleButton.textContent = "Claim a business listing";
+          await loadDirectory();
+        } catch (error) {
+          claimStatusEl.textContent = error.message || "Unable to request claim.";
+        } finally {
+          claimSubmitButton.disabled = false;
+        }
       });
 
       form.addEventListener("submit", async (event) => {
@@ -1783,7 +1826,11 @@
         statusEl.textContent = "Sending...";
 
         try {
-          const session = await window.siteAuth?.getSession?.().catch(() => null);
+          const session = await getCurrentSession();
+          if (!session?.access_token) {
+            window.location.href = "/login/?next=" + encodeURIComponent("/businesses/");
+            return;
+          }
           const payload = {
             submitter_name: form.submitter_name.value.trim(),
             submitter_email: form.submitter_email.value.trim(),
@@ -1830,7 +1877,7 @@
         }
       });
 
-      loadDirectory();
+      syncAccessState().finally(loadDirectory);
     })();
   </script>
 
