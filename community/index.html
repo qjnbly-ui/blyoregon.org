@@ -499,10 +499,31 @@
 
     .comment-actions {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       gap: 0.75rem;
       align-items: center;
       flex-wrap: wrap;
+    }
+
+    .comment-submit {
+      min-width: 2.6rem;
+      min-height: 2.6rem;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.92rem;
+      line-height: 1;
+    }
+
+    .refresh-link {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: #5d6e66;
+      font-size: 0.9rem;
+      font-weight: 700;
+      box-shadow: none;
     }
 
     .post-actions {
@@ -740,7 +761,7 @@
       <div class="section-panel" id="feed-panel" hidden>
         <div class="feed-header">
           <div></div>
-          <button class="secondary-button" id="refresh-feed" type="button">Refresh Feed</button>
+          <button class="refresh-link" id="refresh-feed" type="button">Refresh</button>
         </div>
 
         <div class="loading" id="feed-loading">Loading posts...</div>
@@ -991,8 +1012,8 @@
               <textarea id="comment-${escapeHtml(postId)}" name="body" maxlength="1200" placeholder="Add your comment."></textarea>
             </div>
             <div class="comment-actions">
-              <button class="secondary-button" type="submit">Post Comment</button>
               <div class="status" data-comment-status></div>
+              <button class="secondary-button comment-submit" type="submit" hidden aria-label="Send comment">Send</button>
             </div>
           </form>
         `;
@@ -1030,7 +1051,6 @@
               <div class="post-body">${escapeHtml(post.body)}</div>
               ${post.imageUrl ? `<img class="post-image" src="${escapeHtml(post.imageUrl)}" alt="${escapeHtml(post.imageAlt || "Community post photo")}">` : ""}
               <div class="post-footer">
-                <div class="post-meta">Newest posts appear first.</div>
                 <div class="post-actions">
                   ${createPostOwnerActionsMarkup(post)}
                 </div>
@@ -1099,11 +1119,19 @@
 
       function wireCommentForms() {
         feedList.querySelectorAll(".comment-form").forEach((form) => {
+          const textarea = form.querySelector("textarea");
+          const statusEl = form.querySelector("[data-comment-status]");
+          const submitButton = form.querySelector('button[type="submit"]');
+
+          function syncCommentButton() {
+            submitButton.hidden = !textarea.value.trim();
+          }
+
+          textarea.addEventListener("input", syncCommentButton);
+          syncCommentButton();
+
           form.addEventListener("submit", async (event) => {
             event.preventDefault();
-            const textarea = form.querySelector("textarea");
-            const statusEl = form.querySelector("[data-comment-status]");
-            const submitButton = form.querySelector('button[type="submit"]');
             submitButton.disabled = true;
             statusEl.textContent = "Posting comment...";
 
@@ -1123,6 +1151,7 @@
               const result = await response.json().catch(() => ({}));
               if (!response.ok) throw new Error(result.error || "Unable to publish comment.");
               textarea.value = "";
+              syncCommentButton();
               statusEl.textContent = "Comment posted.";
               await loadFeed();
             } catch (error) {
