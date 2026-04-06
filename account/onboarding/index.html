@@ -34,12 +34,58 @@
       border-bottom: 1px solid rgba(255,255,255,0.1);
     }
     .header-inner {
-      max-width: 960px;
+      max-width: 1080px;
       margin: 0 auto;
-      padding: 1rem 1.25rem;
-      text-align: center;
-      display: grid;
-      gap: 0.3rem;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .brand-title {
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.72);
+    }
+    nav {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .nav-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    nav a {
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    nav a.account-link {
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.12);
+    }
+    .intro-card {
+      background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88));
+      color: var(--white);
     }
     .eyebrow {
       text-transform: uppercase;
@@ -188,6 +234,19 @@
       font-size: 0.9rem;
     }
     @media (max-width: 700px) {
+      .header-inner {
+        padding: 0.75rem 0.9rem;
+      }
+      .brand-title {
+        font-size: 1rem;
+      }
+      .brand-subtitle {
+        font-size: 0.72rem;
+      }
+      nav {
+        width: 100%;
+        justify-content: space-between;
+      }
       .checkbox-row {
         flex-direction: column;
       }
@@ -200,13 +259,31 @@
 <body>
   <header>
     <div class="header-inner">
-      <div class="eyebrow">Finish Profile</div>
-      <h1>Complete your member profile</h1>
-      <p class="header-copy">Before you continue, choose the member settings that should be part of your account from the start.</p>
+      <div class="brand">
+        <div class="brand-title">Bly, Oregon</div>
+        <div class="brand-subtitle">A Community in Klamath County</div>
+      </div>
+      <nav>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/about/">About</a>
+          <a href="/community/">Community</a>
+          <a href="/businesses/">Businesses</a>
+          <a href="/history/">History</a>
+          <a href="/recreation/">Recreation</a>
+        </div>
+        <a href="/account/" class="account-link">Account</a>
+      </nav>
     </div>
   </header>
 
   <main>
+    <section class="card intro-card">
+      <div class="eyebrow">Finish Profile</div>
+      <h1>Complete your member profile</h1>
+      <p class="header-copy">Before you continue, choose the member settings that should be part of your account from the start.</p>
+    </section>
+
     <section class="card">
       <form id="onboarding-form">
         <div class="stack">

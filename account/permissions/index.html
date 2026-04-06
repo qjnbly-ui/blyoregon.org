@@ -64,6 +64,14 @@
       display: flex;
       gap: 0.75rem;
       align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .nav-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
     nav a {
       color: var(--white);
@@ -230,8 +238,15 @@
         <div class="brand-subtitle">A Community in Klamath County</div>
       </div>
       <nav>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/about/">About</a>
+          <a href="/community/">Community</a>
+          <a href="/businesses/">Businesses</a>
+          <a href="/history/">History</a>
+          <a href="/recreation/">Recreation</a>
+        </div>
         <a href="/account/" class="account-link">Account</a>
-        <a href="/media-manager/">Media library</a>
       </nav>
     </div>
   </header>
