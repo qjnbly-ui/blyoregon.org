@@ -311,9 +311,14 @@
       display: grid;
       gap: 0.5rem;
       margin-top: 0.85rem;
-      justify-items: start;
+      justify-items: center;
     }
-    .biz-link { display: inline-block; }
+    .biz-link {
+      display: block;
+      width: fit-content;
+      margin: 0.5rem auto 0;
+      text-align: center;
+    }
     .category { margin-top: 2.5rem; }
     .category h2 {
       margin: 0 0 1rem;
@@ -325,7 +330,8 @@
     .category p.note { margin: 0.25rem 0 1rem; color: #556; }
 
     .directory-callout {
-      margin: 1.2rem 0 2rem;
+      margin: 1.2rem auto 2rem;
+      max-width: 760px;
       padding: 1.1rem 1.2rem;
       border-radius: 18px;
       border: 1px solid rgba(20, 50, 39, 0.12);
@@ -333,6 +339,8 @@
       box-shadow: 0 10px 24px rgba(12, 26, 20, 0.08);
       display: grid;
       gap: 0.45rem;
+      justify-items: center;
+      text-align: center;
     }
 
     .directory-callout h3 {
@@ -356,6 +364,9 @@
 
     .cta {
       margin-top: 2rem;
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
       background: #1d3b2f;
       color: var(--white);
       border-radius: 20px;
@@ -711,7 +722,7 @@
       </p>
       <div class="directory-callout">
         <h3>See your business listed here?</h3>
-        <p>Create an account or sign in, then use the claim section below. An admin can approve the request and link the business to your account so you can edit it yourself.</p>
+        <p>Use the form section below to sign in, claim an existing listing, or submit a new business.</p>
         <a id="claim-callout-link" href="#business-access">Go to form</a>
       </div>
       <div id="business-directory" hidden></div>
@@ -940,7 +951,6 @@
               <ul class="biz-meta">
                 <li><strong>Phone:</strong> (541) 810-3070</li>
                 <li><strong>Email:</strong> Ann@delta-s.net</li>
-                <li><strong>Website:</strong> delta-s.net (currently not working)</li>
               </ul>
             </div>
           </article>
@@ -1304,17 +1314,8 @@
       </div>
 
       <div id="business-access">
-      <div class="cta" id="business-access-signin" hidden>
-        <p>
-          Sign in to claim an existing business listing or submit a new one. Both actions are tied to your Bly account.
-        </p>
-        <a class="cta-toggle" href="/login/?next=%2Fbusinesses%2F">Create an account or sign in</a>
-      </div>
-
-      <div class="cta" id="business-access-forms" hidden>
-        <p>
-          Already listed here? Use the claim section below and we can review ownership of the listing.
-        </p>
+      <div class="cta" id="business-access-forms">
+        <p>Already listed here?</p>
         <button class="cta-toggle" id="claim-toggle" type="button" aria-expanded="false" aria-controls="claim-panel">
           Claim a business listing
         </button>
@@ -1335,9 +1336,7 @@
             <div class="cta-note">Sign in first. Claimed listings and listings with a pending request are not shown here.</div>
           </form>
         </div>
-        <p>
-          Want your business listed here? Send the details below and we can review it for the directory.
-        </p>
+        <p>Need a new listing?</p>
         <button class="cta-toggle" id="business-toggle" type="button" aria-expanded="false" aria-controls="business-panel">
           Submit business information
         </button>
@@ -1451,7 +1450,6 @@
       const submitButton = document.getElementById("business-submit");
       const toggleButton = document.getElementById("business-toggle");
       const claimToggleButton = document.getElementById("claim-toggle");
-      const signInCta = document.getElementById("business-access-signin");
       const formsCta = document.getElementById("business-access-forms");
       const panel = document.getElementById("business-panel");
       const claimPanel = document.getElementById("claim-panel");
@@ -1488,6 +1486,12 @@
         if (!value) return null;
         const digits = value.replace(/[^\d+]/g, "");
         return buildLinkedValueItem("Phone", `tel:${digits}`, value);
+      }
+
+      function buildAddressMetaItem(label, address) {
+        const value = String(address || "").trim();
+        if (!value) return null;
+        return buildLinkedValueItem(label, `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(value)}`, value);
       }
 
       function buildEmailMetaItem(email) {
@@ -1549,6 +1553,57 @@
           .trim();
       }
 
+      function createPhoneLink(value) {
+        const text = String(value || "").trim();
+        if (!text) return null;
+        const digits = text.replace(/[^\d+]/g, "");
+        if (!digits) return null;
+        const link = document.createElement("a");
+        link.href = `tel:${digits}`;
+        link.textContent = text;
+        return link;
+      }
+
+      function createMapLink(value) {
+        const text = String(value || "").trim();
+        if (!text) return null;
+        const link = document.createElement("a");
+        link.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}`;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = text;
+        return link;
+      }
+
+      function enhanceLegacyDirectory() {
+        const labelsForMaps = new Set(["Address", "Mailing Address", "Service Area", "City"]);
+        const labelsForPhones = new Set(["Phone", "Cell", "Phone (alt)", "Store", "Emergency", "Fax"]);
+
+        legacyDirectory.querySelectorAll(".biz-meta li").forEach((item) => {
+          const strong = item.querySelector("strong");
+          if (!strong) return;
+          const label = strong.textContent.replace(/:\s*$/, "").trim();
+          const text = item.textContent.replace(strong.textContent, "").trim();
+          if (!text || item.querySelector("a")) return;
+
+          if (labelsForMaps.has(label)) {
+            const link = createMapLink(text);
+            if (!link) return;
+            item.innerHTML = "";
+            item.append(strong, " ", link);
+            return;
+          }
+
+          if (labelsForPhones.has(label) && /\d/.test(text)) {
+            const link = createPhoneLink(text);
+            if (!link) return;
+            item.innerHTML = "";
+            item.append(strong, " ", link);
+            return;
+          }
+        });
+      }
+
       function getBusinessImageClass(business) {
         const name = String(business?.businessName || "").toLowerCase();
         const imageUrl = String(business?.imageUrl || "").toLowerCase();
@@ -1603,7 +1658,7 @@
         const businessLinks = extractBusinessLinks(business);
         [
           buildMetaItem("Contact", business.contactName),
-          buildMetaItem("Address", business.address),
+          buildAddressMetaItem("Address", business.address),
           buildPhoneMetaItem(business.phone),
           buildEmailMetaItem(business.businessEmail),
           buildMetaItem("Hours", business.hours),
@@ -1682,16 +1737,16 @@
         const signedIn = Boolean(session?.access_token);
         if (signedIn) {
           formsCta?.removeAttribute("hidden");
-          signInCta?.setAttribute("hidden", "");
+          claimToggleButton.textContent = "Claim a business listing";
+          toggleButton.textContent = "Submit business information";
         } else {
-          formsCta?.setAttribute("hidden", "");
-          signInCta?.removeAttribute("hidden");
+          formsCta?.removeAttribute("hidden");
           panel?.setAttribute("hidden", "");
           claimPanel?.setAttribute("hidden", "");
           toggleButton?.setAttribute("aria-expanded", "false");
           claimToggleButton?.setAttribute("aria-expanded", "false");
-          toggleButton.textContent = "Submit business information";
-          claimToggleButton.textContent = "Claim a business listing";
+          claimToggleButton.textContent = "Sign in to claim a business listing";
+          toggleButton.textContent = "Sign in to submit business information";
         }
         return session;
       }
@@ -1767,11 +1822,21 @@
         button.textContent = closedLabel;
       }
 
-      toggleButton.addEventListener("click", () => {
+      toggleButton.addEventListener("click", async () => {
+        const session = await getCurrentSession();
+        if (!session?.access_token) {
+          window.location.href = "/login/?next=" + encodeURIComponent("/businesses/");
+          return;
+        }
         setPanelState(toggleButton, panel, "Hide business form", "Submit business information");
       });
 
-      claimToggleButton.addEventListener("click", () => {
+      claimToggleButton.addEventListener("click", async () => {
+        const session = await getCurrentSession();
+        if (!session?.access_token) {
+          window.location.href = "/login/?next=" + encodeURIComponent("/businesses/");
+          return;
+        }
         setPanelState(claimToggleButton, claimPanel, "Hide claim form", "Claim a business listing");
       });
 
@@ -1877,6 +1942,7 @@
         }
       });
 
+      enhanceLegacyDirectory();
       syncAccessState().finally(loadDirectory);
     })();
   </script>
