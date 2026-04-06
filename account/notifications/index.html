@@ -195,6 +195,7 @@
     const clearInboxButtonEl = document.getElementById("clear-inbox-button");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     let activeSession = null;
+    let autoMarkedRead = false;
 
     function setStatus(message, isError = false) {
       statusEl.classList.toggle("warning", isError);
@@ -339,7 +340,15 @@
           throw new Error(payload.error || "Unable to load alerts.");
         }
 
-        renderNotifications(Array.isArray(payload.notifications) ? payload.notifications : [], Number(payload.unreadCount || 0));
+        const unreadCount = Number(payload.unreadCount || 0);
+        if (unreadCount > 0 && !autoMarkedRead) {
+          autoMarkedRead = true;
+          await updateNotification("mark_all_read");
+          await loadPage();
+          return;
+        }
+
+        renderNotifications(Array.isArray(payload.notifications) ? payload.notifications : [], unreadCount);
         setStatus("");
       } catch (error) {
         setStatus(error.message || "Unable to load alerts.", true);

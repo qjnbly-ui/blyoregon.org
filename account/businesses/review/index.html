@@ -91,6 +91,12 @@
       gap: 0.95rem;
     }
     .item:first-child { border-top: 0; padding-top: 0; }
+    .item[open] { padding-bottom: 0.25rem; }
+    .item-summary {
+      list-style: none;
+      cursor: pointer;
+    }
+    .item-summary::-webkit-details-marker { display: none; }
     .item-header {
       display: flex;
       justify-content: space-between;
@@ -98,7 +104,33 @@
       flex-wrap: wrap;
       align-items: start;
     }
+    .item-header-main {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
     .item-title { font-weight: 700; font-size: 1.08rem; color: var(--forest); }
+    .item-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2rem;
+      min-height: 2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(20,50,39,0.14);
+      background: rgba(20,50,39,0.04);
+      color: var(--forest);
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+    .item[open] .item-toggle { background: rgba(20,50,39,0.1); }
+    .item-body {
+      display: grid;
+      gap: 0.95rem;
+    }
     .badge {
       display: inline-flex;
       align-items: center;
@@ -297,28 +329,40 @@
       }
 
       businesses.forEach((business) => {
-        const row = document.createElement("article");
+        const row = document.createElement("details");
         row.className = "item";
+        if (business.status !== "published") row.open = true;
+
+        const summary = document.createElement("summary");
+        summary.className = "item-summary";
 
         const header = document.createElement("div");
         header.className = "item-header";
 
         const copy = document.createElement("div");
+        copy.className = "item-header-main";
+        const toggle = document.createElement("span");
+        toggle.className = "item-toggle";
+        toggle.setAttribute("aria-hidden", "true");
+        toggle.textContent = row.open ? "-" : "+";
         const title = document.createElement("div");
         title.className = "item-title";
         title.textContent = business.businessName || "Untitled business";
         const meta = document.createElement("p");
         meta.className = "meta";
         meta.textContent = `${business.businessCategory || "Other"}${business.submitterEmail ? " • Submitted by " + business.submitterName + " <" + business.submitterEmail + ">" : ""}${business.claimedByEmail ? " • Claimed by " + (business.claimedByName || business.claimedByEmail) : ""}`;
-        copy.append(title, meta);
+        const copyText = document.createElement("div");
+        copyText.append(title, meta);
+        copy.append(toggle, copyText);
 
         const badge = document.createElement("span");
         badge.className = "badge";
         badge.textContent = formatStatus(business.status);
         header.append(copy, badge);
+        summary.appendChild(header);
 
         const form = document.createElement("div");
-        form.className = "editor";
+        form.className = "editor item-body";
         const grid = document.createElement("div");
         grid.className = "grid";
         grid.append(
@@ -453,7 +497,10 @@
         });
 
         form.append(grid, actions, inlineStatus);
-        row.append(header, form);
+        row.addEventListener("toggle", () => {
+          toggle.textContent = row.open ? "-" : "+";
+        });
+        row.append(summary, form);
         listEl.appendChild(row);
       });
     }

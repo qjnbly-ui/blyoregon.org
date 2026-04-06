@@ -1561,11 +1561,46 @@
         return String(notes || "")
           .replace(/Website\/social:\s*Facebook\.?/gi, "")
           .replace(/Website label on old page:\s*[^\s]+/gi, "")
-          .replace(/Website on old page:\s*[^\s]+/gi, "")
+          .replace(/Website on old page:\s*[^\n.]+(?:\.[^.]+)?/gi, "")
           .replace(/Facebook:\s*https?:\/\/[^\s]+\.?/gi, "")
+          .replace(/(?:Alternate phone|Store phone|Emergency|Fax|Cell):\s*\([^)]+\)\s*[\d-]+\.?/gi, "")
+          .replace(/Contacts?:\s*[^.]*\([^)]+\)\s*[\d-]+[^.]*(?:\.[^.]*\([^)]+\)\s*[\d-]+[^.]*)*\.?/gi, "")
+          .replace(/\b[A-Z][A-Za-z .&/]+\s*:\s*\([^)]+\)\s*[\d-]+\.?/g, "")
+          .replace(/Original label:\s*Provider:\s*[^.]+\.?/gi, "")
           .replace(/\s{2,}/g, " ")
           .replace(/\s+([.,;:])/g, "$1")
           .trim();
+      }
+
+      function extractSupplementalMeta(notes) {
+        const source = String(notes || "");
+        const items = [];
+
+        const addPhoneItem = (label, number) => {
+          const entry = buildLinkedValueItem(label, `tel:${String(number || "").replace(/[^\d+]/g, "")}`, String(number || "").trim());
+          if (entry) items.push(entry);
+        };
+
+        const labeledPhonePattern = /(Alternate phone|Store phone|Emergency|Fax|Cell):\s*(\([^)]+\)\s*[\d-]+)/gi;
+        let match;
+        while ((match = labeledPhonePattern.exec(source))) {
+          addPhoneItem(match[1], match[2]);
+        }
+
+        const namedPhonePattern = /\b([A-Z][A-Za-z .&/]+):\s*(\([^)]+\)\s*[\d-]+)/g;
+        while ((match = namedPhonePattern.exec(source))) {
+          const label = String(match[1] || "").trim();
+          if (["Alternate phone", "Store phone", "Emergency", "Fax", "Cell", "Facebook", "Original label", "Website label on old page", "Website on old page"].includes(label)) continue;
+          addPhoneItem(label, match[2]);
+        }
+
+        const contactListMatch = source.match(/Contacts?:\s*(.+)/i)?.[1] || "";
+        const contactPhonePattern = /([A-Z][A-Za-z .&/]+)\s*-\s*(\([^)]+\)\s*[\d-]+)/g;
+        while ((match = contactPhonePattern.exec(contactListMatch))) {
+          addPhoneItem(String(match[1] || "").trim(), match[2]);
+        }
+
+        return items;
       }
 
       function getBusinessImageClass(business) {
@@ -1626,6 +1661,7 @@
           buildPhoneMetaItem(business.phone),
           buildEmailMetaItem(business.businessEmail),
           buildMetaItem("Hours", business.hours),
+          ...extractSupplementalMeta(business.notes),
         ].filter(Boolean).forEach((item) => meta.appendChild(item));
         if (meta.children.length) content.appendChild(meta);
 

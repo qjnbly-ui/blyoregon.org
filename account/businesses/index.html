@@ -75,6 +75,11 @@
     </section>
 
     <section class="card">
+      <h2>Pending claim requests</h2>
+      <div id="pending-claim-list" class="list"></div>
+    </section>
+
+    <section class="card">
       <h2>Claimed listings</h2>
       <div id="business-list" class="list"></div>
       <p id="page-status" class="status-copy" aria-live="polite"></p>
@@ -86,6 +91,7 @@
   <script src="/assets/auth.js"></script>
   <script>
     const listEl = document.getElementById("business-list");
+    const pendingListEl = document.getElementById("pending-claim-list");
     const statusEl = document.getElementById("page-status");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
 
@@ -272,6 +278,44 @@
       });
     }
 
+    function renderPendingClaims(claims) {
+      pendingListEl.innerHTML = "";
+      if (!claims.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "No pending business claim requests.";
+        pendingListEl.appendChild(empty);
+        return;
+      }
+
+      claims.forEach((business) => {
+        const item = document.createElement("article");
+        item.className = "item";
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+        const titleWrap = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = business.businessName || "Untitled business";
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = `${business.businessCategory || "Other"}${business.claimRequestedAt ? " • Requested " + new Date(business.claimRequestedAt).toLocaleString() : ""}`;
+        titleWrap.append(title, meta);
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = "claim pending";
+        header.append(titleWrap, badge);
+
+        const body = document.createElement("p");
+        body.className = "meta";
+        body.textContent = "This ownership request is waiting for admin approval. Once approved, the listing will move into your claimed businesses below.";
+
+        item.append(header, body);
+        pendingListEl.appendChild(item);
+      });
+    }
+
     async function loadPage() {
       try {
         const session = await window.siteAuth.getSession();
@@ -293,6 +337,7 @@
           throw new Error(payload.error || "Unable to load your businesses.");
         }
 
+        renderPendingClaims(Array.isArray(payload.pendingClaims) ? payload.pendingClaims : []);
         renderBusinesses(Array.isArray(payload.businesses) ? payload.businesses : []);
         setStatus("");
       } catch (error) {

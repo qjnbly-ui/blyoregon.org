@@ -525,8 +525,29 @@ module.exports = async (req, res) => {
           claimed_by: `eq.${session.id}`,
           order: "published_at.desc.nullslast,business_name.asc",
         }));
+        const pendingClaimRequests = await fetchBusinessClaimRequests({
+          select: "id,business_id,requester_id,status,created_at,reviewed_at,reviewed_by",
+          requester_id: `eq.${session.id}`,
+          status: "eq.pending",
+          order: "created_at.desc",
+        }).catch(() => []);
+        const requestedBusinessIds = Array.from(new Set((Array.isArray(pendingClaimRequests) ? pendingClaimRequests : []).map((row) => String(row.business_id || "")).filter(Boolean)));
+        const requestedBusinesses = requestedBusinessIds.length
+          ? await attachClaimProfileDetails(await fetchBusinesses({
+              select: "id,author_id,claimed_by,submitter_name,submitter_email,business_name,business_category,description,contact_name,phone,business_email,address,image_path,image_url,website_url,hours,notes,submitted_at,reviewed_at,reviewed_by,review_notes,status,published_at,sort_order,created_at,updated_at",
+              id: `in.(${requestedBusinessIds.map((id) => `"${id}"`).join(",")})`,
+              order: "business_name.asc",
+            })).catch(() => [])
+          : [];
+        const requestMap = new Map((Array.isArray(pendingClaimRequests) ? pendingClaimRequests : []).map((row) => [String(row.business_id || ""), row]));
         sendJson(res, 200, {
           businesses: rows.map(serializeBusiness),
+          pendingClaims: (Array.isArray(requestedBusinesses) ? requestedBusinesses : []).map((row) => ({
+            ...serializeBusiness(row),
+            claimRequestId: requestMap.get(String(row.id || ""))?.id || null,
+            claimRequestedAt: requestMap.get(String(row.id || ""))?.created_at || null,
+            claimRequestStatus: requestMap.get(String(row.id || ""))?.status || "pending",
+          })),
         });
         return;
       }
