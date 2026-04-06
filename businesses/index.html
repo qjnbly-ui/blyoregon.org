@@ -1560,8 +1560,8 @@
       function cleanBusinessNotes(notes) {
         return String(notes || "")
           .replace(/Website\/social:\s*Facebook\.?/gi, "")
-          .replace(/Website label on old page:[^.]+\.?/gi, "")
-          .replace(/Website on old page:[^.]+\.?/gi, "")
+          .replace(/Website label on old page:\s*[^\s]+/gi, "")
+          .replace(/Website on old page:\s*[^\s]+/gi, "")
           .replace(/Facebook:\s*https?:\/\/[^\s]+\.?/gi, "")
           .replace(/\s{2,}/g, " ")
           .replace(/\s+([.,;:])/g, "$1")
