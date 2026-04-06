@@ -94,7 +94,7 @@
           <a href="/history/">History</a>
           <a href="/recreation/">Recreation</a>
         </div>
-        <a href="/account/" class="account-link">Account</a>
+        <button class="account-link" type="button" data-account-logout>Log out</button>
       </nav>
     </div>
   </header>
@@ -134,6 +134,13 @@
 
   <script src="/assets/auth.js"></script>
   <script>
+    document.querySelectorAll("[data-account-logout]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        await window.siteAuth.logout();
+        window.location.href = "/login/";
+      });
+    });
+
     const CATEGORY_OPTIONS = [
       "Community & Government",
       "Food & Drink",

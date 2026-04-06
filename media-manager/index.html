@@ -79,7 +79,8 @@
       flex-wrap: wrap;
       justify-content: flex-end;
     }
-    nav a {
+    nav a,
+    nav button {
       color: var(--white);
       text-decoration: none;
       font-weight: 600;
@@ -87,8 +88,12 @@
       padding: 0.4rem 0.75rem;
       border-radius: 999px;
       border: 1px solid transparent;
+      font: inherit;
+      cursor: pointer;
+      background: transparent;
     }
-    nav a.account-link {
+    nav a.account-link,
+    nav button.account-link {
       border-color: rgba(255, 255, 255, 0.35);
       background: rgba(255, 255, 255, 0.12);
     }
@@ -128,10 +133,13 @@
     }
     .mobile-login {
       color: var(--white);
-      text-decoration: none;
       text-transform: uppercase;
       letter-spacing: 0.2em;
       font-size: 0.9rem;
+      border: 0;
+      background: transparent;
+      font: inherit;
+      cursor: pointer;
     }
     .mobile-menu-toggle {
       list-style: none;
@@ -459,9 +467,9 @@
           <a href="/history/">History</a>
           <a href="/recreation/">Recreation</a>
         </div>
-        <a class="account-link" href="/account/">Account</a>
+        <button class="account-link" type="button" data-account-logout>Log out</button>
         <div class="mobile-nav">
-          <a class="mobile-login" href="/account/">Account</a>
+          <button class="mobile-login" type="button" data-account-logout>Log out</button>
           <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-label="Toggle menu"></button>
         </div>
       </nav>
@@ -553,18 +561,8 @@
       const toggle = mobileNav.querySelector(".mobile-menu-toggle");
       const panel = document.querySelector(".mobile-menu-panel");
       if (!toggle || !panel) return;
-      const authLinks = document.querySelectorAll("a.account-link, a.mobile-login");
-
       const syncMobileHeaderHeight = () => {
         document.documentElement.style.setProperty("--mobile-header-height", `${header.offsetHeight}px`);
-      };
-
-      const syncAuthNav = async () => {
-        const session = await window.siteAuth.getSession().catch(() => null);
-        authLinks.forEach((link) => {
-          link.textContent = session ? "Account" : "Login";
-          link.href = session ? "/account/" : "/login/";
-        });
       };
 
       const closeMenu = () => {
@@ -576,7 +574,6 @@
 
       syncMobileHeaderHeight();
       window.addEventListener("resize", syncMobileHeaderHeight);
-      syncAuthNav();
 
       toggle.addEventListener("click", () => {
         syncMobileHeaderHeight();
@@ -589,6 +586,13 @@
 
       panel.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
     })();
+
+    document.querySelectorAll("[data-account-logout]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        await window.siteAuth.logout();
+        window.location.href = "/login/";
+      });
+    });
 
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     let activeSession = null;
