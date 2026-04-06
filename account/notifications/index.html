@@ -195,7 +195,6 @@
     const clearInboxButtonEl = document.getElementById("clear-inbox-button");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     let activeSession = null;
-    let autoMarkedRead = false;
 
     function setStatus(message, isError = false) {
       statusEl.classList.toggle("warning", isError);
@@ -275,6 +274,16 @@
           openLink.className = "button secondary";
           openLink.href = notification.link;
           openLink.textContent = "Open";
+          openLink.addEventListener("click", async (event) => {
+            if (notification.readAt) return;
+            event.preventDefault();
+            try {
+              await updateNotification("mark_read", notification.id);
+            } catch (error) {
+              setStatus(error.message || "Unable to update alerts.", true);
+            }
+            window.location.href = notification.link;
+          });
           actions.appendChild(openLink);
         }
 
@@ -340,15 +349,7 @@
           throw new Error(payload.error || "Unable to load alerts.");
         }
 
-        const unreadCount = Number(payload.unreadCount || 0);
-        if (unreadCount > 0 && !autoMarkedRead) {
-          autoMarkedRead = true;
-          await updateNotification("mark_all_read");
-          await loadPage();
-          return;
-        }
-
-        renderNotifications(Array.isArray(payload.notifications) ? payload.notifications : [], unreadCount);
+        renderNotifications(Array.isArray(payload.notifications) ? payload.notifications : [], Number(payload.unreadCount || 0));
         setStatus("");
       } catch (error) {
         setStatus(error.message || "Unable to load alerts.", true);
