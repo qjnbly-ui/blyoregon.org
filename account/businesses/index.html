@@ -90,6 +90,19 @@
 
   <script src="/assets/auth.js"></script>
   <script>
+    const CATEGORY_OPTIONS = [
+      "Community & Government",
+      "Food & Drink",
+      "Shopping",
+      "Services & Trades",
+      "Health & Wellness",
+      "Lodging",
+      "Education",
+      "Faith & Churches",
+      "Utilities",
+      "Recreation & Community Space",
+      "Other",
+    ];
     const listEl = document.getElementById("business-list");
     const pendingListEl = document.getElementById("pending-claim-list");
     const statusEl = document.getElementById("page-status");
@@ -100,16 +113,52 @@
       statusEl.textContent = message || "";
     }
 
-    function field(labelText, name, value, isArea = false) {
+    function field(labelText, name, value, options = {}) {
       const label = document.createElement("label");
-      label.className = "field";
+      label.className = "field" + (options.full ? " full" : "");
       const title = document.createElement("span");
       title.textContent = labelText;
-      const control = isArea ? document.createElement("textarea") : document.createElement("input");
+      let control;
+      if (options.type === "textarea") {
+        control = document.createElement("textarea");
+      } else if (options.type === "select") {
+        control = document.createElement("select");
+        CATEGORY_OPTIONS.forEach((optionValue) => {
+          const option = document.createElement("option");
+          option.value = optionValue;
+          option.textContent = optionValue;
+          option.selected = optionValue === value;
+          control.appendChild(option);
+        });
+      } else {
+        control = document.createElement("input");
+        control.type = options.type || "text";
+      }
       control.name = name;
-      control.value = value || "";
+      if (options.type !== "select") control.value = value || "";
       label.append(title, control);
       return label;
+    }
+
+    function extractFacebookUrl(notes) {
+      const match = String(notes || "").match(/Facebook:\s*(https?:\/\/[^\s]+)/i);
+      return match ? match[1].replace(/[.,;]+$/g, "") : "";
+    }
+
+    function cleanEditorNotes(notes) {
+      return String(notes || "")
+        .replace(/Facebook:\s*https?:\/\/[^\s]+\.?/gi, "")
+        .replace(/\s{2,}/g, " ")
+        .replace(/\s+([.,;:])/g, "$1")
+        .trim();
+    }
+
+    function buildNotesValue(notes, facebookUrl) {
+      const cleanedNotes = cleanEditorNotes(notes);
+      const cleanedFacebook = String(facebookUrl || "").trim();
+      if (cleanedNotes && cleanedFacebook) return `${cleanedNotes} Facebook: ${cleanedFacebook}`;
+      if (cleanedFacebook) return `Facebook: ${cleanedFacebook}`;
+      return cleanedNotes;
     }
 
     function renderBusinesses(businesses) {
@@ -143,20 +192,19 @@
 
         const grid = document.createElement("div");
         grid.className = "grid";
-        const descriptionField = field("Description", "description", business.description, true);
-        descriptionField.classList.add("full");
-        const notesField = field("Notes", "notes", business.notes, true);
-        notesField.classList.add("full");
+        const descriptionField = field("Description", "description", business.description, { type: "textarea", full: true });
+        const notesField = field("Notes", "notes", cleanEditorNotes(business.notes), { type: "textarea", full: true });
         grid.append(
           field("Business name", "businessName", business.businessName),
-          field("Category", "businessCategory", business.businessCategory),
+          field("Category", "businessCategory", business.businessCategory, { type: "select" }),
           field("Image URL", "imageUrl", business.imageUrl),
           descriptionField,
           field("Contact person", "contactName", business.contactName),
           field("Phone", "phone", business.phone),
-          field("Business email", "businessEmail", business.businessEmail),
+          field("Business email", "businessEmail", business.businessEmail, { type: "email" }),
           field("Address", "address", business.address),
-          field("Website", "websiteUrl", business.websiteUrl),
+          field("Website", "websiteUrl", business.websiteUrl, { type: "url" }),
+          field("Facebook URL", "facebookUrl", extractFacebookUrl(business.notes), { type: "url" }),
           field("Hours", "hours", business.hours),
           notesField
         );
@@ -251,7 +299,7 @@
                 id: business.id,
                 action: "save",
                 businessName: grid.querySelector('[name="businessName"]').value.trim(),
-                businessCategory: grid.querySelector('[name="businessCategory"]').value.trim(),
+                businessCategory: grid.querySelector('[name="businessCategory"]').value,
                 imagePath: business.imagePath || "",
                 imageUrl: grid.querySelector('[name="imageUrl"]').value.trim(),
                 description: grid.querySelector('[name="description"]').value.trim(),
@@ -261,7 +309,10 @@
                 address: grid.querySelector('[name="address"]').value.trim(),
                 websiteUrl: grid.querySelector('[name="websiteUrl"]').value.trim(),
                 hours: grid.querySelector('[name="hours"]').value.trim(),
-                notes: grid.querySelector('[name="notes"]').value.trim(),
+                notes: buildNotesValue(
+                  grid.querySelector('[name="notes"]').value.trim(),
+                  grid.querySelector('[name="facebookUrl"]').value.trim()
+                ),
               }),
             });
             const payload = await response.json().catch(() => ({}));

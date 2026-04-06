@@ -317,6 +317,27 @@
       return button;
     }
 
+    function extractFacebookUrl(notes) {
+      const match = String(notes || "").match(/Facebook:\s*(https?:\/\/[^\s]+)/i);
+      return match ? match[1].replace(/[.,;]+$/g, "") : "";
+    }
+
+    function cleanEditorNotes(notes) {
+      return String(notes || "")
+        .replace(/Facebook:\s*https?:\/\/[^\s]+\.?/gi, "")
+        .replace(/\s{2,}/g, " ")
+        .replace(/\s+([.,;:])/g, "$1")
+        .trim();
+    }
+
+    function buildNotesValue(notes, facebookUrl) {
+      const cleanedNotes = cleanEditorNotes(notes);
+      const cleanedFacebook = String(facebookUrl || "").trim();
+      if (cleanedNotes && cleanedFacebook) return `${cleanedNotes} Facebook: ${cleanedFacebook}`;
+      if (cleanedFacebook) return `Facebook: ${cleanedFacebook}`;
+      return cleanedNotes;
+    }
+
     function renderBusinesses(businesses) {
       listEl.innerHTML = "";
 
@@ -376,9 +397,10 @@
           buildField("Business email", "businessEmail", business.businessEmail, { type: "email" }),
           buildField("Address", "address", business.address),
           buildField("Website", "websiteUrl", business.websiteUrl, { type: "url" }),
+          buildField("Facebook URL", "facebookUrl", extractFacebookUrl(business.notes), { type: "url" }),
           buildField("Hours", "hours", business.hours),
           buildField("Sort order", "sortOrder", String(business.sortOrder || 0), { type: "number" }),
-          buildField("Notes", "notes", business.notes, { type: "textarea", full: true }),
+          buildField("Notes", "notes", cleanEditorNotes(business.notes), { type: "textarea", full: true }),
           buildField("Review notes", "reviewNotes", business.reviewNotes, { type: "textarea", full: true })
         );
 
@@ -395,6 +417,7 @@
         actions.append(
           createActionButton("Upload image", "upload_image", "secondary"),
           createActionButton("Save", "save"),
+          createActionButton("Remove owner", "remove_owner", "secondary"),
           createActionButton("Request changes", "request_changes"),
           createActionButton(business.status === "published" ? "Update live listing" : "Publish", "publish", "primary"),
           createActionButton("Unpublish", "unpublish"),
@@ -470,9 +493,17 @@
               websiteUrl: form.querySelector('[name="websiteUrl"]').value.trim(),
               hours: form.querySelector('[name="hours"]').value.trim(),
               sortOrder: Number(form.querySelector('[name="sortOrder"]').value || 0),
-              notes: form.querySelector('[name="notes"]').value.trim(),
+              notes: buildNotesValue(
+                form.querySelector('[name="notes"]').value.trim(),
+                form.querySelector('[name="facebookUrl"]').value.trim()
+              ),
               reviewNotes: form.querySelector('[name="reviewNotes"]').value.trim(),
             };
+
+            if (button.dataset.action === "remove_owner") {
+              payload.action = "save";
+              payload.claimedAccountEmail = "";
+            }
 
             inlineStatus.textContent = "Saving...";
             try {
