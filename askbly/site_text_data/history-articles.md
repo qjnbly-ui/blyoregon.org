@@ -38,6 +38,14 @@ Major Warren F. Schroeder
 
 Early aerial firefighting pioneer with a lasting family connection to Bly.
 
+Landscape & Place
+
+Gearhart Mountain
+
+Natural history
+
+Volcanic origins, glacial shaping, and the long geologic story behind one of the Bly area's defining landmarks.
+
 Reflections
 
 What Working Through This History Has Brought Up

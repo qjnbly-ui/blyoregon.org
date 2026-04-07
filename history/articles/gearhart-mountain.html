@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gearhart Mountain | Bly, Oregon Historic Archives</title>
+  <meta name="description" content="The fascinating history of Gearhart Mountain, from its volcanic origins to its present-day wilderness near Bly, Oregon." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #143227;
+      --pine: #214437;
+      --moss: #2f5a46;
+      --sage: #9fb39f;
+      --sand: #f5efe5;
+      --clay: #cbb59a;
+      --sun: #f4b35b;
+      --ink: #1e1f1c;
+      --white: #fff;
+      --card: #ffffff;
+      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      line-height: 1.7;
+      background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
+        radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
+        linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+    }
+
+    main, .container {
+      flex: 1 0 auto;
+    }
+
+    header {
+      background: rgba(20, 50, 39, 0.96);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      text-align: center;
+    }
+
+    .page-title {
+      margin: 0 0 0.4rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(2rem, 3.6vw, 2.6rem);
+      color: var(--white);
+    }
+
+    .page-title-secondary {
+      margin: 0;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(1.15rem, 2.2vw, 1.7rem);
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .page-title-article {
+      margin: 0;
+      font-family: "Manrope", "Trebuchet MS", sans-serif;
+      font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .page-subtitle {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 760px;
+    }
+
+    .subnav {
+      max-width: 1100px;
+      margin: 1.2rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .subnav a {
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--forest);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 64, 48, 0.2);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      gap: 1.6rem;
+    }
+
+    section {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 1.6rem 1.8rem;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin: 0 0 0.8rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: 1.6rem;
+      color: var(--forest);
+    }
+
+    .lead {
+      font-size: 1.06rem;
+      color: #31433a;
+    }
+
+    .qjn-yt-min {
+      padding: 2rem 2rem 2.2rem;
+      background: linear-gradient(180deg, #18392c 0%, #102920 100%);
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .qjn-yt-min-title {
+      margin: 0 0 1.3rem;
+      font-family: "Fraunces", "Times New Roman", serif;
+      font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+      letter-spacing: 0.04em;
+      color: #ffffff;
+    }
+
+    .qjn-yt-min-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .qjn-yt-item {
+      text-align: center;
+    }
+
+    .qjn-yt-thumb {
+      position: relative;
+      display: block;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.35);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .qjn-yt-thumb:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 22px 42px rgba(0, 0, 0, 0.42);
+    }
+
+    .qjn-yt-thumb-bg {
+      width: 100%;
+      padding-top: 56.25%;
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.82);
+      transition: filter 0.18s ease;
+    }
+
+    .qjn-yt-thumb:hover .qjn-yt-thumb-bg {
+      filter: brightness(1);
+    }
+
+    .qjn-yt-thumb-play {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.72);
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-size: 16px;
+      color: #ffffff;
+    }
+
+    .qjn-yt-desc {
+      margin: 0.65rem 0 0;
+      font-size: 0.93rem;
+      color: rgba(255, 255, 255, 0.84);
+    }
+
+    .qjn-yt-min-btn {
+      display: inline-block;
+      padding: 0.7rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 999px;
+      color: #ffffff;
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: 0.15s ease;
+    }
+
+    .qjn-yt-min-btn:hover {
+      border-color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .sources {
+      margin-top: 0.4rem;
+      font-size: 0.96rem;
+    }
+
+    .sources h2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .sources ol {
+      margin: 0.5rem 0 0 1.25rem;
+    }
+
+    .sources li {
+      margin: 0.35rem 0;
+    }
+
+    .sources a {
+      color: var(--forest);
+      text-decoration: none;
+    }
+
+    .sources a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      background: #162f25;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 800px) {
+      .qjn-yt-min-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .header-inner { padding: 1rem 1.1rem 1.4rem; }
+      .container { padding: 2rem 1.1rem 3rem; }
+      section { padding: 1.2rem 1.3rem; }
+      h2 { font-size: 1.4rem; }
+    }
+
+    @media (max-width: 520px) {
+      .qjn-yt-min-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .qjn-yt-min {
+        padding: 1.4rem 1rem 1.6rem;
+      }
+    }
+  </style>
+  </head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1 class="page-title">Bly, Oregon</h1>
+      <h2 class="page-title-secondary">Historic Archives: Articles</h2>
+      <h3 class="page-title-article">Gearhart Mountain</h3>
+      <p class="page-subtitle">The fascinating history of Gearhart Mountain, from its volcanic origins to the rugged wilderness landscape visible today.</p>
+    </div>
+  </header>
+
+  <div class="subnav" aria-label="History section navigation">
+    <a href="/history/">Return to History</a>
+    <a href="/history/articles/">Back to Articles</a>
+  </div>
+
+  <main class="container">
+    <section>
+      <h2>The Fascinating History of Gearhart Mountain</h2>
+      <p class="lead">
+        Gearhart Mountain, a prominent feature near Bly, Oregon, holds a story millions of years in the making.
+        The mountain rises out of a much older volcanic landscape and preserves evidence of both fire and ice:
+        volcanic construction, long erosion, and later glacial shaping.
+      </p>
+      <p>
+        Geological work in the Gearhart Mountain Wilderness describes the area as part of a large volcanic edifice
+        built mainly from basaltic to andesitic lava flows during the late Miocene and Pliocene. In practical terms,
+        that means the mountain we recognize today began as a much broader volcanic highland, built by repeated
+        eruptions long before modern Bly existed.
+      </p>
+    </section>
+
+    <section>
+      <h2>A Volcano in Its Prime</h2>
+      <p>
+        In its active phase, Gearhart Mountain would have looked far different than it does now. Lava flows spread
+        across the region and helped form a broad, unified mass connecting what are now separated ridges, slopes, and
+        uplands. The summit area likely would have been smoother and more continuous, without many of the sharp edges
+        and broken rock faces visible today.
+      </p>
+      <p>
+        Over time, volcanic activity ceased. What remained was not a single dramatic cone like Mount Hood, but a
+        high volcanic landscape that would spend millions of years being cut down, fractured, and reshaped by weather,
+        water, and ice.
+      </p>
+    </section>
+
+    <section>
+      <h2>Erosion and Transformation</h2>
+      <p>
+        After volcanism ended, erosion became the dominant force. Wind, runoff, freeze-thaw cycles, and long-term
+        drainage patterns slowly wore away the mountain. Later glaciation added another major layer of transformation.
+        Ice carved into the volcanic rock, helping create steep ridges, exposed cliffs, bowl-like cirques, and the
+        rugged upper terrain associated with the wilderness today.
+      </p>
+      <p>
+        Features such as the Palisade Rocks reflect that long process of exposure and removal. Material that was once
+        part of a broader volcanic system was gradually stripped away, leaving isolated outcrops, sharper relief, and
+        the striking profile that now defines Gearhart Mountain from the Bly area.
+      </p>
+    </section>
+
+    <section>
+      <h2>Unique Features and Ecology</h2>
+      <p>
+        At 8,364 feet, Gearhart Mountain is the highest point in the Gearhart Mountain Wilderness. Its elevation,
+        geology, and position between ecological zones give it an unusually varied character. Meadows, rocky uplands,
+        volcanic formations, and forested slopes all contribute to the mountain's distinct feel.
+      </p>
+      <p>
+        Before the Bootleg Fire, the wilderness around Gearhart Mountain included extensive stands of lodgepole pine,
+        ponderosa pine, whitebark pine, and white fir. Lower-elevation forests supported mule deer, elk, black bear,
+        and many bird species. Although much of the old forest structure has changed, the area still offers strong
+        opportunities for wildlife observation and for watching ecological recovery unfold over time.
+      </p>
+      <p>
+        Exact species counts and ecological boundaries can be difficult to pin down precisely, but the broader pattern
+        is clear: Gearhart Mountain sits at an important transition zone, and that gives the area a richness not always
+        obvious from a distance.
+      </p>
+    </section>
+
+    <section>
+      <h2>The Influence of Mount Mazama</h2>
+      <p>
+        Another major chapter in the mountain's story came far later, when Mount Mazama erupted about 7,700 years ago.
+        That eruption spread ash and pumice across a huge part of southern Oregon, including the Gearhart area. Those
+        deposits became part of the soil profile and influenced how vegetation established and grew across the region.
+      </p>
+      <p>
+        In that sense, Gearhart Mountain reflects more than its own volcanic past. It also carries the imprint of one
+        of the most important geologic events in the Pacific Northwest, linking the Bly country to the much larger
+        volcanic history of Crater Lake and Mount Mazama.
+      </p>
+    </section>
+
+    <section class="qjn-yt-min" id="recent-videos">
+      <h2 class="qjn-yt-min-title">Gearhart Mountain Drone Videos</h2>
+
+      <div class="qjn-yt-min-grid">
+        <div class="qjn-yt-item">
+          <a href="https://youtu.be/sbymSfAAqek" target="_blank" rel="noopener noreferrer" class="qjn-yt-thumb">
+            <div class="qjn-yt-thumb-bg" style="background-image:url('https://img.youtube.com/vi/sbymSfAAqek/hqdefault.jpg');"></div>
+            <div class="qjn-yt-thumb-play">▶</div>
+          </a>
+          <p class="qjn-yt-desc">Panoramic view from 9,500 feet</p>
+        </div>
+
+        <div class="qjn-yt-item">
+          <a href="https://youtu.be/PNlB7yG9Qyk" target="_blank" rel="noopener noreferrer" class="qjn-yt-thumb">
+            <div class="qjn-yt-thumb-bg" style="background-image:url('https://img.youtube.com/vi/PNlB7yG9Qyk/hqdefault.jpg');"></div>
+            <div class="qjn-yt-thumb-play">▶</div>
+          </a>
+          <p class="qjn-yt-desc">First snowfall of 2025</p>
+        </div>
+
+        <div class="qjn-yt-item">
+          <a href="https://youtu.be/yJg25KUyHZY" target="_blank" rel="noopener noreferrer" class="qjn-yt-thumb">
+            <div class="qjn-yt-thumb-bg" style="background-image:url('https://img.youtube.com/vi/yJg25KUyHZY/hqdefault.jpg');"></div>
+            <div class="qjn-yt-thumb-play">▶</div>
+          </a>
+          <p class="qjn-yt-desc">Large beaver dam near Boulder Creek</p>
+        </div>
+      </div>
+
+      <a href="https://www.youtube.com/@quentin.j.nichols" target="_blank" rel="noopener noreferrer" class="qjn-yt-min-btn">
+        View YouTube Channel
+      </a>
+    </section>
+
+    <section class="sources">
+      <h2>Sources</h2>
+      <ol>
+        <li><a href="https://www.usgs.gov/maps/reconnaissance-geologic-map-and-mineral-resource-potential-gearhart-mountain-wilderness-and" target="_blank" rel="noopener noreferrer">U.S. Geological Survey: Reconnaissance geologic map and mineral resource potential of the Gearhart Mountain Wilderness and Roadless Area</a></li>
+        <li><a href="https://www.recreation.gov/camping/gateways/1067" target="_blank" rel="noopener noreferrer">Recreation.gov: Gearhart Mountain Wilderness overview</a></li>
+        <li><a href="https://www.usgs.gov/volcanoes/crater-lake/science/geology-and-history-summary-mount-mazama-and-crater-lake" target="_blank" rel="noopener noreferrer">U.S. Geological Survey: Geology and history summary for Mount Mazama and Crater Lake</a></li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
+  </footer>
+  </body>
+</html>
