@@ -1,5 +1,5 @@
 # Gearhart Mountain | Bly, Oregon Historic Archives
-Date: No date found
+Date: April 7, 2026
 URL: https://blyoregon.org/history/articles/gearhart-mountain.html
 
 The Fascinating History of Gearhart Mountain
@@ -32,15 +32,15 @@ Another major chapter in the mountain's story came far later, when Mount Mazama 
 
 Key Events Relevant to Gearhart Mountain
 
-Late Miocene to Pliocene
+Late Miocene to Pliocene, about 11.6 to 2.6 million years ago
 
 Volcanic construction: a large andesitic and basaltic volcanic edifice forms across the high country during the late Cenozoic.
 
-Pleistocene
+Pleistocene, about 2.6 million to 11,700 years ago
 
 Glaciation reshapes the mountain: cirques, U-shaped valleys, and moraines develop, and Blue Lake becomes partly moraine-dammed.
 
-Holocene, about 7.7 ka
+Holocene, about 7,700 years ago
 
 Mount Mazama erupts: Mazama tephra spreads across the region and influences soils and vegetation in the Gearhart area.
 
