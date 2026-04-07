@@ -30,6 +30,32 @@ The Influence of Mount Mazama
 
 Another major chapter in the mountain's story came far later, when Mount Mazama erupted about 7,700 years ago. That eruption spread ash and pumice across a huge part of southern Oregon, including the Gearhart area. Those deposits became part of the soil profile and influenced how vegetation established and grew across the region.
 
+Key Events Relevant to Gearhart Mountain
+
+Late Miocene to Pliocene
+
+Volcanic construction: a large andesitic and basaltic volcanic edifice forms across the high country during the late Cenozoic.
+
+Pleistocene
+
+Glaciation reshapes the mountain: cirques, U-shaped valleys, and moraines develop, and Blue Lake becomes partly moraine-dammed.
+
+Holocene, about 7.7 ka
+
+Mount Mazama erupts: Mazama tephra spreads across the region and influences soils and vegetation in the Gearhart area.
+
+1964
+
+Wilderness protection begins: Gearhart Mountain Wilderness is established under the Wilderness Act.
+
+1984
+
+Federal wilderness documentation: the Oregon Wilderness Act is referenced in Forest Service establishment notes connected to the area.
+
+2021
+
+Bootleg Fire: the fire severely affects wilderness vegetation and trail conditions.
+
 Gearhart Mountain Drone Videos
 
 Panoramic view from 9,500 feet
@@ -38,6 +64,13 @@ Large beaver dam near Boulder Creek
 
 Sources
 
-U.S. Geological Survey: Reconnaissance geologic map and mineral resource potential of the Gearhart Mountain Wilderness and Roadless Area
-Recreation.gov: Gearhart Mountain Wilderness overview
+Gearhart Mountain Article Verification and Update Report (PDF)
+U.S. Geological Survey MF-1367 map release page
+U.S. Geological Survey MF-1367 report PDF
 U.S. Geological Survey: Geology and history summary for Mount Mazama and Crater Lake
+U.S. Geological Survey fact sheet FS 092-02 PDF
+USDA Forest Service: Gearhart Mountain Wilderness
+USDA Forest Service: Lookout Rock Trailhead
+USDA Forest Service: North Fork Sprague Trailhead
+U.S. Geological Survey: Sprague River Basin report PDF
+U.S. Geological Survey data release on vegetation conditions during drought and mountain pine beetle activity
