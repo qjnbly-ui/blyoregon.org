@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Permissions | Bly, Oregon</title>
+  <title>Admin | Bly, Oregon</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,12 +11,10 @@
   <style>
     :root {
       --forest: #143227;
-      --pine: #214437;
       --ink: #1e1f1c;
       --card: #fffdf9;
       --white: #fff;
-      --shadow: 0 20px 45px rgba(12, 26, 20, 0.18);
-      --mobile-header-height: 6.2rem;
+      --shadow: 0 20px 45px rgba(12,26,20,0.18);
     }
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
@@ -31,42 +29,24 @@
         radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
         linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
     }
-    header {
-      background: rgba(20, 50, 39, 0.96);
-      color: var(--white);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
+    header { background: rgba(20,50,39,0.96); color: var(--white); border-bottom: 1px solid rgba(255,255,255,0.1); }
     .header-inner {
-      max-width: 1100px;
+      max-width: 1080px;
       margin: 0 auto;
       padding: 0.9rem 1.5rem;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 1.5rem;
+      align-items: center;
+      gap: 1rem;
       flex-wrap: wrap;
     }
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 0.1rem;
-      text-align: center;
-    }
-    .brand-title {
-      font-family: "Fraunces", "Times New Roman", serif;
-      font-weight: 700;
-      font-size: 1.4rem;
-      letter-spacing: 0.02em;
-    }
-    .brand-subtitle {
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.7);
-    }
+    .brand { display: flex; flex-direction: column; gap: 0.1rem; text-align: center; }
+    .brand-title { font-family: "Fraunces", "Times New Roman", serif; font-size: 1.4rem; font-weight: 700; }
+    .brand-subtitle { font-size: 0.85rem; color: rgba(255,255,255,0.72); }
     nav { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
     .nav-links { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: flex-end; }
-    nav a, nav button { color: var(--white); text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 0.4rem 0.75rem; border-radius: 999px; border: 1px solid transparent; font: inherit; cursor: pointer; background: transparent; }
-    nav a.account-link, nav button.account-link { border-color: rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.12); }
+    nav a, nav button { color: var(--white); text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 0.45rem 0.8rem; border-radius: 999px; border: 1px solid transparent; font: inherit; cursor: pointer; background: transparent; }
+    nav a.account-link, nav button.account-link { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); }
     .mobile-nav { display: none; align-items: center; gap: 1.1rem; margin-left: auto; }
     .mobile-login { color: var(--white); text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.9rem; border: 0; background: transparent; font: inherit; cursor: pointer; }
     .mobile-menu-toggle { list-style: none; display: inline-flex; align-items: center; gap: 0.9rem; cursor: pointer; color: var(--white); text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.9rem; padding: 0.9rem 1.2rem; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.28); background: rgba(7, 10, 16, 0.38); appearance: none; }
@@ -76,30 +56,14 @@
     body.mobile-menu-open .mobile-menu-panel { display: grid; gap: 0; }
     body.mobile-menu-open { overflow: hidden; }
     .mobile-menu-panel a { display: block; padding: 1.7rem 0; border-radius: 0; border: 0; border-bottom: 1px solid rgba(20, 50, 39, 0.18); background: none; color: var(--forest); text-decoration: none; text-align: center; text-transform: none; letter-spacing: 0.02em; font-weight: 600; font-size: 0.95rem; }
-    .account-area-nav {
-      display: flex;
-      gap: 0.7rem;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      padding: 0.15rem 0 0.35rem;
-      scrollbar-width: thin;
-    }
+    .account-area-nav { display:flex; gap:0.7rem; flex-wrap:wrap; align-items:center; justify-content:center; width:min(100%,700px); margin:0 auto; }
     .account-area-nav a {
-      flex: 0 0 auto;
-      text-decoration: none;
-      color: var(--forest);
-      border: 1px solid rgba(20,50,39,0.14);
-      background: rgba(255,255,255,0.72);
-      padding: 0.72rem 0.95rem;
-      border-radius: 999px;
-      font-weight: 700;
-      white-space: nowrap;
+      display:inline-flex; align-items:center; justify-content:center; text-decoration:none; color:var(--forest);
+      border:1px solid rgba(20,50,39,0.14); background:rgba(255,255,255,0.76);
+      padding:0.65rem 0.92rem; border-radius:999px; font-weight:700;
+      flex:1 1 0; max-width:220px; text-align:center;
     }
-    .account-area-nav a.active {
-      background: var(--forest);
-      border-color: var(--forest);
-      color: var(--white);
-    }
+    .account-area-nav a.active { background:var(--forest); border-color:var(--forest); color:var(--white); }
     .shell {
       flex: 1 0 auto;
       max-width: 1080px;
@@ -108,112 +72,117 @@
       display: grid;
       gap: 1rem;
     }
-    .hero,
-    .card {
+    .hero, .card {
       background: var(--card);
       border-radius: 24px;
-      border: 1px solid rgba(31, 64, 48, 0.12);
+      border: 1px solid rgba(31,64,48,0.12);
       box-shadow: var(--shadow);
       padding: 1.35rem 1.4rem;
     }
-    .hero {
-      background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88));
-      color: var(--white);
+    .hero { background: linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88)); color: var(--white); }
+    .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.76rem; color: rgba(255,255,255,0.72); font-weight: 700; }
+    .hero h1 { margin: 0.3rem 0 0; font-family: "Fraunces", "Times New Roman", serif; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.02; }
+    .hero p, .meta, .status-copy { margin: 0.65rem 0 0; line-height: 1.6; }
+    .hero p { color: rgba(255,255,255,0.82); }
+    .meta, .status-copy, .member-email { color: #4c5d54; }
+    .section-stack { display: grid; gap: 1rem; }
+    .section-heading { display: grid; gap: 0.35rem; margin-bottom: 0.2rem; }
+    h2, h3 { margin: 0; color: var(--forest); }
+    .list, .claim-list { display: grid; gap: 0.9rem; margin-top: 1rem; }
+    .item, .claim-item, .member-item {
+      border: 1px solid rgba(20,50,39,0.1);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.72);
+      padding: 1rem;
+      display: grid;
+      gap: 0.8rem;
     }
-    .eyebrow {
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-size: 0.76rem;
-      color: rgba(255, 255, 255, 0.7);
+    .item[open] { padding-bottom: 0.25rem; }
+    .item-summary, .tool-summary { list-style: none; cursor: pointer; }
+    .item-summary::-webkit-details-marker, .tool-summary::-webkit-details-marker { display: none; }
+    .item-header, .bucket-header, .member-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: start;
+    }
+    .item-header-main, .tool-copy { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+    .item-title, .tool-title, .member-name { font-weight: 700; font-size: 1.05rem; color: var(--forest); }
+    .item-toggle, .member-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2rem;
+      min-height: 2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(20,50,39,0.14);
+      background: rgba(20,50,39,0.04);
+      color: var(--forest);
+      text-decoration: none;
       font-weight: 700;
     }
-    .hero h1 {
-      margin: 0.3rem 0 0;
-      color: var(--white);
-      font-family: "Fraunces", "Times New Roman", serif;
-      font-size: clamp(2rem, 6vw, 3rem);
-      line-height: 1.02;
+    .item-body, .editor, .tool-card { display: grid; gap: 0.95rem; }
+    .grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .hero p,
-    .meta,
-    .status-copy {
-      margin: 0.65rem 0 0;
-      line-height: 1.6;
+    .field { display: grid; gap: 0.35rem; }
+    .field.full { grid-column: 1 / -1; }
+    label { font-size: 0.9rem; font-weight: 700; color: var(--forest); }
+    input, select, textarea {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(20,50,39,0.14);
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 0.8rem 0.9rem;
     }
-    .hero p { color: rgba(255, 255, 255, 0.82); }
-    .meta,
-    .status-copy { color: #4c5d54; }
-    h2 {
-      margin: 0;
-      color: var(--forest);
-    }
-    .hero-actions {
-      margin-top: 1rem;
+    textarea { min-height: 110px; resize: vertical; }
+    .actions {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.7rem;
       flex-wrap: wrap;
+      align-items: center;
     }
-    .pill-link,
-    .member-link {
+    .button {
       appearance: none;
-      border: 1px solid rgba(255, 255, 255, 0.32);
       border-radius: 999px;
-      padding: 0.8rem 1rem;
-      background: transparent;
-      color: var(--white);
+      padding: 0.78rem 1rem;
       font: inherit;
       font-weight: 700;
+      cursor: pointer;
+      border: 1px solid rgba(20,50,39,0.14);
+      background: transparent;
+      color: var(--forest);
       text-decoration: none;
       width: fit-content;
     }
-    .member-link {
-      border-color: rgba(20, 50, 39, 0.16);
-      color: var(--forest);
-    }
-    .list {
-      display: grid;
-      gap: 0.85rem;
-      margin-top: 1rem;
-    }
-    .member-item {
-      display: flex;
-      justify-content: space-between;
+    .button.primary { border-color: #143227; background: #143227; color: #fff; }
+    .button.warn { border-color: rgba(139, 50, 45, 0.2); color: #8b322d; }
+    .badge {
+      display: inline-flex;
       align-items: center;
-      gap: 1rem;
-      padding: 1rem 0;
-      border-top: 1px solid rgba(20, 50, 39, 0.12);
-      flex-wrap: wrap;
-    }
-    .member-item:first-child {
-      border-top: 0;
-      padding-top: 0;
-    }
-    .member-name {
-      font-weight: 700;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(20,50,39,0.08);
       color: var(--forest);
-      font-size: 1rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
-    .member-email,
-    .member-role {
-      color: #596a61;
-      font-size: 0.92rem;
-      line-height: 1.45;
-    }
-    .warning {
-      color: #8b322d;
-    }
-    footer {
-      background: #162f25;
-      color: rgba(255, 255, 255, 0.7);
-      text-align: center;
-      padding: 1.5rem;
-      font-size: 0.9rem;
-    }
+    .inline-status { min-height: 1.2rem; font-size: 0.95rem; color: #4c5d54; }
+    .warning { color: #8b322d; }
+    footer { background: #162f25; color: rgba(255,255,255,0.7); text-align: center; padding: 1.5rem; font-size: 0.9rem; }
     @media (max-width: 760px) {
       body { padding-top: 6.2rem; }
       header { position: fixed; top: 0; left: 0; right: 0; z-index: 30; border-bottom: 0; }
       .shell { padding: 1rem 0.75rem 2rem; }
       .hero, .card { padding: 1.1rem 1rem; border-radius: 20px; }
+      .grid { grid-template-columns: 1fr; }
       .header-inner { justify-content: space-between; flex-wrap: nowrap; }
       .brand { flex: 1 1 auto; text-align: center; align-items: center; position: relative; z-index: 32; }
       .brand-title, .brand-subtitle, .mobile-login { color: var(--white); }
@@ -221,7 +190,6 @@
       .mobile-nav { display: flex; gap: 0.8rem; position: relative; z-index: 32; }
       .mobile-login { font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; }
       .mobile-menu-toggle { width: 4rem; height: 4rem; justify-content: center; gap: 0; padding: 0; border-radius: 999px; font-size: 0; color: var(--white); background: rgba(7, 10, 16, 0.38); position: relative; z-index: 32; }
-      .member-item { align-items: flex-start; }
     }
   </style>
 </head>
@@ -261,28 +229,129 @@
 
   <div class="shell">
     <section class="hero">
-      <div class="eyebrow">Admin Tools</div>
-      <h1>User permissions</h1>
-      <p>Select a member to open a dedicated permissions screen for that person.</p>
+      <div class="eyebrow">Account</div>
+      <h1>Admin</h1>
+      <p>Review submissions and manage account-level permissions from one page.</p>
     </section>
 
     <nav class="account-area-nav" aria-label="Account sections">
-      <a href="/account/">My account</a>
-      <a href="/account/articles/">My articles</a>
-      <a href="/account/businesses/">My businesses</a>
-      <a href="/account/notifications/">Alerts</a>
-      <a href="/account/messages/">Messages</a>
-      <a href="/media-manager/">Media library</a>
-      <a class="active" href="/account/permissions/" aria-current="page">User permissions</a>
-      <a href="/account/articles/review/">Article review</a>
-      <a href="/account/businesses/review/">Business review</a>
+      <a href="/account/">Home</a>
+      <a href="/account/articles/">Content</a>
+      <a id="admin-nav-link" class="active" href="/account/permissions/" aria-current="page">Admin</a>
     </nav>
 
-    <section class="card">
-      <h2>Choose a member</h2>
-      <p class="meta">Tap a person to manage upload rights, media manager access, and bucket permissions on a separate page.</p>
+    <section class="card section-stack" id="article-review-management">
+      <div class="section-heading">
+        <h2>Article review</h2>
+        <p class="meta">Review submitted member articles, request changes, or open published pieces.</p>
+      </div>
+      <div id="article-review-list" class="list"></div>
+      <p id="article-review-status" class="status-copy" aria-live="polite"></p>
+    </section>
+
+    <section class="card section-stack" id="business-review-management">
+      <div class="section-heading">
+        <h2>Business review</h2>
+        <p class="meta">Review claim requests, create listings, and publish or update business entries.</p>
+      </div>
+
+      <section>
+        <h3>Claim requests</h3>
+        <div id="claim-request-list" class="claim-list"></div>
+      </section>
+
+      <section>
+        <details class="tool-card" id="create-business-details">
+          <summary class="tool-summary">
+            <div class="tool-copy">
+              <span class="item-toggle" id="create-business-toggle" aria-hidden="true">+</span>
+              <div>
+                <div class="tool-title">Add a business listing</div>
+                <p class="meta">Create a new listing directly in the admin page.</p>
+              </div>
+            </div>
+          </summary>
+          <form id="create-business-form" class="editor">
+            <div class="grid">
+              <label class="field">
+                <span>Submitter name</span>
+                <input name="submitterName" type="text" placeholder="Added by admin" required>
+              </label>
+              <label class="field">
+                <span>Submitter email</span>
+                <input name="submitterEmail" type="email" placeholder="admin@example.com" required>
+              </label>
+              <label class="field">
+                <span>Business name</span>
+                <input name="businessName" type="text" required>
+              </label>
+              <label class="field">
+                <span>Category</span>
+                <select name="businessCategory"></select>
+              </label>
+              <label class="field full">
+                <span>Description</span>
+                <textarea name="description" required></textarea>
+              </label>
+              <label class="field">
+                <span>Contact person</span>
+                <input name="contactName" type="text">
+              </label>
+              <label class="field">
+                <span>Phone</span>
+                <input name="phone" type="text">
+              </label>
+              <label class="field">
+                <span>Business email</span>
+                <input name="businessEmail" type="email">
+              </label>
+              <label class="field">
+                <span>Address</span>
+                <input name="address" type="text">
+              </label>
+              <label class="field">
+                <span>Image URL</span>
+                <input name="imageUrl" type="url">
+              </label>
+              <label class="field">
+                <span>Website</span>
+                <input name="websiteUrl" type="url">
+              </label>
+              <label class="field">
+                <span>Facebook URL</span>
+                <input name="facebookUrl" type="url">
+              </label>
+              <label class="field">
+                <span>Hours</span>
+                <input name="hours" type="text">
+              </label>
+              <label class="field full">
+                <span>Notes</span>
+                <textarea name="notes"></textarea>
+              </label>
+            </div>
+            <div class="actions">
+              <button class="button primary" type="submit">Create listing</button>
+            </div>
+            <div id="create-business-status" class="inline-status" aria-live="polite"></div>
+          </form>
+        </details>
+      </section>
+
+      <section>
+        <h3>Submitted and published listings</h3>
+        <div id="business-review-list" class="list"></div>
+      </section>
+      <p id="business-review-status" class="status-copy" aria-live="polite"></p>
+    </section>
+
+    <section class="card section-stack" id="permissions-management">
+      <div class="section-heading">
+        <h2>Permissions</h2>
+        <p class="meta">Choose a member to manage upload rights, media tools, and bucket access.</p>
+      </div>
       <div id="member-list" class="list"></div>
-      <p id="page-status" class="status-copy" aria-live="polite"></p>
+      <p id="permissions-status" class="status-copy" aria-live="polite"></p>
     </section>
   </div>
 
@@ -319,6 +388,7 @@
       });
       panel.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
     })();
+
     document.querySelectorAll("[data-account-logout]").forEach((button) => {
       button.addEventListener("click", async () => {
         await window.siteAuth.logout();
@@ -326,18 +396,164 @@
       });
     });
 
-    const memberListEl = document.getElementById("member-list");
-    const pageStatusEl = document.getElementById("page-status");
-    const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
+    const CATEGORY_OPTIONS = [
+      "Community & Government",
+      "Food & Drink",
+      "Shopping",
+      "Services & Trades",
+      "Health & Wellness",
+      "Lodging",
+      "Education",
+      "Faith & Churches",
+      "Utilities",
+      "Recreation & Community Space",
+      "Other",
+    ];
 
-    function setPageStatus(message, isError = false) {
-      pageStatusEl.classList.toggle("warning", isError);
-      pageStatusEl.textContent = message || "";
+    const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
+    const articleReviewListEl = document.getElementById("article-review-list");
+    const articleReviewStatusEl = document.getElementById("article-review-status");
+    const claimListEl = document.getElementById("claim-request-list");
+    const businessReviewListEl = document.getElementById("business-review-list");
+    const businessReviewStatusEl = document.getElementById("business-review-status");
+    const memberListEl = document.getElementById("member-list");
+    const permissionsStatusEl = document.getElementById("permissions-status");
+    const adminNavLinkEl = document.getElementById("admin-nav-link");
+    const articleReviewSectionEl = document.getElementById("article-review-management");
+    const businessReviewSectionEl = document.getElementById("business-review-management");
+    const permissionsSectionEl = document.getElementById("permissions-management");
+    const createForm = document.getElementById("create-business-form");
+    const createStatusEl = document.getElementById("create-business-status");
+    const createDetailsEl = document.getElementById("create-business-details");
+    const createToggleEl = document.getElementById("create-business-toggle");
+
+    createDetailsEl?.addEventListener("toggle", () => {
+      createToggleEl.textContent = createDetailsEl.open ? "-" : "+";
+    });
+
+    CATEGORY_OPTIONS.forEach((optionValue) => {
+      const option = document.createElement("option");
+      option.value = optionValue;
+      option.textContent = optionValue;
+      if (optionValue === "Other") option.selected = true;
+      createForm.querySelector('[name="businessCategory"]').appendChild(option);
+    });
+
+    function setStatus(element, message, isError = false) {
+      if (!element) return;
+      element.classList.toggle("warning", isError);
+      element.textContent = message || "";
+    }
+
+    function formatStatus(status) {
+      return String(status || "draft").replace(/_/g, " ");
+    }
+
+    function buildField(label, name, value, options = {}) {
+      const wrap = document.createElement("label");
+      wrap.className = "field" + (options.full ? " full" : "");
+      const title = document.createElement("span");
+      title.textContent = label;
+      wrap.appendChild(title);
+
+      let control;
+      if (options.type === "textarea") {
+        control = document.createElement("textarea");
+      } else if (options.type === "select") {
+        control = document.createElement("select");
+        CATEGORY_OPTIONS.forEach((optionValue) => {
+          const option = document.createElement("option");
+          option.value = optionValue;
+          option.textContent = optionValue;
+          option.selected = optionValue === value;
+          control.appendChild(option);
+        });
+      } else {
+        control = document.createElement("input");
+        control.type = options.type || "text";
+      }
+
+      control.name = name;
+      if (options.type !== "select") control.value = value || "";
+      wrap.appendChild(control);
+      return wrap;
+    }
+
+    function createActionButton(label, action, className = "") {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `button ${className}`.trim();
+      button.dataset.action = action;
+      button.textContent = label;
+      return button;
+    }
+
+    function extractFacebookUrl(notes) {
+      const match = String(notes || "").match(/Facebook:\s*(https?:\/\/[^\s]+)/i);
+      return match ? match[1].replace(/[.,;]+$/g, "") : "";
+    }
+
+    function cleanEditorNotes(notes) {
+      return String(notes || "")
+        .replace(/Facebook:\s*https?:\/\/[^\s]+\.?/gi, "")
+        .replace(/\s{2,}/g, " ")
+        .replace(/\s+([.,;:])/g, "$1")
+        .trim();
+    }
+
+    function buildNotesValue(notes, facebookUrl) {
+      const cleanedNotes = cleanEditorNotes(notes);
+      const cleanedFacebook = String(facebookUrl || "").trim();
+      if (cleanedNotes && cleanedFacebook) return `${cleanedNotes} Facebook: ${cleanedFacebook}`;
+      if (cleanedFacebook) return `Facebook: ${cleanedFacebook}`;
+      return cleanedNotes;
+    }
+
+    function renderArticleReviews(articles) {
+      articleReviewListEl.innerHTML = "";
+      if (!articles.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "Nothing is waiting in the review queue.";
+        articleReviewListEl.appendChild(empty);
+        return;
+      }
+
+      articles.forEach((article) => {
+        const row = document.createElement("article");
+        row.className = "item";
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+        const copy = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = article.title || "Untitled article";
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = `${article.authorName || "Unknown author"}${article.summary ? " — " + article.summary : ""}`;
+        copy.append(title, meta);
+
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = formatStatus(article.status);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        const reviewLink = document.createElement("a");
+        reviewLink.className = "button";
+        reviewLink.href = `/account/articles/edit/?id=${encodeURIComponent(article.id)}`;
+        reviewLink.textContent = article.status === "published" ? "Open article" : "Review submission";
+        actions.appendChild(reviewLink);
+
+        header.append(copy, badge);
+        row.append(header, actions);
+        articleReviewListEl.appendChild(row);
+      });
     }
 
     function renderProfiles(profiles) {
       memberListEl.innerHTML = "";
-
       if (!profiles.length) {
         const empty = document.createElement("p");
         empty.className = "meta";
@@ -349,7 +565,6 @@
       profiles.forEach((profile) => {
         const row = document.createElement("article");
         row.className = "member-item";
-
         const copy = document.createElement("div");
         const name = document.createElement("div");
         name.className = "member-name";
@@ -358,7 +573,7 @@
         email.className = "member-email";
         email.textContent = profile.email || "";
         const role = document.createElement("div");
-        role.className = "member-role";
+        role.className = "meta";
         role.textContent = `Role: ${profile.role || "member"}`;
         copy.append(name, email, role);
 
@@ -372,6 +587,269 @@
       });
     }
 
+    function renderBusinesses(businesses) {
+      businessReviewListEl.innerHTML = "";
+
+      if (!businesses.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "Nothing is waiting in the business queue.";
+        businessReviewListEl.appendChild(empty);
+        return;
+      }
+
+      businesses.forEach((business) => {
+        const row = document.createElement("details");
+        row.className = "item";
+        if (business.status !== "published") row.open = true;
+
+        const summary = document.createElement("summary");
+        summary.className = "item-summary";
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+
+        const copy = document.createElement("div");
+        copy.className = "item-header-main";
+        const toggle = document.createElement("span");
+        toggle.className = "item-toggle";
+        toggle.setAttribute("aria-hidden", "true");
+        toggle.textContent = row.open ? "-" : "+";
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = business.businessName || "Untitled business";
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = `${business.businessCategory || "Other"}${business.submitterEmail ? " • Submitted by " + business.submitterName + " <" + business.submitterEmail + ">" : ""}${business.claimedByEmail ? " • Claimed by " + (business.claimedByName || business.claimedByEmail) : ""}`;
+        const copyText = document.createElement("div");
+        copyText.append(title, meta);
+        copy.append(toggle, copyText);
+
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = formatStatus(business.status);
+        header.append(copy, badge);
+        summary.appendChild(header);
+
+        const form = document.createElement("div");
+        form.className = "editor item-body";
+        const grid = document.createElement("div");
+        grid.className = "grid";
+        grid.append(
+          buildField("Business name", "businessName", business.businessName),
+          buildField("Category", "businessCategory", business.businessCategory, { type: "select" }),
+          buildField("Claimed account email", "claimedAccountEmail", business.claimedByEmail || ""),
+          buildField("Image URL", "imageUrl", business.imageUrl || ""),
+          buildField("Description", "description", business.description, { type: "textarea", full: true }),
+          buildField("Contact person", "contactName", business.contactName),
+          buildField("Phone", "phone", business.phone),
+          buildField("Business email", "businessEmail", business.businessEmail, { type: "email" }),
+          buildField("Address", "address", business.address),
+          buildField("Website", "websiteUrl", business.websiteUrl, { type: "url" }),
+          buildField("Facebook URL", "facebookUrl", extractFacebookUrl(business.notes), { type: "url" }),
+          buildField("Hours", "hours", business.hours),
+          buildField("Sort order", "sortOrder", String(business.sortOrder || 0), { type: "number" }),
+          buildField("Notes", "notes", cleanEditorNotes(business.notes), { type: "textarea", full: true }),
+          buildField("Review notes", "reviewNotes", business.reviewNotes, { type: "textarea", full: true })
+        );
+
+        const uploadField = buildField("Upload image", "imageUpload", "");
+        uploadField.classList.add("full");
+        const uploadInput = uploadField.querySelector("input");
+        uploadInput.type = "file";
+        uploadInput.accept = "image/*";
+        uploadInput.value = "";
+        grid.append(uploadField);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        actions.append(
+          createActionButton("Upload image", "upload_image"),
+          createActionButton("Save", "save"),
+          createActionButton("Remove owner", "remove_owner"),
+          createActionButton("Request changes", "request_changes"),
+          createActionButton(business.status === "published" ? "Update live listing" : "Publish", "publish", "primary"),
+          createActionButton("Unpublish", "unpublish"),
+          createActionButton("Archive", "archive", "warn")
+        );
+
+        const inlineStatus = document.createElement("div");
+        inlineStatus.className = "inline-status";
+        inlineStatus.setAttribute("aria-live", "polite");
+
+        actions.querySelectorAll("button").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const session = await window.siteAuth.getSession().catch(() => null);
+            if (!session) {
+              window.location.replace(loginUrl);
+              return;
+            }
+
+            if (button.dataset.action === "upload_image") {
+              const file = uploadInput.files?.[0];
+              if (!file) {
+                inlineStatus.textContent = "Choose an image first.";
+                return;
+              }
+              inlineStatus.textContent = "Uploading image...";
+              try {
+                const prepareResponse = await fetch("/api/businesses", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + session.access_token,
+                  },
+                  body: JSON.stringify({
+                    action: "prepare_image_upload",
+                    id: business.id,
+                    filename: file.name,
+                  }),
+                });
+                const preparePayload = await prepareResponse.json().catch(() => ({}));
+                if (!prepareResponse.ok || !preparePayload.upload?.path || !preparePayload.upload?.token) {
+                  throw new Error(preparePayload.error || "Unable to prepare image upload.");
+                }
+                const client = await window.siteAuth.getClient();
+                const { error } = await client.storage.from("business-images").uploadToSignedUrl(
+                  preparePayload.upload.path,
+                  preparePayload.upload.token,
+                  file,
+                  { cacheControl: "3600", upsert: false }
+                );
+                if (error) throw new Error(error.message || "Unable to upload image.");
+                business.imagePath = preparePayload.upload.path;
+                form.querySelector('[name="imageUrl"]').value = preparePayload.upload.publicUrl;
+                inlineStatus.textContent = "Image uploaded. Save or publish to keep it.";
+              } catch (error) {
+                inlineStatus.textContent = error.message || "Unable to upload image.";
+              }
+              return;
+            }
+
+            const payload = {
+              id: business.id,
+              action: button.dataset.action,
+              businessName: form.querySelector('[name="businessName"]').value.trim(),
+              businessCategory: form.querySelector('[name="businessCategory"]').value,
+              claimedAccountEmail: form.querySelector('[name="claimedAccountEmail"]').value.trim(),
+              imagePath: business.imagePath || "",
+              imageUrl: form.querySelector('[name="imageUrl"]').value.trim(),
+              description: form.querySelector('[name="description"]').value.trim(),
+              contactName: form.querySelector('[name="contactName"]').value.trim(),
+              phone: form.querySelector('[name="phone"]').value.trim(),
+              businessEmail: form.querySelector('[name="businessEmail"]').value.trim(),
+              address: form.querySelector('[name="address"]').value.trim(),
+              websiteUrl: form.querySelector('[name="websiteUrl"]').value.trim(),
+              hours: form.querySelector('[name="hours"]').value.trim(),
+              sortOrder: Number(form.querySelector('[name="sortOrder"]').value || 0),
+              notes: buildNotesValue(
+                form.querySelector('[name="notes"]').value.trim(),
+                form.querySelector('[name="facebookUrl"]').value.trim()
+              ),
+              reviewNotes: form.querySelector('[name="reviewNotes"]').value.trim(),
+            };
+
+            if (button.dataset.action === "remove_owner") {
+              payload.action = "save";
+              payload.claimedAccountEmail = "";
+            }
+
+            inlineStatus.textContent = "Saving...";
+            try {
+              const response = await fetch("/api/businesses", {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + session.access_token,
+                },
+                body: JSON.stringify(payload),
+              });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok) throw new Error(result.error || "Unable to update listing.");
+              inlineStatus.textContent = "Saved.";
+              loadPage();
+            } catch (error) {
+              inlineStatus.textContent = error.message || "Unable to update listing.";
+            }
+          });
+        });
+
+        form.append(grid, actions, inlineStatus);
+        row.addEventListener("toggle", () => {
+          toggle.textContent = row.open ? "-" : "+";
+        });
+        row.append(summary, form);
+        businessReviewListEl.appendChild(row);
+      });
+    }
+
+    function renderClaimRequests(claimRequests, businesses) {
+      claimListEl.innerHTML = "";
+      const pending = (Array.isArray(claimRequests) ? claimRequests : []).filter((request) => request.status === "pending");
+      if (!pending.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "No pending claim requests.";
+        claimListEl.appendChild(empty);
+        return;
+      }
+
+      pending.forEach((request) => {
+        const business = (Array.isArray(businesses) ? businesses : []).find((entry) => entry.id === request.businessId);
+        const item = document.createElement("article");
+        item.className = "claim-item";
+
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = business?.businessName || "Business listing";
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = `${request.requesterName || request.requesterEmail || "Unknown member"} is requesting ownership.${business?.claimedByEmail ? " Current claimed account: " + business.claimedByEmail : ""}`;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        const approveButton = createActionButton("Approve claim", "approve_claim", "primary");
+        const rejectButton = createActionButton("Reject", "reject_claim", "warn");
+        const inlineStatus = document.createElement("div");
+        inlineStatus.className = "inline-status";
+        inlineStatus.setAttribute("aria-live", "polite");
+        actions.append(approveButton, rejectButton, inlineStatus);
+
+        [approveButton, rejectButton].forEach((button) => {
+          button.addEventListener("click", async () => {
+            const session = await window.siteAuth.getSession().catch(() => null);
+            if (!session) {
+              window.location.replace(loginUrl);
+              return;
+            }
+            inlineStatus.textContent = "Saving...";
+            try {
+              const response = await fetch("/api/businesses", {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + session.access_token,
+                },
+                body: JSON.stringify({
+                  action: button.dataset.action,
+                  claimRequestId: request.id,
+                }),
+              });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok) throw new Error(result.error || "Unable to update claim request.");
+              inlineStatus.textContent = "Saved.";
+              loadPage();
+            } catch (error) {
+              inlineStatus.textContent = error.message || "Unable to update claim request.";
+            }
+          });
+        });
+
+        item.append(title, meta, actions);
+        claimListEl.appendChild(item);
+      });
+    }
+
     async function loadPage() {
       try {
         const session = await window.siteAuth.getSession();
@@ -380,28 +858,125 @@
           return;
         }
 
-        const response = await fetch("/api/media-access", {
-          headers: {
-            Authorization: "Bearer " + session.access_token,
-          },
+        const accountResponse = await fetch("/api/member-content", {
+          headers: { Authorization: "Bearer " + session.access_token },
         });
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          if (response.status === 401) {
+        const accountPayload = await accountResponse.json().catch(() => ({}));
+        if (!accountResponse.ok) {
+          if (accountResponse.status === 401) {
             await window.siteAuth.logout();
             window.location.replace(loginUrl + "&auth_error=expired");
             return;
           }
-          throw new Error(payload.error || "Unable to load permissions.");
+          throw new Error(accountPayload.error || "Unable to load admin tools.");
         }
 
-        renderProfiles(Array.isArray(payload.profiles) ? payload.profiles : []);
-        setPageStatus("");
+        const canAccessArticleReview = Boolean(accountPayload.canReviewArticles || accountPayload.canPublishArticles || accountPayload.admin);
+        const canAccessBusinessReview = Boolean(accountPayload.canReviewArticles || accountPayload.canPublishArticles || accountPayload.admin);
+        const canAccessPermissions = Boolean(accountPayload.admin);
+        const canAccessAdmin = Boolean(canAccessArticleReview || canAccessBusinessReview || canAccessPermissions);
+
+        adminNavLinkEl.hidden = !canAccessAdmin;
+        articleReviewSectionEl.hidden = !canAccessArticleReview;
+        businessReviewSectionEl.hidden = !canAccessBusinessReview;
+        permissionsSectionEl.hidden = !canAccessPermissions;
+
+        if (!canAccessAdmin) {
+          window.location.replace("/account/");
+          return;
+        }
+
+        const [articleResponse, businessResponse, permissionsResponse] = await Promise.all([
+          canAccessArticleReview ? fetch("/api/articles?scope=review", {
+            headers: { Authorization: "Bearer " + session.access_token },
+          }) : Promise.resolve({ ok: true, status: 200, json: async () => ({ articles: [] }) }),
+          canAccessBusinessReview ? fetch("/api/businesses?scope=review", {
+            headers: { Authorization: "Bearer " + session.access_token },
+          }) : Promise.resolve({ ok: true, status: 200, json: async () => ({ businesses: [], claimRequests: [] }) }),
+          canAccessPermissions ? fetch("/api/media-access", {
+            headers: { Authorization: "Bearer " + session.access_token },
+          }) : Promise.resolve({ ok: true, status: 200, json: async () => ({ profiles: [] }) }),
+        ]);
+
+        const articlePayload = await articleResponse.json().catch(() => ({}));
+        const businessPayload = await businessResponse.json().catch(() => ({}));
+        const permissionsPayload = await permissionsResponse.json().catch(() => ({}));
+
+        if ([articleResponse, businessResponse, permissionsResponse].some((response) => response.status === 401)) {
+          await window.siteAuth.logout();
+          window.location.replace(loginUrl + "&auth_error=expired");
+          return;
+        }
+
+        if (canAccessArticleReview) {
+          if (!articleResponse.ok) throw new Error(articlePayload.error || "Unable to load article review.");
+          renderArticleReviews(Array.isArray(articlePayload.articles) ? articlePayload.articles : []);
+          setStatus(articleReviewStatusEl, "");
+        }
+        if (canAccessBusinessReview) {
+          if (!businessResponse.ok) throw new Error(businessPayload.error || "Unable to load the business queue.");
+          const businesses = Array.isArray(businessPayload.businesses) ? businessPayload.businesses : [];
+          renderClaimRequests(Array.isArray(businessPayload.claimRequests) ? businessPayload.claimRequests : [], businesses);
+          renderBusinesses(businesses);
+          setStatus(businessReviewStatusEl, "");
+        }
+        if (canAccessPermissions) {
+          if (!permissionsResponse.ok) throw new Error(permissionsPayload.error || "Unable to load permissions.");
+          renderProfiles(Array.isArray(permissionsPayload.profiles) ? permissionsPayload.profiles : []);
+          setStatus(permissionsStatusEl, "");
+        }
       } catch (error) {
-        memberListEl.innerHTML = "";
-        setPageStatus(error.message || "Unable to load permissions.", true);
+        if (!articleReviewSectionEl.hidden) setStatus(articleReviewStatusEl, error.message || "Unable to load admin tools.", true);
+        if (!businessReviewSectionEl.hidden) setStatus(businessReviewStatusEl, error.message || "Unable to load admin tools.", true);
+        if (!permissionsSectionEl.hidden) setStatus(permissionsStatusEl, error.message || "Unable to load admin tools.", true);
       }
     }
+
+    createForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const session = await window.siteAuth.getSession().catch(() => null);
+      if (!session) {
+        window.location.replace(loginUrl);
+        return;
+      }
+
+      const form = event.currentTarget;
+      const payload = {
+        submitter_name: form.submitterName.value.trim(),
+        submitter_email: form.submitterEmail.value.trim(),
+        business_name: form.businessName.value.trim(),
+        business_category: form.businessCategory.value,
+        description: form.description.value.trim(),
+        contact: form.contactName.value.trim(),
+        phone: form.phone.value.trim(),
+        business_email: form.businessEmail.value.trim(),
+        address: form.address.value.trim(),
+        image_url: form.imageUrl.value.trim(),
+        website: form.websiteUrl.value.trim(),
+        hours: form.hours.value.trim(),
+        notes: buildNotesValue(form.notes.value.trim(), form.facebookUrl.value.trim()),
+      };
+
+      createStatusEl.textContent = "Creating listing...";
+      try {
+        const response = await fetch("/api/businesses", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + session.access_token,
+          },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || "Unable to create business listing.");
+        form.reset();
+        form.businessCategory.value = "Other";
+        createStatusEl.textContent = "Listing added to the review queue.";
+        loadPage();
+      } catch (error) {
+        createStatusEl.textContent = error.message || "Unable to create business listing.";
+      }
+    });
 
     loadPage();
   </script>

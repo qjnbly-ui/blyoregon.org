@@ -36,30 +36,14 @@
     body.mobile-menu-open .mobile-menu-panel { display:grid; gap:0; }
     body.mobile-menu-open { overflow:hidden; }
     .mobile-menu-panel a { display:block; padding:1.7rem 0; border-radius:0; border:0; border-bottom:1px solid rgba(20, 50, 39, 0.18); background:none; color:var(--forest); text-decoration:none; text-align:center; text-transform:none; letter-spacing:0.02em; font-weight:600; font-size:0.95rem; }
-    .account-area-nav {
-      display:flex;
-      gap:0.7rem;
-      flex-wrap:nowrap;
-      overflow-x:auto;
-      padding:0.15rem 0 0.35rem;
-      scrollbar-width:thin;
-    }
+    .account-area-nav { display:flex; gap:0.7rem; flex-wrap:wrap; align-items:center; justify-content:center; width:min(100%,700px); margin:0 auto; }
     .account-area-nav a {
-      flex:0 0 auto;
-      text-decoration:none;
-      color:var(--forest);
-      border:1px solid rgba(20,50,39,0.14);
-      background:rgba(255,255,255,0.72);
-      padding:0.72rem 0.95rem;
-      border-radius:999px;
-      font-weight:700;
-      white-space:nowrap;
+      display:inline-flex; align-items:center; justify-content:center; text-decoration:none; color:var(--forest);
+      border:1px solid rgba(20,50,39,0.14); background:rgba(255,255,255,0.76);
+      padding:0.65rem 0.92rem; border-radius:999px; font-weight:700;
+      flex:1 1 0; max-width:220px; text-align:center;
     }
-    .account-area-nav a.active {
-      background:var(--forest);
-      border-color:var(--forest);
-      color:var(--white);
-    }
+    .account-area-nav a.active { background:var(--forest); border-color:var(--forest); color:var(--white); }
     .shell { max-width:1080px; margin:0 auto; padding:2.5rem 1.5rem 3.5rem; display:grid; gap:1rem; }
     .hero,.card { background:var(--card); border-radius:24px; border:1px solid rgba(31,64,48,0.12); box-shadow:var(--shadow); padding:1.35rem 1.4rem; }
     .hero { background:linear-gradient(140deg, rgba(20, 50, 39, 0.96), rgba(33, 68, 55, 0.88)); color:var(--white); }
@@ -130,15 +114,9 @@
     </section>
 
     <nav class="account-area-nav" aria-label="Account sections">
-      <a href="/account/">My account</a>
-      <a href="/account/articles/">My articles</a>
-      <a class="active" href="/account/businesses/" aria-current="page">My businesses</a>
-      <a href="/account/notifications/">Alerts</a>
-      <a href="/account/messages/">Messages</a>
-      <a href="/media-manager/">Media library</a>
-      <a href="/account/permissions/">User permissions</a>
-      <a href="/account/articles/review/">Article review</a>
-      <a href="/account/businesses/review/">Business review</a>
+      <a href="/account/">Home</a>
+      <a class="active" href="/account/articles/" aria-current="page">Content</a>
+      <a href="/account/permissions/">Admin</a>
     </nav>
 
     <section class="card">

@@ -222,26 +222,97 @@
     .account-area-nav {
       display: flex;
       gap: 0.7rem;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      padding: 0.2rem 0 0.35rem;
-      scrollbar-width: thin;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      width: min(100%, 700px);
+      margin: 0 auto;
     }
     .account-area-nav a {
-      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       text-decoration: none;
       color: var(--forest);
       border: 1px solid rgba(20, 50, 39, 0.14);
-      background: rgba(255, 255, 255, 0.72);
-      padding: 0.72rem 0.95rem;
+      background: rgba(255, 255, 255, 0.76);
+      padding: 0.65rem 0.92rem;
       border-radius: 999px;
       font-weight: 700;
-      white-space: nowrap;
+      flex: 1 1 0;
+      max-width: 220px;
+      text-align: center;
     }
     .account-area-nav a.active {
       background: var(--forest);
       border-color: var(--forest);
       color: var(--white);
+    }
+    .overview-signal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    .signal-card {
+      display: grid;
+      gap: 0.45rem;
+      width: 100%;
+      text-align: left;
+      appearance: none;
+      cursor: pointer;
+      font: inherit;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      color: inherit;
+      padding: 1.15rem 1.1rem;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: var(--shadow);
+    }
+    .signal-card strong {
+      color: var(--forest);
+      font-size: 1.02rem;
+    }
+    .signal-card span {
+      color: #52635a;
+      line-height: 1.55;
+    }
+    .signal-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: #6b7a72;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    .hub-card {
+      display: grid;
+      gap: 0.45rem;
+      text-decoration: none;
+      color: inherit;
+      padding: 1.15rem 1.1rem;
+      border-radius: 22px;
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: var(--shadow);
+    }
+    .hub-card strong {
+      color: var(--forest);
+      font-size: 1.02rem;
+    }
+    .hub-card span {
+      color: #52635a;
+      line-height: 1.55;
+    }
+    .popup-body {
+      display: grid;
+      gap: 1rem;
     }
     .badge {
       display: inline-flex;
@@ -626,6 +697,10 @@
       nav {
         justify-content: center;
       }
+
+      .hub-grid {
+        grid-template-columns: 1fr;
+      }
     }
     @media (max-width: 760px) {
       body {
@@ -683,6 +758,10 @@
         background: rgba(7, 10, 16, 0.38);
         position: relative;
         z-index: 32;
+      }
+      .overview-signal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
       }
       .shell {
         padding: 1rem 0.75rem 2rem;
@@ -810,21 +889,28 @@
   <div class="shell">
     <section class="hero">
       <div class="eyebrow">Account</div>
-      <h1 id="title">Account home</h1>
+      <h1 id="title">Welcome back</h1>
       <p id="intro">Loading your account details.</p>
     </section>
 
     <nav class="account-area-nav" aria-label="Account sections">
-      <a class="active" href="/account/" aria-current="page">My account</a>
-      <a href="/account/articles/">My articles</a>
-      <a href="/account/businesses/">My businesses</a>
-      <a href="/account/notifications/">Alerts</a>
-      <a href="/account/messages/">Messages</a>
-      <a href="/media-manager/">Media library</a>
-      <a href="/account/permissions/">User permissions</a>
-      <a href="/account/articles/review/">Article review</a>
-      <a href="/account/businesses/review/">Business review</a>
+      <a class="active" href="/account/" aria-current="page">Home</a>
+      <a href="/account/articles/">Content</a>
+      <a href="/account/permissions/">Admin</a>
     </nav>
+
+    <section class="overview-signal-grid" aria-label="Overview panels">
+      <button class="signal-card" id="open-alerts-popup" type="button">
+        <span class="signal-meta">Alerts</span>
+        <strong>Check alerts</strong>
+        <span id="alerts-box-summary">No unread alerts.</span>
+      </button>
+      <button class="signal-card" id="open-messages-popup" type="button">
+        <span class="signal-meta">Messages</span>
+        <strong>Check inbox</strong>
+        <span id="messages-box-summary">No unread messages.</span>
+      </button>
+    </section>
 
     <article class="card">
       <div class="card-header">
@@ -878,7 +964,7 @@
       </div>
     </section>
 
-    <section class="card" id="messages-card">
+    <section class="card" id="messages-card" hidden>
       <div class="card-header">
         <div>
           <h2>Messages</h2>
@@ -894,7 +980,7 @@
       </div>
     </section>
 
-    <section class="card" id="notifications-card">
+    <section class="card" id="notifications-card" hidden>
       <div class="card-header">
         <div>
           <h2>Alerts</h2>
@@ -1089,6 +1175,30 @@
     </div>
   </div>
 
+  <div class="modal" id="alerts-popup" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Alerts</h2>
+        <button class="modal-close" id="alerts-popup-close" type="button">Close</button>
+      </div>
+      <div class="popup-body">
+        <p id="alerts-popup-summary" class="meta">No unread alerts.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="messages-popup" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Messages</h2>
+        <button class="modal-close" id="messages-popup-close" type="button">Close</button>
+      </div>
+      <div class="popup-body">
+        <p id="messages-popup-summary" class="meta">No unread messages.</p>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p>
   </footer>
@@ -1148,6 +1258,16 @@
     const messagesInlineCountEl = document.getElementById("messages-inline-count");
     const notificationsSummaryEl = document.getElementById("notifications-summary");
     const notificationsInlineCountEl = document.getElementById("notifications-inline-count");
+    const messagesBoxSummaryEl = document.getElementById("messages-box-summary");
+    const alertsBoxSummaryEl = document.getElementById("alerts-box-summary");
+    const messagesPopupSummaryEl = document.getElementById("messages-popup-summary");
+    const alertsPopupSummaryEl = document.getElementById("alerts-popup-summary");
+    const alertsPopupEl = document.getElementById("alerts-popup");
+    const messagesPopupEl = document.getElementById("messages-popup");
+    const openAlertsPopupButton = document.getElementById("open-alerts-popup");
+    const openMessagesPopupButton = document.getElementById("open-messages-popup");
+    const alertsPopupCloseButton = document.getElementById("alerts-popup-close");
+    const messagesPopupCloseButton = document.getElementById("messages-popup-close");
     const myArticlesCardEl = document.getElementById("my-articles-card");
     const myBusinessesCardEl = document.getElementById("my-businesses-card");
     const articleReviewCardEl = document.getElementById("article-review-card");
@@ -1217,6 +1337,12 @@
         profileAvatarInput.value = "";
         clearEditorObjectUrl();
       }
+    }
+
+    function setSimpleModalOpen(element, isOpen) {
+      if (!element) return;
+      element.hidden = !isOpen;
+      document.body.style.overflow = isOpen ? "hidden" : "";
     }
 
     async function resolveAvatarUrl(profile) {
@@ -1501,11 +1627,19 @@
         messagesSummaryEl.innerHTML = unreadMessageCount > 0
           ? `<span class="meta-strong">${unreadMessageCount}</span> unread message${unreadMessageCount === 1 ? "" : "s"} waiting in your inbox.`
           : "No unread messages.";
+        messagesBoxSummaryEl.textContent = unreadMessageCount > 0
+          ? `${unreadMessageCount} unread message${unreadMessageCount === 1 ? "" : "s"}`
+          : "No unread messages.";
+        messagesPopupSummaryEl.innerHTML = messagesSummaryEl.innerHTML;
         notificationsInlineCountEl.hidden = unreadNotificationCount < 1;
         notificationsInlineCountEl.textContent = String(unreadNotificationCount);
         notificationsSummaryEl.innerHTML = unreadNotificationCount > 0
           ? `<span class="meta-strong">${unreadNotificationCount}</span> unread alert${unreadNotificationCount === 1 ? "" : "s"} waiting in your inbox.`
           : "No unread alerts.";
+        alertsBoxSummaryEl.textContent = unreadNotificationCount > 0
+          ? `${unreadNotificationCount} unread alert${unreadNotificationCount === 1 ? "" : "s"}`
+          : "No unread alerts.";
+        alertsPopupSummaryEl.innerHTML = notificationsSummaryEl.innerHTML;
       } catch (error) {
         titleEl.textContent = "Account error";
         introEl.textContent = "The account page could not be loaded.";
@@ -1661,6 +1795,17 @@
       if (event.target === profileEditPanel) {
         setEditPanelOpen(false);
       }
+    });
+
+    openAlertsPopupButton?.addEventListener("click", () => setSimpleModalOpen(alertsPopupEl, true));
+    openMessagesPopupButton?.addEventListener("click", () => setSimpleModalOpen(messagesPopupEl, true));
+    alertsPopupCloseButton?.addEventListener("click", () => setSimpleModalOpen(alertsPopupEl, false));
+    messagesPopupCloseButton?.addEventListener("click", () => setSimpleModalOpen(messagesPopupEl, false));
+    alertsPopupEl?.addEventListener("click", (event) => {
+      if (event.target === alertsPopupEl) setSimpleModalOpen(alertsPopupEl, false);
+    });
+    messagesPopupEl?.addEventListener("click", (event) => {
+      if (event.target === messagesPopupEl) setSimpleModalOpen(messagesPopupEl, false);
     });
 
     profileAvatarInput.addEventListener("change", async () => {

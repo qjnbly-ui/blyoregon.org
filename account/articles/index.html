@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Articles | Bly, Oregon</title>
+  <title>Content | Bly, Oregon</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -95,30 +95,14 @@
     body.mobile-menu-open .mobile-menu-panel { display: grid; gap: 0; }
     body.mobile-menu-open { overflow: hidden; }
     .mobile-menu-panel a { display: block; padding: 1.7rem 0; border-radius: 0; border: 0; border-bottom: 1px solid rgba(20, 50, 39, 0.18); background: none; color: var(--forest); text-decoration: none; text-align: center; text-transform: none; letter-spacing: 0.02em; font-weight: 600; font-size: 0.95rem; }
-    .account-area-nav {
-      display: flex;
-      gap: 0.7rem;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      padding: 0.15rem 0 0.35rem;
-      scrollbar-width: thin;
-    }
+    .account-area-nav { display:flex; gap:0.7rem; flex-wrap:wrap; align-items:center; justify-content:center; width:min(100%,700px); margin:0 auto; }
     .account-area-nav a {
-      flex: 0 0 auto;
-      text-decoration: none;
-      color: var(--forest);
-      border: 1px solid rgba(20,50,39,0.14);
-      background: rgba(255,255,255,0.72);
-      padding: 0.72rem 0.95rem;
-      border-radius: 999px;
-      font-weight: 700;
-      white-space: nowrap;
+      display:inline-flex; align-items:center; justify-content:center; text-decoration:none; color:var(--forest);
+      border:1px solid rgba(20,50,39,0.14); background:rgba(255,255,255,0.76);
+      padding:0.65rem 0.92rem; border-radius:999px; font-weight:700;
+      flex:1 1 0; max-width:220px; text-align:center;
     }
-    .account-area-nav a.active {
-      background: var(--forest);
-      border-color: var(--forest);
-      color: var(--white);
-    }
+    .account-area-nav a.active { background:var(--forest); border-color:var(--forest); color:var(--white); }
     .shell {
       flex: 1 0 auto;
       max-width: 1080px;
@@ -161,6 +145,10 @@
     .hero p { color: rgba(255,255,255,0.82); }
     .meta,
     .status-copy { color: #4c5d54; }
+    .section-stack {
+      display: grid;
+      gap: 1rem;
+    }
     .hero-actions,
     .card-actions {
       margin-top: 1rem;
@@ -205,6 +193,11 @@
     h2, h3 {
       margin: 0;
       color: var(--forest);
+    }
+    .section-heading {
+      display: grid;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
     }
     .list {
       display: grid;
@@ -259,6 +252,145 @@
       color: #5c6d63;
       line-height: 1.6;
     }
+    .item {
+      border: 1px solid rgba(20,50,39,0.12);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.72);
+      padding: 1rem;
+      display: grid;
+      gap: 0.9rem;
+    }
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: start;
+    }
+    .item-title {
+      font-weight: 700;
+      font-size: 1.08rem;
+      color: var(--forest);
+    }
+    .grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .field {
+      display: grid;
+      gap: 0.35rem;
+    }
+    .field.full {
+      grid-column: 1 / -1;
+    }
+    label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--forest);
+    }
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(20,50,39,0.14);
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 0.8rem 0.9rem;
+    }
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .inline-status {
+      min-height: 1.2rem;
+      font-size: 0.95rem;
+      color: #4c5d54;
+    }
+    .status {
+      min-height: 1.35rem;
+      margin: 0;
+      color: #526158;
+      font-size: 0.92rem;
+    }
+    .bucket-card {
+      border: 1px solid rgba(31,64,48,0.12);
+      border-radius: 22px;
+      background: rgba(245, 239, 229, 0.55);
+      padding: 1.1rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .bucket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .bucket-toggle {
+      appearance: none;
+      border: 1px solid rgba(20, 50, 39, 0.16);
+      border-radius: 999px;
+      padding: 0.7rem 1rem;
+      background: transparent;
+      color: var(--forest);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .bucket-panel[hidden] {
+      display: none !important;
+    }
+    .upload-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .upload-row input[type="file"] {
+      flex: 1 1 280px;
+    }
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 1rem;
+    }
+    .media-item {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(31, 64, 48, 0.12);
+      border-radius: 18px;
+      padding: 0.8rem;
+      display: grid;
+      gap: 0.7rem;
+    }
+    .media-item img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+    .media-item-name {
+      color: var(--forest);
+      font-size: 0.88rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+    .media-item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
     .warning { color: #8b322d; }
     footer {
       background: #162f25;
@@ -272,6 +404,7 @@
       header { position: fixed; top: 0; left: 0; right: 0; z-index: 30; border-bottom: 0; }
       .shell { padding: 1rem 0.75rem 2rem; }
       .hero, .card { padding: 1.1rem 1rem; border-radius: 20px; }
+      .grid { grid-template-columns: 1fr; }
       .header-inner { justify-content: space-between; flex-wrap: nowrap; }
       .brand { flex: 1 1 auto; text-align: center; align-items: center; position: relative; z-index: 32; }
       .brand-title, .brand-subtitle, .mobile-login { color: var(--white); }
@@ -318,31 +451,87 @@
 
   <div class="shell">
     <section class="hero">
-      <div class="eyebrow">Member Writing</div>
-      <h1>My articles</h1>
-      <p>Draft, submit, and revise user-submitted articles without touching the static archive files.</p>
-      <div class="hero-actions">
-        <button id="new-article-button" class="button" type="button">New draft</button>
-      </div>
+      <div class="eyebrow">Account</div>
+      <h1>Content</h1>
+      <p>Manage your articles, businesses, and media from one place.</p>
     </section>
 
     <nav class="account-area-nav" aria-label="Account sections">
-      <a href="/account/">My account</a>
-      <a class="active" href="/account/articles/" aria-current="page">My articles</a>
-      <a href="/account/businesses/">My businesses</a>
-      <a href="/account/notifications/">Alerts</a>
-      <a href="/account/messages/">Messages</a>
-      <a href="/media-manager/">Media library</a>
-      <a href="/account/permissions/">User permissions</a>
-      <a href="/account/articles/review/">Article review</a>
-      <a href="/account/businesses/review/">Business review</a>
+      <a href="/account/">Home</a>
+      <a class="active" href="/account/articles/" aria-current="page">Content</a>
+      <a id="admin-nav-link" href="/account/permissions/">Admin</a>
     </nav>
 
-    <section class="card">
-      <h2>Your drafts and submissions</h2>
-      <p class="meta">Published user articles appear under the new user-submitted section on the public articles page.</p>
+    <section class="card section-stack" id="article-management">
+      <div class="section-heading">
+        <h2>My articles</h2>
+        <p class="meta">Published user articles appear under the new user-submitted section on the public articles page.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="new-article-button" class="button" type="button">New draft</button>
+      </div>
       <div id="article-list" class="list"></div>
-      <p id="page-status" class="status-copy" aria-live="polite"></p>
+      <p id="article-status" class="status-copy" aria-live="polite"></p>
+    </section>
+
+    <section class="card section-stack" id="business-management">
+      <div class="section-heading">
+        <h2>My businesses</h2>
+        <p class="meta">Claimed listings can be updated here, and pending ownership requests stay visible until an admin reviews them.</p>
+      </div>
+      <section>
+        <h3>Pending claim requests</h3>
+        <div id="pending-claim-list" class="list"></div>
+      </section>
+      <section>
+        <h3>Claimed listings</h3>
+        <div id="business-list" class="list"></div>
+      </section>
+      <p id="business-status" class="status-copy" aria-live="polite"></p>
+    </section>
+
+    <section class="card section-stack" id="media-library-management">
+      <div class="section-heading">
+        <h2>Media library</h2>
+        <p class="meta">Open only the folders your account can manage. Uploads and deletes follow your current account permissions.</p>
+      </div>
+      <div class="bucket-card" data-bucket-card="churchfirephotos" hidden>
+        <div class="bucket-header">
+          <div>
+            <h3>Church Fire Photos</h3>
+            <p class="meta">Current public bucket: <code>churchfirephotos</code></p>
+          </div>
+          <button class="bucket-toggle" data-bucket-toggle="churchfirephotos" type="button" aria-expanded="false">Open folder</button>
+        </div>
+        <div class="bucket-panel" data-bucket-panel="churchfirephotos" hidden>
+          <div class="upload-row">
+            <input type="file" data-bucket-input="churchfirephotos" accept="image/png,image/jpeg,image/webp,image/gif" />
+            <button id="upload-churchfirephotos" class="button" data-bucket-upload="churchfirephotos" type="button">Upload</button>
+            <button class="button secondary" data-bucket-refresh="churchfirephotos" type="button">Refresh</button>
+          </div>
+          <p class="status" data-bucket-status="churchfirephotos"></p>
+          <div class="media-grid" data-bucket-grid="churchfirephotos"></div>
+        </div>
+      </div>
+      <div class="bucket-card" data-bucket-card="standingstonechurchconstructionphotos" hidden>
+        <div class="bucket-header">
+          <div>
+            <h3>Standing Stone Construction Photos</h3>
+            <p class="meta">Current public bucket: <code>standingstonechurchconstructionphotos</code></p>
+          </div>
+          <button class="bucket-toggle" data-bucket-toggle="standingstonechurchconstructionphotos" type="button" aria-expanded="false">Open folder</button>
+        </div>
+        <div class="bucket-panel" data-bucket-panel="standingstonechurchconstructionphotos" hidden>
+          <div class="upload-row">
+            <input type="file" data-bucket-input="standingstonechurchconstructionphotos" accept="image/png,image/jpeg,image/webp,image/gif" />
+            <button id="upload-standingstonechurchconstructionphotos" class="button" data-bucket-upload="standingstonechurchconstructionphotos" type="button">Upload</button>
+            <button class="button secondary" data-bucket-refresh="standingstonechurchconstructionphotos" type="button">Refresh</button>
+          </div>
+          <p class="status" data-bucket-status="standingstonechurchconstructionphotos"></p>
+          <div class="media-grid" data-bucket-grid="standingstonechurchconstructionphotos"></div>
+        </div>
+      </div>
+      <p id="media-status" class="status-copy" aria-live="polite"></p>
     </section>
   </div>
 
@@ -386,15 +575,46 @@
       });
     });
 
+    const CATEGORY_OPTIONS = [
+      "Community & Government",
+      "Food & Drink",
+      "Shopping",
+      "Services & Trades",
+      "Health & Wellness",
+      "Lodging",
+      "Education",
+      "Faith & Churches",
+      "Utilities",
+      "Recreation & Community Space",
+      "Other",
+    ];
+    const BUCKETS = [
+      { id: "churchfirephotos", title: "Church Fire Photos" },
+      { id: "standingstonechurchconstructionphotos", title: "Standing Stone Construction Photos" },
+    ];
     const listEl = document.getElementById("article-list");
-    const statusEl = document.getElementById("page-status");
+    const articleStatusEl = document.getElementById("article-status");
+    const businessListEl = document.getElementById("business-list");
+    const pendingListEl = document.getElementById("pending-claim-list");
+    const businessStatusEl = document.getElementById("business-status");
+    const mediaStatusEl = document.getElementById("media-status");
+    const adminNavLinkEl = document.getElementById("admin-nav-link");
+    const articleSectionEl = document.getElementById("article-management");
+    const businessSectionEl = document.getElementById("business-management");
+    const mediaSectionEl = document.getElementById("media-library-management");
     const newButtonEl = document.getElementById("new-article-button");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     let activeSession = null;
+    let mediaPermissions = {
+      canEditMediaDetails: false,
+      canDeleteMedia: false,
+      canUploadPhotos: false,
+    };
 
-    function setStatus(message, isError = false) {
-      statusEl.classList.toggle("warning", isError);
-      statusEl.textContent = message || "";
+    function setSectionStatus(element, message, isError = false) {
+      if (!element) return;
+      element.classList.toggle("warning", isError);
+      element.textContent = message || "";
     }
 
     function formatStatus(status) {
@@ -412,7 +632,7 @@
         buttonEl.disabled = true;
         buttonEl.textContent = "Deleting...";
       }
-      setStatus("Deleting article...");
+      setSectionStatus(articleStatusEl, "Deleting article...");
 
       try {
         const response = await fetch(`/api/articles?id=${encodeURIComponent(articleId)}`, {
@@ -426,13 +646,395 @@
           throw new Error(payload.error || "Unable to delete article.");
         }
         await loadPage();
-        setStatus("Article deleted.");
+        setSectionStatus(articleStatusEl, "Article deleted.");
       } catch (error) {
-        setStatus(error.message || "Unable to delete article.", true);
+        setSectionStatus(articleStatusEl, error.message || "Unable to delete article.", true);
         if (buttonEl) {
           buttonEl.disabled = false;
           buttonEl.textContent = originalText;
         }
+      }
+    }
+
+    function field(labelText, name, value, options = {}) {
+      const label = document.createElement("label");
+      label.className = "field" + (options.full ? " full" : "");
+      const title = document.createElement("span");
+      title.textContent = labelText;
+      let control;
+      if (options.type === "textarea") {
+        control = document.createElement("textarea");
+      } else if (options.type === "select") {
+        control = document.createElement("select");
+        CATEGORY_OPTIONS.forEach((optionValue) => {
+          const option = document.createElement("option");
+          option.value = optionValue;
+          option.textContent = optionValue;
+          option.selected = optionValue === value;
+          control.appendChild(option);
+        });
+      } else {
+        control = document.createElement("input");
+        control.type = options.type || "text";
+      }
+      control.name = name;
+      if (options.type !== "select") control.value = value || "";
+      label.append(title, control);
+      return label;
+    }
+
+    function extractFacebookUrl(notes) {
+      const match = String(notes || "").match(/Facebook:\s*(https?:\/\/[^\s]+)/i);
+      return match ? match[1].replace(/[.,;]+$/g, "") : "";
+    }
+
+    function cleanEditorNotes(notes) {
+      return String(notes || "")
+        .replace(/Facebook:\s*https?:\/\/[^\s]+\.?/gi, "")
+        .replace(/\s{2,}/g, " ")
+        .replace(/\s+([.,;:])/g, "$1")
+        .trim();
+    }
+
+    function buildNotesValue(notes, facebookUrl) {
+      const cleanedNotes = cleanEditorNotes(notes);
+      const cleanedFacebook = String(facebookUrl || "").trim();
+      if (cleanedNotes && cleanedFacebook) return `${cleanedNotes} Facebook: ${cleanedFacebook}`;
+      if (cleanedFacebook) return `Facebook: ${cleanedFacebook}`;
+      return cleanedNotes;
+    }
+
+    function renderPendingClaims(claims) {
+      pendingListEl.innerHTML = "";
+      if (!claims.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "No pending business claim requests.";
+        pendingListEl.appendChild(empty);
+        return;
+      }
+
+      claims.forEach((business) => {
+        const item = document.createElement("article");
+        item.className = "item";
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+        const titleWrap = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = business.businessName || "Untitled business";
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = `${business.businessCategory || "Other"}${business.claimRequestedAt ? " • Requested " + new Date(business.claimRequestedAt).toLocaleString() : ""}`;
+        titleWrap.append(title, meta);
+        const badge = document.createElement("span");
+        badge.className = "status-badge";
+        badge.textContent = "claim pending";
+        header.append(titleWrap, badge);
+
+        const body = document.createElement("p");
+        body.className = "meta";
+        body.textContent = "This ownership request is waiting for admin approval. Once approved, the listing will move into your claimed businesses below.";
+
+        item.append(header, body);
+        pendingListEl.appendChild(item);
+      });
+    }
+
+    function renderBusinesses(businesses) {
+      businessListEl.innerHTML = "";
+      if (!businesses.length) {
+        const empty = document.createElement("p");
+        empty.className = "meta";
+        empty.textContent = "No businesses are currently claimed by your account.";
+        businessListEl.appendChild(empty);
+        return;
+      }
+
+      businesses.forEach((business) => {
+        const item = document.createElement("article");
+        item.className = "item";
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+        const titleWrap = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "item-title";
+        title.textContent = business.businessName || "Untitled business";
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = business.businessCategory || "Other";
+        titleWrap.append(title, meta);
+        const badge = document.createElement("span");
+        badge.className = "status-badge";
+        badge.textContent = String(business.status || "published").replace(/_/g, " ");
+        header.append(titleWrap, badge);
+
+        const grid = document.createElement("div");
+        grid.className = "grid";
+        const descriptionField = field("Description", "description", business.description, { type: "textarea", full: true });
+        const notesField = field("Notes", "notes", cleanEditorNotes(business.notes), { type: "textarea", full: true });
+        grid.append(
+          field("Business name", "businessName", business.businessName),
+          field("Category", "businessCategory", business.businessCategory, { type: "select" }),
+          field("Image URL", "imageUrl", business.imageUrl),
+          descriptionField,
+          field("Contact person", "contactName", business.contactName),
+          field("Phone", "phone", business.phone),
+          field("Business email", "businessEmail", business.businessEmail, { type: "email" }),
+          field("Address", "address", business.address),
+          field("Website", "websiteUrl", business.websiteUrl, { type: "url" }),
+          field("Facebook URL", "facebookUrl", extractFacebookUrl(business.notes), { type: "url" }),
+          field("Hours", "hours", business.hours),
+          notesField
+        );
+
+        const uploadField = document.createElement("label");
+        uploadField.className = "field full";
+        const uploadLabel = document.createElement("span");
+        uploadLabel.textContent = "Upload image";
+        const uploadInput = document.createElement("input");
+        uploadInput.type = "file";
+        uploadInput.accept = "image/*";
+        uploadInput.name = "imageUpload";
+        uploadField.append(uploadLabel, uploadInput);
+        grid.append(uploadField);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "button";
+        button.textContent = "Save changes";
+        const uploadButton = document.createElement("button");
+        uploadButton.type = "button";
+        uploadButton.className = "button secondary";
+        uploadButton.textContent = "Upload image";
+        const inlineStatus = document.createElement("div");
+        inlineStatus.className = "inline-status";
+        inlineStatus.setAttribute("aria-live", "polite");
+        actions.append(button, uploadButton, inlineStatus);
+
+        uploadButton.addEventListener("click", async () => {
+          const file = uploadInput.files?.[0];
+          if (!file) {
+            inlineStatus.textContent = "Choose an image first.";
+            return;
+          }
+          const session = await window.siteAuth.getSession().catch(() => null);
+          if (!session) {
+            window.location.replace(loginUrl);
+            return;
+          }
+          inlineStatus.textContent = "Uploading image...";
+          try {
+            const prepareResponse = await fetch("/api/businesses", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + session.access_token,
+              },
+              body: JSON.stringify({
+                action: "prepare_image_upload",
+                id: business.id,
+                filename: file.name,
+              }),
+            });
+            const preparePayload = await prepareResponse.json().catch(() => ({}));
+            if (!prepareResponse.ok || !preparePayload.upload?.path || !preparePayload.upload?.token) {
+              throw new Error(preparePayload.error || "Unable to prepare image upload.");
+            }
+            const client = await window.siteAuth.getClient();
+            const { error } = await client.storage.from("business-images").uploadToSignedUrl(
+              preparePayload.upload.path,
+              preparePayload.upload.token,
+              file,
+              { cacheControl: "3600", upsert: false }
+            );
+            if (error) throw new Error(error.message || "Unable to upload image.");
+            business.imagePath = preparePayload.upload.path;
+            grid.querySelector('[name="imageUrl"]').value = preparePayload.upload.publicUrl;
+            inlineStatus.textContent = "Image uploaded. Save changes to keep it.";
+          } catch (error) {
+            inlineStatus.textContent = error.message || "Unable to upload image.";
+          }
+        });
+
+        button.addEventListener("click", async () => {
+          const session = await window.siteAuth.getSession().catch(() => null);
+          if (!session) {
+            window.location.replace(loginUrl);
+            return;
+          }
+
+          inlineStatus.textContent = "Saving...";
+          try {
+            const response = await fetch("/api/businesses", {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + session.access_token,
+              },
+              body: JSON.stringify({
+                id: business.id,
+                action: "save",
+                businessName: grid.querySelector('[name="businessName"]').value.trim(),
+                businessCategory: grid.querySelector('[name="businessCategory"]').value,
+                imagePath: business.imagePath || "",
+                imageUrl: grid.querySelector('[name="imageUrl"]').value.trim(),
+                description: grid.querySelector('[name="description"]').value.trim(),
+                contactName: grid.querySelector('[name="contactName"]').value.trim(),
+                phone: grid.querySelector('[name="phone"]').value.trim(),
+                businessEmail: grid.querySelector('[name="businessEmail"]').value.trim(),
+                address: grid.querySelector('[name="address"]').value.trim(),
+                websiteUrl: grid.querySelector('[name="websiteUrl"]').value.trim(),
+                hours: grid.querySelector('[name="hours"]').value.trim(),
+                notes: buildNotesValue(
+                  grid.querySelector('[name="notes"]').value.trim(),
+                  grid.querySelector('[name="facebookUrl"]').value.trim()
+                ),
+              }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.error || "Unable to save listing.");
+            inlineStatus.textContent = "Saved.";
+            loadBusinesses();
+          } catch (error) {
+            inlineStatus.textContent = error.message || "Unable to save listing.";
+          }
+        });
+
+        item.append(header, grid, actions);
+        businessListEl.appendChild(item);
+      });
+    }
+
+    function setBucketOpen(bucket, isOpen) {
+      const panel = document.querySelector(`[data-bucket-panel="${bucket}"]`);
+      const toggle = document.querySelector(`[data-bucket-toggle="${bucket}"]`);
+      if (!panel || !toggle) return;
+      panel.hidden = !isOpen;
+      toggle.setAttribute("aria-expanded", String(isOpen));
+      toggle.textContent = isOpen ? "Close folder" : "Open folder";
+    }
+
+    function setBucketStatus(bucket, message, error = false) {
+      const element = document.querySelector(`[data-bucket-status="${bucket}"]`);
+      if (!element) return;
+      element.style.color = error ? "#9d2d28" : "#526158";
+      element.textContent = message || "";
+    }
+
+    function sanitizeFilename(name) {
+      return String(name || "")
+        .replace(/[^\w.\- ]+/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-");
+    }
+
+    async function renderBucket(bucket) {
+      const grid = document.querySelector(`[data-bucket-grid="${bucket}"]`);
+      if (!grid) return;
+      setBucketStatus(bucket, "Loading files...");
+      grid.innerHTML = "";
+
+      const response = await fetch(`/api/media-list?bucket=${encodeURIComponent(bucket)}`, { cache: "no-store" });
+      const files = await response.json();
+      if (!response.ok) {
+        throw new Error(files.error || "Unable to load files.");
+      }
+
+      if (!Array.isArray(files) || !files.length) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = "No files yet.";
+        grid.appendChild(empty);
+        setBucketStatus(bucket, "");
+        return;
+      }
+
+      files.forEach((name) => {
+        const article = document.createElement("article");
+        article.className = "media-item";
+
+        const image = document.createElement("img");
+        image.src = `/media/${bucket}/${name}`;
+        image.alt = name;
+
+        const label = document.createElement("div");
+        label.className = "media-item-name";
+        label.textContent = name;
+
+        const actions = document.createElement("div");
+        actions.className = "media-item-actions";
+
+        if (mediaPermissions.canEditMediaDetails) {
+          const editLink = document.createElement("a");
+          editLink.className = "button secondary";
+          editLink.href = `/media-manager/photo/?bucket=${encodeURIComponent(bucket)}&name=${encodeURIComponent(name)}`;
+          editLink.textContent = "Edit details";
+          actions.appendChild(editLink);
+        }
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "button secondary";
+        removeButton.type = "button";
+        removeButton.textContent = "Delete";
+        removeButton.hidden = !mediaPermissions.canDeleteMedia;
+        removeButton.addEventListener("click", async () => {
+          if (!window.confirm(`Delete ${name}?`)) return;
+          removeButton.disabled = true;
+          try {
+            const client = await window.siteAuth.getClient();
+            const { error } = await client.storage.from(bucket).remove([name]);
+            if (error) throw error;
+            setBucketStatus(bucket, "File deleted.");
+            await renderBucket(bucket);
+          } catch (error) {
+            setBucketStatus(bucket, error.message || "Unable to delete file.", true);
+            removeButton.disabled = false;
+          }
+        });
+
+        if (!removeButton.hidden) actions.appendChild(removeButton);
+
+        article.append(image, label);
+        if (actions.childElementCount) article.appendChild(actions);
+        grid.appendChild(article);
+      });
+
+      setBucketStatus(bucket, "");
+    }
+
+    async function uploadToBucket(bucket) {
+      const input = document.querySelector(`[data-bucket-input="${bucket}"]`);
+      const uploadButton = document.querySelector(`[data-bucket-upload="${bucket}"]`);
+      const file = input?.files?.[0];
+      if (!file) {
+        setBucketStatus(bucket, "Choose a file first.", true);
+        return;
+      }
+
+      uploadButton.disabled = true;
+      setBucketStatus(bucket, "Uploading...");
+
+      try {
+        const client = await window.siteAuth.getClient();
+        const filename = sanitizeFilename(file.name) || `upload-${Date.now()}.jpg`;
+        const { error } = await client.storage.from(bucket).upload(filename, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+        if (error) throw error;
+
+        input.value = "";
+        setBucketStatus(bucket, "Upload complete.");
+        await renderBucket(bucket);
+      } catch (error) {
+        setBucketStatus(bucket, error.message || "Unable to upload file.", true);
+      } finally {
+        uploadButton.disabled = false;
       }
     }
 
@@ -508,6 +1110,92 @@
       });
     }
 
+    async function loadArticles(canAccessArticles) {
+      articleSectionEl.hidden = !canAccessArticles;
+      if (!canAccessArticles) {
+        listEl.innerHTML = "";
+        setSectionStatus(articleStatusEl, "");
+        return;
+      }
+      const response = await fetch("/api/articles?scope=mine", {
+        headers: {
+          Authorization: "Bearer " + activeSession.access_token,
+        },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        if (response.status === 401) {
+          await window.siteAuth.logout();
+          window.location.replace(loginUrl + "&auth_error=expired");
+          return;
+        }
+        throw new Error(payload.error || "Unable to load articles.");
+      }
+
+      renderArticles(Array.isArray(payload.articles) ? payload.articles : [], payload.permissions || {});
+      setSectionStatus(articleStatusEl, "");
+    }
+
+    async function loadBusinesses(canAccessBusinesses) {
+      businessSectionEl.hidden = !canAccessBusinesses;
+      if (!canAccessBusinesses) {
+        businessListEl.innerHTML = "";
+        pendingListEl.innerHTML = "";
+        setSectionStatus(businessStatusEl, "");
+        return;
+      }
+      const response = await fetch("/api/businesses?scope=mine", {
+        headers: { Authorization: "Bearer " + activeSession.access_token },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "Unable to load your businesses.");
+      renderPendingClaims(Array.isArray(payload.pendingClaims) ? payload.pendingClaims : []);
+      renderBusinesses(Array.isArray(payload.businesses) ? payload.businesses : []);
+      setSectionStatus(businessStatusEl, "");
+    }
+
+    async function loadMedia(canAccessMedia) {
+      mediaSectionEl.hidden = !canAccessMedia;
+      if (!canAccessMedia) {
+        setSectionStatus(mediaStatusEl, "");
+        return;
+      }
+      const response = await fetch("/api/member-content", {
+        headers: { Authorization: "Bearer " + activeSession.access_token },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setSectionStatus(mediaStatusEl, "Media library is not available for this account.");
+        return;
+      }
+
+      const allowedBuckets = Array.isArray(payload.profile?.mediaBuckets) ? payload.profile.mediaBuckets : [];
+      mediaPermissions = {
+        canEditMediaDetails: Boolean(payload.canEditMediaDetails || payload.profile?.mediaPermissions?.canEditMediaDetails || payload.admin),
+        canDeleteMedia: Boolean(payload.canDeleteMedia || payload.profile?.mediaPermissions?.canDeleteMedia || payload.admin),
+        canUploadPhotos: Boolean(payload.canUploadPhotos || payload.profile?.mediaPermissions?.canUploadPhotos || payload.admin),
+      };
+      const visibleBuckets = payload.admin
+        ? BUCKETS
+        : BUCKETS.filter(({ id }) => allowedBuckets.includes(id));
+
+      BUCKETS.forEach(({ id }) => {
+        const card = document.querySelector(`[data-bucket-card="${id}"]`);
+        const input = document.querySelector(`[data-bucket-input="${id}"]`);
+        const uploadButton = document.querySelector(`[data-bucket-upload="${id}"]`);
+        if (card) card.hidden = !visibleBuckets.some((bucket) => bucket.id === id);
+        if (input) input.disabled = !mediaPermissions.canUploadPhotos;
+        if (uploadButton) uploadButton.hidden = !mediaPermissions.canUploadPhotos;
+        setBucketOpen(id, false);
+      });
+
+      if (!payload.admin && !visibleBuckets.length) {
+        setSectionStatus(mediaStatusEl, "No media folders are assigned to this account yet.");
+        return;
+      }
+      setSectionStatus(mediaStatusEl, "");
+    }
+
     async function loadPage() {
       try {
         activeSession = await window.siteAuth.getSession();
@@ -515,26 +1203,34 @@
           window.location.replace(loginUrl);
           return;
         }
-
-        const response = await fetch("/api/articles?scope=mine", {
-          headers: {
-            Authorization: "Bearer " + activeSession.access_token,
-          },
+        const accountResponse = await fetch("/api/member-content", {
+          headers: { Authorization: "Bearer " + activeSession.access_token },
         });
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          if (response.status === 401) {
+        const accountPayload = await accountResponse.json().catch(() => ({}));
+        if (!accountResponse.ok) {
+          if (accountResponse.status === 401) {
             await window.siteAuth.logout();
             window.location.replace(loginUrl + "&auth_error=expired");
             return;
           }
-          throw new Error(payload.error || "Unable to load articles.");
+          throw new Error(accountPayload.error || "Unable to load content.");
         }
-
-        renderArticles(Array.isArray(payload.articles) ? payload.articles : [], payload.permissions || {});
-        setStatus("");
+        const canAccessArticles = Boolean(accountPayload.canSubmitArticles || accountPayload.admin);
+        const canAccessBusinesses = Number(accountPayload.claimedBusinessCount || accountPayload.profile?.claimedBusinessCount || 0) > 0;
+        const canAccessMedia = Boolean(accountPayload.admin || accountPayload.canManageMedia || (Array.isArray(accountPayload.profile?.mediaBuckets) && accountPayload.profile.mediaBuckets.length));
+        const canAccessAdmin = Boolean(accountPayload.canReviewArticles || accountPayload.canPublishArticles || accountPayload.admin);
+        adminNavLinkEl.hidden = !canAccessAdmin;
+        if (!canAccessArticles && !canAccessBusinesses && !canAccessMedia) {
+          window.location.replace("/account/");
+          return;
+        }
+        await Promise.all([
+          loadArticles(canAccessArticles).catch((error) => setSectionStatus(articleStatusEl, error.message || "Unable to load articles.", true)),
+          loadBusinesses(canAccessBusinesses).catch((error) => setSectionStatus(businessStatusEl, error.message || "Unable to load your businesses.", true)),
+          loadMedia(canAccessMedia).catch((error) => setSectionStatus(mediaStatusEl, error.message || "Unable to load media library.", true)),
+        ]);
       } catch (error) {
-        setStatus(error.message || "Unable to load articles.", true);
+        setSectionStatus(articleStatusEl, error.message || "Unable to load content.", true);
       }
     }
 
@@ -545,7 +1241,7 @@
       }
 
       newButtonEl.disabled = true;
-      setStatus("Creating draft...");
+      setSectionStatus(articleStatusEl, "Creating draft...");
       try {
         const response = await fetch("/api/articles", {
           method: "POST",
@@ -560,8 +1256,35 @@
         window.location.href = `/account/articles/edit/?id=${encodeURIComponent(payload.article.id)}`;
       } catch (error) {
         newButtonEl.disabled = false;
-        setStatus(error.message || "Unable to create draft.", true);
+        setSectionStatus(articleStatusEl, error.message || "Unable to create draft.", true);
       }
+    });
+
+    BUCKETS.forEach(({ id }) => {
+      const toggleButton = document.querySelector(`[data-bucket-toggle="${id}"]`);
+      const refreshButton = document.querySelector(`[data-bucket-refresh="${id}"]`);
+      const uploadButton = document.querySelector(`[data-bucket-upload="${id}"]`);
+      toggleButton?.addEventListener("click", async () => {
+        const panel = document.querySelector(`[data-bucket-panel="${id}"]`);
+        const opening = panel?.hidden;
+        BUCKETS.forEach(({ id: bucketId }) => setBucketOpen(bucketId, false));
+        if (opening) {
+          setBucketOpen(id, true);
+          try {
+            await renderBucket(id);
+          } catch (error) {
+            setBucketStatus(id, error.message || "Unable to load files.", true);
+          }
+        }
+      });
+      refreshButton?.addEventListener("click", async () => {
+        try {
+          await renderBucket(id);
+        } catch (error) {
+          setBucketStatus(id, error.message || "Unable to load files.", true);
+        }
+      });
+      uploadButton?.addEventListener("click", () => uploadToBucket(id));
     });
 
     loadPage();
