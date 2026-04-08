@@ -314,6 +314,43 @@
       display: grid;
       gap: 1rem;
     }
+    .popup-list {
+      display: grid;
+      gap: 0.8rem;
+    }
+    .popup-item {
+      display: grid;
+      gap: 0.35rem;
+      padding: 0.9rem 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20, 50, 39, 0.1);
+      background: rgba(255, 255, 255, 0.76);
+    }
+    .popup-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+    }
+    .popup-item-title {
+      color: var(--forest);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .popup-item-copy {
+      color: #526158;
+      line-height: 1.5;
+      font-size: 0.94rem;
+    }
+    .popup-item-time {
+      color: #6b7a72;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .popup-empty {
+      color: #526158;
+      line-height: 1.6;
+    }
     .badge {
       display: inline-flex;
       align-items: center;
@@ -1183,6 +1220,7 @@
       </div>
       <div class="popup-body">
         <p id="alerts-popup-summary" class="meta">No unread alerts.</p>
+        <div id="alerts-popup-list" class="popup-list"></div>
       </div>
     </div>
   </div>
@@ -1195,6 +1233,7 @@
       </div>
       <div class="popup-body">
         <p id="messages-popup-summary" class="meta">No unread messages.</p>
+        <div id="messages-popup-list" class="popup-list"></div>
       </div>
     </div>
   </div>
@@ -1262,6 +1301,8 @@
     const alertsBoxSummaryEl = document.getElementById("alerts-box-summary");
     const messagesPopupSummaryEl = document.getElementById("messages-popup-summary");
     const alertsPopupSummaryEl = document.getElementById("alerts-popup-summary");
+    const messagesPopupListEl = document.getElementById("messages-popup-list");
+    const alertsPopupListEl = document.getElementById("alerts-popup-list");
     const alertsPopupEl = document.getElementById("alerts-popup");
     const messagesPopupEl = document.getElementById("messages-popup");
     const openAlertsPopupButton = document.getElementById("open-alerts-popup");
@@ -1311,6 +1352,10 @@
     const profileStatusEl = document.getElementById("profile-status");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     let activeSession = null;
+    let popupPreviewState = {
+      messages: [],
+      notifications: [],
+    };
     let currentAvatarPath = "";
     const photoEditorState = {
       image: null,
@@ -1343,6 +1388,115 @@
       if (!element) return;
       element.hidden = !isOpen;
       document.body.style.overflow = isOpen ? "hidden" : "";
+    }
+
+    function formatPopupDate(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return date.toLocaleString();
+    }
+
+    function renderMessagesPopupList(threads) {
+      messagesPopupListEl.innerHTML = "";
+      if (!Array.isArray(threads) || !threads.length) {
+        const empty = document.createElement("p");
+        empty.className = "popup-empty";
+        empty.textContent = "No recent conversations.";
+        messagesPopupListEl.appendChild(empty);
+        return;
+      }
+
+      threads.slice(0, 4).forEach((thread) => {
+        const item = document.createElement("article");
+        item.className = "popup-item";
+        const top = document.createElement("div");
+        top.className = "popup-item-top";
+        const title = document.createElement("div");
+        title.className = "popup-item-title";
+        title.textContent = thread.counterpart?.displayName || "Conversation";
+        const time = document.createElement("div");
+        time.className = "popup-item-time";
+        time.textContent = formatPopupDate(thread.latestMessageAt || thread.updatedAt);
+        top.append(title, time);
+
+        const copy = document.createElement("p");
+        copy.className = "popup-item-copy";
+        copy.textContent = thread.preview || "No messages yet.";
+        item.append(top, copy);
+
+        if (Number(thread.unreadCount || 0) > 0) {
+          const unread = document.createElement("span");
+          unread.className = "inline-count";
+          unread.textContent = `${thread.unreadCount} unread`;
+          item.appendChild(unread);
+        }
+
+        messagesPopupListEl.appendChild(item);
+      });
+    }
+
+    function renderAlertsPopupList(notifications) {
+      alertsPopupListEl.innerHTML = "";
+      if (!Array.isArray(notifications) || !notifications.length) {
+        const empty = document.createElement("p");
+        empty.className = "popup-empty";
+        empty.textContent = "No recent alerts.";
+        alertsPopupListEl.appendChild(empty);
+        return;
+      }
+
+      notifications.slice(0, 4).forEach((notification) => {
+        const item = document.createElement("article");
+        item.className = "popup-item";
+        const top = document.createElement("div");
+        top.className = "popup-item-top";
+        const title = document.createElement("div");
+        title.className = "popup-item-title";
+        title.textContent = notification.title || "Alert";
+        const time = document.createElement("div");
+        time.className = "popup-item-time";
+        time.textContent = formatPopupDate(notification.createdAt);
+        top.append(title, time);
+
+        const copy = document.createElement("p");
+        copy.className = "popup-item-copy";
+        copy.textContent = notification.body || "";
+        item.append(top, copy);
+
+        if (!notification.readAt) {
+          const unread = document.createElement("span");
+          unread.className = "inline-count";
+          unread.textContent = "Unread";
+          item.appendChild(unread);
+        }
+
+        alertsPopupListEl.appendChild(item);
+      });
+    }
+
+    async function loadPopupPreviews(session) {
+      if (!session?.access_token) return;
+      try {
+        const [messagesResponse, notificationsResponse] = await Promise.all([
+          fetch("/api/messages", {
+            headers: { Authorization: "Bearer " + session.access_token },
+          }),
+          fetch("/api/notifications", {
+            headers: { Authorization: "Bearer " + session.access_token },
+          }),
+        ]);
+        const messagesPayload = await messagesResponse.json().catch(() => ({}));
+        const notificationsPayload = await notificationsResponse.json().catch(() => ({}));
+        popupPreviewState.messages = Array.isArray(messagesPayload.threads) ? messagesPayload.threads : [];
+        popupPreviewState.notifications = Array.isArray(notificationsPayload.notifications) ? notificationsPayload.notifications : [];
+      } catch (error) {
+        popupPreviewState.messages = [];
+        popupPreviewState.notifications = [];
+      }
+
+      renderMessagesPopupList(popupPreviewState.messages);
+      renderAlertsPopupList(popupPreviewState.notifications);
     }
 
     async function resolveAvatarUrl(profile) {
@@ -1640,6 +1794,7 @@
           ? `${unreadNotificationCount} unread alert${unreadNotificationCount === 1 ? "" : "s"}`
           : "No unread alerts.";
         alertsPopupSummaryEl.innerHTML = notificationsSummaryEl.innerHTML;
+        await loadPopupPreviews(session);
       } catch (error) {
         titleEl.textContent = "Account error";
         introEl.textContent = "The account page could not be loaded.";

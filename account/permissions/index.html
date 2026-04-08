@@ -15,6 +15,7 @@
       --card: #fffdf9;
       --white: #fff;
       --shadow: 0 20px 45px rgba(12,26,20,0.18);
+      --mobile-header-height: 6.2rem;
     }
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
@@ -47,6 +48,7 @@
     .nav-links { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: flex-end; }
     nav a, nav button { color: var(--white); text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 0.45rem 0.8rem; border-radius: 999px; border: 1px solid transparent; font: inherit; cursor: pointer; background: transparent; }
     nav a.account-link, nav button.account-link { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); }
+    nav a:hover, nav button:hover { border-color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.08); }
     .mobile-nav { display: none; align-items: center; gap: 1.1rem; margin-left: auto; }
     .mobile-login { color: var(--white); text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.9rem; border: 0; background: transparent; font: inherit; cursor: pointer; }
     .mobile-menu-toggle { list-style: none; display: inline-flex; align-items: center; gap: 0.9rem; cursor: pointer; color: var(--white); text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.9rem; padding: 0.9rem 1.2rem; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.28); background: rgba(7, 10, 16, 0.38); appearance: none; }
@@ -86,6 +88,74 @@
     .hero p { color: rgba(255,255,255,0.82); }
     .meta, .status-copy, .member-email { color: #4c5d54; }
     .section-stack { display: grid; gap: 1rem; }
+    .section-card {
+      overflow: hidden;
+    }
+    .section-card[open] {
+      padding-bottom: 1.35rem;
+    }
+    .section-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .section-summary::-webkit-details-marker {
+      display: none;
+    }
+    .section-summary-main {
+      min-width: 0;
+      display: grid;
+      gap: 0.3rem;
+    }
+    .section-summary-copy {
+      color: #4c5d54;
+      line-height: 1.55;
+    }
+    .section-summary-side {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex: 0 0 auto;
+    }
+    .section-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.9rem;
+      height: 1.9rem;
+      padding: 0 0.55rem;
+      border-radius: 999px;
+      background: rgba(20, 50, 39, 0.1);
+      color: var(--forest);
+      font-size: 0.84rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    .section-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(20,50,39,0.14);
+      background: rgba(20,50,39,0.04);
+      color: var(--forest);
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .section-panel {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .section-card:not([open]) .section-panel {
+      display: none;
+    }
     .section-heading { display: grid; gap: 0.35rem; margin-bottom: 0.2rem; }
     h2, h3 { margin: 0; color: var(--forest); }
     .list, .claim-list { display: grid; gap: 0.9rem; margin-top: 1rem; }
@@ -178,7 +248,7 @@
     .warning { color: #8b322d; }
     footer { background: #162f25; color: rgba(255,255,255,0.7); text-align: center; padding: 1.5rem; font-size: 0.9rem; }
     @media (max-width: 760px) {
-      body { padding-top: 6.2rem; }
+      body { padding-top: var(--mobile-header-height); }
       header { position: fixed; top: 0; left: 0; right: 0; z-index: 30; border-bottom: 0; }
       .shell { padding: 1rem 0.75rem 2rem; }
       .hero, .card { padding: 1.1rem 1rem; border-radius: 20px; }
@@ -190,6 +260,30 @@
       .mobile-nav { display: flex; gap: 0.8rem; position: relative; z-index: 32; }
       .mobile-login { font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; }
       .mobile-menu-toggle { width: 4rem; height: 4rem; justify-content: center; gap: 0; padding: 0; border-radius: 999px; font-size: 0; color: var(--white); background: rgba(7, 10, 16, 0.38); position: relative; z-index: 32; }
+      .mobile-nav.is-open .mobile-menu-toggle { color: var(--forest); background: rgba(245, 239, 229, 0.96); }
+      .mobile-menu-toggle::before { width: 1.15rem; box-shadow: 0 -0.35rem 0 currentColor, 0 0.35rem 0 currentColor; }
+      .mobile-nav.is-open .mobile-menu-toggle::before {
+        content: "";
+        position: absolute;
+        width: 1.45rem;
+        height: 0;
+        background: none;
+        box-shadow: none;
+        border-radius: 0;
+        border-top: 3px solid currentColor;
+        transform: rotate(45deg);
+      }
+      .mobile-nav.is-open .mobile-menu-toggle::after {
+        content: "";
+        position: absolute;
+        width: 1.45rem;
+        height: 0;
+        background: none;
+        border-radius: 0;
+        border-top: 3px solid currentColor;
+        transform: rotate(-45deg);
+      }
+      .mobile-menu-panel { top: var(--mobile-header-height); background: linear-gradient(180deg, #f7f2ea 0%, #f3efe9 100%); }
     }
   </style>
 </head>
@@ -240,119 +334,147 @@
       <a id="admin-nav-link" class="active" href="/account/permissions/" aria-current="page">Admin</a>
     </nav>
 
-    <section class="card section-stack" id="article-review-management">
-      <div class="section-heading">
-        <h2>Article review</h2>
-        <p class="meta">Review submitted member articles, request changes, or open published pieces.</p>
+    <details class="card section-card" id="article-review-management">
+      <summary class="section-summary">
+        <div class="section-summary-main">
+          <h2>Article review</h2>
+          <p class="section-summary-copy">Review submitted member articles, request changes, or open published pieces.</p>
+        </div>
+        <div class="section-summary-side">
+          <span id="article-review-count" class="section-count" hidden>0</span>
+          <span class="section-toggle" aria-hidden="true">+</span>
+        </div>
+      </summary>
+      <div class="section-panel section-stack">
+        <div id="article-review-list" class="list"></div>
+        <p id="article-review-status" class="status-copy" aria-live="polite"></p>
       </div>
-      <div id="article-review-list" class="list"></div>
-      <p id="article-review-status" class="status-copy" aria-live="polite"></p>
-    </section>
+    </details>
 
-    <section class="card section-stack" id="business-review-management">
-      <div class="section-heading">
-        <h2>Business review</h2>
-        <p class="meta">Review claim requests, create listings, and publish or update business entries.</p>
-      </div>
+    <details class="card section-card" id="business-review-management">
+      <summary class="section-summary">
+        <div class="section-summary-main">
+          <h2>Business review</h2>
+          <p class="section-summary-copy">Review claim requests, create listings, and publish or update business entries.</p>
+        </div>
+        <div class="section-summary-side">
+          <span id="business-review-count" class="section-count" hidden>0</span>
+          <span class="section-toggle" aria-hidden="true">+</span>
+        </div>
+      </summary>
+      <div class="section-panel section-stack">
+        <section>
+          <h3>Claim requests</h3>
+          <div id="claim-request-list" class="claim-list"></div>
+        </section>
 
-      <section>
-        <h3>Claim requests</h3>
-        <div id="claim-request-list" class="claim-list"></div>
-      </section>
-
-      <section>
-        <details class="tool-card" id="create-business-details">
-          <summary class="tool-summary">
-            <div class="tool-copy">
-              <span class="item-toggle" id="create-business-toggle" aria-hidden="true">+</span>
-              <div>
-                <div class="tool-title">Add a business listing</div>
-                <p class="meta">Create a new listing directly in the admin page.</p>
+        <section>
+          <details class="tool-card" id="create-business-details">
+            <summary class="tool-summary">
+              <div class="tool-copy">
+                <span class="item-toggle" id="create-business-toggle" aria-hidden="true">+</span>
+                <div>
+                  <div class="tool-title">Add a business listing</div>
+                  <p class="meta">Create a new listing directly in the admin page.</p>
+                </div>
               </div>
-            </div>
-          </summary>
-          <form id="create-business-form" class="editor">
-            <div class="grid">
-              <label class="field">
-                <span>Submitter name</span>
-                <input name="submitterName" type="text" placeholder="Added by admin" required>
-              </label>
-              <label class="field">
-                <span>Submitter email</span>
-                <input name="submitterEmail" type="email" placeholder="admin@example.com" required>
-              </label>
-              <label class="field">
-                <span>Business name</span>
-                <input name="businessName" type="text" required>
-              </label>
-              <label class="field">
-                <span>Category</span>
-                <select name="businessCategory"></select>
-              </label>
-              <label class="field full">
-                <span>Description</span>
-                <textarea name="description" required></textarea>
-              </label>
-              <label class="field">
-                <span>Contact person</span>
-                <input name="contactName" type="text">
-              </label>
-              <label class="field">
-                <span>Phone</span>
-                <input name="phone" type="text">
-              </label>
-              <label class="field">
-                <span>Business email</span>
-                <input name="businessEmail" type="email">
-              </label>
-              <label class="field">
-                <span>Address</span>
-                <input name="address" type="text">
-              </label>
-              <label class="field">
-                <span>Image URL</span>
-                <input name="imageUrl" type="url">
-              </label>
-              <label class="field">
-                <span>Website</span>
-                <input name="websiteUrl" type="url">
-              </label>
-              <label class="field">
-                <span>Facebook URL</span>
-                <input name="facebookUrl" type="url">
-              </label>
-              <label class="field">
-                <span>Hours</span>
-                <input name="hours" type="text">
-              </label>
-              <label class="field full">
-                <span>Notes</span>
-                <textarea name="notes"></textarea>
-              </label>
-            </div>
-            <div class="actions">
-              <button class="button primary" type="submit">Create listing</button>
-            </div>
-            <div id="create-business-status" class="inline-status" aria-live="polite"></div>
-          </form>
-        </details>
-      </section>
+            </summary>
+            <form id="create-business-form" class="editor">
+              <div class="grid">
+                <label class="field">
+                  <span>Submitter name</span>
+                  <input name="submitterName" type="text" placeholder="Added by admin" required>
+                </label>
+                <label class="field">
+                  <span>Submitter email</span>
+                  <input name="submitterEmail" type="email" placeholder="admin@example.com" required>
+                </label>
+                <label class="field">
+                  <span>Business name</span>
+                  <input name="businessName" type="text" required>
+                </label>
+                <label class="field">
+                  <span>Category</span>
+                  <select name="businessCategory"></select>
+                </label>
+                <label class="field full">
+                  <span>Description</span>
+                  <textarea name="description" required></textarea>
+                </label>
+                <label class="field">
+                  <span>Contact person</span>
+                  <input name="contactName" type="text">
+                </label>
+                <label class="field">
+                  <span>Phone</span>
+                  <input name="phone" type="text">
+                </label>
+                <label class="field">
+                  <span>Business email</span>
+                  <input name="businessEmail" type="email">
+                </label>
+                <label class="field">
+                  <span>Address</span>
+                  <input name="address" type="text">
+                </label>
+                <label class="field">
+                  <span>Image URL</span>
+                  <input name="imageUrl" type="url">
+                </label>
+                <label class="field">
+                  <span>Website</span>
+                  <input name="websiteUrl" type="url">
+                </label>
+                <label class="field">
+                  <span>Facebook URL</span>
+                  <input name="facebookUrl" type="url">
+                </label>
+                <label class="field">
+                  <span>Hours</span>
+                  <input name="hours" type="text">
+                </label>
+                <label class="field full">
+                  <span>Notes</span>
+                  <textarea name="notes"></textarea>
+                </label>
+              </div>
+              <div class="actions">
+                <button class="button primary" type="submit">Create listing</button>
+              </div>
+              <div id="create-business-status" class="inline-status" aria-live="polite"></div>
+            </form>
+          </details>
+        </section>
 
-      <section>
-        <h3>Submitted and published listings</h3>
-        <div id="business-review-list" class="list"></div>
-      </section>
-      <p id="business-review-status" class="status-copy" aria-live="polite"></p>
-    </section>
+        <section>
+          <h3>Submitted listings</h3>
+          <div id="business-submitted-list" class="list"></div>
+        </section>
 
-    <section class="card section-stack" id="permissions-management">
-      <div class="section-heading">
-        <h2>Permissions</h2>
-        <p class="meta">Choose a member to manage upload rights, media tools, and bucket access.</p>
+        <section>
+          <h3>Published listings</h3>
+          <div id="business-published-list" class="list"></div>
+        </section>
+        <p id="business-review-status" class="status-copy" aria-live="polite"></p>
       </div>
-      <div id="member-list" class="list"></div>
-      <p id="permissions-status" class="status-copy" aria-live="polite"></p>
-    </section>
+    </details>
+
+    <details class="card section-card" id="permissions-management">
+      <summary class="section-summary">
+        <div class="section-summary-main">
+          <h2>Permissions</h2>
+          <p class="section-summary-copy">Choose a member to manage upload rights, media tools, and bucket access.</p>
+        </div>
+        <div class="section-summary-side">
+          <span id="permissions-count" class="section-count" hidden>0</span>
+          <span class="section-toggle" aria-hidden="true">+</span>
+        </div>
+      </summary>
+      <div class="section-panel section-stack">
+        <div id="member-list" class="list"></div>
+        <p id="permissions-status" class="status-copy" aria-live="polite"></p>
+      </div>
+    </details>
   </div>
 
   <footer>
@@ -413,11 +535,15 @@
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname);
     const articleReviewListEl = document.getElementById("article-review-list");
     const articleReviewStatusEl = document.getElementById("article-review-status");
+    const articleReviewCountEl = document.getElementById("article-review-count");
     const claimListEl = document.getElementById("claim-request-list");
-    const businessReviewListEl = document.getElementById("business-review-list");
+    const businessSubmittedListEl = document.getElementById("business-submitted-list");
+    const businessPublishedListEl = document.getElementById("business-published-list");
     const businessReviewStatusEl = document.getElementById("business-review-status");
+    const businessReviewCountEl = document.getElementById("business-review-count");
     const memberListEl = document.getElementById("member-list");
     const permissionsStatusEl = document.getElementById("permissions-status");
+    const permissionsCountEl = document.getElementById("permissions-count");
     const adminNavLinkEl = document.getElementById("admin-nav-link");
     const articleReviewSectionEl = document.getElementById("article-review-management");
     const businessReviewSectionEl = document.getElementById("business-review-management");
@@ -430,6 +556,13 @@
     createDetailsEl?.addEventListener("toggle", () => {
       createToggleEl.textContent = createDetailsEl.open ? "-" : "+";
     });
+
+    function syncSectionToggle(sectionEl) {
+      if (!sectionEl) return;
+      const toggle = sectionEl.querySelector(".section-toggle");
+      if (!toggle) return;
+      toggle.textContent = sectionEl.open ? "−" : "+";
+    }
 
     CATEGORY_OPTIONS.forEach((optionValue) => {
       const option = document.createElement("option");
@@ -511,6 +644,9 @@
 
     function renderArticleReviews(articles) {
       articleReviewListEl.innerHTML = "";
+      const reviewCount = (Array.isArray(articles) ? articles : []).filter((article) => String(article?.status || "") !== "published").length;
+      articleReviewCountEl.hidden = reviewCount < 1;
+      articleReviewCountEl.textContent = String(reviewCount);
       if (!articles.length) {
         const empty = document.createElement("p");
         empty.className = "meta";
@@ -554,6 +690,7 @@
 
     function renderProfiles(profiles) {
       memberListEl.innerHTML = "";
+      permissionsCountEl.hidden = true;
       if (!profiles.length) {
         const empty = document.createElement("p");
         empty.className = "meta";
@@ -588,17 +725,32 @@
     }
 
     function renderBusinesses(businesses) {
-      businessReviewListEl.innerHTML = "";
+      businessSubmittedListEl.innerHTML = "";
+      businessPublishedListEl.innerHTML = "";
+      const submittedBusinesses = (Array.isArray(businesses) ? businesses : []).filter((business) => String(business?.status || "submitted") !== "published");
+      const publishedBusinesses = (Array.isArray(businesses) ? businesses : []).filter((business) => String(business?.status || "") === "published");
+      const submittedCount = submittedBusinesses.length;
+      businessReviewCountEl.hidden = submittedCount < 1;
+      businessReviewCountEl.textContent = String(submittedCount);
 
       if (!businesses.length) {
         const empty = document.createElement("p");
         empty.className = "meta";
         empty.textContent = "Nothing is waiting in the business queue.";
-        businessReviewListEl.appendChild(empty);
+        businessSubmittedListEl.appendChild(empty);
         return;
       }
 
-      businesses.forEach((business) => {
+      const renderBusinessGroup = (targetEl, entries, emptyText) => {
+        if (!entries.length) {
+          const empty = document.createElement("p");
+          empty.className = "meta";
+          empty.textContent = emptyText;
+          targetEl.appendChild(empty);
+          return;
+        }
+
+        entries.forEach((business) => {
         const row = document.createElement("details");
         row.className = "item";
         if (business.status !== "published") row.open = true;
@@ -779,8 +931,12 @@
           toggle.textContent = row.open ? "-" : "+";
         });
         row.append(summary, form);
-        businessReviewListEl.appendChild(row);
-      });
+        targetEl.appendChild(row);
+        });
+      };
+
+      renderBusinessGroup(businessSubmittedListEl, submittedBusinesses, "No submitted listings are waiting.");
+      renderBusinessGroup(businessPublishedListEl, publishedBusinesses, "No published listings yet.");
     }
 
     function renderClaimRequests(claimRequests, businesses) {
@@ -916,8 +1072,14 @@
         if (canAccessBusinessReview) {
           if (!businessResponse.ok) throw new Error(businessPayload.error || "Unable to load the business queue.");
           const businesses = Array.isArray(businessPayload.businesses) ? businessPayload.businesses : [];
-          renderClaimRequests(Array.isArray(businessPayload.claimRequests) ? businessPayload.claimRequests : [], businesses);
+          const claimRequests = Array.isArray(businessPayload.claimRequests) ? businessPayload.claimRequests : [];
+          renderClaimRequests(claimRequests, businesses);
           renderBusinesses(businesses);
+          const submittedCount = businesses.filter((business) => String(business?.status || "submitted") !== "published").length;
+          const pendingClaimCount = claimRequests.filter((request) => request.status === "pending").length;
+          const totalAttention = submittedCount + pendingClaimCount;
+          businessReviewCountEl.hidden = totalAttention < 1;
+          businessReviewCountEl.textContent = String(totalAttention);
           setStatus(businessReviewStatusEl, "");
         }
         if (canAccessPermissions) {
@@ -976,6 +1138,11 @@
       } catch (error) {
         createStatusEl.textContent = error.message || "Unable to create business listing.";
       }
+    });
+
+    [articleReviewSectionEl, businessReviewSectionEl, permissionsSectionEl].forEach((sectionEl) => {
+      sectionEl?.addEventListener("toggle", () => syncSectionToggle(sectionEl));
+      syncSectionToggle(sectionEl);
     });
 
     loadPage();
