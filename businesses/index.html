@@ -291,6 +291,10 @@
       object-fit: cover;
     }
 
+    .biz-card img[src^="data:image/svg+xml"] {
+      display: none;
+    }
+
     .biz-card img.logo { object-fit: contain; background: #fff; }
     .biz-card img.outlaw-photo { object-fit: contain; background: #fff; }
     .biz-card img.contain-photo { object-fit: contain; background: #fff; }
@@ -1633,12 +1637,6 @@
         const article = document.createElement("article");
         article.className = "biz-card";
 
-        const image = document.createElement("img");
-        image.alt = business.businessName || "Business listing";
-        image.src = business.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='675'><rect width='100%25' height='100%25' fill='%23e9efe9'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='42'>Business listing</text></svg>";
-        const imageClass = getBusinessImageClass(business);
-        if (imageClass) image.classList.add(imageClass);
-
         const content = document.createElement("div");
         content.className = "biz-content";
 
@@ -1695,7 +1693,16 @@
           content.appendChild(notes);
         }
 
-        article.append(image, content);
+        if (business.imageUrl) {
+          const image = document.createElement("img");
+          image.alt = business.businessName || "Business listing";
+          image.src = business.imageUrl;
+          const imageClass = getBusinessImageClass(business);
+          if (imageClass) image.classList.add(imageClass);
+          article.append(image);
+        }
+
+        article.append(content);
         return article;
       }
 
