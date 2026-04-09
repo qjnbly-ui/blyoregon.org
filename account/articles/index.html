@@ -557,10 +557,10 @@
     <nav class="account-area-nav" aria-label="Account sections">
       <a href="/account/">Home</a>
       <a class="active" href="/account/articles/" aria-current="page">Content</a>
-      <a id="admin-nav-link" href="/account/permissions/">Admin</a>
+      <a id="admin-nav-link" href="/account/permissions/" hidden>Admin</a>
     </nav>
 
-    <details class="card section-card" id="article-management">
+    <details class="card section-card" id="article-management" hidden>
       <summary class="section-summary">
         <div class="section-summary-main">
           <h2>My articles</h2>
@@ -580,7 +580,7 @@
       </div>
     </details>
 
-    <section class="card section-stack" id="business-management">
+    <section class="card section-stack" id="business-management" hidden>
       <div class="section-heading">
         <h2>My businesses</h2>
         <p class="meta">Claimed listings can be updated here, and pending ownership requests stay visible until an admin reviews them.</p>
@@ -596,49 +596,56 @@
       <p id="business-status" class="status-copy" aria-live="polite"></p>
     </section>
 
-    <section class="card section-stack" id="media-library-management">
-      <div class="section-heading">
-        <h2>Media library</h2>
-        <p class="meta">Open only the folders your account can manage. Uploads and deletes follow your current account permissions.</p>
+    <details class="card section-card" id="media-library-management" hidden>
+      <summary class="section-summary">
+        <div class="section-summary-main">
+          <h2>Media library</h2>
+          <p class="section-summary-copy">Open only the folders your account can manage. Uploads and deletes follow your current account permissions.</p>
+        </div>
+        <div class="section-summary-side">
+          <span class="section-toggle" aria-hidden="true">+</span>
+        </div>
+      </summary>
+      <div class="section-panel section-stack">
+        <div class="bucket-card" data-bucket-card="churchfirephotos" hidden>
+          <div class="bucket-header">
+            <div>
+              <h3>Church Fire Photos</h3>
+              <p class="meta">Current public bucket: <code>churchfirephotos</code></p>
+            </div>
+            <button class="bucket-toggle" data-bucket-toggle="churchfirephotos" type="button" aria-expanded="false">Open folder</button>
+          </div>
+          <div class="bucket-panel" data-bucket-panel="churchfirephotos" hidden>
+            <div class="upload-row">
+              <input type="file" data-bucket-input="churchfirephotos" accept="image/png,image/jpeg,image/webp,image/gif" />
+              <button id="upload-churchfirephotos" class="button" data-bucket-upload="churchfirephotos" type="button">Upload</button>
+              <button class="button secondary" data-bucket-refresh="churchfirephotos" type="button">Refresh</button>
+            </div>
+            <p class="status" data-bucket-status="churchfirephotos"></p>
+            <div class="media-grid" data-bucket-grid="churchfirephotos"></div>
+          </div>
+        </div>
+        <div class="bucket-card" data-bucket-card="standingstonechurchconstructionphotos" hidden>
+          <div class="bucket-header">
+            <div>
+              <h3>Standing Stone Construction Photos</h3>
+              <p class="meta">Current public bucket: <code>standingstonechurchconstructionphotos</code></p>
+            </div>
+            <button class="bucket-toggle" data-bucket-toggle="standingstonechurchconstructionphotos" type="button" aria-expanded="false">Open folder</button>
+          </div>
+          <div class="bucket-panel" data-bucket-panel="standingstonechurchconstructionphotos" hidden>
+            <div class="upload-row">
+              <input type="file" data-bucket-input="standingstonechurchconstructionphotos" accept="image/png,image/jpeg,image/webp,image/gif" />
+              <button id="upload-standingstonechurchconstructionphotos" class="button" data-bucket-upload="standingstonechurchconstructionphotos" type="button">Upload</button>
+              <button class="button secondary" data-bucket-refresh="standingstonechurchconstructionphotos" type="button">Refresh</button>
+            </div>
+            <p class="status" data-bucket-status="standingstonechurchconstructionphotos"></p>
+            <div class="media-grid" data-bucket-grid="standingstonechurchconstructionphotos"></div>
+          </div>
+        </div>
+        <p id="media-status" class="status-copy" aria-live="polite"></p>
       </div>
-      <div class="bucket-card" data-bucket-card="churchfirephotos" hidden>
-        <div class="bucket-header">
-          <div>
-            <h3>Church Fire Photos</h3>
-            <p class="meta">Current public bucket: <code>churchfirephotos</code></p>
-          </div>
-          <button class="bucket-toggle" data-bucket-toggle="churchfirephotos" type="button" aria-expanded="false">Open folder</button>
-        </div>
-        <div class="bucket-panel" data-bucket-panel="churchfirephotos" hidden>
-          <div class="upload-row">
-            <input type="file" data-bucket-input="churchfirephotos" accept="image/png,image/jpeg,image/webp,image/gif" />
-            <button id="upload-churchfirephotos" class="button" data-bucket-upload="churchfirephotos" type="button">Upload</button>
-            <button class="button secondary" data-bucket-refresh="churchfirephotos" type="button">Refresh</button>
-          </div>
-          <p class="status" data-bucket-status="churchfirephotos"></p>
-          <div class="media-grid" data-bucket-grid="churchfirephotos"></div>
-        </div>
-      </div>
-      <div class="bucket-card" data-bucket-card="standingstonechurchconstructionphotos" hidden>
-        <div class="bucket-header">
-          <div>
-            <h3>Standing Stone Construction Photos</h3>
-            <p class="meta">Current public bucket: <code>standingstonechurchconstructionphotos</code></p>
-          </div>
-          <button class="bucket-toggle" data-bucket-toggle="standingstonechurchconstructionphotos" type="button" aria-expanded="false">Open folder</button>
-        </div>
-        <div class="bucket-panel" data-bucket-panel="standingstonechurchconstructionphotos" hidden>
-          <div class="upload-row">
-            <input type="file" data-bucket-input="standingstonechurchconstructionphotos" accept="image/png,image/jpeg,image/webp,image/gif" />
-            <button id="upload-standingstonechurchconstructionphotos" class="button" data-bucket-upload="standingstonechurchconstructionphotos" type="button">Upload</button>
-            <button class="button secondary" data-bucket-refresh="standingstonechurchconstructionphotos" type="button">Refresh</button>
-          </div>
-          <p class="status" data-bucket-status="standingstonechurchconstructionphotos"></p>
-          <div class="media-grid" data-bucket-grid="standingstonechurchconstructionphotos"></div>
-        </div>
-      </div>
-      <p id="media-status" class="status-copy" aria-live="polite"></p>
-    </section>
+    </details>
   </div>
 
   <footer>
@@ -1407,8 +1414,10 @@
       uploadButton?.addEventListener("click", () => uploadToBucket(id));
     });
 
-    articleSectionEl?.addEventListener("toggle", () => syncSectionToggle(articleSectionEl));
-    syncSectionToggle(articleSectionEl);
+    [articleSectionEl, mediaSectionEl].forEach((sectionEl) => {
+      sectionEl?.addEventListener("toggle", () => syncSectionToggle(sectionEl));
+      syncSectionToggle(sectionEl);
+    });
 
     loadPage();
   </script>

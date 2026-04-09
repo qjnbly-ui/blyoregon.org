@@ -314,6 +314,12 @@
       display: grid;
       gap: 1rem;
     }
+    .popup-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
     .popup-list {
       display: grid;
       gap: 0.8rem;
@@ -350,6 +356,181 @@
     .popup-empty {
       color: #526158;
       line-height: 1.6;
+    }
+    .modal-card.wide {
+      width: min(100%, 980px);
+    }
+    .alert-item {
+      display: grid;
+      gap: 0.75rem;
+      padding: 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20,50,39,0.1);
+      background: rgba(255,255,255,0.72);
+    }
+    .alert-item.unread {
+      border-color: rgba(20,50,39,0.22);
+      box-shadow: inset 0 0 0 1px rgba(20,50,39,0.08);
+    }
+    .alert-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .alert-item-title {
+      font-weight: 700;
+      font-size: 1.02rem;
+      color: var(--forest);
+    }
+    .alert-item-time {
+      color: #5c6d63;
+      font-size: 0.9rem;
+    }
+    .inbox-layout {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 1rem;
+    }
+    .thread-list,
+    .member-picker-list,
+    .messages-list {
+      display: grid;
+      gap: 0.8rem;
+    }
+    .thread-list,
+    .messages-list {
+      max-height: 420px;
+      overflow: auto;
+      padding-right: 0.15rem;
+    }
+    .thread-item {
+      display: grid;
+      gap: 0.5rem;
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20,50,39,0.1);
+      background: rgba(255,255,255,0.72);
+      text-align: left;
+      cursor: pointer;
+    }
+    .thread-item.active {
+      border-color: rgba(20,50,39,0.24);
+      box-shadow: inset 0 0 0 1px rgba(20,50,39,0.08);
+    }
+    .thread-top,
+    .composer-top,
+    .member-picker-copy {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+    }
+    .member-picker-copy {
+      min-width: 0;
+    }
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      object-fit: cover;
+      background: rgba(20,50,39,0.12);
+      border: 1px solid rgba(20,50,39,0.1);
+      flex: 0 0 auto;
+    }
+    .avatar-placeholder {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--forest);
+    }
+    .thread-title {
+      font-weight: 700;
+      color: var(--forest);
+    }
+    .thread-preview {
+      margin: 0;
+      color: #55645d;
+      font-size: 0.94rem;
+      line-height: 1.5;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.32rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(20,50,39,0.08);
+      color: var(--forest);
+      font-size: 0.8rem;
+      font-weight: 700;
+      width: fit-content;
+    }
+    .messages-pane {
+      display: grid;
+      gap: 1rem;
+      min-width: 0;
+    }
+    .bubble {
+      max-width: min(42rem, 100%);
+      padding: 0.9rem 1rem;
+      border-radius: 18px;
+      background: rgba(20,50,39,0.07);
+      border: 1px solid rgba(20,50,39,0.08);
+      display: grid;
+      gap: 0.45rem;
+    }
+    .bubble.mine {
+      margin-left: auto;
+      background: rgba(20,50,39,0.92);
+      color: #f7fbf8;
+    }
+    .bubble-author {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--forest);
+    }
+    .bubble.mine .bubble-author {
+      color: rgba(255,255,255,0.92);
+    }
+    .bubble-meta {
+      font-size: 0.82rem;
+      color: #5c6d63;
+    }
+    .bubble.mine .bubble-meta {
+      color: rgba(255,255,255,0.72);
+    }
+    .composer {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .popup-textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      padding: 0.9rem 1rem;
+      border-radius: 16px;
+      border: 1px solid rgba(20,50,39,0.14);
+      background: rgba(255,255,255,0.96);
+      color: var(--ink);
+      font: inherit;
+    }
+    .member-picker {
+      display: grid;
+      gap: 0.8rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(20,50,39,0.1);
+    }
+    .member-picker-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      padding: 0.85rem 0.95rem;
+      border-radius: 18px;
+      border: 1px solid rgba(20,50,39,0.1);
+      background: rgba(255,255,255,0.72);
     }
     .badge {
       display: inline-flex;
@@ -933,7 +1114,7 @@
     <nav class="account-area-nav" aria-label="Account sections">
       <a class="active" href="/account/" aria-current="page">Home</a>
       <a href="/account/articles/">Content</a>
-      <a href="/account/permissions/">Admin</a>
+      <a id="account-admin-nav-link" href="/account/permissions/" hidden>Admin</a>
     </nav>
 
     <section class="overview-signal-grid" aria-label="Overview panels">
@@ -981,97 +1162,6 @@
       </div>
     </article>
 
-    <section class="card" id="user-permissions-card" hidden>
-      <div class="card-header">
-        <div>
-          <h2>User permissions</h2>
-          <p class="meta">Manage member upload rights, media tools, and bucket access from one admin screen.</p>
-        </div>
-        <a class="edit-toggle" href="/account/permissions/">Open permissions</a>
-      </div>
-    </section>
-
-    <section class="card" id="media-library-card" hidden>
-      <div class="card-header">
-        <div>
-          <h2>Media library</h2>
-          <p class="meta">Open the uploader and file manager for the historical photo buckets you can manage.</p>
-        </div>
-        <a class="edit-toggle" href="/media-manager/">Open media library</a>
-      </div>
-    </section>
-
-    <section class="card" id="messages-card" hidden>
-      <div class="card-header">
-        <div>
-          <h2>Messages</h2>
-          <p class="meta">Send direct internal messages to other members and authors you find on the site.</p>
-        </div>
-        <a class="edit-toggle" href="/account/messages/">
-          Open messages
-          <span class="inline-count" id="messages-inline-count" hidden>0</span>
-        </a>
-      </div>
-      <div class="stack">
-        <p class="meta" id="messages-summary">No unread messages.</p>
-      </div>
-    </section>
-
-    <section class="card" id="notifications-card" hidden>
-      <div class="card-header">
-        <div>
-          <h2>Alerts</h2>
-          <p class="meta">See account alerts, workflow updates, approvals, and other internal notices in one inbox.</p>
-        </div>
-        <a class="edit-toggle" href="/account/notifications/">
-          Open alerts
-          <span class="inline-count" id="notifications-inline-count" hidden>0</span>
-        </a>
-      </div>
-      <div class="stack">
-        <p class="meta" id="notifications-summary">No unread alerts.</p>
-      </div>
-    </section>
-
-    <section class="card" id="my-articles-card" hidden>
-      <div class="card-header">
-        <div>
-          <h2>My articles</h2>
-          <p class="meta">Write, save, and submit dynamic user articles without editing the static archive files.</p>
-        </div>
-        <a class="edit-toggle" href="/account/articles/">Open articles</a>
-      </div>
-    </section>
-
-    <section class="card" id="my-businesses-card" hidden>
-      <div class="card-header">
-        <div>
-          <h2>My businesses</h2>
-          <p class="meta">Manage the directory listings that have been claimed and assigned to your account.</p>
-        </div>
-        <a class="edit-toggle" href="/account/businesses/">Open businesses</a>
-      </div>
-    </section>
-
-    <section class="card" id="article-review-card" hidden>
-      <div class="card-header">
-        <div>
-          <h2>Article review</h2>
-          <p class="meta">Review submitted member articles and publish them into the user-submitted section under history articles.</p>
-        </div>
-        <a class="edit-toggle" href="/account/articles/review/">Open review queue</a>
-      </div>
-    </section>
-
-    <section class="card" id="business-review-card" hidden>
-      <div class="card-header">
-        <div>
-          <h2>Business review</h2>
-          <p class="meta">Review submitted directory listings, edit their details, and publish them to the live businesses page.</p>
-        </div>
-        <a class="edit-toggle" href="/account/businesses/review/">Open review queue</a>
-      </div>
-    </section>
   </div>
 
   <div class="modal" id="profile-edit-panel" hidden>
@@ -1220,20 +1310,52 @@
       </div>
       <div class="popup-body">
         <p id="alerts-popup-summary" class="meta">No unread alerts.</p>
+        <div class="popup-actions">
+          <button id="alerts-mark-all-button" class="edit-toggle" type="button" hidden>Mark all read</button>
+          <button id="alerts-clear-button" class="edit-toggle" type="button" hidden>Clear inbox</button>
+        </div>
         <div id="alerts-popup-list" class="popup-list"></div>
       </div>
     </div>
   </div>
 
   <div class="modal" id="messages-popup" hidden>
-    <div class="modal-card">
+    <div class="modal-card wide">
       <div class="modal-header">
         <h2>Messages</h2>
         <button class="modal-close" id="messages-popup-close" type="button">Close</button>
       </div>
       <div class="popup-body">
         <p id="messages-popup-summary" class="meta">No unread messages.</p>
-        <div id="messages-popup-list" class="popup-list"></div>
+        <div class="popup-actions">
+          <button id="messages-new-button" class="edit-toggle" type="button">New conversation</button>
+        </div>
+        <div class="inbox-layout">
+          <section>
+            <div id="messages-thread-list" class="thread-list"></div>
+            <div id="messages-member-picker" class="member-picker" hidden>
+              <p class="meta">Start a new conversation.</p>
+              <div id="messages-member-picker-list" class="member-picker-list"></div>
+            </div>
+          </section>
+          <section class="messages-pane">
+            <div class="composer-top">
+              <img id="messages-active-avatar" class="avatar" alt="" hidden />
+              <div id="messages-active-avatar-placeholder" class="avatar avatar-placeholder">?</div>
+              <div>
+                <h3 id="messages-active-title">Select a conversation</h3>
+                <p id="messages-active-meta" class="meta">Choose an existing conversation or start a new one.</p>
+              </div>
+            </div>
+            <div id="messages-popup-list" class="messages-list"></div>
+            <form id="messages-composer-form" class="composer">
+              <textarea id="messages-composer-body" class="popup-textarea" maxlength="4000" placeholder="Write a message"></textarea>
+              <div class="popup-actions">
+                <button id="messages-composer-send" class="save-button" type="submit">Send message</button>
+              </div>
+            </form>
+          </section>
+        </div>
       </div>
     </div>
   </div>
@@ -1291,28 +1413,32 @@
     const bioEl = document.getElementById("bio");
     const avatarEl = document.getElementById("profile-avatar");
     const avatarPlaceholderEl = document.getElementById("profile-avatar-placeholder");
-    const userPermissionsCardEl = document.getElementById("user-permissions-card");
-    const mediaLibraryCardEl = document.getElementById("media-library-card");
-    const messagesSummaryEl = document.getElementById("messages-summary");
-    const messagesInlineCountEl = document.getElementById("messages-inline-count");
-    const notificationsSummaryEl = document.getElementById("notifications-summary");
-    const notificationsInlineCountEl = document.getElementById("notifications-inline-count");
+    const accountAdminNavLinkEl = document.getElementById("account-admin-nav-link");
     const messagesBoxSummaryEl = document.getElementById("messages-box-summary");
     const alertsBoxSummaryEl = document.getElementById("alerts-box-summary");
     const messagesPopupSummaryEl = document.getElementById("messages-popup-summary");
     const alertsPopupSummaryEl = document.getElementById("alerts-popup-summary");
     const messagesPopupListEl = document.getElementById("messages-popup-list");
     const alertsPopupListEl = document.getElementById("alerts-popup-list");
+    const alertsMarkAllButtonEl = document.getElementById("alerts-mark-all-button");
+    const alertsClearButtonEl = document.getElementById("alerts-clear-button");
+    const messagesNewButtonEl = document.getElementById("messages-new-button");
+    const messagesThreadListEl = document.getElementById("messages-thread-list");
+    const messagesMemberPickerEl = document.getElementById("messages-member-picker");
+    const messagesMemberPickerListEl = document.getElementById("messages-member-picker-list");
+    const messagesActiveAvatarEl = document.getElementById("messages-active-avatar");
+    const messagesActiveAvatarPlaceholderEl = document.getElementById("messages-active-avatar-placeholder");
+    const messagesActiveTitleEl = document.getElementById("messages-active-title");
+    const messagesActiveMetaEl = document.getElementById("messages-active-meta");
+    const messagesComposerFormEl = document.getElementById("messages-composer-form");
+    const messagesComposerBodyEl = document.getElementById("messages-composer-body");
+    const messagesComposerSendEl = document.getElementById("messages-composer-send");
     const alertsPopupEl = document.getElementById("alerts-popup");
     const messagesPopupEl = document.getElementById("messages-popup");
     const openAlertsPopupButton = document.getElementById("open-alerts-popup");
     const openMessagesPopupButton = document.getElementById("open-messages-popup");
     const alertsPopupCloseButton = document.getElementById("alerts-popup-close");
     const messagesPopupCloseButton = document.getElementById("messages-popup-close");
-    const myArticlesCardEl = document.getElementById("my-articles-card");
-    const myBusinessesCardEl = document.getElementById("my-businesses-card");
-    const articleReviewCardEl = document.getElementById("article-review-card");
-    const businessReviewCardEl = document.getElementById("business-review-card");
     const profileEditToggle = document.getElementById("profile-edit-toggle");
     const profileEditPanel = document.getElementById("profile-edit-panel");
     const profileEditClose = document.getElementById("profile-edit-close");
@@ -1356,6 +1482,12 @@
       messages: [],
       notifications: [],
     };
+    let popupMessagesState = {
+      threads: [],
+      availableMembers: [],
+      activeThreadId: "",
+      activeRecipientId: "",
+    };
     let currentAvatarPath = "";
     const photoEditorState = {
       image: null,
@@ -1397,43 +1529,31 @@
       return date.toLocaleString();
     }
 
-    function renderMessagesPopupList(threads) {
+    function renderMessagesPopupList(messages) {
       messagesPopupListEl.innerHTML = "";
-      if (!Array.isArray(threads) || !threads.length) {
+      if (!Array.isArray(messages) || !messages.length) {
         const empty = document.createElement("p");
         empty.className = "popup-empty";
-        empty.textContent = "No recent conversations.";
+        empty.textContent = popupMessagesState.activeRecipientId ? "No messages yet. Send the first one." : "No conversation selected.";
         messagesPopupListEl.appendChild(empty);
         return;
       }
 
-      threads.slice(0, 4).forEach((thread) => {
+      messages.forEach((message) => {
         const item = document.createElement("article");
-        item.className = "popup-item";
-        const top = document.createElement("div");
-        top.className = "popup-item-top";
-        const title = document.createElement("div");
-        title.className = "popup-item-title";
-        title.textContent = thread.counterpart?.displayName || "Conversation";
-        const time = document.createElement("div");
-        time.className = "popup-item-time";
-        time.textContent = formatPopupDate(thread.latestMessageAt || thread.updatedAt);
-        top.append(title, time);
-
-        const copy = document.createElement("p");
-        copy.className = "popup-item-copy";
-        copy.textContent = thread.preview || "No messages yet.";
-        item.append(top, copy);
-
-        if (Number(thread.unreadCount || 0) > 0) {
-          const unread = document.createElement("span");
-          unread.className = "inline-count";
-          unread.textContent = `${thread.unreadCount} unread`;
-          item.appendChild(unread);
-        }
-
+        item.className = `bubble${message.senderId === activeSession?.user?.id ? " mine" : ""}`;
+        const author = document.createElement("div");
+        author.className = "bubble-author";
+        author.textContent = message.senderName || "Bly member";
+        const body = document.createElement("div");
+        body.textContent = message.body || "";
+        const meta = document.createElement("div");
+        meta.className = "bubble-meta";
+        meta.textContent = formatPopupDate(message.createdAt);
+        item.append(author, body, meta);
         messagesPopupListEl.appendChild(item);
       });
+      messagesPopupListEl.scrollTop = messagesPopupListEl.scrollHeight;
     }
 
     function renderAlertsPopupList(notifications) {
@@ -1446,16 +1566,16 @@
         return;
       }
 
-      notifications.slice(0, 4).forEach((notification) => {
+      notifications.forEach((notification) => {
         const item = document.createElement("article");
-        item.className = "popup-item";
+        item.className = `alert-item${notification.readAt ? "" : " unread"}`;
         const top = document.createElement("div");
-        top.className = "popup-item-top";
+        top.className = "alert-item-header";
         const title = document.createElement("div");
-        title.className = "popup-item-title";
+        title.className = "alert-item-title";
         title.textContent = notification.title || "Alert";
         const time = document.createElement("div");
-        time.className = "popup-item-time";
+        time.className = "alert-item-time";
         time.textContent = formatPopupDate(notification.createdAt);
         top.append(title, time);
 
@@ -1464,39 +1584,235 @@
         copy.textContent = notification.body || "";
         item.append(top, copy);
 
-        if (!notification.readAt) {
-          const unread = document.createElement("span");
-          unread.className = "inline-count";
-          unread.textContent = "Unread";
-          item.appendChild(unread);
+        const actions = document.createElement("div");
+        actions.className = "popup-actions";
+        if (notification.link) {
+          const openLink = document.createElement("a");
+          openLink.className = "edit-toggle";
+          openLink.href = notification.link;
+          openLink.textContent = "Open";
+          openLink.addEventListener("click", async (event) => {
+            if (!notification.readAt) {
+              event.preventDefault();
+              await updateNotification("mark_read", notification.id).catch(() => null);
+              await loadAlertsPopup();
+              await loadAccount();
+              window.location.href = notification.link;
+            }
+          });
+          actions.appendChild(openLink);
         }
-
+        if (!notification.readAt) {
+          const markReadButton = document.createElement("button");
+          markReadButton.type = "button";
+          markReadButton.className = "edit-toggle";
+          markReadButton.textContent = "Mark read";
+          markReadButton.addEventListener("click", async () => {
+            markReadButton.disabled = true;
+            await updateNotification("mark_read", notification.id).catch(() => null);
+            await loadAlertsPopup();
+            await loadAccount();
+          });
+          actions.appendChild(markReadButton);
+        }
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "edit-toggle";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", async () => {
+          deleteButton.disabled = true;
+          await updateNotification("delete", notification.id).catch(() => null);
+          await loadAlertsPopup();
+          await loadAccount();
+        });
+        actions.appendChild(deleteButton);
+        item.appendChild(actions);
         alertsPopupListEl.appendChild(item);
       });
+    }
+
+    async function updateNotification(action, id) {
+      if (!activeSession?.access_token) return;
+      const response = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: {
+          Authorization: "Bearer " + activeSession.access_token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action, id }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "Unable to update alerts.");
+      return payload;
+    }
+
+    function renderMessagesThreads(threads) {
+      messagesThreadListEl.innerHTML = "";
+      if (!Array.isArray(threads) || !threads.length) {
+        const empty = document.createElement("p");
+        empty.className = "popup-empty";
+        empty.textContent = "No conversations yet.";
+        messagesThreadListEl.appendChild(empty);
+        return;
+      }
+      threads.forEach((thread) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `thread-item${thread.id === popupMessagesState.activeThreadId ? " active" : ""}`;
+        const top = document.createElement("div");
+        top.className = "thread-top";
+        const avatar = document.createElement(thread.counterpart?.avatarUrl ? "img" : "div");
+        avatar.className = "avatar";
+        if (thread.counterpart?.avatarUrl) {
+          avatar.src = thread.counterpart.avatarUrl;
+          avatar.alt = thread.counterpart.displayName || "Member";
+        } else {
+          avatar.classList.add("avatar-placeholder");
+          avatar.textContent = (thread.counterpart?.displayName || "?").trim().slice(0, 1).toUpperCase() || "?";
+        }
+        const copy = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "thread-title";
+        title.textContent = thread.counterpart?.displayName || "Member";
+        const preview = document.createElement("p");
+        preview.className = "thread-preview";
+        preview.textContent = thread.preview || "No messages yet.";
+        copy.append(title, preview);
+        top.append(avatar, copy);
+        button.appendChild(top);
+        if (thread.unreadCount > 0) {
+          const unread = document.createElement("span");
+          unread.className = "chip";
+          unread.textContent = `${thread.unreadCount} unread`;
+          button.appendChild(unread);
+        }
+        button.addEventListener("click", async () => {
+          popupMessagesState.activeThreadId = thread.id;
+          popupMessagesState.activeRecipientId = thread.counterpart?.id || "";
+          await loadMessagesPopup();
+          await loadAccount();
+        });
+        messagesThreadListEl.appendChild(button);
+      });
+    }
+
+    function renderMessageMembers(members) {
+      messagesMemberPickerListEl.innerHTML = "";
+      if (!Array.isArray(members) || !members.length) {
+        const empty = document.createElement("p");
+        empty.className = "popup-empty";
+        empty.textContent = "No named members are currently available.";
+        messagesMemberPickerListEl.appendChild(empty);
+        return;
+      }
+      members.forEach((member) => {
+        const item = document.createElement("div");
+        item.className = "member-picker-item";
+        const copyWrap = document.createElement("div");
+        copyWrap.className = "member-picker-copy";
+        const avatar = document.createElement(member.avatarUrl ? "img" : "div");
+        avatar.className = "avatar";
+        if (member.avatarUrl) {
+          avatar.src = member.avatarUrl;
+          avatar.alt = member.displayName || "Member";
+        } else {
+          avatar.classList.add("avatar-placeholder");
+          avatar.textContent = (member.displayName || "?").trim().slice(0, 1).toUpperCase() || "?";
+        }
+        const text = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "thread-title";
+        title.textContent = member.displayName || "Bly member";
+        const bio = document.createElement("p");
+        bio.className = "thread-preview";
+        bio.textContent = member.bio || "Open a conversation with this member.";
+        text.append(title, bio);
+        copyWrap.append(avatar, text);
+        const action = document.createElement("button");
+        action.type = "button";
+        action.className = "edit-toggle";
+        action.textContent = "Message";
+        action.addEventListener("click", async () => {
+          popupMessagesState.activeRecipientId = member.id || "";
+          popupMessagesState.activeThreadId = "";
+          messagesMemberPickerEl.hidden = true;
+          await loadMessagesPopup();
+        });
+        item.append(copyWrap, action);
+        messagesMemberPickerListEl.appendChild(item);
+      });
+    }
+
+    function renderActiveMessageHeader(activeThread) {
+      const counterpart = activeThread?.counterpart || null;
+      if (counterpart?.avatarUrl) {
+        messagesActiveAvatarEl.src = counterpart.avatarUrl;
+        messagesActiveAvatarEl.hidden = false;
+        messagesActiveAvatarPlaceholderEl.hidden = true;
+      } else {
+        messagesActiveAvatarEl.hidden = true;
+        messagesActiveAvatarPlaceholderEl.hidden = false;
+        messagesActiveAvatarPlaceholderEl.textContent = (counterpart?.displayName || "?").trim().slice(0, 1).toUpperCase() || "?";
+      }
+      messagesActiveTitleEl.textContent = counterpart?.displayName || "Select a conversation";
+      messagesActiveMetaEl.textContent = counterpart
+        ? (counterpart.bio || "Send a direct message to this member.")
+        : "Choose an existing conversation or start a new one.";
+    }
+
+    async function loadAlertsPopup() {
+      if (!activeSession?.access_token) return;
+      const response = await fetch("/api/notifications", {
+        headers: { Authorization: "Bearer " + activeSession.access_token },
+      });
+      const payload = await response.json().catch(() => ({}));
+      popupPreviewState.notifications = Array.isArray(payload.notifications) ? payload.notifications : [];
+      alertsMarkAllButtonEl.hidden = Number(payload.unreadCount || 0) < 1;
+      alertsClearButtonEl.hidden = popupPreviewState.notifications.length < 1;
+      renderAlertsPopupList(popupPreviewState.notifications);
+    }
+
+    async function loadMessagesPopup() {
+      if (!activeSession?.access_token) return;
+      const query = new URLSearchParams();
+      if (popupMessagesState.activeRecipientId) query.set("with", popupMessagesState.activeRecipientId);
+      if (popupMessagesState.activeThreadId) query.set("thread", popupMessagesState.activeThreadId);
+      const response = await fetch(`/api/messages?${query.toString()}`, {
+        headers: { Authorization: "Bearer " + activeSession.access_token },
+      });
+      const payload = await response.json().catch(() => ({}));
+      popupMessagesState.threads = Array.isArray(payload.threads) ? payload.threads : [];
+      popupMessagesState.availableMembers = Array.isArray(payload.availableMembers) ? payload.availableMembers : [];
+      if (!popupMessagesState.activeThreadId && payload.activeThread?.id) popupMessagesState.activeThreadId = payload.activeThread.id;
+      if (!popupMessagesState.activeRecipientId && payload.activeThread?.counterpart?.id) popupMessagesState.activeRecipientId = payload.activeThread.counterpart.id;
+      messagesMemberPickerEl.hidden = true;
+      renderMessagesThreads(popupMessagesState.threads);
+      renderMessageMembers(popupMessagesState.availableMembers);
+      renderActiveMessageHeader(payload.activeThread || null);
+      renderMessagesPopupList(Array.isArray(payload.messages) ? payload.messages : []);
+      if (payload.activeThread?.id) {
+        await fetch("/api/messages", {
+          method: "PATCH",
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "mark_thread_read",
+            threadId: payload.activeThread.id,
+          }),
+        }).catch(() => null);
+      }
     }
 
     async function loadPopupPreviews(session) {
       if (!session?.access_token) return;
       try {
-        const [messagesResponse, notificationsResponse] = await Promise.all([
-          fetch("/api/messages", {
-            headers: { Authorization: "Bearer " + session.access_token },
-          }),
-          fetch("/api/notifications", {
-            headers: { Authorization: "Bearer " + session.access_token },
-          }),
-        ]);
-        const messagesPayload = await messagesResponse.json().catch(() => ({}));
-        const notificationsPayload = await notificationsResponse.json().catch(() => ({}));
-        popupPreviewState.messages = Array.isArray(messagesPayload.threads) ? messagesPayload.threads : [];
-        popupPreviewState.notifications = Array.isArray(notificationsPayload.notifications) ? notificationsPayload.notifications : [];
+        activeSession = session;
+        await Promise.all([loadMessagesPopup(), loadAlertsPopup()]);
       } catch (error) {
-        popupPreviewState.messages = [];
         popupPreviewState.notifications = [];
       }
-
-      renderMessagesPopupList(popupPreviewState.messages);
-      renderAlertsPopupList(popupPreviewState.notifications);
     }
 
     async function resolveAvatarUrl(profile) {
@@ -1767,33 +2083,22 @@
         titleEl.textContent = "Account home";
         introEl.textContent = payload.intro || "Signed in.";
         await applyProfile(payload.profile || {}, payload.email || "");
-        userPermissionsCardEl.hidden = !payload.admin;
-        mediaLibraryCardEl.hidden = !payload.canManageMedia;
-        myArticlesCardEl.hidden = !(payload.canSubmitArticles || payload.admin);
-        myBusinessesCardEl.hidden = Number(payload.claimedBusinessCount || payload.profile?.claimedBusinessCount || 0) < 1;
-        articleReviewCardEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
-        businessReviewCardEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
+        accountAdminNavLinkEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
         const unreadNotificationCount = Number(payload.unreadNotificationCount || payload.profile?.unreadNotificationCount || 0);
         const unreadMessageCount = Number(payload.unreadMessageCount || payload.profile?.unreadMessageCount || 0);
 
-        messagesInlineCountEl.hidden = unreadMessageCount < 1;
-        messagesInlineCountEl.textContent = String(unreadMessageCount);
-        messagesSummaryEl.innerHTML = unreadMessageCount > 0
-          ? `<span class="meta-strong">${unreadMessageCount}</span> unread message${unreadMessageCount === 1 ? "" : "s"} waiting in your inbox.`
-          : "No unread messages.";
         messagesBoxSummaryEl.textContent = unreadMessageCount > 0
           ? `${unreadMessageCount} unread message${unreadMessageCount === 1 ? "" : "s"}`
           : "No unread messages.";
-        messagesPopupSummaryEl.innerHTML = messagesSummaryEl.innerHTML;
-        notificationsInlineCountEl.hidden = unreadNotificationCount < 1;
-        notificationsInlineCountEl.textContent = String(unreadNotificationCount);
-        notificationsSummaryEl.innerHTML = unreadNotificationCount > 0
-          ? `<span class="meta-strong">${unreadNotificationCount}</span> unread alert${unreadNotificationCount === 1 ? "" : "s"} waiting in your inbox.`
-          : "No unread alerts.";
         alertsBoxSummaryEl.textContent = unreadNotificationCount > 0
           ? `${unreadNotificationCount} unread alert${unreadNotificationCount === 1 ? "" : "s"}`
           : "No unread alerts.";
-        alertsPopupSummaryEl.innerHTML = notificationsSummaryEl.innerHTML;
+        messagesPopupSummaryEl.innerHTML = unreadMessageCount > 0
+          ? `<span class="meta-strong">${unreadMessageCount}</span> unread message${unreadMessageCount === 1 ? "" : "s"} waiting in your inbox.`
+          : "No unread messages.";
+        alertsPopupSummaryEl.innerHTML = unreadNotificationCount > 0
+          ? `<span class="meta-strong">${unreadNotificationCount}</span> unread alert${unreadNotificationCount === 1 ? "" : "s"} waiting in your inbox.`
+          : "No unread alerts.";
         await loadPopupPreviews(session);
       } catch (error) {
         titleEl.textContent = "Account error";
@@ -1952,8 +2257,14 @@
       }
     });
 
-    openAlertsPopupButton?.addEventListener("click", () => setSimpleModalOpen(alertsPopupEl, true));
-    openMessagesPopupButton?.addEventListener("click", () => setSimpleModalOpen(messagesPopupEl, true));
+    openAlertsPopupButton?.addEventListener("click", async () => {
+      setSimpleModalOpen(alertsPopupEl, true);
+      await loadAlertsPopup();
+    });
+    openMessagesPopupButton?.addEventListener("click", async () => {
+      setSimpleModalOpen(messagesPopupEl, true);
+      await loadMessagesPopup();
+    });
     alertsPopupCloseButton?.addEventListener("click", () => setSimpleModalOpen(alertsPopupEl, false));
     messagesPopupCloseButton?.addEventListener("click", () => setSimpleModalOpen(messagesPopupEl, false));
     alertsPopupEl?.addEventListener("click", (event) => {
@@ -1961,6 +2272,54 @@
     });
     messagesPopupEl?.addEventListener("click", (event) => {
       if (event.target === messagesPopupEl) setSimpleModalOpen(messagesPopupEl, false);
+    });
+    alertsMarkAllButtonEl?.addEventListener("click", async () => {
+      alertsMarkAllButtonEl.disabled = true;
+      await updateNotification("mark_all_read").catch(() => null);
+      await loadAlertsPopup();
+      await loadAccount();
+      alertsMarkAllButtonEl.disabled = false;
+    });
+    alertsClearButtonEl?.addEventListener("click", async () => {
+      if (!window.confirm("Clear your entire alerts inbox? This deletes all alerts.")) return;
+      alertsClearButtonEl.disabled = true;
+      await updateNotification("clear_inbox").catch(() => null);
+      await loadAlertsPopup();
+      await loadAccount();
+      alertsClearButtonEl.disabled = false;
+    });
+    messagesNewButtonEl?.addEventListener("click", () => {
+      messagesMemberPickerEl.hidden = !messagesMemberPickerEl.hidden;
+    });
+    messagesComposerFormEl?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!popupMessagesState.activeRecipientId) return;
+      const message = messagesComposerBodyEl.value.trim();
+      if (!message) return;
+      messagesComposerSendEl.disabled = true;
+      try {
+        const response = await fetch("/api/messages", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + activeSession.access_token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            recipientId: popupMessagesState.activeRecipientId,
+            body: message,
+          }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (response.ok) {
+          popupMessagesState.activeThreadId = payload.thread?.id || popupMessagesState.activeThreadId;
+          popupMessagesState.activeRecipientId = payload.thread?.counterpart?.id || popupMessagesState.activeRecipientId;
+          messagesComposerBodyEl.value = "";
+          await loadMessagesPopup();
+          await loadAccount();
+        }
+      } finally {
+        messagesComposerSendEl.disabled = false;
+      }
     });
 
     profileAvatarInput.addEventListener("change", async () => {
