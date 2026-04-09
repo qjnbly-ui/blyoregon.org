@@ -908,14 +908,6 @@
     }
 
     @media (max-width: 800px) {
-      .header-inner {
-        justify-content: center;
-      }
-
-      nav {
-        justify-content: center;
-      }
-
       .hub-grid {
         grid-template-columns: 1fr;
       }
@@ -999,6 +991,12 @@
         padding: 1.1rem 1rem;
         border-radius: 20px;
       }
+      .modal {
+        padding: 0.75rem;
+      }
+      .modal-card.wide {
+        width: 100%;
+      }
       .card h2 {
         font-size: 1.05rem;
       }
@@ -1011,6 +1009,38 @@
       }
       .card-actions {
         margin-top: 0.8rem;
+      }
+      .popup-actions {
+        width: 100%;
+      }
+      .popup-actions .edit-toggle,
+      .popup-actions .save-button,
+      .popup-actions .danger-button {
+        width: 100%;
+      }
+      .inbox-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .thread-list,
+      .messages-list {
+        max-height: 260px;
+      }
+      .thread-top,
+      .composer-top,
+      .member-picker-item {
+        align-items: flex-start;
+      }
+      .member-picker-item {
+        flex-direction: column;
+      }
+      .popup-item-top,
+      .alert-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .popup-item-time,
+      .alert-item-time {
+        white-space: normal;
       }
       .edit-toggle,
       .save-button,
