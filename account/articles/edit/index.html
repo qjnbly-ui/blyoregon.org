@@ -141,6 +141,7 @@
       display: flex;
       gap: 0.75rem;
       flex-wrap: wrap;
+      align-items: stretch;
     }
     .button,
     .pill-link {
@@ -451,29 +452,39 @@
       .mobile-nav { display: flex; gap: 0.8rem; position: relative; z-index: 32; }
       .mobile-login { font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; }
       .mobile-menu-toggle { width: 4rem; height: 4rem; justify-content: center; gap: 0; padding: 0; border-radius: 999px; font-size: 0; color: var(--white); background: rgba(7, 10, 16, 0.38); position: relative; z-index: 32; }
-      .hero-actions,
-      .card-actions {
-        display: grid;
-        grid-template-columns: 1fr;
+      form {
+        gap: 0.9rem;
       }
       .button,
       .pill-link {
-        width: 100%;
+        width: auto;
         justify-content: center;
         text-align: center;
       }
+      .hero-actions > .button,
+      .hero-actions > .pill-link,
+      .card-actions > .button,
+      .card-actions > .pill-link,
+      .card-actions > input[type="file"] {
+        flex: 1 1 13rem;
+        min-width: 0;
+      }
+      .card-actions > input[type="file"] {
+        width: 100%;
+      }
       .editor-toolbar {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
       .toolbar-button {
         width: 100%;
         min-height: 2.9rem;
         justify-content: center;
         text-align: center;
+        font-size: 0.82rem;
       }
       .editor-surface {
-        min-height: 320px;
+        min-height: 300px;
         padding: 0.9rem;
         font-size: 1rem;
       }
@@ -535,7 +546,22 @@
         border-radius: 18px;
       }
       .editor-toolbar {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .hero-actions > .button,
+      .hero-actions > .pill-link,
+      .card-actions > .button,
+      .card-actions > .pill-link {
+        flex-basis: calc(50% - 0.4rem);
+      }
+    }
+    @media (max-width: 420px) {
+      .hero-actions > .button,
+      .hero-actions > .pill-link,
+      .card-actions > .button,
+      .card-actions > .pill-link,
+      .card-actions > input[type="file"] {
+        flex-basis: 100%;
       }
       input,
       textarea,
