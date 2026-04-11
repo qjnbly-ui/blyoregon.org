@@ -58,6 +58,7 @@
     .header-meta {
       margin: 0;
       color: rgba(255,255,255,0.82);
+      overflow-wrap: anywhere;
     }
     .subnav {
       max-width: 1000px;
@@ -106,6 +107,7 @@
       gap: 1rem;
       line-height: 1.8;
       color: #2f3934;
+      overflow-wrap: anywhere;
     }
     .body h2 {
       margin: 0.4rem 0 0;
@@ -174,9 +176,52 @@
       font-size: 0.9rem;
     }
     @media (max-width: 700px) {
+      .header-inner {
+        padding: 1rem 1rem 1.1rem;
+      }
+      h1 {
+        font-size: clamp(1.7rem, 8vw, 2.35rem);
+      }
+      .subnav {
+        margin-top: 0.85rem;
+        padding: 0 0.75rem;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+      .subnav a {
+        width: 100%;
+        text-align: center;
+        padding: 0.7rem 0.9rem;
+      }
       .gallery { grid-template-columns: 1fr; }
       main { padding: 1rem 0.75rem 2rem; }
       .card { padding: 1.1rem 1rem; border-radius: 20px; }
+      .summary,
+      .body {
+        font-size: 0.98rem;
+      }
+      .cover {
+        max-height: 320px;
+        border-radius: 16px;
+      }
+    }
+    @media (max-width: 480px) {
+      .header-inner,
+      main,
+      .subnav {
+        padding-left: 0.65rem;
+        padding-right: 0.65rem;
+      }
+      .card {
+        border-radius: 18px;
+        padding: 1rem 0.9rem;
+      }
+      .body h2 {
+        font-size: 1.3rem;
+      }
+      .body h3 {
+        font-size: 1.05rem;
+      }
     }
   </style>
 </head>
