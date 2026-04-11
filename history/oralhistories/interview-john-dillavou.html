@@ -217,6 +217,12 @@
       background: rgba(244, 179, 91, 0.25);
     }
 
+    .audio-note {
+      margin: 0.4rem 0 0;
+      color: rgba(30, 31, 28, 0.7);
+      font-size: 0.95rem;
+    }
+
     footer {
       background: #162f25;
       color: rgba(255, 255, 255, 0.7);
@@ -252,6 +258,7 @@
       <h2 id="toc">On this page</h2>
       <ul>
         <li><a href="#summary">Quick summary</a></li>
+        <li><a href="#audio" class="toc-play">Listen to the interview</a></li>
         <li><a href="#highlights">Highlights (quotable moments)</a></li>
         <li><a href="#timeline">Timeline anchors</a></li>
         <li><a href="#themes">Themes</a></li>
@@ -316,6 +323,15 @@
     </section>
 
     <hr />
+
+    <section id="audio" aria-labelledby="audio-title">
+      <h2 id="audio-title">Listen to the interview</h2>
+      <audio controls preload="none" style="width: 100%; max-width: 720px;">
+        <source src="/media/oralhistory-audio/JohnDillavouInterview.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+      <p class="audio-note">Audio is currently linked to the available oral history recording in Supabase storage.</p>
+    </section>
 
     <section id="transcript" aria-labelledby="transcript-title">
       <h2 id="transcript-title">Full transcript</h2>
