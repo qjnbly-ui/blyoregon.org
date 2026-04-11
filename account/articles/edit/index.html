@@ -455,26 +455,36 @@
       form {
         gap: 0.9rem;
       }
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .card-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
       .button,
       .pill-link {
-        width: auto;
+        width: 100%;
         justify-content: center;
         text-align: center;
       }
       .hero-actions > .button,
-      .hero-actions > .pill-link,
+      .hero-actions > .pill-link {
+        flex: 1 1 13rem;
+        min-width: 0;
+      }
       .card-actions > .button,
       .card-actions > .pill-link,
       .card-actions > input[type="file"] {
-        flex: 1 1 13rem;
-        min-width: 0;
+        width: 100%;
       }
       .card-actions > input[type="file"] {
         width: 100%;
       }
       .editor-toolbar {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
       .toolbar-button {
         width: 100%;
@@ -545,23 +555,18 @@
       .hero {
         border-radius: 18px;
       }
-      .editor-toolbar {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
       .hero-actions > .button,
-      .hero-actions > .pill-link,
-      .card-actions > .button,
-      .card-actions > .pill-link {
+      .hero-actions > .pill-link {
         flex-basis: calc(50% - 0.4rem);
       }
     }
     @media (max-width: 420px) {
       .hero-actions > .button,
-      .hero-actions > .pill-link,
-      .card-actions > .button,
-      .card-actions > .pill-link,
-      .card-actions > input[type="file"] {
+      .hero-actions > .pill-link {
         flex-basis: 100%;
+      }
+      .editor-toolbar {
+        grid-template-columns: 1fr;
       }
       input,
       textarea,
