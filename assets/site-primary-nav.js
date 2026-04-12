@@ -11,6 +11,36 @@
     { href: "/recreation/", label: "Recreation" },
   ];
 
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector(`script[src="${src}"]`);
+      if (existing) {
+        if (existing.dataset.loaded === "true") {
+          resolve();
+          return;
+        }
+        existing.addEventListener("load", resolve, { once: true });
+        existing.addEventListener("error", reject, { once: true });
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = src;
+      script.defer = true;
+      script.addEventListener("load", () => {
+        script.dataset.loaded = "true";
+        resolve();
+      }, { once: true });
+      script.addEventListener("error", reject, { once: true });
+      document.head.appendChild(script);
+    });
+  }
+
+  async function ensureAuth() {
+    if (window.siteAuth?.getSession) return window.siteAuth;
+    await loadScript("/assets/auth.js").catch(() => null);
+    return window.siteAuth || null;
+  }
+
   function hasExistingPrimaryNav() {
     if (document.querySelector(`.${HEADER_CLASS}`)) return true;
     const navLinks = Array.from(document.querySelectorAll(".nav-links a[href], nav a[href]"));
@@ -271,10 +301,11 @@
     const panel = document.createElement("div");
     panel.className = "site-primary-mobile-panel";
     panel.hidden = true;
-    [...LINKS, { href: "/login/", label: "Login" }].forEach((link) => {
+    [...LINKS, { href: "/login/", label: "Login", authLink: true }].forEach((link) => {
       const anchor = document.createElement("a");
       anchor.href = link.href;
       anchor.textContent = link.label;
+      if (link.authLink) anchor.dataset.authLink = "true";
       panel.appendChild(anchor);
     });
 
@@ -293,16 +324,27 @@
 
     panel.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
 
-    return { header, panel };
+    return { header, panel, authLinks: [login, mobileLogin, ...panel.querySelectorAll("[data-auth-link]")] };
+  }
+
+  async function syncAuthLinks(links) {
+    const auth = await ensureAuth();
+    const session = auth?.getSession ? await auth.getSession().catch(() => null) : null;
+    links.forEach((link) => {
+      if (!link) return;
+      link.textContent = session ? "Account" : "Login";
+      link.href = session ? "/account/" : "/login/";
+    });
   }
 
   function insertHeader() {
     if (hasExistingPrimaryNav()) return;
     const body = document.body;
     if (!body) return;
-    const { header, panel } = buildHeader();
+    const { header, panel, authLinks } = buildHeader();
     body.insertBefore(panel, body.firstChild);
     body.insertBefore(header, panel);
+    syncAuthLinks(authLinks).catch(() => null);
   }
 
   ensureStyles();
