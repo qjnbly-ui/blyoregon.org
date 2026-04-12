@@ -27,6 +27,7 @@
       .content-comments-loading,
       .content-comments-empty,
       .content-comments-signin,
+      .content-comments-hint,
       .content-comments-status {
         margin: 0;
         color: #4f6057;
@@ -191,12 +192,13 @@
         <div class="content-comments-list" hidden></div>
         <p class="content-comments-empty" hidden>No comments yet. Start the discussion.</p>
         <div class="content-comments-signin" hidden></div>
-        <form class="content-comments-form" hidden>
+        <form class="content-comments-form">
           <label>
             <span>Comment</span>
             <textarea name="body" maxlength="1200" placeholder="Add your comment."></textarea>
           </label>
           <div class="content-comments-actions">
+            <p class="content-comments-hint">Post directly, or sign in when you submit.</p>
             <p class="content-comments-status" aria-live="polite"></p>
             <button class="content-comments-submit" type="submit">Send comment</button>
           </div>
@@ -218,16 +220,44 @@
     const signinEl = container.querySelector(".content-comments-signin");
     const formEl = container.querySelector(".content-comments-form");
     const bodyEl = formEl.querySelector("textarea");
+    const hintEl = container.querySelector(".content-comments-hint");
     const statusEl = container.querySelector(".content-comments-status");
     const submitEl = container.querySelector(".content-comments-submit");
     const loginUrl = "/login/?next=" + encodeURIComponent(window.location.pathname + window.location.search);
+    const draftKey = `content-comment-draft:${entityType}:${entitySlug}`;
 
     let viewer = { signedIn: false };
 
     function renderViewer() {
-      signinEl.hidden = viewer.signedIn;
-      formEl.hidden = !viewer.signedIn;
-      signinEl.innerHTML = `<a href="${escapeHtml(loginUrl)}">Login or create an account</a> to add a comment.`;
+      signinEl.hidden = true;
+      hintEl.hidden = viewer.signedIn;
+      if (viewer.signedIn) {
+        signinEl.innerHTML = "";
+        return;
+      }
+      signinEl.innerHTML = `<a href="${escapeHtml(loginUrl)}">Login or create an account</a> if you want to post later.`;
+    }
+
+    function saveDraft() {
+      try {
+        const value = bodyEl.value || "";
+        if (value.trim()) {
+          window.sessionStorage.setItem(draftKey, value);
+        } else {
+          window.sessionStorage.removeItem(draftKey);
+        }
+      } catch (error) {
+        // Ignore storage failures and keep the form usable.
+      }
+    }
+
+    function restoreDraft() {
+      try {
+        const saved = window.sessionStorage.getItem(draftKey);
+        if (saved && !bodyEl.value) bodyEl.value = saved;
+      } catch (error) {
+        // Ignore storage failures and keep the form usable.
+      }
     }
 
     function renderComments(comments) {
@@ -273,6 +303,9 @@
       }
     }
 
+    bodyEl.addEventListener("input", saveDraft);
+    restoreDraft();
+
     formEl.addEventListener("submit", async (event) => {
       event.preventDefault();
       const body = bodyEl.value.trim();
@@ -287,6 +320,7 @@
         const auth = await ensureAuth();
         const session = auth ? await auth.getSession() : null;
         if (!session) {
+          saveDraft();
           window.location.replace(loginUrl);
           return;
         }
@@ -307,6 +341,11 @@
         if (!response.ok) throw new Error(payload.error || "Unable to publish comment.");
 
         bodyEl.value = "";
+        try {
+          window.sessionStorage.removeItem(draftKey);
+        } catch (error) {
+          // Ignore storage failures and continue.
+        }
         statusEl.textContent = "Comment posted.";
         await loadComments();
       } catch (error) {
