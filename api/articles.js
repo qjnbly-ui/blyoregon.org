@@ -941,6 +941,25 @@ async function deleteArticle(articleId, token) {
   }
 }
 
+async function deleteArticleComments(articleSlug, token) {
+  const slug = String(articleSlug || "").trim().toLowerCase();
+  if (!slug) return;
+
+  const headers = buildServiceHeaders() || buildHeaders(token);
+  const query = new URLSearchParams({
+    entity_type: "eq.article",
+    entity_slug: `eq.${slug}`,
+  });
+  const response = await fetch(`${getSupabaseUrl()}/rest/v1/content_comments?${query.toString()}`, {
+    method: "DELETE",
+    headers,
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(payload.message || payload.error || "Unable to delete article discussion");
+  }
+}
+
 async function deleteArticleImagesFromStorage(paths) {
   const uniquePaths = Array.from(
     new Set(
@@ -1324,6 +1343,7 @@ module.exports = async (req, res) => {
 
       const deletedArticle = serializeArticle(existing, imageMap);
       await deleteArticle(existing.id, token);
+      await deleteArticleComments(existing.slug, token);
       try {
         await sendArticleNotifications({
           req,

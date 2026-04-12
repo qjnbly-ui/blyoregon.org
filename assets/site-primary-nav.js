@@ -1,7 +1,6 @@
 (function () {
-  const STYLE_ID = "site-primary-nav-styles";
-  const HEADER_CLASS = "site-primary-nav-header";
-  const BODY_OPEN_CLASS = "site-primary-nav-open";
+  const STYLE_ID = "shared-homepage-nav-styles";
+  const MARKER_ID = "shared-homepage-nav";
   const LINKS = [
     { href: "/", label: "Home" },
     { href: "/about/", label: "About" },
@@ -23,6 +22,7 @@
         existing.addEventListener("error", reject, { once: true });
         return;
       }
+
       const script = document.createElement("script");
       script.src = src;
       script.defer = true;
@@ -42,7 +42,7 @@
   }
 
   function hasExistingPrimaryNav() {
-    if (document.querySelector(`.${HEADER_CLASS}`)) return true;
+    if (document.getElementById(MARKER_ID)) return true;
     const navLinks = Array.from(document.querySelectorAll(".nav-links a[href], nav a[href]"));
     const hrefs = new Set(navLinks.map((link) => link.getAttribute("href")));
     return LINKS.every((link) => hrefs.has(link.href));
@@ -53,16 +53,23 @@
     const style = document.createElement("style");
     style.id = STYLE_ID;
     style.textContent = `
-      .${HEADER_CLASS} {
-        position: relative;
-        z-index: 40;
+      :root {
+        --mobile-header-height: 6.2rem;
+      }
+
+      body.has-shared-homepage-nav {
+        margin: 0;
+      }
+
+      body.has-shared-homepage-nav > header#${MARKER_ID} {
+        z-index: 30;
         background: rgba(20, 50, 39, 0.96);
         color: #fff;
         backdrop-filter: blur(8px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       }
 
-      .${HEADER_CLASS} .site-primary-nav-inner {
+      body.has-shared-homepage-nav > header#${MARKER_ID} .header-inner {
         max-width: 1100px;
         margin: 0 auto;
         padding: 0.9rem 1.5rem;
@@ -73,7 +80,7 @@
         flex-wrap: wrap;
       }
 
-      .${HEADER_CLASS} .site-primary-brand {
+      body.has-shared-homepage-nav > header#${MARKER_ID} .brand {
         display: flex;
         flex-direction: column;
         gap: 0.1rem;
@@ -82,20 +89,19 @@
         color: #fff;
       }
 
-      .${HEADER_CLASS} .site-primary-brand-title {
+      body.has-shared-homepage-nav > header#${MARKER_ID} .brand-title {
         font-family: "Fraunces", "Times New Roman", serif;
         font-weight: 700;
         font-size: 1.4rem;
         letter-spacing: 0.02em;
       }
 
-      .${HEADER_CLASS} .site-primary-brand-subtitle {
-        font-family: "Manrope", "Trebuchet MS", sans-serif;
+      body.has-shared-homepage-nav > header#${MARKER_ID} .brand-subtitle {
         font-size: 0.85rem;
         color: rgba(255, 255, 255, 0.7);
       }
 
-      .${HEADER_CLASS} .site-primary-nav {
+      body.has-shared-homepage-nav > header#${MARKER_ID} nav {
         display: flex;
         gap: 0.75rem;
         flex-wrap: wrap;
@@ -103,15 +109,14 @@
         align-items: center;
       }
 
-      .${HEADER_CLASS} .site-primary-links {
+      body.has-shared-homepage-nav > header#${MARKER_ID} .nav-links {
         display: flex;
         gap: 0.75rem;
         flex-wrap: wrap;
         justify-content: flex-end;
       }
 
-      .${HEADER_CLASS} .site-primary-nav a,
-      .${HEADER_CLASS} .site-primary-mobile-login {
+      body.has-shared-homepage-nav > header#${MARKER_ID} nav a {
         color: #fff;
         text-decoration: none;
         font-family: "Manrope", "Trebuchet MS", sans-serif;
@@ -122,31 +127,32 @@
         border: 1px solid transparent;
       }
 
-      .${HEADER_CLASS} .site-primary-login {
+      body.has-shared-homepage-nav > header#${MARKER_ID} nav a.account-link {
         border-color: rgba(255, 255, 255, 0.35);
         background: rgba(255, 255, 255, 0.12);
       }
 
-      .${HEADER_CLASS} .site-primary-nav a:hover,
-      .${HEADER_CLASS} .site-primary-mobile-login:hover {
+      body.has-shared-homepage-nav > header#${MARKER_ID} nav a:hover {
         border-color: rgba(255, 255, 255, 0.5);
         background: rgba(255, 255, 255, 0.08);
       }
 
-      .${HEADER_CLASS} .site-primary-mobile-nav {
+      body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-nav {
         display: none;
         align-items: center;
         gap: 1.1rem;
         margin-left: auto;
       }
 
-      .${HEADER_CLASS} .site-primary-mobile-login {
+      body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-login {
+        color: #fff;
+        text-decoration: none;
         text-transform: uppercase;
         letter-spacing: 0.2em;
         font-size: 0.9rem;
       }
 
-      .${HEADER_CLASS} .site-primary-menu-toggle {
+      body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-menu-toggle {
         list-style: none;
         display: inline-flex;
         align-items: center;
@@ -163,7 +169,7 @@
         appearance: none;
       }
 
-      .${HEADER_CLASS} .site-primary-menu-toggle::before {
+      body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-menu-toggle::before {
         content: "";
         width: 1.4rem;
         height: 2px;
@@ -172,106 +178,162 @@
         box-shadow: 0 -0.42rem 0 currentColor, 0 0.42rem 0 currentColor;
       }
 
-      .site-primary-mobile-panel {
+      body.has-shared-homepage-nav > .mobile-menu-panel {
         display: none;
         position: fixed;
-        inset: 0;
+        inset: 0 0 0;
         min-width: 0;
         padding: 0 1.5rem 2rem;
+        border-radius: 0;
         border: 0;
         background: linear-gradient(180deg, rgba(247, 242, 234, 0.99), rgba(243, 239, 233, 0.99));
-        z-index: 41;
+        box-shadow: none;
+        align-content: start;
+        z-index: 31;
         overflow-y: auto;
       }
 
-      .site-primary-mobile-panel-inner {
-        width: min(100%, 34rem);
-        margin: 0 auto;
-        display: grid;
-        align-content: start;
-      }
-
-      .site-primary-mobile-panel-topbar {
-        display: flex;
-        justify-content: flex-end;
-        padding: 1rem 0 0.5rem;
-      }
-
-      .site-primary-panel-close {
-        appearance: none;
-        border: 1px solid rgba(20, 50, 39, 0.18);
-        background: rgba(255, 255, 255, 0.9);
-        color: #143227;
-        border-radius: 999px;
-        padding: 0.7rem 1rem;
-        font: inherit;
-        font-weight: 700;
-        cursor: pointer;
-      }
-
-      .site-primary-mobile-panel[hidden] {
+      body.has-shared-homepage-nav > .mobile-menu-panel[hidden] {
         display: none !important;
       }
 
-      body.${BODY_OPEN_CLASS} .site-primary-mobile-panel {
+      body.has-shared-homepage-nav.mobile-menu-open > .mobile-menu-panel {
         display: grid;
         gap: 0;
       }
 
-      body.${BODY_OPEN_CLASS} {
+      body.has-shared-homepage-nav.mobile-menu-open {
         overflow: hidden;
       }
 
-      .site-primary-mobile-panel a {
+      body.has-shared-homepage-nav > .mobile-menu-panel a {
         display: block;
-        padding: 1.35rem 0;
+        padding: 1.7rem 0;
+        border-radius: 0;
         border: 0;
         border-bottom: 1px solid rgba(20, 50, 39, 0.18);
         background: none;
         color: #143227;
         text-decoration: none;
         text-align: center;
+        text-transform: none;
+        letter-spacing: 0.02em;
         font-family: "Manrope", "Trebuchet MS", sans-serif;
         font-weight: 600;
         font-size: 0.95rem;
       }
 
+      @media (max-width: 800px) {
+        body.has-shared-homepage-nav > header#${MARKER_ID} .header-inner {
+          justify-content: center;
+        }
+
+        body.has-shared-homepage-nav > header#${MARKER_ID} nav {
+          justify-content: center;
+        }
+      }
+
       @media (max-width: 760px) {
-        .${HEADER_CLASS} .site-primary-links,
-        .${HEADER_CLASS} .site-primary-login {
-          display: none;
+        body.has-shared-homepage-nav {
+          padding-top: var(--mobile-header-height);
         }
 
-        .${HEADER_CLASS} .site-primary-mobile-nav {
-          display: flex;
-          gap: 0.5rem;
+        body.has-shared-homepage-nav > header#${MARKER_ID} {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 30;
+          border-bottom: 0;
         }
 
-        .${HEADER_CLASS} .site-primary-nav {
-          width: auto;
-        }
-
-        .${HEADER_CLASS} .site-primary-nav-inner {
+        body.has-shared-homepage-nav > header#${MARKER_ID} .header-inner {
           justify-content: space-between;
           flex-wrap: nowrap;
         }
 
-        .${HEADER_CLASS} .site-primary-brand {
+        body.has-shared-homepage-nav > header#${MARKER_ID} .brand {
           flex: 1 1 auto;
+          text-align: center;
           align-items: center;
+          position: relative;
+          z-index: 32;
         }
 
-        .${HEADER_CLASS} .site-primary-menu-toggle {
+        body.has-shared-homepage-nav > header#${MARKER_ID} .brand-title,
+        body.has-shared-homepage-nav > header#${MARKER_ID} .brand-subtitle,
+        body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-login {
+          color: #fff;
+        }
+
+        body.has-shared-homepage-nav > header#${MARKER_ID} .nav-links,
+        body.has-shared-homepage-nav > header#${MARKER_ID} nav a.account-link {
+          display: none;
+        }
+
+        body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-nav {
+          display: flex;
+          gap: 0.8rem;
+          position: relative;
+          z-index: 32;
+        }
+
+        body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-login {
+          font-size: 0.82rem;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+        }
+
+        body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-menu-toggle {
           width: 4rem;
           height: 4rem;
           justify-content: center;
           gap: 0;
           padding: 0;
+          border-radius: 999px;
           font-size: 0;
+          color: #fff;
+          background: rgba(7, 10, 16, 0.38);
+          position: relative;
+          z-index: 32;
         }
 
-        .site-primary-mobile-panel {
-          padding: 0 1rem 1.5rem;
+        body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-nav.is-open .mobile-menu-toggle {
+          color: #143227;
+          background: rgba(245, 239, 229, 0.96);
+        }
+
+        body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-menu-toggle::before {
+          width: 1.15rem;
+          box-shadow: 0 -0.35rem 0 currentColor, 0 0.35rem 0 currentColor;
+        }
+
+        body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-nav.is-open .mobile-menu-toggle::before {
+          content: "";
+          position: absolute;
+          width: 1.45rem;
+          height: 0;
+          background: none;
+          box-shadow: none;
+          border-radius: 0;
+          border-top: 3px solid currentColor;
+          transform: rotate(45deg);
+        }
+
+        body.has-shared-homepage-nav > header#${MARKER_ID} .mobile-nav.is-open .mobile-menu-toggle::after {
+          content: "";
+          position: absolute;
+          width: 1.45rem;
+          height: 0;
+          background: none;
+          border-radius: 0;
+          border-top: 3px solid currentColor;
+          transform: rotate(-45deg);
+        }
+
+        body.has-shared-homepage-nav > .mobile-menu-panel {
+          top: var(--mobile-header-height);
+          background: linear-gradient(180deg, #f7f2ea 0%, #f3efe9 100%);
         }
       }
     `;
@@ -279,108 +341,88 @@
   }
 
   function buildHeader() {
-    const header = document.createElement("div");
-    header.className = HEADER_CLASS;
-
-    const inner = document.createElement("div");
-    inner.className = "site-primary-nav-inner";
-
-    const brand = document.createElement("a");
-    brand.className = "site-primary-brand";
-    brand.href = "/";
-    brand.innerHTML = '<span class="site-primary-brand-title">Bly, Oregon</span><span class="site-primary-brand-subtitle">A Community in Klamath County</span>';
-
-    const nav = document.createElement("nav");
-    nav.className = "site-primary-nav";
-    nav.setAttribute("aria-label", "Primary");
-
-    const links = document.createElement("div");
-    links.className = "site-primary-links";
-    LINKS.forEach((link) => {
-      const anchor = document.createElement("a");
-      anchor.href = link.href;
-      anchor.textContent = link.label;
-      links.appendChild(anchor);
-    });
-
-    const login = document.createElement("a");
-    login.className = "site-primary-login";
-    login.href = "/login/";
-    login.textContent = "Login";
-
-    const mobileNav = document.createElement("div");
-    mobileNav.className = "site-primary-mobile-nav";
-
-    const mobileLogin = document.createElement("a");
-    mobileLogin.className = "site-primary-mobile-login";
-    mobileLogin.href = "/login/";
-    mobileLogin.textContent = "Login";
-
-    const toggle = document.createElement("button");
-    toggle.className = "site-primary-menu-toggle";
-    toggle.type = "button";
-    toggle.setAttribute("aria-expanded", "false");
-    toggle.setAttribute("aria-label", "Toggle menu");
-
-    mobileNav.append(mobileLogin, toggle);
-    nav.append(links, login, mobileNav);
-    inner.append(brand, nav);
-    header.appendChild(inner);
+    const header = document.createElement("header");
+    header.id = MARKER_ID;
+    header.innerHTML = `
+      <div class="header-inner">
+        <a class="brand" href="/">
+          <div class="brand-title">Bly, Oregon</div>
+          <div class="brand-subtitle">A Community in Klamath County</div>
+        </a>
+        <nav>
+          <div class="nav-links">
+            ${LINKS.map((link) => `<a href="${link.href}">${link.label}</a>`).join("")}
+          </div>
+          <a class="account-link" href="/account/">Account</a>
+          <div class="mobile-nav">
+            <a class="mobile-login" href="/login/">Login</a>
+            <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-label="Toggle menu"></button>
+          </div>
+        </nav>
+      </div>
+    `;
 
     const panel = document.createElement("div");
-    panel.className = "site-primary-mobile-panel";
+    panel.className = "mobile-menu-panel";
     panel.hidden = true;
-    const panelInner = document.createElement("div");
-    panelInner.className = "site-primary-mobile-panel-inner";
+    panel.innerHTML = LINKS.map((link) => `<a href="${link.href}">${link.label}</a>`).join("");
 
-    const topbar = document.createElement("div");
-    topbar.className = "site-primary-mobile-panel-topbar";
-
-    const closeButton = document.createElement("button");
-    closeButton.className = "site-primary-panel-close";
-    closeButton.type = "button";
-    closeButton.textContent = "Close";
-
-    topbar.appendChild(closeButton);
-    panelInner.appendChild(topbar);
-
-    LINKS.forEach((link) => {
-      const anchor = document.createElement("a");
-      anchor.href = link.href;
-      anchor.textContent = link.label;
-      panelInner.appendChild(anchor);
-    });
-    panel.appendChild(panelInner);
-
-    function closeMenu() {
-      document.body.classList.remove(BODY_OPEN_CLASS);
-      toggle.setAttribute("aria-expanded", "false");
-      panel.hidden = true;
-    }
-
-    toggle.addEventListener("click", () => {
-      const opening = panel.hidden;
-      document.body.classList.toggle(BODY_OPEN_CLASS, opening);
-      toggle.setAttribute("aria-expanded", String(opening));
-      panel.hidden = !opening;
-    });
-
-    closeButton.addEventListener("click", closeMenu);
-    panel.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !panel.hidden) closeMenu();
-    });
-
-    return { header, panel, authLinks: [login, mobileLogin] };
+    return { header, panel };
   }
 
-  async function syncAuthLinks(links) {
-    const auth = await ensureAuth();
-    const session = auth?.getSession ? await auth.getSession().catch(() => null) : null;
-    links.forEach((link) => {
-      if (!link) return;
-      link.textContent = session ? "Account" : "Login";
-      link.href = session ? "/account/" : "/login/";
+  function mountBehavior(header, panel) {
+    const mobileNav = header.querySelector(".mobile-nav");
+    const toggle = header.querySelector(".mobile-menu-toggle");
+    const authLinks = header.querySelectorAll("a.account-link, a.mobile-login");
+    if (!mobileNav || !toggle || !panel) return;
+
+    const syncMobileHeaderHeight = () => {
+      document.documentElement.style.setProperty("--mobile-header-height", `${header.offsetHeight}px`);
+    };
+
+    const syncAuthNav = async () => {
+      const auth = await ensureAuth();
+      const session = await auth?.getSession?.().catch(() => null);
+      authLinks.forEach((link) => {
+        link.textContent = session ? "Account" : "Login";
+        link.href = session ? "/account/" : "/login/";
+      });
+    };
+
+    const closeMenu = () => {
+      mobileNav.classList.remove("is-open");
+      document.body.classList.remove("mobile-menu-open");
+      toggle.setAttribute("aria-expanded", "false");
+      panel.setAttribute("hidden", "");
+    };
+
+    syncMobileHeaderHeight();
+    window.addEventListener("resize", syncMobileHeaderHeight);
+    syncAuthNav().catch(() => null);
+    ensureAuth().then((auth) => {
+      auth?.onAuthStateChange?.(() => {
+        syncAuthNav().catch(() => null);
+      });
+    }).catch(() => null);
+
+    toggle.addEventListener("click", () => {
+      syncMobileHeaderHeight();
+      const isOpen = mobileNav.classList.toggle("is-open");
+      document.body.classList.toggle("mobile-menu-open", isOpen);
+      toggle.setAttribute("aria-expanded", String(isOpen));
+      if (isOpen) {
+        panel.removeAttribute("hidden");
+      } else {
+        panel.setAttribute("hidden", "");
+      }
+    });
+
+    panel.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", closeMenu);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
     });
   }
 
@@ -388,15 +430,11 @@
     if (hasExistingPrimaryNav()) return;
     const body = document.body;
     if (!body) return;
-    const { header, panel, authLinks } = buildHeader();
+    const { header, panel } = buildHeader();
+    body.classList.add("has-shared-homepage-nav");
     body.insertBefore(panel, body.firstChild);
     body.insertBefore(header, panel);
-    syncAuthLinks(authLinks).catch(() => null);
-    ensureAuth().then((auth) => {
-      auth?.onAuthStateChange?.(() => {
-        syncAuthLinks(authLinks).catch(() => null);
-      });
-    }).catch(() => null);
+    mountBehavior(header, panel);
   }
 
   ensureStyles();
