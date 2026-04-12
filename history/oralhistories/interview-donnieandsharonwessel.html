@@ -107,6 +107,33 @@
       color: var(--forest);
     }
 
+    .audio-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.8rem;
+    }
+
+    .audio-header h2 {
+      margin: 0;
+    }
+
+    .audio-download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--forest);
+      border: 1px solid rgba(31, 64, 48, 0.18);
+      background: rgba(255, 255, 255, 0.82);
+      border-radius: 999px;
+      padding: 0.65rem 0.95rem;
+      font-weight: 700;
+      box-shadow: 0 10px 22px rgba(12, 26, 20, 0.08);
+    }
+
     h3 {
       margin: 0 0 0.4rem;
       font-size: 1.1rem;
@@ -252,6 +279,12 @@
 
     @media (max-width: 700px) {
       section { padding: 1.4rem; }
+      .audio-header { align-items: stretch; }
+      .audio-download { width: 100%; }
+    }
+
+    @media (max-width: 700px) {
+      section { padding: 1.4rem; }
     }
   </style>
   </head>
@@ -357,11 +390,21 @@
     <hr />
 
     <section id="audio" aria-labelledby="audio-title">
-      <h2 id="audio-title">Listen to the interview</h2>
-      <audio controls preload="none" style="width: 100%; max-width: 720px;">
-        <source src="/media/oralhistory-audio/DonnieWesselInterview.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
+      <div class="audio-header">
+        <h2 id="audio-title">Listen to the interview</h2>
+        <a class="audio-download" href="/media/oralhistory-audio/DonnieWesselInterview.mp3" download="DonnieWesselInterview.mp3">Download</a>
+      </div>
+      <div
+        data-oral-history-audio
+        data-title="Donnie Wessel interview recording"
+        data-summary="Play the oral history, jump back or ahead in 15-second steps, adjust speed, or download the recording."
+        data-download-name="DonnieWesselInterview.mp3"
+      >
+        <audio preload="none">
+          <source src="/media/oralhistory-audio/DonnieWesselInterview.mp3" type="audio/mpeg">
+          Your browser does not support the audio element.
+        </audio>
+      </div>
     </section>
 
     <section id="transcript" aria-labelledby="transcript-title">
@@ -484,6 +527,7 @@
     <p>&copy; Bly, Oregon — Community History Archive</p>
   </footer>
 
+  <script src="/assets/oral-history-audio.js"></script>
   <script src="/assets/content-comments.js"></script>
   </body>
 </html>
