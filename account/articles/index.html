@@ -661,6 +661,7 @@
   </footer>
 
   <script src="/assets/auth.js"></script>
+  <script src="/assets/account-runtime.js"></script>
   <script>
     (() => {
       const header = document.querySelector("header");
@@ -691,6 +692,7 @@
     })();
     document.querySelectorAll("[data-account-logout]").forEach((button) => {
       button.addEventListener("click", async () => {
+        window.accountRuntime?.clearAccountCache();
         await window.siteAuth.logout();
         window.location.href = "/login/";
       });
@@ -1245,21 +1247,42 @@
       });
     }
 
-    async function loadArticles(canAccessArticles) {
+    function getAccessState(accountPayload) {
+      return {
+        canAccessArticles: Boolean(accountPayload?.canSubmitArticles || accountPayload?.admin),
+        canAccessBusinesses: Number(accountPayload?.claimedBusinessCount || accountPayload?.profile?.claimedBusinessCount || 0) > 0,
+        canAccessMedia: Boolean(accountPayload?.admin || accountPayload?.canManageMedia || (Array.isArray(accountPayload?.profile?.mediaBuckets) && accountPayload.profile.mediaBuckets.length)),
+        canAccessAdmin: Boolean(accountPayload?.canReviewArticles || accountPayload?.canPublishArticles || accountPayload?.admin),
+      };
+    }
+
+    function applyAccessState(accountPayload) {
+      const access = getAccessState(accountPayload || {});
+      adminNavLinkEl.hidden = !access.canAccessAdmin;
+      return access;
+    }
+
+    async function loadArticles(canAccessArticles, options = {}) {
       articleSectionEl.hidden = !canAccessArticles;
       if (!canAccessArticles) {
         listEl.innerHTML = "";
         setSectionStatus(articleStatusEl, "");
         return;
       }
-      const response = await fetch("/api/articles?scope=mine", {
-        headers: {
-          Authorization: "Bearer " + activeSession.access_token,
-        },
+      const cachedPayload = window.accountRuntime?.getCachedJson("articles:mine", { maxAgeMs: 120000 });
+      if (cachedPayload) {
+        renderArticles(Array.isArray(cachedPayload.articles) ? cachedPayload.articles : [], cachedPayload.permissions || {});
+        setSectionStatus(articleStatusEl, "");
+      }
+      if (options.useCacheOnly) return;
+
+      const { response, payload } = await window.accountRuntime.fetchJson("/api/articles?scope=mine", {
+        token: activeSession.access_token,
+        cacheKey: "articles:mine",
       });
-      const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
         if (response.status === 401) {
+          window.accountRuntime?.clearAccountCache();
           await window.siteAuth.logout();
           window.location.replace(loginUrl + "&auth_error=expired");
           return;
@@ -1271,7 +1294,7 @@
       setSectionStatus(articleStatusEl, "");
     }
 
-    async function loadBusinesses(canAccessBusinesses) {
+    async function loadBusinesses(canAccessBusinesses, options = {}) {
       businessSectionEl.hidden = !canAccessBusinesses;
       if (!canAccessBusinesses) {
         businessListEl.innerHTML = "";
@@ -1279,30 +1302,46 @@
         setSectionStatus(businessStatusEl, "");
         return;
       }
-      const response = await fetch("/api/businesses?scope=mine", {
-        headers: { Authorization: "Bearer " + activeSession.access_token },
+      const cachedPayload = window.accountRuntime?.getCachedJson("businesses:mine", { maxAgeMs: 120000 });
+      if (cachedPayload) {
+        renderPendingClaims(Array.isArray(cachedPayload.pendingClaims) ? cachedPayload.pendingClaims : []);
+        renderBusinesses(Array.isArray(cachedPayload.businesses) ? cachedPayload.businesses : []);
+        setSectionStatus(businessStatusEl, "");
+      }
+      if (options.useCacheOnly) return;
+
+      const { response, payload } = await window.accountRuntime.fetchJson("/api/businesses?scope=mine", {
+        token: activeSession.access_token,
+        cacheKey: "businesses:mine",
       });
-      const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || "Unable to load your businesses.");
       renderPendingClaims(Array.isArray(payload.pendingClaims) ? payload.pendingClaims : []);
       renderBusinesses(Array.isArray(payload.businesses) ? payload.businesses : []);
       setSectionStatus(businessStatusEl, "");
     }
 
-    async function loadMedia(canAccessMedia) {
+    async function loadMedia(canAccessMedia, accountPayload = null, options = {}) {
       mediaSectionEl.hidden = !canAccessMedia;
       if (!canAccessMedia) {
         setSectionStatus(mediaStatusEl, "");
         return;
       }
-      const response = await fetch("/api/member-content", {
-        headers: { Authorization: "Bearer " + activeSession.access_token },
-      });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        setSectionStatus(mediaStatusEl, "Media library is not available for this account.");
-        return;
+      let payload = accountPayload;
+      if (!payload) {
+        payload = window.accountRuntime?.getCachedJson("member-content", { maxAgeMs: 120000 }) || null;
       }
+      if (!payload && !options.useCacheOnly) {
+        const result = await window.accountRuntime.fetchJson("/api/member-content", {
+          token: activeSession.access_token,
+          cacheKey: "member-content",
+        });
+        if (!result.response.ok) {
+          setSectionStatus(mediaStatusEl, "Media library is not available for this account.");
+          return;
+        }
+        payload = result.payload;
+      }
+      if (!payload) return;
 
       const allowedBuckets = Array.isArray(payload.profile?.mediaBuckets) ? payload.profile.mediaBuckets : [];
       mediaPermissions = {
@@ -1333,28 +1372,34 @@
 
     async function loadPage() {
       try {
-        activeSession = await window.siteAuth.getSession();
-        if (!activeSession) {
-          window.location.replace(loginUrl);
-          return;
+        const cachedAccountPayload = window.accountRuntime?.getCachedJson("member-content", { maxAgeMs: 120000 });
+        if (cachedAccountPayload) {
+          const cachedAccess = applyAccessState(cachedAccountPayload);
+          await Promise.all([
+            loadArticles(cachedAccess.canAccessArticles, { useCacheOnly: true }),
+            loadBusinesses(cachedAccess.canAccessBusinesses, { useCacheOnly: true }),
+            loadMedia(cachedAccess.canAccessMedia, cachedAccountPayload, { useCacheOnly: true }),
+          ]);
         }
-        const accountResponse = await fetch("/api/member-content", {
-          headers: { Authorization: "Bearer " + activeSession.access_token },
+
+        activeSession = await window.accountRuntime.requireSession(loginUrl);
+        if (!activeSession) return;
+
+        const { response: accountResponse, payload: accountPayload } = await window.accountRuntime.fetchJson("/api/member-content", {
+          token: activeSession.access_token,
+          cacheKey: "member-content",
         });
-        const accountPayload = await accountResponse.json().catch(() => ({}));
         if (!accountResponse.ok) {
           if (accountResponse.status === 401) {
+            window.accountRuntime?.clearAccountCache();
             await window.siteAuth.logout();
             window.location.replace(loginUrl + "&auth_error=expired");
             return;
           }
           throw new Error(accountPayload.error || "Unable to load content.");
         }
-        const canAccessArticles = Boolean(accountPayload.canSubmitArticles || accountPayload.admin);
-        const canAccessBusinesses = Number(accountPayload.claimedBusinessCount || accountPayload.profile?.claimedBusinessCount || 0) > 0;
-        const canAccessMedia = Boolean(accountPayload.admin || accountPayload.canManageMedia || (Array.isArray(accountPayload.profile?.mediaBuckets) && accountPayload.profile.mediaBuckets.length));
-        const canAccessAdmin = Boolean(accountPayload.canReviewArticles || accountPayload.canPublishArticles || accountPayload.admin);
-        adminNavLinkEl.hidden = !canAccessAdmin;
+
+        const { canAccessArticles, canAccessBusinesses, canAccessMedia } = applyAccessState(accountPayload);
         if (!canAccessArticles && !canAccessBusinesses && !canAccessMedia) {
           window.location.replace("/account/");
           return;
@@ -1362,7 +1407,7 @@
         await Promise.all([
           loadArticles(canAccessArticles).catch((error) => setSectionStatus(articleStatusEl, error.message || "Unable to load articles.", true)),
           loadBusinesses(canAccessBusinesses).catch((error) => setSectionStatus(businessStatusEl, error.message || "Unable to load your businesses.", true)),
-          loadMedia(canAccessMedia).catch((error) => setSectionStatus(mediaStatusEl, error.message || "Unable to load media library.", true)),
+          loadMedia(canAccessMedia, accountPayload).catch((error) => setSectionStatus(mediaStatusEl, error.message || "Unable to load media library.", true)),
         ]);
       } catch (error) {
         setSectionStatus(articleStatusEl, error.message || "Unable to load content.", true);

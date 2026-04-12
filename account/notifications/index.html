@@ -244,6 +244,7 @@
   </footer>
 
   <script src="/assets/auth.js"></script>
+  <script src="/assets/account-runtime.js"></script>
   <script>
     (() => {
       const header = document.querySelector("header");
@@ -274,6 +275,7 @@
     })();
     document.querySelectorAll("[data-account-logout]").forEach((button) => {
       button.addEventListener("click", async () => {
+        window.accountRuntime?.clearAccountCache();
         await window.siteAuth.logout();
         window.location.href = "/login/";
       });
@@ -419,20 +421,22 @@
 
     async function loadPage() {
       try {
-        activeSession = await window.siteAuth.getSession();
-        if (!activeSession) {
-          window.location.replace(loginUrl);
-          return;
+        const cachedPayload = window.accountRuntime?.getCachedJson("notifications:inbox", { maxAgeMs: 120000 });
+        if (cachedPayload) {
+          renderNotifications(Array.isArray(cachedPayload.notifications) ? cachedPayload.notifications : [], Number(cachedPayload.unreadCount || 0));
+          setStatus("");
         }
 
-        const response = await fetch("/api/notifications", {
-          headers: {
-            Authorization: "Bearer " + activeSession.access_token,
-          },
+        activeSession = await window.accountRuntime.requireSession(loginUrl);
+        if (!activeSession) return;
+
+        const { response, payload } = await window.accountRuntime.fetchJson("/api/notifications", {
+          token: activeSession.access_token,
+          cacheKey: "notifications:inbox",
         });
-        const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
           if (response.status === 401) {
+            window.accountRuntime?.clearAccountCache();
             await window.siteAuth.logout();
             window.location.replace(loginUrl + "&auth_error=expired");
             return;

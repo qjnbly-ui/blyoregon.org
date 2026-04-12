@@ -345,6 +345,7 @@
   </footer>
 
   <script src="/assets/auth.js"></script>
+  <script src="/assets/account-runtime.js"></script>
   <script>
     (() => {
       const header = document.querySelector("header");
@@ -375,6 +376,7 @@
     })();
     document.querySelectorAll("[data-account-logout]").forEach((button) => {
       button.addEventListener("click", async () => {
+        window.accountRuntime?.clearAccountCache();
         await window.siteAuth.logout();
         window.location.href = "/login/";
       });
@@ -613,24 +615,33 @@
       if (loadInFlight) return;
       loadInFlight = true;
       try {
-        activeSession = await window.siteAuth.getSession();
-        if (!activeSession) {
-          stopPolling();
-          window.location.replace(loginUrl);
-          return;
-        }
-
         const query = new URLSearchParams();
         if (activeRecipientId) query.set("with", activeRecipientId);
         if (activeThreadId) query.set("thread", activeThreadId);
-        const response = await fetch(`/api/messages?${query.toString()}`, {
-          headers: {
-            Authorization: "Bearer " + activeSession.access_token,
-          },
+        const cacheKey = `messages:${query.toString() || "inbox"}`;
+        const cachedPayload = window.accountRuntime?.getCachedJson(cacheKey, { maxAgeMs: 60000 });
+        if (cachedPayload) {
+          threadState = Array.isArray(cachedPayload.threads) ? cachedPayload.threads : [];
+          availableMembersState = Array.isArray(cachedPayload.availableMembers) ? cachedPayload.availableMembers : [];
+          renderThreads(threadState);
+          renderAvailableMembers(availableMembersState);
+          renderMessages(cachedPayload.activeThread || null, Array.isArray(cachedPayload.messages) ? cachedPayload.messages : []);
+          if (!options.silent) setStatus("");
+        }
+
+        activeSession = await window.accountRuntime.requireSession(loginUrl);
+        if (!activeSession) {
+          stopPolling();
+          return;
+        }
+
+        const { response, payload } = await window.accountRuntime.fetchJson(`/api/messages?${query.toString()}`, {
+          token: activeSession.access_token,
+          cacheKey,
         });
-        const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
           if (response.status === 401) {
+            window.accountRuntime?.clearAccountCache();
             await window.siteAuth.logout();
             window.location.replace(loginUrl + "&auth_error=expired");
             return;

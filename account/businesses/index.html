@@ -135,6 +135,7 @@
   <footer><p>Bly, Oregon Community Hub | &copy; 2026 blyoregon.org</p></footer>
 
   <script src="/assets/auth.js"></script>
+  <script src="/assets/account-runtime.js"></script>
   <script>
     (() => {
       const header = document.querySelector("header");
@@ -165,6 +166,7 @@
     })();
     document.querySelectorAll("[data-account-logout]").forEach((button) => {
       button.addEventListener("click", async () => {
+        window.accountRuntime?.clearAccountCache();
         await window.siteAuth.logout();
         window.location.href = "/login/";
       });
@@ -449,18 +451,23 @@
 
     async function loadPage() {
       try {
-        const session = await window.siteAuth.getSession();
-        if (!session) {
-          window.location.replace(loginUrl);
-          return;
+        const cachedPayload = window.accountRuntime?.getCachedJson("businesses:mine", { maxAgeMs: 120000 });
+        if (cachedPayload) {
+          renderPendingClaims(Array.isArray(cachedPayload.pendingClaims) ? cachedPayload.pendingClaims : []);
+          renderBusinesses(Array.isArray(cachedPayload.businesses) ? cachedPayload.businesses : []);
+          setStatus("");
         }
 
-        const response = await fetch("/api/businesses?scope=mine", {
-          headers: { Authorization: "Bearer " + session.access_token },
+        const session = await window.accountRuntime.requireSession(loginUrl);
+        if (!session) return;
+
+        const { response, payload } = await window.accountRuntime.fetchJson("/api/businesses?scope=mine", {
+          token: session.access_token,
+          cacheKey: "businesses:mine",
         });
-        const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
           if (response.status === 401) {
+            window.accountRuntime?.clearAccountCache();
             await window.siteAuth.logout();
             window.location.replace(loginUrl + "&auth_error=expired");
             return;

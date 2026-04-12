@@ -1392,6 +1392,7 @@
   </footer>
 
   <script src="/assets/auth.js"></script>
+  <script src="/assets/account-runtime.js"></script>
   <script>
     (() => {
       const header = document.querySelector("header");
@@ -2078,23 +2079,52 @@
       }
     }
 
+    async function renderAccountPayload(payload) {
+      if (!payload) return;
+      if (payload?.profile?.onboardingComplete === false) {
+        window.location.replace(`/account/onboarding/?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+        return;
+      }
+
+      titleEl.textContent = "Account home";
+      introEl.textContent = payload.intro || "Signed in.";
+      await applyProfile(payload.profile || {}, payload.email || "");
+      accountAdminNavLinkEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
+      const unreadNotificationCount = Number(payload.unreadNotificationCount || payload.profile?.unreadNotificationCount || 0);
+      const unreadMessageCount = Number(payload.unreadMessageCount || payload.profile?.unreadMessageCount || 0);
+
+      messagesBoxSummaryEl.textContent = unreadMessageCount > 0
+        ? `${unreadMessageCount} unread message${unreadMessageCount === 1 ? "" : "s"}`
+        : "No unread messages.";
+      alertsBoxSummaryEl.textContent = unreadNotificationCount > 0
+        ? `${unreadNotificationCount} unread alert${unreadNotificationCount === 1 ? "" : "s"}`
+        : "No unread alerts.";
+      messagesPopupSummaryEl.innerHTML = unreadMessageCount > 0
+        ? `<span class="meta-strong">${unreadMessageCount}</span> unread message${unreadMessageCount === 1 ? "" : "s"} waiting in your inbox.`
+        : "No unread messages.";
+      alertsPopupSummaryEl.innerHTML = unreadNotificationCount > 0
+        ? `<span class="meta-strong">${unreadNotificationCount}</span> unread alert${unreadNotificationCount === 1 ? "" : "s"} waiting in your inbox.`
+        : "No unread alerts.";
+    }
+
     async function loadAccount() {
       try {
-        const session = await window.siteAuth.getSession();
-        activeSession = session;
-        if (!session) {
-          window.location.replace(loginUrl);
-          return;
+        const cachedPayload = window.accountRuntime?.getCachedJson("member-content", { maxAgeMs: 120000 });
+        if (cachedPayload) {
+          await renderAccountPayload(cachedPayload);
         }
 
-        const response = await fetch("/api/member-content", {
-          headers: {
-            Authorization: "Bearer " + session.access_token,
-          },
+        const session = await window.accountRuntime.requireSession(loginUrl);
+        if (!session) return;
+        activeSession = session;
+        const { response, payload } = await window.accountRuntime.fetchJson("/api/member-content", {
+          token: session.access_token,
+          cacheKey: "member-content",
         });
 
         if (!response.ok) {
           if (response.status === 401) {
+            window.accountRuntime?.clearAccountCache();
             await window.siteAuth.logout();
             window.location.replace(loginUrl + "&auth_error=expired");
             return;
@@ -2102,30 +2132,7 @@
           throw new Error("Unable to load account.");
         }
 
-        const payload = await response.json();
-        if (payload?.profile?.onboardingComplete === false) {
-          window.location.replace(`/account/onboarding/?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
-          return;
-        }
-        titleEl.textContent = "Account home";
-        introEl.textContent = payload.intro || "Signed in.";
-        await applyProfile(payload.profile || {}, payload.email || "");
-        accountAdminNavLinkEl.hidden = !(payload.canReviewArticles || payload.canPublishArticles || payload.admin);
-        const unreadNotificationCount = Number(payload.unreadNotificationCount || payload.profile?.unreadNotificationCount || 0);
-        const unreadMessageCount = Number(payload.unreadMessageCount || payload.profile?.unreadMessageCount || 0);
-
-        messagesBoxSummaryEl.textContent = unreadMessageCount > 0
-          ? `${unreadMessageCount} unread message${unreadMessageCount === 1 ? "" : "s"}`
-          : "No unread messages.";
-        alertsBoxSummaryEl.textContent = unreadNotificationCount > 0
-          ? `${unreadNotificationCount} unread alert${unreadNotificationCount === 1 ? "" : "s"}`
-          : "No unread alerts.";
-        messagesPopupSummaryEl.innerHTML = unreadMessageCount > 0
-          ? `<span class="meta-strong">${unreadMessageCount}</span> unread message${unreadMessageCount === 1 ? "" : "s"} waiting in your inbox.`
-          : "No unread messages.";
-        alertsPopupSummaryEl.innerHTML = unreadNotificationCount > 0
-          ? `<span class="meta-strong">${unreadNotificationCount}</span> unread alert${unreadNotificationCount === 1 ? "" : "s"} waiting in your inbox.`
-          : "No unread alerts.";
+        await renderAccountPayload(payload);
         await loadPopupPreviews(session);
       } catch (error) {
         titleEl.textContent = "Account error";
@@ -2403,6 +2410,7 @@
 
     logoutButtons.forEach((button) => {
       button.addEventListener("click", async () => {
+        window.accountRuntime?.clearAccountCache();
         await window.siteAuth.logout();
         window.location.href = "/login/";
       });

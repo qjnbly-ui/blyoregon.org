@@ -1,6 +1,15 @@
 (function () {
   let supabaseClientPromise = null;
   let configPromise = null;
+  const AUTH_CONFIG_CACHE_KEY = "bly:auth-config";
+
+  function getStorage() {
+    try {
+      return window.sessionStorage;
+    } catch (_error) {
+      return null;
+    }
+  }
 
   async function loadScript(src) {
     await new Promise((resolve, reject) => {
@@ -26,12 +35,30 @@
 
   async function getConfig() {
     if (!configPromise) {
-      configPromise = fetch("/api/auth-config")
-        .then(async (response) => {
-          const data = await response.json().catch(() => ({}));
-          if (!response.ok) throw new Error(data.error || "Unable to load auth config.");
-          return data;
-        });
+      const storage = getStorage();
+      const cached = storage ? storage.getItem(AUTH_CONFIG_CACHE_KEY) : null;
+      if (cached) {
+        try {
+          configPromise = Promise.resolve(JSON.parse(cached));
+        } catch (_error) {
+          if (storage) storage.removeItem(AUTH_CONFIG_CACHE_KEY);
+        }
+      }
+      if (!configPromise) {
+        configPromise = fetch("/api/auth-config")
+          .then(async (response) => {
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || "Unable to load auth config.");
+            if (storage) {
+              try {
+                storage.setItem(AUTH_CONFIG_CACHE_KEY, JSON.stringify(data));
+              } catch (_error) {
+                // Ignore storage write failures.
+              }
+            }
+            return data;
+          });
+      }
     }
     return configPromise;
   }
