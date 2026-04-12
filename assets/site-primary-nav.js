@@ -74,10 +74,12 @@
         margin: 0 auto;
         padding: 0.9rem 1.5rem;
         display: flex;
+        flex-direction: row;
         align-items: center;
         justify-content: space-between;
         gap: 1.5rem;
         flex-wrap: wrap;
+        text-align: initial;
       }
 
       body.has-shared-homepage-nav > header#${MARKER_ID} .brand {
@@ -103,14 +105,17 @@
 
       body.has-shared-homepage-nav > header#${MARKER_ID} nav {
         display: flex;
+        flex-direction: row;
         gap: 0.75rem;
         flex-wrap: wrap;
         justify-content: flex-end;
         align-items: center;
+        width: auto;
       }
 
       body.has-shared-homepage-nav > header#${MARKER_ID} .nav-links {
         display: flex;
+        flex-direction: row;
         gap: 0.75rem;
         flex-wrap: wrap;
         justify-content: flex-end;
@@ -258,6 +263,11 @@
           align-items: center;
           position: relative;
           z-index: 32;
+        }
+
+        body.has-shared-homepage-nav > header#${MARKER_ID} nav {
+          width: auto;
+          justify-content: flex-end;
         }
 
         body.has-shared-homepage-nav > header#${MARKER_ID} .brand-title,
