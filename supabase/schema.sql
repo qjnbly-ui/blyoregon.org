@@ -170,6 +170,23 @@ as $$
   );
 $$;
 
+create or replace function public.can_moderate_content_comments()
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and (
+        role in ('admin', 'moderator')
+        or can_review_articles = true
+        or can_publish_articles = true
+      )
+  );
+$$;
+
 create or replace function public.can_manage_bucket(bucket_name text)
 returns boolean
 language sql
@@ -594,10 +611,26 @@ create table if not exists public.community_comments (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.content_comments (
+  id uuid primary key default gen_random_uuid(),
+  entity_type text not null,
+  entity_slug text not null,
+  parent_id uuid references public.content_comments(id) on delete cascade,
+  author_id uuid not null references public.profiles(id) on delete cascade,
+  author_name text not null default '',
+  body text not null,
+  status text not null default 'published' check (status in ('published', 'pending', 'hidden')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create index if not exists community_posts_created_at_idx on public.community_posts (created_at desc);
 create index if not exists community_posts_author_id_idx on public.community_posts (author_id);
 create index if not exists community_comments_post_id_created_at_idx on public.community_comments (post_id, created_at asc);
 create index if not exists community_comments_author_id_idx on public.community_comments (author_id);
+create index if not exists content_comments_entity_created_at_idx on public.content_comments (entity_type, entity_slug, created_at asc);
+create index if not exists content_comments_author_id_idx on public.content_comments (author_id);
+create index if not exists content_comments_parent_id_idx on public.content_comments (parent_id);
 
 alter table public.profiles enable row level security;
 alter table public.photo_albums enable row level security;
@@ -615,6 +648,7 @@ alter table public.direct_threads enable row level security;
 alter table public.direct_messages enable row level security;
 alter table public.community_posts enable row level security;
 alter table public.community_comments enable row level security;
+alter table public.content_comments enable row level security;
 
 insert into storage.buckets (id, name, public)
 values ('profile-photos', 'profile-photos', true)
@@ -1308,6 +1342,54 @@ for delete
 to authenticated
 using (
   author_id = auth.uid()
+  or public.is_admin()
+);
+
+drop policy if exists "content comments public read" on public.content_comments;
+create policy "content comments public read"
+on public.content_comments
+for select
+using (
+  status = 'published'
+  or author_id = auth.uid()
+  or public.can_moderate_content_comments()
+  or public.is_admin()
+);
+
+drop policy if exists "content comments create own" on public.content_comments;
+create policy "content comments create own"
+on public.content_comments
+for insert
+to authenticated
+with check (
+  author_id = auth.uid()
+  and status in ('published', 'pending')
+);
+
+drop policy if exists "content comments edit own or moderator" on public.content_comments;
+create policy "content comments edit own or moderator"
+on public.content_comments
+for update
+to authenticated
+using (
+  author_id = auth.uid()
+  or public.can_moderate_content_comments()
+  or public.is_admin()
+)
+with check (
+  author_id = auth.uid()
+  or public.can_moderate_content_comments()
+  or public.is_admin()
+);
+
+drop policy if exists "content comments delete own or moderator" on public.content_comments;
+create policy "content comments delete own or moderator"
+on public.content_comments
+for delete
+to authenticated
+using (
+  author_id = auth.uid()
+  or public.can_moderate_content_comments()
   or public.is_admin()
 );
 
