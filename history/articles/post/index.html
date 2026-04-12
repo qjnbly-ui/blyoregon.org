@@ -185,11 +185,13 @@
       .subnav {
         margin-top: 0.85rem;
         padding: 0 0.75rem;
-        display: grid;
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
       }
       .subnav a {
-        width: 100%;
+        flex: 1 1 11rem;
+        min-width: 0;
         text-align: center;
         padding: 0.7rem 0.9rem;
       }
@@ -212,6 +214,9 @@
         padding-left: 0.65rem;
         padding-right: 0.65rem;
       }
+      .subnav a {
+        flex-basis: calc(50% - 0.4rem);
+      }
       .card {
         border-radius: 18px;
         padding: 1rem 0.9rem;
@@ -221,6 +226,11 @@
       }
       .body h3 {
         font-size: 1.05rem;
+      }
+    }
+    @media (max-width: 360px) {
+      .subnav a {
+        flex-basis: 100%;
       }
     }
   </style>
