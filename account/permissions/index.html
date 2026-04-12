@@ -29,8 +29,19 @@
       background: radial-gradient(circle at 15% 20%, rgba(244, 179, 91, 0.15), transparent 45%),
         radial-gradient(circle at 85% 10%, rgba(159, 179, 159, 0.2), transparent 55%),
         linear-gradient(180deg, #f7f2ea 0%, #fdfcf9 45%, #f3efe9 100%);
+      padding-top: var(--mobile-header-height);
     }
-    header { background: rgba(20,50,39,0.96); color: var(--white); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      background: rgba(20,50,39,0.96);
+      color: var(--white);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
     .header-inner {
       max-width: 1080px;
       margin: 0 auto;
@@ -248,8 +259,7 @@
     .warning { color: #8b322d; }
     footer { background: #162f25; color: rgba(255,255,255,0.7); text-align: center; padding: 1.5rem; font-size: 0.9rem; }
     @media (max-width: 760px) {
-      body { padding-top: var(--mobile-header-height); }
-      header { position: fixed; top: 0; left: 0; right: 0; z-index: 30; border-bottom: 0; }
+      header { border-bottom: 0; }
       .shell { padding: 1rem 0.75rem 2rem; }
       .hero, .card { padding: 1.1rem 1rem; border-radius: 20px; }
       .grid { grid-template-columns: 1fr; }
