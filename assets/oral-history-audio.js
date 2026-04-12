@@ -197,7 +197,7 @@
     const elapsed = document.createElement("span");
     elapsed.textContent = "0:00";
     const remaining = document.createElement("span");
-    remaining.textContent = "0:00 total";
+    remaining.textContent = "0:00";
 
     timeRow.append(elapsed, remaining);
     timeline.append(range, timeRow);
@@ -210,7 +210,7 @@
       const currentTime = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
       range.value = duration ? String((currentTime / duration) * 100) : "0";
       elapsed.textContent = formatTime(currentTime);
-      remaining.textContent = duration ? `${formatTime(duration)} total` : "Loading length...";
+      remaining.textContent = duration ? formatTime(duration) : "Loading length...";
       playButton.textContent = audio.paused ? "Play interview" : "Pause interview";
     }
 
