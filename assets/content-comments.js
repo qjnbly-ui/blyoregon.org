@@ -10,10 +10,19 @@
       .content-comments {
         display: grid;
         gap: 1rem;
+        padding: 1.4rem 1.5rem;
+        border-radius: 18px;
+        border: 1px solid rgba(31, 64, 48, 0.12);
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 20px 45px rgba(12, 26, 20, 0.12);
+      }
+      .content-comments > h2 {
+        margin: 0;
       }
       .content-comments-card {
         display: grid;
         gap: 1rem;
+        padding-top: 0.25rem;
       }
       .content-comments-loading,
       .content-comments-empty,
@@ -60,6 +69,7 @@
       .content-comments-form {
         display: grid;
         gap: 0.75rem;
+        padding-top: 0.2rem;
       }
       .content-comments-form label {
         display: grid;
@@ -100,6 +110,11 @@
       .content-comments-submit:disabled {
         opacity: 0.6;
         cursor: wait;
+      }
+      @media (max-width: 700px) {
+        .content-comments {
+          padding: 1.1rem 1rem;
+        }
       }
     `;
     document.head.appendChild(style);
