@@ -184,6 +184,31 @@
         overflow-y: auto;
       }
 
+      .site-primary-mobile-panel-inner {
+        width: min(100%, 34rem);
+        margin: 0 auto;
+        display: grid;
+        align-content: start;
+      }
+
+      .site-primary-mobile-panel-topbar {
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem 0 0.5rem;
+      }
+
+      .site-primary-panel-close {
+        appearance: none;
+        border: 1px solid rgba(20, 50, 39, 0.18);
+        background: rgba(255, 255, 255, 0.9);
+        color: #143227;
+        border-radius: 999px;
+        padding: 0.7rem 1rem;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
       .site-primary-mobile-panel[hidden] {
         display: none !important;
       }
@@ -199,7 +224,7 @@
 
       .site-primary-mobile-panel a {
         display: block;
-        padding: 1.7rem 0;
+        padding: 1.35rem 0;
         border: 0;
         border-bottom: 1px solid rgba(20, 50, 39, 0.18);
         background: none;
@@ -243,6 +268,10 @@
           gap: 0;
           padding: 0;
           font-size: 0;
+        }
+
+        .site-primary-mobile-panel {
+          padding: 0 1rem 1.5rem;
         }
       }
     `;
@@ -301,13 +330,27 @@
     const panel = document.createElement("div");
     panel.className = "site-primary-mobile-panel";
     panel.hidden = true;
-    [...LINKS, { href: "/login/", label: "Login", authLink: true }].forEach((link) => {
+    const panelInner = document.createElement("div");
+    panelInner.className = "site-primary-mobile-panel-inner";
+
+    const topbar = document.createElement("div");
+    topbar.className = "site-primary-mobile-panel-topbar";
+
+    const closeButton = document.createElement("button");
+    closeButton.className = "site-primary-panel-close";
+    closeButton.type = "button";
+    closeButton.textContent = "Close";
+
+    topbar.appendChild(closeButton);
+    panelInner.appendChild(topbar);
+
+    LINKS.forEach((link) => {
       const anchor = document.createElement("a");
       anchor.href = link.href;
       anchor.textContent = link.label;
-      if (link.authLink) anchor.dataset.authLink = "true";
-      panel.appendChild(anchor);
+      panelInner.appendChild(anchor);
     });
+    panel.appendChild(panelInner);
 
     function closeMenu() {
       document.body.classList.remove(BODY_OPEN_CLASS);
@@ -322,9 +365,13 @@
       panel.hidden = !opening;
     });
 
+    closeButton.addEventListener("click", closeMenu);
     panel.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !panel.hidden) closeMenu();
+    });
 
-    return { header, panel, authLinks: [login, mobileLogin, ...panel.querySelectorAll("[data-auth-link]")] };
+    return { header, panel, authLinks: [login, mobileLogin] };
   }
 
   async function syncAuthLinks(links) {
@@ -345,6 +392,11 @@
     body.insertBefore(panel, body.firstChild);
     body.insertBefore(header, panel);
     syncAuthLinks(authLinks).catch(() => null);
+    ensureAuth().then((auth) => {
+      auth?.onAuthStateChange?.(() => {
+        syncAuthLinks(authLinks).catch(() => null);
+      });
+    }).catch(() => null);
   }
 
   ensureStyles();
