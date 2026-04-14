@@ -2,6 +2,32 @@
   let supabaseClientPromise = null;
   let configPromise = null;
   const AUTH_CONFIG_CACHE_KEY = "bly:auth-config";
+  const FAVICON_HREF = "/assets/favicon-32.png";
+  const APPLE_TOUCH_ICON_HREF = "/assets/apple-touch-icon.png";
+
+  function ensureFavicon() {
+    if (typeof document === "undefined") return;
+
+    const ensureLink = (selector, rel) => {
+      let link = document.querySelector(selector);
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = rel;
+        document.head.appendChild(link);
+      }
+      link.href = rel === "apple-touch-icon" ? APPLE_TOUCH_ICON_HREF : FAVICON_HREF;
+      if (rel === "icon") {
+        link.type = "image/png";
+        link.sizes = "32x32";
+      }
+      return link;
+    };
+
+    ensureLink('link[rel="icon"]', "icon");
+    ensureLink('link[rel="apple-touch-icon"]', "apple-touch-icon");
+  }
+
+  ensureFavicon();
 
   function getStorage() {
     try {
