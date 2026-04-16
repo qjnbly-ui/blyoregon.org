@@ -5,11 +5,9 @@ const MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 const MAX_CONTEXT_TOKENS = 100000;
 const MAX_CONTEXT_WORDS = Math.floor(MAX_CONTEXT_TOKENS / 1.3);
 const DATA_DIR = path.join(__dirname, "..", "askbly", "site_text_data");
-const MINUTES_INDEX_PATH = path.join(__dirname, "..", "community", "cat-minutes", "index-search.json");
 
 let cachedContext = null;
 let cachedBusinesses = null;
-let cachedMinutes = null;
 
 async function loadSiteContext() {
   if (cachedContext) return cachedContext;
@@ -52,19 +50,6 @@ function buildSystemPrompt(siteContext) {
   );
 }
 
-function buildMinutesPrompt(minutesContext) {
-  return (
-    "You are the Bly Community Action Team minutes assistant.\n\n" +
-    "Answer questions using ONLY the meeting-minute excerpts provided below. " +
-    "If the answer is not in the excerpts, say that clearly. " +
-    "Do not invent dates, names, decisions, or project details. " +
-    "When possible, mention the month and year of the minutes you are using. " +
-    "Default to a natural narrative voice instead of bullet lists unless the user asks.\n\n" +
-    "Relevant CAT meeting minutes:\n" +
-    `${minutesContext}`
-  );
-}
-
 function sanitizeMessages(messages) {
   if (!Array.isArray(messages)) return [];
   return messages
@@ -74,75 +59,6 @@ function sanitizeMessages(messages) {
       content: entry.content.slice(0, 1200),
     }))
     .slice(-12);
-}
-
-async function loadMinutesEntries() {
-  if (cachedMinutes) return cachedMinutes;
-  try {
-    const content = await fs.readFile(MINUTES_INDEX_PATH, "utf8");
-    const parsed = JSON.parse(content);
-    cachedMinutes = Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    cachedMinutes = [];
-  }
-  return cachedMinutes;
-}
-
-function tokenizeQuery(text) {
-  return String(text || "").toLowerCase().match(/[a-z0-9]{3,}/g) || [];
-}
-
-function scoreMinutesEntry(entry, tokens, normalizedQuestion) {
-  const title = String(entry.title || "").toLowerCase();
-  const text = String(entry.text || "").toLowerCase();
-  let score = 0;
-
-  tokens.forEach((token) => {
-    if (title.includes(token)) score += 8;
-    if (text.includes(token)) score += 2;
-  });
-
-  if (normalizedQuestion && title.includes(normalizedQuestion)) score += 12;
-  return score;
-}
-
-function buildMinutesContext(entries, question, history) {
-  const joinedQuestion = [question]
-    .concat((history || []).filter((entry) => entry.role === "user").map((entry) => entry.content))
-    .join(" ");
-  const normalizedQuestion = joinedQuestion.trim().toLowerCase();
-  const tokens = tokenizeQuery(joinedQuestion);
-
-  const ranked = entries
-    .map((entry) => ({ entry, score: scoreMinutesEntry(entry, tokens, normalizedQuestion) }))
-    .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score || b.entry.year - a.entry.year || b.entry.month_num - a.entry.month_num)
-    .slice(0, 6)
-    .map((item) => item.entry);
-
-  const selected = ranked.length
-    ? ranked
-    : entries
-        .slice()
-        .sort((a, b) => b.year - a.year || b.month_num - a.month_num)
-        .slice(0, 3);
-
-  let wordsUsed = 0;
-  const maxWords = 12000;
-  const contextParts = [];
-
-  selected.forEach((entry) => {
-    const text = String(entry.text || "").trim();
-    if (!text) return;
-    const words = text.split(/\s+/);
-    const remaining = maxWords - wordsUsed;
-    if (remaining <= 0) return;
-    const excerpt = words.slice(0, remaining).join(" ");
-    wordsUsed += Math.min(words.length, remaining);
-    contextParts.push(`\n\n---\n\n${entry.title}\nSource file: ${entry.filename}\n${excerpt}`);
-  });
-
-  return contextParts.join("").trim();
 }
 
 function extractPhoneDigits(text) {
@@ -342,8 +258,6 @@ module.exports = async (req, res) => {
       .reverse()
       .find((entry) => entry.role === "user")?.content;
     const question = String(questionFromMessages || body.question || "").trim();
-    const scope = String(body.scope || "").trim().toLowerCase();
-
     if (!question && !rawMessages.length) {
       res.statusCode = 400;
       res.setHeader("Content-Type", "application/json");
@@ -409,32 +323,6 @@ module.exports = async (req, res) => {
           answer: "Which place are you asking about? I can share the exact address, phone, and website.",
         })
       );
-      return;
-    }
-
-    if (scope === "minutes") {
-      const minutesEntries = await loadMinutesEntries();
-      const minutesContext = buildMinutesContext(minutesEntries, question, rawMessages);
-
-      if (!minutesContext) {
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ answer: "I do not have the CAT minutes loaded right now. Please try again later." }));
-        return;
-      }
-
-      const conversation = rawMessages.length
-        ? rawMessages
-        : [{ role: "user", content: question }];
-
-      const answer = await askGroq([
-        { role: "system", content: buildMinutesPrompt(minutesContext) },
-        ...conversation,
-      ]);
-
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ answer: answer || "" }));
       return;
     }
 
