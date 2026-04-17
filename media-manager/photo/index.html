@@ -72,6 +72,29 @@
       border-color: rgba(255, 255, 255, 0.35);
       background: rgba(255, 255, 255, 0.12);
     }
+    nav a.active {
+      border-color: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--forest);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+      position: relative;
+    }
+    nav a.active::after {
+      content: "Current area";
+      position: absolute;
+      top: calc(100% + 0.35rem);
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.16rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      color: var(--white);
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
     .shell {
       flex: 1 0 auto;
       max-width: 1080px;
@@ -250,17 +273,17 @@
         <div class="brand-subtitle">A Community in Klamath County</div>
       </div>
       <nav>
-        <a href="/account/" class="account-link">Account</a>
-        <a href="/media-manager/">Media library</a>
+        <a href="/account/" class="account-link">Account home</a>
+        <a href="/media-manager/" class="active" aria-current="page">Media library</a>
       </nav>
     </div>
   </header>
 
   <div class="shell">
     <section class="hero">
-      <div class="eyebrow">Archive Editor</div>
+      <div class="eyebrow">Media Library</div>
       <h1 id="page-title">Edit photo details</h1>
-      <p id="page-intro">Loading archive metadata for this photo.</p>
+      <p id="page-intro">Loading archive metadata for this photo. This editor is part of the media library, not your main account dashboard.</p>
       <div class="hero-actions">
         <a id="back-link" class="pill-link" href="/media-manager/">Back to media library</a>
       </div>
