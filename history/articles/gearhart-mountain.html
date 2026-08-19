@@ -238,24 +238,6 @@
       color: rgba(255, 255, 255, 0.84);
     }
 
-    .qjn-yt-min-btn {
-      display: inline-block;
-      padding: 0.7rem 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      border-radius: 999px;
-      color: #ffffff;
-      font-size: 0.76rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: 0.15s ease;
-    }
-
-    .qjn-yt-min-btn:hover {
-      border-color: #ffffff;
-      transform: translateY(-2px);
-    }
-
     .sources {
       margin-top: 0.4rem;
       font-size: 0.96rem;
@@ -351,6 +333,72 @@
 
     .sources a:hover {
       text-decoration: underline;
+    }
+
+    .companion-story {
+      position: relative;
+      overflow: hidden;
+      padding: 2rem;
+      background:
+        radial-gradient(circle at top right, rgba(244, 179, 91, 0.2), transparent 18rem),
+        linear-gradient(145deg, #17392c 0%, #102920 100%);
+      color: rgba(255, 255, 255, 0.88);
+    }
+
+    .companion-story::after {
+      content: "";
+      position: absolute;
+      right: -2rem;
+      bottom: -4rem;
+      width: 13rem;
+      height: 13rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .companion-story .companion-label {
+      margin: 0 0 0.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sun);
+    }
+
+    .companion-story h2 {
+      position: relative;
+      z-index: 1;
+      color: #ffffff;
+      font-size: clamp(1.7rem, 3.5vw, 2.35rem);
+    }
+
+    .companion-story p {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+    }
+
+    .companion-story .companion-byline {
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 0.9rem;
+    }
+
+    .companion-link {
+      position: relative;
+      z-index: 1;
+      display: inline-block;
+      margin-top: 0.35rem;
+      padding: 0.72rem 1.2rem;
+      border-radius: 999px;
+      background: var(--sun);
+      color: #183126;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .companion-link:hover {
+      transform: translateY(-2px);
+      background: #ffc879;
     }
 
     footer {
@@ -557,9 +605,6 @@
         </div>
       </div>
 
-      <a href="https://www.youtube.com/@quentin.j.nichols" target="_blank" rel="noopener noreferrer" class="qjn-yt-min-btn">
-        View YouTube Channel
-      </a>
     </section>
 
     <section class="sources">
@@ -576,6 +621,13 @@
         <li><a href="https://pubs.usgs.gov/sir/2014/5223/pdf/sir2014-5223.pdf" target="_blank" rel="noopener noreferrer">U.S. Geological Survey: Sprague River Basin report PDF</a></li>
         <li><a href="https://www.usgs.gov/data/analysis-remotely-sensed-vegetation-conditions-during-droughts-and-a-mountain-pine-beetle" target="_blank" rel="noopener noreferrer">U.S. Geological Survey data release on vegetation conditions during drought and mountain pine beetle activity</a></li>
       </ol>
+    </section>
+    <section class="companion-story" aria-labelledby="companion-story-title">
+      <p class="companion-label">Continue the geological story</p>
+      <h2 id="companion-story-title">If you enjoyed this article, you may be interested in this one.</h2>
+      <p>Gearhart Mountain is one part of a much larger landscape. Travel east across Lake County and the forested high country gives way to Winter Rim, Abert Rim, broad lake beds, Warner Valley, and Crump Lake. This companion piece places those rims, basins, volcanoes, and ancient lakes on one timeline.</p>
+      <p class="companion-byline">A companion story by Quentin Nichols</p>
+      <a class="companion-link" href="/history/articles/gearhart-mountain-and-crump-lake/">Read East of Gearhart</a>
     </section>
     <section class="content-comments" data-entity-type="article"></section>
   </main>
