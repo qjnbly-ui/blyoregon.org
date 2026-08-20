@@ -426,6 +426,12 @@
       main { padding: 2rem 1rem 3.5rem; }
       .comparison, .image-pair { grid-template-columns: 1fr; }
       .image-pair img { min-height: 0; max-height: 560px; }
+      .image-pair .vertical img {
+        height: auto;
+        max-height: none;
+        object-fit: contain;
+        object-position: center;
+      }
       .timeline-wrap { padding: 1.45rem 1.1rem; }
       .timeline li { grid-template-columns: 1fr; gap: 0.35rem; }
       .event { margin-left: 0.4rem; }
